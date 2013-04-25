@@ -1,0 +1,431 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DC0EFA5D-E868-4E7D-82F9-4A3D93E462B1}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Warps</RootNamespace>
+    <AssemblyName>Warps</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="devDept.EyeshotNurbs">
+      <HintPath>..\Net40\devDept.EyeshotNurbs.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>..\Net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="NCalc">
+      <HintPath>..\Net40\NCalc.dll</HintPath>
+    </Reference>
+    <Reference Include="NPlot">
+      <HintPath>..\Net40\NPlot.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BSpline.cs" />
+    <Compile Include="Controls\AddGroup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\AddGroup.Designer.cs">
+      <DependentUpon>AddGroup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AutoCompleteTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ColorWheel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ColorWheelForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\ColorWheelForm.Designer.cs">
+      <DependentUpon>ColorWheelForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CurveEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CurveEditor.Designer.cs">
+      <DependentUpon>CurveEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EquationBoxAuto.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\EquationBoxAuto.Designer.cs">
+      <DependentUpon>EquationBoxAuto.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\GuideEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\GuideEditor.Designer.cs">
+      <DependentUpon>GuideEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VariableEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\VariableEditor.Designer.cs">
+      <DependentUpon>VariableEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\InputEquationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\InputEquationForm.Designer.cs">
+      <DependentUpon>InputEquationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PointTypeSwitcher.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PointTypeSwitcher.Designer.cs">
+      <DependentUpon>PointTypeSwitcher.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EquationBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\IFitEditor.cs" />
+    <Compile Include="Controls\VariableGroupEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\VariableGroupEditor.Designer.cs">
+      <DependentUpon>VariableGroupEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\View\ColorEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\View\ColorEditor.Designer.cs">
+      <DependentUpon>ColorEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\View\ColorMap.cs" />
+    <Compile Include="Controls\YarnGroupEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\YarnGroupEditor.Designer.cs">
+      <DependentUpon>YarnGroupEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Curves\CurveGroup.cs" />
+    <Compile Include="Controls\CurveGroupEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CurveGroupEditor.Designer.cs">
+      <DependentUpon>CurveGroupEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Curves\GuideComb.cs" />
+    <Compile Include="Curves\IMouldCurve.cs" />
+    <Compile Include="Equations\Equation.cs" />
+    <Compile Include="Equations\VariableGroup.cs" />
+    <Compile Include="Surfaces\CofMould.cs" />
+    <Compile Include="Surfaces\ComboMould.cs" />
+    <Compile Include="Surfaces\RBFMould.cs" />
+    <Compile Include="Testing\EquationEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Testing\EquationEditorForm.Designer.cs">
+      <DependentUpon>EquationEditorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Trackers\CurveGroupTracker.cs" />
+    <Compile Include="Trackers\CurveMaker.cs" />
+    <Compile Include="Curves\CurvePoint.cs" />
+    <Compile Include="Controls\CurvePointEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CurvePointEditor.Designer.cs">
+      <DependentUpon>CurvePointEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Trackers\CurveTracker.cs" />
+    <Compile Include="Controls\View\DualView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\View\DualView.Designer.cs">
+      <DependentUpon>DualView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EventArgs.cs" />
+    <Compile Include="Curves\FixedPoint.cs" />
+    <Compile Include="Controls\FixedPointEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\FixedPointEditor.Designer.cs">
+      <DependentUpon>FixedPointEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Curves\Geodesic.cs" />
+    <Compile Include="Curves\IFitPoint.cs" />
+    <Compile Include="Interfaces\IGroup.cs" />
+    <Compile Include="Interfaces\IRebuild.cs" />
+    <Compile Include="Surfaces\ISurface.cs" />
+    <Compile Include="Trackers\GuideCombTracker.cs" />
+    <Compile Include="Trackers\ITracker.cs" />
+    <Compile Include="Curves\MouldCurve.cs" />
+    <Compile Include="Sail.cs" />
+    <Compile Include="Controls\CurveImportEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CurveImportEditor.Designer.cs">
+      <DependentUpon>CurveImportEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Trackers\SailTracker.cs" />
+    <Compile Include="Trackers\VariableGroupTracker.cs" />
+    <Compile Include="Trackers\VariableTracker.cs" />
+    <Compile Include="Utilities\logger.cs" />
+    <Compile Include="Utilities\ScriptTools.cs" />
+    <Compile Include="Curves\SlidePoint.cs" />
+    <Compile Include="Curves\SurfaceCurve.cs" />
+    <Compile Include="Controls\TabTree.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TabTree.Designer.cs">
+      <DependentUpon>TabTree.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\Utilities.cs" />
+    <Compile Include="Utilities\Vect2.cs" />
+    <Compile Include="Utilities\Vect3.cs" />
+    <Compile Include="WarpFrame.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WarpFrame.Designer.cs">
+      <DependentUpon>WarpFrame.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Yarns\DensityComb.cs" />
+    <Compile Include="Yarns\YarnCurve.cs" />
+    <Compile Include="Yarns\YarnGroup.cs" />
+    <Compile Include="Yarns\YarnGroupTracker.cs" />
+    <EmbeddedResource Include="Controls\AddGroup.resx">
+      <DependentUpon>AddGroup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ColorWheelForm.resx">
+      <DependentUpon>ColorWheelForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CurveEditor.resx">
+      <DependentUpon>CurveEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CurveGroupEditor.resx">
+      <DependentUpon>CurveGroupEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CurvePointEditor.resx">
+      <DependentUpon>CurvePointEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\EquationBoxAuto.resx">
+      <DependentUpon>EquationBoxAuto.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\GuideEditor.resx">
+      <DependentUpon>GuideEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\VariableEditor.resx">
+      <DependentUpon>VariableEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\InputEquationForm.resx">
+      <DependentUpon>InputEquationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PointTypeSwitcher.resx">
+      <DependentUpon>PointTypeSwitcher.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\EquationBox.resx">
+      <DependentUpon>EquationBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PointTypeSwitcher.yo.resx">
+      <DependentUpon>PointTypeSwitcher.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\VariableGroupEditor.resx">
+      <DependentUpon>VariableGroupEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\View\ColorEditor.resx">
+      <DependentUpon>ColorEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\View\DualView.resx">
+      <DependentUpon>DualView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FixedPointEditor.resx">
+      <DependentUpon>FixedPointEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CurveImportEditor.resx">
+      <DependentUpon>CurveImportEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TabTree.resx">
+      <DependentUpon>TabTree.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\YarnGroupEditor.resx">
+      <DependentUpon>YarnGroupEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Testing\EquationEditorForm.resx">
+      <DependentUpon>EquationEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WarpFrame.resx">
+      <DependentUpon>WarpFrame.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RBF\RBF.csproj">
+      <Project>{8b4b72ec-9d6b-4aeb-8d55-beb4c61b03ab}</Project>
+      <Name>RBF</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glyphicons_190_circle_plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glyphicons_191_circle_minus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glyphicons_192_circle_remove.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glyphicons_193_circle_ok.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glyphicons_196_circle_exclamation_mark.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glyphicons_098_vector_path_curve.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CurveControlPointsIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_sail.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\curvepath.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\uv.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\empty.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glyphicons_097_vector_path_line.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SlidePoint1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FixedPoint.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CurvePoint.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\dragger.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glyphicons_224_chevron-left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\glyphicons_223_chevron-right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SmallEye.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\copy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\paste.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\copy1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\showonly.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="icon.ico" />
+    <None Include="Resources\Warps.png" />
+    <None Include="Resources\GuideComb.png" />
+    <None Include="Resources\yarns.png" />
+    <None Include="Resources\EqText.png" />
+    <None Include="Resources\EqNum.png" />
+    <None Include="Resources\VariableGroup.png" />
+    <None Include="Resources\equation.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

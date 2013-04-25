@@ -1,0 +1,606 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+using devDept.Eyeshot;
+using devDept.Geometry;
+using devDept.Eyeshot.Entities;
+using Warps.Controls;
+using Warps.Logger;
+using Warps.Yarns;
+using Warps.Trackers;
+
+namespace Warps
+{
+	public delegate void ObjectSelected(object sender, EventArgs<IRebuild> e);
+	public delegate void WriteStatus(string status);
+
+	public partial class WarpFrame : Form
+	{
+		public WarpFrame()
+		{
+			InitializeComponent();
+#if DEBUG
+			logger.Instance.CreateLogLocal("Warps");
+			logger.Instance.Log("new instance loaded", LogPriority.Debug);
+#endif
+			//set background color from existing icon
+			ButtonUnSelected = m_modCurve.BackColor;
+
+			SetStyle(ControlStyles.OptimizedDoubleBuffer |
+				    ControlStyles.UserPaint |
+				    ControlStyles.AllPaintingInWmPaint, true);
+
+			EditorPanel = null;//collapse edit panel
+
+			//toggle edit mode to ensure coloring
+			m_editButton.Checked = false;
+			m_editButton.Checked = true;//disable edit mode
+
+			//toggle auto mode to ensure coloring
+			m_autoBtn.Checked = true;
+			m_autoBtn.Checked = false;//enable automode
+
+			m_tree.AfterSelect += m_tree_AfterSelect;
+			View.SelectionChanged += m_tree_AfterSelect;
+			cancelButton.Click += cancelButton_Click;
+		}
+
+		public string Status
+		{
+			get { return m_statusText.Text; }
+			set { m_statusText.Text = value;}
+		}
+
+		public DualView View
+		{
+			get { return m_dualView; }
+		}
+		public TabTree Tree
+		{
+			get { return m_tree; }
+		}
+
+		#region OpenFile
+
+		Sail m_sail = null;
+		public Sail ActiveSail
+		{
+			get { return m_sail; }
+		}
+
+		void OpenFile(int preselect)
+		{
+			string[] files = WarpFrame.OpenFileDlg(preselect);
+			if (files != null && files.Length > 0)
+			{
+				foreach (string cof in files)
+					LoadSail(cof);
+			}
+		}
+
+		public static string[] OpenFileDlg(int extension)
+		{
+			OpenFileDialog ofd = new OpenFileDialog();
+			ofd.Filter = "cof files (*.cof)|*.cof|warp files (*.wrp)|*.wrp|All files (*.*)|*.*";
+			ofd.Multiselect = true;
+			ofd.FilterIndex = Math.Min(extension, 2);
+			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				return ofd.FileNames;
+			return null;
+		}
+
+		void LoadSail(string path)
+		{
+
+			Status = String.Format("Loading {0}", path);
+
+			Sail s = new Sail();
+
+			s.ReadFile(path);
+
+			m_sail = s;
+			//if (s.Layout == null || s.Layout.Count == 0)
+			//	CreateOuterCurves(s);
+			//else
+
+
+			m_tree.Add(s.WriteNode());
+
+			AddSailtoView(s);
+			Tree.ExpandToDepth(0);
+
+			//EquationEditor.Instance.SetSail(s);
+
+			//s.Rebuild(null);
+			Status = String.Format("{0} Loaded Successfully", path);
+		}
+
+		private void AddSailtoView(Sail s)
+		{
+			int nlayer = View.AddLayer("Mould", Color.Beige, true);
+			s.Mould.CreateEntities(null, false).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
+
+			nlayer = View.AddLayer("Gauss", Color.Beige, false);
+			s.Mould.CreateEntities(new double[,] { { -.2, 1.2 }, { -.2, 1.2 } }, true).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
+
+			s.Layout.ForEach(group => View.Add(group));
+
+			View.ZoomFit(true);
+		}
+
+		#endregion
+
+		#region Rebuild
+
+		public bool Rebuild(IRebuild tag)
+		{
+			if (tag != null)
+				tag.Update(ActiveSail);
+			if (AutoBuild)
+			{
+				//List<IRebuild> updated = ActiveSail.Rebuild(tag);
+				List<IRebuild> test = ActiveSail.GetConnected(tag);
+				DateTime before = DateTime.Now;
+				if(test!=null)
+					test.ForEach(item => item.Update(ActiveSail));
+				DateTime after = DateTime.Now;
+				Console.WriteLine("{0} ms", (after - before).Milliseconds);
+				StringBuilder b = new StringBuilder("Rebuilt:\n");
+				if(test!=null)
+					foreach (IRebuild item in test)//updated
+					{
+						UpdateViews(item);
+						b.AppendLine(item.ToString());
+					}
+#if DEBUG
+				MessageBox.Show(b.ToString());
+#endif
+			}
+			else if (tag != null)
+				UpdateViews(tag);
+			return AutoBuild;
+		}
+
+		//private void parallelRebuild(List<IRebuild> updated)
+		//{
+		//	Parallel.ForEach<IRebuild>(updated, item =>
+		//	{
+		//		item.Update();
+		//	});
+		//}
+
+		private void UpdateViews(IRebuild item)
+		{
+			View.Remove(item);
+			if (item is IGroup)
+			{
+				View.Add(item as IGroup);
+				(item as IGroup).WriteNode();
+			}
+			else if (item is MouldCurve)
+			{
+				View.Add(item as MouldCurve);
+				(item as MouldCurve).WriteNode();
+			}
+			else if (item is Equation)
+			{
+				(item as Equation).WriteNode();
+			}
+			Tree.Revalidate(item);
+		}
+
+		public int Delete(IRebuild tag)
+		{
+			if (AutoBuild)
+			{
+				//List<IRebuild> updated = ActiveSail.Rebuild(tag);
+				List<IRebuild> connected = ActiveSail.GetConnected(tag);
+				StringBuilder b = new StringBuilder("Invalid:\n");
+
+				foreach (IRebuild item in connected)
+				{
+					View.Invalidate(item);
+					Tree.Invalidate(item);
+					b.AppendLine(item.ToString());
+				}
+#if DEBUG
+				MessageBox.Show(b.ToString());
+#endif
+				Tree.Remove(tag);
+				ActiveSail.Remove(tag);
+				View.Refresh();
+				EditMode = false;
+				return connected.Count;
+			}
+						
+			return -1;
+		}
+
+		public bool AutoBuild
+		{
+			get { return !m_autoBtn.Checked; }
+		}
+		private void m_autoBtn_CheckedChanged(object sender, EventArgs e)
+		{
+			m_autoBtn.BackColor = AutoBuild ? ButtonSelected : ButtonUnSelected;
+			m_autoBtn.ForeColor = AutoBuild ? Color.White : Color.Black;
+		}
+
+		private void m_buildBtn_Click(object sender, EventArgs e)
+		{
+			//if (Tracker != null)
+			//{
+			//	Tracker = null;
+			//	EditPanel = null;
+			//}
+			//m_modCurve.BackColor = ButtonUnSelected;
+			if (Tree.SelectedTag is IRebuild)
+				Rebuild(Tree.SelectedTag as IRebuild);
+		}
+		private void m_cancelBtn_Click(object sender, EventArgs e)
+		{
+			if (m_Tracker != null)
+			{
+				m_Tracker.OnCancel(sender, e);
+				m_Tracker = null;
+				EditorPanel = null;
+			}
+			m_modCurve.BackColor = ButtonUnSelected;
+		}
+
+		#endregion
+
+		#region Toolbar New/Open/Save
+
+		private void newToolStripButton_Click(object sender, EventArgs e)
+		{
+			OpenFile(1);
+		}
+		private void openToolStripButton_Click(object sender, EventArgs e)
+		{
+			OpenFile(2);
+		}
+		private void saveToolStripButton_Click(object sender, EventArgs e)
+		{
+			//Sail s;
+			//if (m_sails != null && m_sails.Count > 0)
+			//	s = m_sails[0];
+			//else
+			//	return;
+			SaveFileDialog sfd = new SaveFileDialog();
+			sfd.DefaultExt = ".wrp";
+			sfd.AddExtension = true;
+			if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			{
+#if DEBUG
+				logger.Instance.Log("saving file: " + sfd.FileName, LogPriority.Debug);
+#endif
+				ActiveSail.WriteScriptFile(sfd.FileName);
+			}
+			//	m_tree.SaveScriptFile(sfd.FileName);
+		}
+
+		#endregion
+
+		private void m_addCurve_Click(object sender, EventArgs e)
+		{
+			if (ActiveSail == null)
+				return;
+			AddGroup dlg = new AddGroup();
+			dlg.Name = "enter name";
+			if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			{
+				IGroup grp = dlg.CreateGroup();
+				if (grp != null)
+				{
+					ActiveSail.Add(grp);
+					ActiveSail.Rebuild(null);
+				}
+			}
+		}
+
+		//private void m_editButton_Click(object sender, EventArgs e)
+		//{
+		//	m_editButton.Checked = !m_editButton.Checked;
+
+		//	m_editButton.BackColor = AutoBuild ? Color.SeaGreen : Color.IndianRed;
+		//	m_editButton.ForeColor = AutoBuild ? Color.White : Color.DarkRed;
+	
+
+		//	okButton.Enabled = m_editButton.Checked;
+		//	cancelButton.Enabled = m_editButton.Checked;
+		//	previewButton.Enabled = m_editButton.Checked;
+
+		//	if (m_Tracker != null)
+		//		m_Tracker.EditMode = m_editButton.Checked;
+
+		//}
+
+		Color ButtonSelected = Color.SeaGreen;
+		Color ButtonUnSelected = Color.FromKnownColor(KnownColor.Control);
+
+		#region Tracker
+
+		//entry point for trackers
+		public void m_tree_AfterSelect(object sender, EventArgs<IRebuild> e)
+		{
+			if (m_Tracker != null && m_Tracker.EditMode)
+				return; //dont do anything if we are already edit-tracking
+
+			Status = "";
+			View.DeSelectAll();
+			GC.Collect();
+
+			//if (m_Tracker != null)
+			//	ClearTracker();
+
+
+			ITracker track = null;
+
+			if (e.Value is MouldCurve)
+			{
+				if (e.Value is GuideComb)
+					track = new GuideCombTracker(e.Value as GuideComb);
+				else
+					track = new CurveTracker(e.Value as MouldCurve);
+			}
+			else if (e.Value is IGroup)
+			{
+				switch (e.Value.GetType().Name)
+				{
+					case "CurveGroup":
+						track = new CurveGroupTracker(e.Value as CurveGroup);
+						break;
+
+					case "VariableGroup":
+						track = new VariableGroupTracker(e.Value as VariableGroup);
+						break;
+
+					case "YarnGroup":
+						track = new YarnGroupTracker(e.Value as YarnGroup);
+						break;
+				}
+
+			}
+			else if (e.Value is Sail)
+			{
+				track = new SailTracker(EditMode);
+			}
+			else if (e.Value is Equation)
+			{
+				IGroup parent = ActiveSail.GetParentGroup(e.Value);
+				if (parent != null)
+				{
+					track = new VariableGroupTracker(parent as VariableGroup);
+				}
+			}
+
+			if (track != null)
+			{
+#if DEBUG
+				logger.Instance.Log(String.Format("Creating new {0} from {1}", track.GetType().Name, e.Value.GetType().Name), LogPriority.Debug);
+#endif
+				if (EditMode)
+					EditTracker(track);
+				else
+					ReadonlyTracker(track);
+			}
+
+		}
+
+		public bool EditMode 
+		{ 
+			get { return !m_editButton.Checked; }
+			set { 
+				m_editButton.Checked = !value; 
+				m_editButton_CheckedChanged(this, new EventArgs());
+			} 
+		}
+		private void m_editButton_CheckedChanged(object sender, EventArgs e)
+		{
+			m_editButton.BackColor = EditMode ? ButtonSelected : ButtonUnSelected;
+			m_editButton.ForeColor = EditMode ? Color.White : Color.Black;
+
+			okButton.Enabled = EditMode;
+			cancelButton.Enabled = EditMode;
+			previewButton.Enabled = EditMode;
+
+			if (m_Tracker != null)
+			{
+				m_Tracker.EditMode = EditMode;
+				if (EditMode)
+				{
+					okButton.Click += m_Tracker.OnBuild;
+					cancelButton.Click += m_Tracker.OnCancel;
+					previewButton.Click += m_Tracker.OnPreview;
+				}
+				else
+				{
+					okButton.Click -= m_Tracker.OnBuild;
+					cancelButton.Click -= m_Tracker.OnCancel;
+					previewButton.Click -= m_Tracker.OnPreview;
+				}
+			}
+		}
+
+		ITracker m_Tracker;
+		ITracker EditTracker(ITracker tracker)
+		{
+			if (tracker == null)
+				return null;
+
+			if (m_Tracker != null && m_Tracker.EditMode)
+				ClearTracker();
+
+			Status = "Editing " + tracker.GetType().Name;
+			m_Tracker = tracker;//post the new tracker
+
+			m_Tracker.Track(this);
+			okButton.Click += m_Tracker.OnBuild;
+			cancelButton.Click += m_Tracker.OnCancel;
+			previewButton.Click += m_Tracker.OnPreview;
+
+			return m_Tracker;//return it
+		}
+		ITracker ReadonlyTracker(ITracker tracker)
+		{
+			if (tracker == null)
+				return null;
+
+			if (m_Tracker != null && m_Tracker.EditMode)
+				return m_Tracker;//dont overwrite an existing edit-mode tracker
+
+			if (m_Tracker != null)//cancel any exising readonly-tracker
+				ClearTracker();
+
+			Status = "Inspecting " + tracker.GetType().Name;
+			m_Tracker = tracker;//post the new tracker
+			m_Tracker.Track(this);
+			return m_Tracker;//return it
+		}
+		void ClearTracker()
+		{
+			if (m_Tracker != null)
+				m_Tracker.OnCancel(this, null);//clear any existing tracker
+
+			okButton.Click -= m_Tracker.OnBuild;
+			cancelButton.Click -= m_Tracker.OnCancel;
+			previewButton.Click -= m_Tracker.OnPreview;
+
+			m_Tracker = null;
+			EditorPanel = null;
+		}
+
+		public Control EditorPanel
+		{
+			get
+			{
+				return editPanel.Controls.Count > 0 ? editPanel.Controls[0] : null;
+			}
+			set
+			{
+				editPanel.SuspendLayout();
+
+				editPanel.Controls.Clear();
+				if (value != null)
+				{
+					editPanel.Controls.Add(value);
+					value.Dock = DockStyle.Fill;
+					if (m_horizsplit.Panel2Collapsed)
+						m_horizsplit.Panel2Collapsed = false;
+				}
+				else
+					m_horizsplit.Panel2Collapsed = true;
+
+				editPanel.ResumeLayout();
+
+			}
+		}
+
+
+
+		#region Ok/Cancel/Preview Buttons
+
+		private void okButton_MouseEnter(object sender, EventArgs e)
+		{
+			//(sender as Button).ForeColor = Color.White;
+			if (sender == okButton)
+				okButton.BackColor = Color.SeaGreen;
+			else if (sender == cancelButton)
+				cancelButton.BackColor = Color.Pink;
+			else if (sender == previewButton)
+				previewButton.BackColor = Color.LightSkyBlue;
+		}
+		private void okButton_MouseLeave(object sender, EventArgs e)
+		{
+			//(sender as Button).ForeColor = Color.Black;
+			if (sender == okButton)
+				okButton.BackColor = Color.White;
+			else if (sender == cancelButton)
+				cancelButton.BackColor = Color.White;
+			else if (sender == previewButton)
+				previewButton.BackColor = Color.White;
+
+		}
+		void cancelButton_Click(object sender, EventArgs e)
+		{
+			ClearTracker();
+		}
+		#endregion
+
+		#endregion
+
+		private void helpToolStripButton_Click(object sender, EventArgs e)
+		{
+			//Geodesic geo = new Geodesic("Geo", ActiveSail, new IFitPoint[] { new FixedPoint(.1, .1), new FixedPoint(.1, .9) });
+			SurfaceCurve lu = new SurfaceCurve("v1", ActiveSail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(0, 1) });
+			SurfaceCurve mi = new SurfaceCurve("v2", ActiveSail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(.3, .5), new FixedPoint(0, 1) });
+			SurfaceCurve le = new SurfaceCurve("v3", ActiveSail, new IFitPoint[] { new FixedPoint(0.5, 0), new FixedPoint(.5, .5), new FixedPoint(0.5, 1) });
+			SurfaceCurve v4 = new SurfaceCurve("v4", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(.8, .5), new FixedPoint(1, 1) });
+			SurfaceCurve v5 = new SurfaceCurve("v5", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(1, 1) });
+
+			CurveGroup grp = new CurveGroup("Warps", ActiveSail);
+			grp.Add(lu);
+			grp.Add(mi);
+			grp.Add(le);
+			grp.Add(v4);
+			grp.Add(v5);
+			//grp.Add(guide);
+
+			GuideComb guide = new GuideComb("Guide", ActiveSail,
+				new IFitPoint[] {
+					new FixedPoint(0, .5), 
+					new FixedPoint(1, .5) },
+				new Vect2[] { 
+					new Vect2(0, 1), 
+					new Vect2(.3, .9),
+					new Vect2(.5, .5), 
+					new Vect2(.7, .2), 
+					new Vect2(1, .1) });
+			CurveGroup guides = new CurveGroup("Guides", ActiveSail);
+			guides.Add(guide);
+			ActiveSail.Add(grp);
+			ActiveSail.Add(guides);
+
+
+			YarnGroup LuYar = new YarnGroup("LuYar", ActiveSail, 12780);
+			//if (LuYar.LayoutYarns(new List<MouldCurve>() { lu, mi, le }, guide, 14416) > 0)
+			//DateTime now = DateTime.Now;
+
+			//LuYar.LayoutYarns(grp, guide, 14416, LuYar.SpreadYarnsAlongGuide);
+			//TimeSpan gde = DateTime.Now - now;
+			//now = DateTime.Now;
+
+			//LuYar.LayoutYarns(grp, guide, 14416, LuYar.SpreadYarnsAcrossWarps);
+			//TimeSpan wrps = DateTime.Now - now;
+			//now = DateTime.Now;
+
+			//MessageBox.Show(string.Format("AcrossWarps: {0}\nAlongGuide: {1}", wrps.TotalMilliseconds, gde.TotalMilliseconds));
+
+			if (LuYar.LayoutYarns(grp, guide, 14416) > 0)
+				ActiveSail.Add(LuYar);
+
+			//Yarns.YarnGroup LeYar = new Yarns.YarnGroup("LeYar", ActiveSail, 12780);
+			//if (LeYar.LayoutYarns(new List<MouldCurve>() { mi, le }, guide, 14416) > 0)
+			//	ActiveSail.Add(LeYar);
+
+			ActiveSail.Rebuild(null);
+			UpdateViews(guides);
+			UpdateViews(grp);
+			UpdateViews(LuYar);
+			//Rebuild(grp);
+			//Rebuild(grp);
+			//Rebuild(guides);
+			//Rebuild(LuYar);
+			View.Refresh();
+		}
+
+	}
+}
