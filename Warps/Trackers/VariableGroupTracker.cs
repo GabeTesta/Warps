@@ -65,6 +65,7 @@ namespace Warps
 		void m_eqEditor_OnVariableAdded(object sender, Equation addedEq)
 		{
 			m_frame.Rebuild(m_group);
+			m_edit.Equations = m_group.ToArray();
 		}
 
 		bool m_editMode = false;

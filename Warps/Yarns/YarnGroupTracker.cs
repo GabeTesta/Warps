@@ -26,6 +26,7 @@ namespace Warps.Yarns
 
 			if (m_frame != null && m_group != null)
 			{
+				m_edit.sail = Sail;
 				m_frame.EditorPanel = Edit;
 				EditMode = m_frame.EditMode;
 
@@ -87,6 +88,11 @@ namespace Warps.Yarns
 			get { return m_frame != null ? m_frame.View : null; }
 		}
 
+		Sail Sail
+		{
+			get { return m_frame != null ? m_frame.ActiveSail : null; }
+		}
+		
 		TabTree Tree
 		{
 			get { return m_frame != null ? m_frame.Tree : null; }
@@ -166,8 +172,7 @@ namespace Warps.Yarns
 			//CurveGroup g = Curve.Group as CurveGroup;
 			//if (yarGroup != null)
 			//{
-				//g.Remove(yarGroup);
-				m_frame.Rebuild(yarGroup);
+				//g.Remove(yarGroup);		
 			//}
 			m_frame.Delete(yarGroup);
 			//if (yarGroup != null)
@@ -217,8 +222,8 @@ namespace Warps.Yarns
 			Edit.Done();
 			OnPreview(sender, null);
 			yarGroup.Warps = Edit.SelectedWarps;
-			yarGroup.YarnDenier = Edit.YarnDenier;
-			yarGroup.TargetDpi = Edit.TargetDPI;
+			yarGroup.YarnDenierEqu = Edit.YarnDenierEqu;
+			yarGroup.TargetDenierEqu = Edit.TargetDPIEqu;
 			yarGroup.Guide = Edit.Guide;
 			yarGroup.DensityPos = Edit.sPos;
 

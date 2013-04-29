@@ -34,6 +34,15 @@ namespace Warps
 			m_text = value.ToString();
 			IsNumber();
 		}
+
+		public Equation(string label, double value, Sail s)
+		{
+			// TODO: Complete member initialization
+			m_label = label;
+			m_text = value.ToString();
+			sail = s;
+			IsNumber();
+		}
 		Sail m_sail = null;
 		string m_text = null;
 		string m_label = null;
@@ -263,7 +272,8 @@ namespace Warps
 			if (ee == null)
 				ee = new Warps.Controls.VariableEditor(Label, EquationText);
 			ee.sail = sail;
-			ee.AutoFillData = sail.GetAutoFillData(this).ToArray();
+			if(sail!=null)
+				ee.AutoFillData = sail.GetAutoFillData(this).ToArray();
 			ee.Tag = GetType();
 			//ee.Label = GetType().Name;
 			return edit;

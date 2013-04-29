@@ -19,7 +19,15 @@ namespace Warps
 		{
 			Label = label;
 			Sail = s;
+			m_yarnDenier = new Equation("yd", yarnDenier, s); // individual yarn denier (input)
+		}
+
+		public YarnGroup(string label, Sail s, Equation yarnDenier, Equation targetDPI)
+		{
+			Label = label;
+			Sail = s;
 			m_yarnDenier = yarnDenier; // individual yarn denier (input)
+			m_targetDenier = targetDPI;
 		}
 
 		#region Members
@@ -29,8 +37,24 @@ namespace Warps
 		Sail m_sail;
 
 		//Yarn Materials
-		double m_targetDenier = 0;
-		double m_yarnDenier = 0;
+		//double m_targetDenier = 0;
+		//double m_yarnDenier = 0;
+
+		Equation m_yarnDenier = new Equation("yd", 0.0);
+		Equation m_targetDenier = new Equation("td", 0.0);
+
+		public Equation YarnDenierEqu
+		{
+			get { return m_yarnDenier; }
+			set { m_yarnDenier = value; }
+		}
+		
+		public Equation TargetDenierEqu
+		{
+			get { return m_targetDenier; }
+			set { m_targetDenier = value; }
+		}
+
 		public double AchievedDpi = 0;
 
 		//Fitting Values
@@ -60,13 +84,13 @@ namespace Warps
 		}
 		public double TargetDpi
 		{
-			get { return m_targetDenier; }
-			set { m_targetDenier = value; }
+			get { return m_targetDenier.Result; }
+			set { if(m_targetDenier.IsNumber()) m_targetDenier.Value = value; }
 		}
 		public double YarnDenier
 		{
-			get { return m_yarnDenier; }
-			set { m_yarnDenier = value; }
+			get { return m_yarnDenier.Result; }
+			set { if(m_yarnDenier.IsNumber()) m_yarnDenier.Value = value; }
 		}
 		public List<double> DensityPos
 		{
@@ -1108,18 +1132,18 @@ namespace Warps
 
 		#region IRebuild Members
 
-		public bool Rebuild(List<IRebuild> parents)
-		{
-			bool bupdate = Affected(parents);
+		//public bool Rebuild(List<IRebuild> parents)
+		//{
+		//	bool bupdate = Affected(parents);
 
-			if (bupdate && parents != null)
-				parents.Add(this);
+		//	if (bupdate && parents != null)
+		//		parents.Add(this);
 
-			if (bupdate)
-				LayoutYarns();
+		//	if (bupdate)
+		//		LayoutYarns();
 
-			return bupdate;
-		}
+		//	return bupdate;
+		//}
 
 		public bool Affected(List<IRebuild> connected)
 		{
@@ -1127,20 +1151,26 @@ namespace Warps
 			if (!bupdate)
 			{
 				bupdate |= connected.Contains(m_guide);
-				foreach (MouldCurve warp in Warps)
+				foreach (MouldCurve warp in m_Warps)
 					bupdate |= connected.Contains(warp);
+				bupdate |= TargetDenierEqu == null ? false : TargetDenierEqu.Affected(connected);
+				bupdate |= YarnDenierEqu == null ? false : YarnDenierEqu.Affected(connected);
 			}
 			return bupdate;
 		}
 
-		public bool Update() { 
-			LayoutYarns(); 
-			return true; 
-		}
+		//public bool Update() { 
+		//	LayoutYarns(); 
+		//	return true; 
+		//}
 		public bool Update(Sail s)
 		{
-			LayoutYarns();
-			return true;
+			bool ret = true;
+			ret &= YarnDenierEqu.Evaluate(s) != Double.NaN;
+			ret &= TargetDenierEqu.Evaluate(s) != Double.NaN;
+			if(ret)
+				ret &= LayoutYarns() == -1;
+			return ret;
 		}
 
 		public bool Delete() { return false; }
@@ -1173,36 +1203,35 @@ namespace Warps
 				splits = lines[0].Split(':');
 				if (splits.Length > 0)
 				{
-					if (splits[0].ToLower().Contains("targetdpi"))
-						m_targetDenier = Convert.ToDouble(splits[1]);
-					else if (splits[0].ToLower().Contains("yarndenier"))
-						m_yarnDenier = Convert.ToDouble(splits[1]);
+					if (splits[0].ToLower().Contains("td"))
+						m_targetDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'), sail);
+					else if (splits[0].ToLower().Contains("yd"))
+						m_yarnDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'), sail);
+
 					else if (splits[0].ToLower().Contains("scale"))
 						m_Scale = Convert.ToDouble(splits[1]);
-
 					else if (splits[0].ToLower().Contains("guide"))
 						m_guide = sail.FindCurve(splits[1].Trim()) as GuideComb;
-
 					else if (splits[0].ToLower().Contains("warps"))
 					{
 						for (int i = 1; i < lines.Count; i++)
-							Warps.Add(sail.FindCurve(lines[i].Trim()));
-						
+							m_Warps.Add(sail.FindCurve(lines[i].Trim()));
+
 					}
-					else if (splits[0].ToLower().Contains("densitypos"))
+					else if (splits[0].ToLower().Contains("spos"))
 					{
-						m_CombPos.Clear();
+						DensityPos.Clear();
 						string[] dat = splits[1].Split(new char[] { ',' });
 						foreach (string s in dat)
 						{
 							if (s == " ") continue;
-							m_CombPos.Add(Convert.ToDouble(s));
+							DensityPos.Add(Convert.ToDouble(s));
 						}
 					}
 				}
 			}
-			
-			Update();
+
+			Update(sail);
 
 			return true;
 		}
@@ -1211,18 +1240,19 @@ namespace Warps
 		{
 			List<string> script = new List<string>();
 			script.Add(GetType().Name + ": " + Label);
-			script.Add("\tTargetDPI: " + m_targetDenier);
-			script.Add("\tYarnDenier: " + m_yarnDenier);
+			//script.Add("\tTargetDPI: ");
+			script.Add("\t" + m_targetDenier.ToString());
+			script.Add("\t" + m_yarnDenier.ToString());
 			script.Add("\tScale: " + m_Scale);
 			script.Add("\tGuide: " + m_guide.Label);
 			script.Add("\tWarps: ");
-			foreach( MouldCurve w in Warps)
+			foreach (MouldCurve w in m_Warps)
 				script.Add("\t\t" + w.Label);
-			string s = "\tDensityPos: ";
+			string s = "\tsPos: ";
 			foreach (double v in DensityPos)
 				s += v.ToString() + ", ";
 			script.Add(s);
-			
+
 			return script;
 		}
 

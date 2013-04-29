@@ -539,6 +539,16 @@ namespace Warps
 
 		private void helpToolStripButton_Click(object sender, EventArgs e)
 		{
+			if (ActiveSail == null)
+				return;
+
+			VariableGroup varGroup = new VariableGroup("Vars", ActiveSail);
+			varGroup.Add(new Equation("yarScale", 1.0, ActiveSail));
+			varGroup.Add(new Equation("yarnDPI", "yarScale * 12780", ActiveSail));
+			varGroup.Add(new Equation("targetScale", 1.0, ActiveSail));
+			varGroup.Add(new Equation("targetDPI", "targetScale * 14416", ActiveSail));
+			ActiveSail.Add(varGroup);
+
 			ActiveSail.CreateOuterCurves();
 
 			//Geodesic geo = new Geodesic("Geo", ActiveSail, new IFitPoint[] { new FixedPoint(.1, .1), new FixedPoint(.1, .9) });
@@ -582,9 +592,14 @@ namespace Warps
 					new Vect2(1, 1) });
 			guides.Add(guide);
 
+			YarnGroup yar = new YarnGroup("yar1", ActiveSail, varGroup["yarnDPI"], varGroup["targetDPI"]);
+			yar.Warps.Add((ActiveSail.FindGroup("Outer") as CurveGroup)[0]);
+			yar.Warps.Add((ActiveSail.FindGroup("Outer") as CurveGroup)[1]);
+			yar.Guide = guide;
+			yar.DensityPos = new List<double>() { 0.2, 0.8 };
 			ActiveSail.Add(grp);
 			ActiveSail.Add(guides);
-
+			ActiveSail.Add(yar);
 			UpdateViews(grp);
 			UpdateViews(guides);
 
@@ -605,7 +620,8 @@ namespace Warps
 
 			UpdateViews(guides);
 			UpdateViews(grp);
-
+			yar.Update(ActiveSail);
+			UpdateViews(yar);
 			//if (LuYar.LayoutYarns(grp, guide, 14416) > 0
 			//	|| MessageBox.Show(String.Format("Failed to match Target Dpi\nTarget: {0}\nAchieved: {1}\nContinue Anyway?", LuYar.TargetDpi, LuYar.AchievedDpi), "Yarn Generation Failed", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes )
 			//	ActiveSail.Add(LuYar);

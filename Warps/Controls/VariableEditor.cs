@@ -37,7 +37,11 @@ namespace Warps.Controls
 			if (ReturnPress != null)
 				ReturnPress(sender, e);
 		}
-
+		public bool Selected
+		{
+			get { return m_selectedCheckbox.Checked; }
+			set { m_selectedCheckbox.Checked = value; }
+		}
 		public string Label
 		{
 			set

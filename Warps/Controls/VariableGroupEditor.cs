@@ -47,8 +47,7 @@ namespace Warps.Controls
 				foreach (KeyValuePair<string,Equation> eq in value)
 					Add(eq.Key, eq.Value);
 
-				Count = value.Length;
-
+				Count = m_group.Count;
 				m_flow.ResumeLayout();
 			}
 		}
@@ -61,7 +60,7 @@ namespace Warps.Controls
 		void Add(string label, Equation eq)
 		{
 			VariableEditor ve = eq.WriteEditor(null);
-			ve.Size = new System.Drawing.Size(406, 28);
+			//ve.Size = new System.Drawing.Size(159, 50);
 			m_flow.Controls.Add(ve);
 			ve.ReturnPress += ve_ReturnPress;
 		}
@@ -90,12 +89,33 @@ namespace Warps.Controls
 		{
 			get
 			{
-				return m_labelBox.Enabled;
+				return this.Enabled;
 			}
 			set
 			{
-				m_labelBox.Enabled = value;
-				m_flow.Enabled = value;
+				this.Enabled = value;
+			}
+		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			Add("new var", new Equation());
+			Count = m_group.Count;
+		}
+
+		private void button2_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show("delete selected variables?","", MessageBoxButtons.YesNo) == DialogResult.Yes)
+			{
+				foreach (VariableEditor ved in m_flow.Controls)
+				{
+					if (ved.Selected)
+					{
+						ved.ReturnPress -= ve_ReturnPress;
+						m_group.Remove(ved.Label);
+					}
+				}
+				Equations = m_group.ToArray();
 			}
 		}
 	}

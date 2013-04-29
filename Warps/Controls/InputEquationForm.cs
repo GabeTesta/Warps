@@ -30,14 +30,14 @@ namespace Warps.Controls
 			// TODO: Complete member initialization
 			autoCompleteTextBox1.Values = AutoFillVariables.ToArray();
 
-			autoCompleteTextBox1.Text = currentText.Replace("=","");
+			autoCompleteTextBox1.Text = currentText;
 
 			AutoFillVariables.ForEach(var =>
 			{
 				if (var is MouldCurve)
 					CurveListBox.Items.Add(var);
 				else if (var is Equation)
-					EquationListBox.Items.Add(var);
+					EquationListBox.Items.Add((var as Equation).Label);
 			});
 
 		}
@@ -60,6 +60,16 @@ namespace Warps.Controls
 			if (OnVariableAdded != null)
 				OnVariableAdded(this, autoCompleteTextBox1.Text.TrimStart(new char[]{' '}));
 			this.Close();
+		}
+
+		private void EquationListBox_MouseDoubleClick(object sender, MouseEventArgs e)
+		{
+			autoCompleteTextBox1.Text += EquationListBox.SelectedItem.ToString();
+		}
+
+		private void CurveListBox_MouseDoubleClick(object sender, MouseEventArgs e)
+		{
+			autoCompleteTextBox1.Text += CurveListBox.SelectedItem.ToString();
 		}
 	}
 }
