@@ -117,12 +117,11 @@ namespace Warps
 			{
 				Tree.ContextMenuStrip = new ContextMenuStrip();
 				Tree.ContextMenuStrip.Items.Add("Add Curve", new Bitmap(Warps.Properties.Resources.glyphicons_190_circle_plus), OnAddCurveItemClick);
-				Tree.ContextMenuStrip.Items.Add("Add Girth", new Bitmap(Warps.Properties.Resources.glyphicons_190_circle_plus), OnAddGirthItemClick);
 				Tree.ContextMenuStrip.Items.Add("Add Guide Comb", new Bitmap(Warps.Properties.Resources.glyphicons_190_circle_plus), OnAddGuideCombClick);
 				Tree.ContextMenuStrip.Items.Add("Delete", new Bitmap(Warps.Properties.Resources.glyphicons_192_circle_remove), OnRemoveCurveItemClick);
 				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
 				Tree.ContextMenuStrip.Items.Add("Copy Group", new Bitmap(Warps.Properties.Resources.copy), OnCopy);
-				Tree.ContextMenuStrip.Items.Add("Paste Group", new Bitmap(Warps.Properties.Resources.paste), OnPaste);
+				Tree.ContextMenuStrip.Items.Add("Paste Curve", new Bitmap(Warps.Properties.Resources.paste), OnPaste);
 				Tree.ContextMenuStrip.Items[Tree.ContextMenuStrip.Items.Count - 1].Enabled = ClipboardContainsCurveType();
 				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
 				Tree.ContextMenuStrip.Items.Add("Show Only", new Bitmap(Warps.Properties.Resources.showonly), OnShowOnlyClick);
@@ -147,7 +146,7 @@ namespace Warps
 		{
 			for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
 			{
-				if (Tree.ContextMenuStrip.Items[i].Text == "Paste Group")
+				if (Tree.ContextMenuStrip.Items[i].Text == "Paste Curve")
 					Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsCurveType();
 				if (Tree.ContextMenuStrip.Items[i].Text.ToLower().Contains("add") || Tree.ContextMenuStrip.Items[i].Text.ToLower().Contains("delete"))
 					Tree.ContextMenuStrip.Items[i].Enabled = EditMode;
@@ -182,7 +181,7 @@ namespace Warps
 		void OnAddCurveItemClick(object sender, EventArgs e)
 		{
 			//m_frame.Rebuild()
-			m_curveTracker = new CurveTracker(new SurfaceCurve("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
+			m_curveTracker = new CurveTracker(new MouldCurve("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
 			m_curveTracker.Track(m_frame);
 		}
 
@@ -194,7 +193,7 @@ namespace Warps
 
 		void OnAddGirthItemClick(object sender, EventArgs e)
 		{
-			m_curveTracker = new CurveTracker(new Geodesic("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
+			m_curveTracker = new CurveTracker(new MouldCurve("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
 			m_curveTracker.Track(m_frame);
 		}
 		void OnRemoveCurveItemClick(object sender, EventArgs e)
@@ -312,7 +311,7 @@ namespace Warps
 			Clipboard.SetData(m_group.GetType().Name, Utilities.Serialize(m_group.WriteScript()));
 			//Get data from clipboard
 			m_frame.Status = String.Format("{0}:{1} Copied", m_group.GetType().Name, m_group.Label);
-
+			m_frame.ClearTracker();//clear tracker so user can select sail and paste it
 		}
 
 		public void OnPaste(object sender, EventArgs e)
@@ -430,8 +429,6 @@ namespace Warps
 		{
 			return Clipboard.ContainsData(typeof(CurveGroup).Name)
 				|| Clipboard.ContainsData(typeof(MouldCurve).Name)
-				|| Clipboard.ContainsData(typeof(SurfaceCurve).Name)
-				|| Clipboard.ContainsData(typeof(Geodesic).Name)
 				|| Clipboard.ContainsData(typeof(GuideComb).Name);
 		}
 
@@ -441,10 +438,6 @@ namespace Warps
 				return typeof(CurveGroup);
 			else if (Clipboard.ContainsData(typeof(MouldCurve).Name))
 				return typeof(MouldCurve);
-			else if (Clipboard.ContainsData(typeof(SurfaceCurve).Name))
-				return typeof(SurfaceCurve);
-			else if (Clipboard.ContainsData(typeof(Geodesic).Name))
-				return typeof(Geodesic);
 			else if (Clipboard.ContainsData(typeof(GuideComb).Name))
 				return typeof(GuideComb);
 

@@ -16,9 +16,10 @@ namespace Warps
 		string m_path = null;
 		double m_error = -1;
 
-		public RBFMould(string cofpath)
+		public RBFMould() { }
+		public RBFMould(Sail sail, string cofpath)
 		{
-			ReadCofFile(cofpath);
+			ReadCofFile(sail, cofpath);
 		}
 		public RBFMould(string label, ISurface cof)
 		{
@@ -31,10 +32,9 @@ namespace Warps
 			Fit(cof);
 		}
 
-
-		private void ReadCofFile(string cofpath)
+		public void ReadCofFile(Sail sail, string cofpath)
 		{
-			CofMould cof = new CofMould(cofpath);
+			CofMould cof = new CofMould(sail, cofpath);
 			m_label = "RBF" + cof.Label;
 			m_path = cof.CofPath;
 			Fit(cof);
@@ -202,7 +202,7 @@ namespace Warps
 			string line = ScriptTools.ReadLabel(txt[0]);
 			if (line != null)
 			{
-				ReadCofFile(line);
+				ReadCofFile(sail, line);
 				return true;
 			}
 			return false;
@@ -214,12 +214,29 @@ namespace Warps
 			return s;
 		}
 
+		System.Windows.Forms.TreeNode m_node;
+		public System.Windows.Forms.TreeNode WriteNode()
+		{
+			if (m_node == null)
+				m_node = new System.Windows.Forms.TreeNode();
+			m_node.Text = string.Format("{0}: {1}", GetType().Name, Label);
+			m_node.Tag = this;
+			m_node.ImageKey = GetType().Name;
+			m_node.SelectedImageKey = GetType().Name;
+			m_node.Nodes.Clear();
+			if( m_path != null && m_path.Length > 0 )
+				m_node.Nodes.Add("Path: " + m_path);
+			m_node.Nodes.Add("Error: " + m_error);
+			return m_node;
+		}
+
 		#endregion
 
 		public override string ToString()
 		{
 			return Label;
 		}
+
 
 	}
 }

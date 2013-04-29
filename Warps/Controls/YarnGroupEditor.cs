@@ -18,8 +18,7 @@ namespace Warps.Controls
 		{
 			InitializeComponent();
 			ImageList imageList = new ImageList();
-			imageList.Images.Add("SurfaceCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
-			imageList.Images.Add("Geodesic", Warps.Properties.Resources.glyphicons_097_vector_path_line);
+			imageList.Images.Add("MouldCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
 
 			m_warpListView.SmallImageList = imageList;
 			m_warpListView.LargeImageList = imageList;
@@ -33,27 +32,11 @@ namespace Warps.Controls
 			m_guideListView.StateImageList = imgList2;
 
 			m_group = group;
-			sail = m_group.Sail;
-			targetDPIEQB.sail = sail;
-			yarnDenierEQB.sail = sail;
-			fillEditorWithData();
+			if( m_group != null )
+				fillEditorWithData();
 		}
 
 		YarnGroup m_group;
-		Sail m_sail = null;
-
-		public Sail sail
-		{
-			get { return m_sail; }
-			set 
-			{ 
-				m_sail = value;
-				targetDPIEQB.Prep(m_sail, YarnGroup);
-				yarnDenierEQB.Prep(m_sail, YarnGroup);
-				targetDPIEQB.Text = m_group.TargetDenier != null ? m_group.TargetDenier.EquationText : "0";
-				yarnDenierEQB.Text = m_group.YarnDenier != null ? m_group.YarnDenier.EquationText : "0";
-			}
-		}
 
 		public YarnGroup YarnGroup
 		{
@@ -62,7 +45,6 @@ namespace Warps.Controls
 		}
 
 		DualView m_view = null;
-
 		public DualView View
 		{
 			get { return m_view; }
@@ -75,16 +57,16 @@ namespace Warps.Controls
 		{
 			m_labelTextBox.Text = m_group.Label;
 			populateWarpBox();
-			m_guideListView.Items.Add(m_group.Guide.Label, m_group.Guide.Label, "GuideComb");
-			//targetdpiTB.Text = m_group.TargetDenier.ToString();
-			//yarnDenierTB.Text = m_group.YarnDenier.ToString();
-			
+			if(m_group.Guide != null )
+				m_guideListView.Items.Add(m_group.Guide.Label, m_group.Guide.Label, "GuideComb");
+			targetdpiTB.Text = m_group.TargetDpi.ToString();
+			yarnDenierTB.Text = m_group.YarnDenier.ToString();
 			populateDensityCurveLocationBox();
 		}
 
 		private void populateDensityCurveLocationBox()
 		{
-			List<double> spos = m_group.sPos;
+			List<double> spos = m_group.DensityPos;
 			m_densityLocTextBox.Text = string.Join(",", spos);
 		}
 
@@ -179,38 +161,21 @@ namespace Warps.Controls
 			View.SetActionMode(m_selectingGuide ? devDept.Eyeshot.actionType.SelectVisibleByPick : devDept.Eyeshot.actionType.None);
 		}
 
-		//public double YarnDenier
-		//{
-		//	get
-		//	{
-		//		double outie = 0;
-		//		double.TryParse(yarnDenierTB.Text, out outie);
-		//		return outie;
-		//	}
-		//}
-
-		//public double TargetDPI
-		//{
-		//	get
-		//	{
-		//		double outie = 0;
-		//		double.TryParse(targetdpiTB.Text, out outie);
-		//		return outie;
-		//	}
-		//}
-		public Equation YarnDenierEqu
-		{
+		public double YarnDenier {
 			get
 			{
-				return yarnDenierEQB.Equation;
+				double outie = 0;
+				double.TryParse(yarnDenierTB.Text, out outie);
+				return outie;
 			}
 		}
 
-		public Equation TargetDPIEqu
-		{
+		public double TargetDPI {
 			get
 			{
-				return targetDPIEQB.Equation;
+				double outie = 0;
+				double.TryParse(targetdpiTB.Text, out outie);
+				return outie;
 			}
 		}
 

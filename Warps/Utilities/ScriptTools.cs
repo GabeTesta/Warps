@@ -85,7 +85,7 @@ namespace Warps
 		{
 			for (int i = 0; i < result.Count; i++)
 			{
-				if (result[i].Contains("CurveGroup:") || result[i].Contains("SurfaceCurve:") || result[i].Contains("Geodesic:") || result[i].Contains("MouldCurve:") || result[i].Contains("Label:") || result[i].Contains("GuideComb:"))
+				if (result[i].Contains("CurveGroup:") || result[i].Contains("MouldCurve:") || result[i].Contains("Label:") || result[i].Contains("GuideComb:"))
 					result[i] = String.Format("{0}:{1}", result[i].Split(new char[] { ':' })[0], result[i].Split(new char[] { ':' })[1] + "_Copy");
 				
 				//else if (result[i].Contains("SurfaceCurve:"))

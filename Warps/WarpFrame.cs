@@ -151,7 +151,7 @@ namespace Warps
 				if(test!=null)
 					test.ForEach(item => item.Update(ActiveSail));
 				DateTime after = DateTime.Now;
-				Console.WriteLine("{0} ms", (after - before).Milliseconds);
+				Console.WriteLine("{0} ms", (after - before).TotalMilliseconds);
 				StringBuilder b = new StringBuilder("Rebuilt:\n");
 				if(test!=null)
 					foreach (IRebuild item in test)//updated
@@ -369,10 +369,6 @@ namespace Warps
 				}
 
 			}
-			else if (e.Value is Sail)
-			{
-				track = new SailTracker(EditMode);
-			}
 			else if (e.Value is Equation)
 			{
 				IGroup parent = ActiveSail.GetParentGroup(e.Value);
@@ -381,11 +377,15 @@ namespace Warps
 					track = new VariableGroupTracker(parent as VariableGroup);
 				}
 			}
+			else// if (e.Value is Sail)
+			{
+				track = new SailTracker(EditMode);
+			}
 
 			if (track != null)
 			{
 #if DEBUG
-				logger.Instance.Log(String.Format("Creating new {0} from {1}", track.GetType().Name, e.Value.GetType().Name), LogPriority.Debug);
+				logger.Instance.Log(String.Format("Creating new {0} from {1}", track.GetType().Name, e.Value == null ? "null" : e.Value.GetType().Name), LogPriority.Debug);
 #endif
 				if (EditMode)
 					EditTracker(track);
@@ -465,7 +465,7 @@ namespace Warps
 			m_Tracker.Track(this);
 			return m_Tracker;//return it
 		}
-		void ClearTracker()
+		internal void ClearTracker()
 		{
 			if (m_Tracker != null)
 				m_Tracker.OnCancel(this, null);//clear any existing tracker
@@ -539,68 +539,96 @@ namespace Warps
 
 		private void helpToolStripButton_Click(object sender, EventArgs e)
 		{
-			//Geodesic geo = new Geodesic("Geo", ActiveSail, new IFitPoint[] { new FixedPoint(.1, .1), new FixedPoint(.1, .9) });
-			SurfaceCurve lu = new SurfaceCurve("v1", ActiveSail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(0, 1) });
-			SurfaceCurve mi = new SurfaceCurve("v2", ActiveSail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(.3, .5), new FixedPoint(0, 1) });
-			SurfaceCurve le = new SurfaceCurve("v3", ActiveSail, new IFitPoint[] { new FixedPoint(0.5, 0), new FixedPoint(.5, .5), new FixedPoint(0.5, 1) });
-			SurfaceCurve v4 = new SurfaceCurve("v4", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(.8, .5), new FixedPoint(1, 1) });
-			SurfaceCurve v5 = new SurfaceCurve("v5", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(1, 1) });
+			ActiveSail.CreateOuterCurves();
 
+			//Geodesic geo = new Geodesic("Geo", ActiveSail, new IFitPoint[] { new FixedPoint(.1, .1), new FixedPoint(.1, .9) });
+			MouldCurve v1 = new MouldCurve("v1", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(.3, .4), new FixedPoint(.1, .8), new FixedPoint(0, 1) });
+			
+			MouldCurve v2 = new MouldCurve("v2", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(0, 1) });
+			
+			MouldCurve v3 = new MouldCurve("v3", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(.95, .25), new FixedPoint(.9, .55), new FixedPoint(.65, .85), new FixedPoint(0, 1) });
+			//MouldCurve v4 = new MouldCurve("v4", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(.8, .5), new FixedPoint(1, 1) });
+			//MouldCurve v5 = new MouldCurve("v5", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(1, 1) });
 			CurveGroup grp = new CurveGroup("Warps", ActiveSail);
-			grp.Add(lu);
-			grp.Add(mi);
-			grp.Add(le);
-			grp.Add(v4);
-			grp.Add(v5);
+			grp.Add(v1);
+			grp.Add(v2);
+			grp.Add(v3);
+			grp.Add(new MouldCurve("g3", ActiveSail,
+				new IFitPoint[] { 
+					new FixedPoint(0,0), 
+					new SlidePoint(v1, 0), 
+					new FixedPoint(1,.5) }));
+			grp.Add(new MouldCurve("g4", ActiveSail,
+				new IFitPoint[] { 
+					new FixedPoint(1, 0), 
+					new FixedPoint(.4, .4), 
+					new FixedPoint(.3, .7),
+					new FixedPoint(0,1)}));
+			//grp.Add(v4);
+			//grp.Add(v5);
 			//grp.Add(guide);
 
+			CurveGroup guides = new CurveGroup("Guides", ActiveSail);
 			GuideComb guide = new GuideComb("Guide", ActiveSail,
 				new IFitPoint[] {
 					new FixedPoint(0, .5), 
+					new SlidePoint(v2, .5),
 					new FixedPoint(1, .5) },
 				new Vect2[] { 
 					new Vect2(0, 1), 
-					new Vect2(.3, .9),
+					new Vect2(.3, .55),
 					new Vect2(.5, .5), 
-					new Vect2(.7, .2), 
-					new Vect2(1, .1) });
-			CurveGroup guides = new CurveGroup("Guides", ActiveSail);
+					new Vect2(.7, .55), 
+					new Vect2(1, 1) });
 			guides.Add(guide);
+
 			ActiveSail.Add(grp);
 			ActiveSail.Add(guides);
 
+			UpdateViews(grp);
+			UpdateViews(guides);
 
-			YarnGroup LuYar = new YarnGroup("LuYar", ActiveSail, 12780);
-			//if (LuYar.LayoutYarns(new List<MouldCurve>() { lu, mi, le }, guide, 14416) > 0)
-			//DateTime now = DateTime.Now;
 
-			//LuYar.LayoutYarns(grp, guide, 14416, LuYar.SpreadYarnsAlongGuide);
-			//TimeSpan gde = DateTime.Now - now;
-			//now = DateTime.Now;
+			//YarnGroup LuYar = new YarnGroup("LuYar", ActiveSail, 12780);
+			//LuYar.DensityPos.AddRange(new double[] { 0.25, 0.5, 0.75 });
+			//LuYar.YarnsUpdated += LuYar_YarnsUpdated;
+			////if (LuYar.LayoutYarns(new List<MouldCurve>() { lu, mi, le }, guide, 14416) > 0)
+			////DateTime now = DateTime.Now;
+			////LuYar.LayoutYarns(grp, guide, 14416, LuYar.SpreadYarnsAlongGuide);
+			////TimeSpan gde = DateTime.Now - now;
+			////now = DateTime.Now;
 
-			//LuYar.LayoutYarns(grp, guide, 14416, LuYar.SpreadYarnsAcrossWarps);
-			//TimeSpan wrps = DateTime.Now - now;
-			//now = DateTime.Now;
+			////LuYar.LayoutYarns(grp, guide, 14416, LuYar.SpreadYarnsAcrossWarps);
+			////TimeSpan wrps = DateTime.Now - now;
+			////now = DateTime.Now;
+			////MessageBox.Show(string.Format("AcrossWarps: {0}\nAlongGuide: {1}", wrps.TotalMilliseconds, gde.TotalMilliseconds));
 
-			//MessageBox.Show(string.Format("AcrossWarps: {0}\nAlongGuide: {1}", wrps.TotalMilliseconds, gde.TotalMilliseconds));
-
-			if (LuYar.LayoutYarns(grp, guide, 14416) > 0)
-				ActiveSail.Add(LuYar);
-
-			//Yarns.YarnGroup LeYar = new Yarns.YarnGroup("LeYar", ActiveSail, 12780);
-			//if (LeYar.LayoutYarns(new List<MouldCurve>() { mi, le }, guide, 14416) > 0)
-			//	ActiveSail.Add(LeYar);
-
-			ActiveSail.Rebuild(null);
 			UpdateViews(guides);
 			UpdateViews(grp);
-			UpdateViews(LuYar);
+
+			//if (LuYar.LayoutYarns(grp, guide, 14416) > 0
+			//	|| MessageBox.Show(String.Format("Failed to match Target Dpi\nTarget: {0}\nAchieved: {1}\nContinue Anyway?", LuYar.TargetDpi, LuYar.AchievedDpi), "Yarn Generation Failed", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes )
+			//	ActiveSail.Add(LuYar);
+
+			////Yarns.YarnGroup LeYar = new Yarns.YarnGroup("LeYar", ActiveSail, 12780);
+			////if (LeYar.LayoutYarns(new List<MouldCurve>() { mi, le }, guide, 14416) > 0)
+			////	ActiveSail.Add(LeYar);
+
+			////Rebuild(null);
+		
+			//UpdateViews(LuYar);
 			//Rebuild(grp);
 			//Rebuild(grp);
 			//Rebuild(guides);
 			//Rebuild(LuYar);
 			View.Refresh();
+			ActiveSail.Rebuild(null);
 		}
 
+		void LuYar_YarnsUpdated(object sender, EventArgs<YarnGroup> e)
+		{
+			UpdateViews(e.Value);
+			View.Refresh();
+		}
 	}
 }

@@ -56,7 +56,6 @@
 			this.CurveListBox.Name = "CurveListBox";
 			this.CurveListBox.Size = new System.Drawing.Size(136, 95);
 			this.CurveListBox.TabIndex = 7;
-			this.CurveListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.CurveListBox_MouseDoubleClick);
 			// 
 			// EquationListBox
 			// 
@@ -66,7 +65,6 @@
 			this.EquationListBox.Name = "EquationListBox";
 			this.EquationListBox.Size = new System.Drawing.Size(136, 95);
 			this.EquationListBox.TabIndex = 15;
-			this.EquationListBox.DoubleClick += new System.EventHandler(this.EquationListBox_DoubleClick);
 			// 
 			// label1
 			// 

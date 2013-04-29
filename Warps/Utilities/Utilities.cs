@@ -276,10 +276,6 @@ namespace Warps
 				return typeof(CurveGroup);
 			else if (Clipboard.ContainsData(typeof(MouldCurve).Name))
 				return typeof(MouldCurve);
-			else if (Clipboard.ContainsData(typeof(SurfaceCurve).Name))
-				return typeof(SurfaceCurve);
-			else if (Clipboard.ContainsData(typeof(Geodesic).Name))
-				return typeof(Geodesic);
 			else if (Clipboard.ContainsData(typeof(GuideComb).Name))
 				return typeof(GuideComb);
 			else if (Clipboard.ContainsData(typeof(Equation).Name))
@@ -290,6 +286,11 @@ namespace Warps
 
 		}
 
+		public static string ReadCString(System.IO.BinaryReader bin)
+		{
+			uint len = bin.ReadUInt32();
+			return new string(bin.ReadChars((int)len));
+		}
 	}
 
 }

@@ -21,9 +21,10 @@ namespace Warps
 		{
 			InitializeComponent();
 			PopulateColors();
-
+			
 			for (int i = 0; i < 2; i++)
 			{
+
 				this[i].Unlock("");
 				this[i].Rendered.EnvironmentMapping = false;
 				this[i].Rendered.PlanarReflections = false;
@@ -65,11 +66,14 @@ namespace Warps
 				//turn down reflections
 				this[i].DefaultMaterial.Shininess = 0.1f;
 				this[i].DefaultMaterial.Environment = 0f;
-				this[i].DefaultMaterial.Specular = Color.White;
+				this[i].DefaultMaterial.Specular = Color.Gray;
 				//this[i].PlanarShadowOpacity = 1.0;
 
 				this[i].SelectionChanged += DualView_SelectionChanged;
 				this[i].MouseMove += DualView_MouseMove;
+
+				this[i].Groups.Add(new List<int>());
+
 			}
 
 			CreateContextMenu();
@@ -81,37 +85,36 @@ namespace Warps
 		void DualView_MouseMove(object sender, MouseEventArgs e)
 		{
 			mousePnt = e.Location;
-			if (EditMode && ActiveView.ActionMode == actionType.SelectVisibleByPick)
-			{
+			//if (EditMode && ActiveView.ActionMode == actionType.SelectVisibleByPick)
+			//{
 				int underMouse = ActiveView.GetEntityUnderMouseCursor(mousePnt);
 
-				if (underMouse > -1 && underMouse < ActiveView.Entities.Count)
+				if (-1 < underMouse && underMouse < ActiveView.Entities.Count)
 				{
 					if (prevMousedOverObj != null)
-						UnHighLight(prevMousedOverObj);
+					//	UnHighLight(prevMousedOverObj);
 
-					Highlight(ActiveView.Entities[underMouse].EntityData);
+				//	Highlight(ActiveView.Entities[underMouse].EntityData);
 					ActiveView.Refresh();
 					prevMousedOverObj = ActiveView.Entities[underMouse].EntityData;
 				}
 				else if (prevMousedOverObj != null)
 				{
-					UnHighLight(prevMousedOverObj);
+				//	UnHighLight(prevMousedOverObj);
 					prevMousedOverObj = null;
 				}
 
-			}
+			//}
 		}
 		
 		/// <summary>
 		/// highlight an object in the view from mouseover
 		/// </summary>
 		/// <param name="tag"></param>
-		/// <param name="selected"></param>
 		private void Highlight(object tag)
 		{
-			if (EditMode)
-			{
+			//if (EditMode)
+			//{
 				foreach (Entity e in ActiveView.Entities)
 				{
 					if (e.EntityData == tag)
@@ -120,7 +123,7 @@ namespace Warps
 						e.LineWeight = 2.0f;
 						e.ColorMethod = colorMethodType.byEntity;
 						e.Color = Color.FromArgb(255, ActiveView.Layers[e.LayerIndex].Color);
-						break;
+					//	break;
 					}
 				}
 
@@ -133,12 +136,12 @@ namespace Warps
 						{
 							e.Visible = true;
 
-							break;
+							//break;
 						}
 					}
 				}
 
-			}
+			//}
 		}
 		private void UnHighLight(object tag)
 		{
@@ -150,7 +153,7 @@ namespace Warps
 					e.LineWeightMethod = colorMethodType.byLayer;
 					e.ColorMethod = colorMethodType.byLayer;
 					entIndex = ActiveView.Entities.IndexOf(e);
-					break;
+					//break;
 				}
 			}
 
@@ -162,7 +165,7 @@ namespace Warps
 					{
 						e.Visible = ActiveView.Entities[entIndex].Selected;
 
-						break;
+						//break;
 					}
 				}
 			}
@@ -408,6 +411,8 @@ namespace Warps
 			m_viewleft.Entities.Add(ents[0] = (Entity)e.Clone());
 			m_viewright.Entities.Add(ents[1] = (Entity)e.Clone());
 			ents[0].EntityData = ents[1].EntityData = e.EntityData;
+			ents[0].GroupIndex = ents[1].GroupIndex = e.GroupIndex;
+
 			if (e is Mesh)
 			{
 				e.ColorMethod = colorMethodType.byEntity;
@@ -545,10 +550,14 @@ namespace Warps
 
 		private void SaveColors()
 		{
-			string path = Colors.IniPath;//store existing path for cancel
-			Colors.IniPath = null;//prompt user for new save location
-			if (!Colors.WriteIniFile(null))
-				Colors.IniPath = path;//retore previous path
+			//string path = Colors.IniPath;//store existing path for cancel
+			//Colors.IniPath = null;//prompt user for new save location
+			string path = null;
+			if( !Colors.HasIniFile )
+				path = System.IO.Path.Combine(Utilities.ExeDir, "colors.txt");
+			Colors.WriteIniFile(path);
+			//if (!Colors.WriteIniFile(null))
+				//Colors.IniPath = path;//retore previous path
 		}
 
 		private void saveColorsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -923,13 +932,6 @@ namespace Warps
 		{
 			for (int i = 0; i < 2; i++)
 				this[i].Layers.TurnAllOff();
-
-			//keep the default layer active so we can see the draggables
-			for (int i = 0; i < 2; i++)
-			{
-				Layer l = this[i].Layers.FirstOrDefault(ly => ly.Name.ToLower() == "default");
-				this[i].Layers.TurnOn(this[i].Layers.IndexOf(l));
-			}
 		}
 
 		internal void ShowOnly(IRebuild obj)
@@ -1103,21 +1105,24 @@ namespace Warps
 			//cwf.Show(this);
 		}
 
-		void Value_ColorChanged(object sender, EventArgs<string, Color> e)
+		void Value_ColorChanged(object sender, EventArgs<string[], Color> e)
 		{
 			for (int i = 0; i < 2; i++)
 			{
-				if (e.ValueT == "Background")
+				if (e.ValueT.Contains("Background"))
 					this[i].Background.TopColor = e.ValueP;
-				if (e.ValueT == "GridLines")
+				if (e.ValueT.Contains("GridLines"))
 					this[i].Grid.MajorLineColor = e.ValueP;
-				if (e.ValueT == "Selection")
+				if (e.ValueT.Contains("Selection"))
 					this[i].SelectionColor = e.ValueP;
-				Layer l = this[i].Layers.FirstOrDefault(ly => ly.Name == e.ValueT);
-				if (l != null)
-				{
+				IEnumerable<Layer> layers = this[i].Layers.Where(ly => e.ValueT.Contains(ly.Name));
+				foreach (Layer l in layers)
 					l.Color = e.ValueP;
-				}
+				//Layer l = this[i].Layers.FirstOrDefault(ly => ly.Name == e.ValueT);
+				//if (l != null)
+				//{
+				//	l.Color = e.ValueP;
+				//}
 				this[i].Refresh();
 			}
 		}
@@ -1138,5 +1143,15 @@ namespace Warps
 			set { m_editMode = value; }
 		}
 
+
+		internal void ToggleGroup(int p)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				foreach (int nE in this[i].Groups[p])
+					this[i].Entities[nE].Visible = !this[i].Entities[nE].Visible;
+			}
+
+		}
 	}
 }

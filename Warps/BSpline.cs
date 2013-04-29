@@ -233,5 +233,34 @@ namespace Warps
 					+ m_xCof[nS + 2, ix] * basis[2, 2]
 					+ m_xCof[nS + 3, ix] * basis[2, 3];			}
 		}
+
+		internal void ReadBin(System.IO.BinaryReader bin)
+		{
+			int nKnot = bin.ReadInt32();//m_Kn0t
+			nKnot = bin.ReadInt32(); //m_Kn2t
+			nKnot = bin.ReadInt32();//m_Kn3t
+			m_degree = bin.ReadInt32();//m_Kn5t
+			m_degree = bin.ReadInt32();//m_nx
+
+			m_xKnot = new double[2 + nKnot];
+			for (int i = 0; i < 2 + nKnot; i++)
+				m_xKnot[i] = bin.ReadDouble();
+
+			m_xCof = new double[nKnot, m_degree];
+			for (int nD = 0; nD < m_degree; nD++)
+				for (int i = 0; i < nKnot; i++)
+					m_xCof[i, nD] = bin.ReadDouble();
+			
+			//cf.Write(&m_Kn0t, sizeof(m_Kn0t));
+			//cf.Write(&m_Kn2t, sizeof(m_Kn2t));
+			//cf.Write(&m_Kn3t, sizeof(m_Kn3t));
+			//cf.Write(&m_Kn5t, sizeof(m_Kn5t));
+			//cf.Write(&m_nx, sizeof(m_nx));
+
+			//byte[] array = bin.ReadBytes(m_degree * nKnot * sizeof(double));
+
+			//cf.Write(m_xKnot, (2 + m_Kn3t) * sizeof(double));
+			//cf.Write(m_xCofs, (m_nx * m_Kn3t) * sizeof(double));
+		}
 	}
 }

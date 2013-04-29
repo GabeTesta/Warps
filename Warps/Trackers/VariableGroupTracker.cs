@@ -27,11 +27,14 @@ namespace Warps
 
 			if (m_frame != null )
 			{
+				//m_frame.okButton.Click += OnBuild;
+				//m_frame.cancelButton.Click += OnCancel;
+				//m_frame.previewButton.Click += OnPreview;
+
 				m_frame.EditorPanel = Edit;
 				EditMode = m_frame.EditMode;
 				AddContextMenu();
 				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v
-				Tree.ContextMenuStrip.Opening+=ContextMenuStrip_Opening;
 			}
 		}
 		public void Cancel()
@@ -61,8 +64,7 @@ namespace Warps
 
 		void m_eqEditor_OnVariableAdded(object sender, Equation addedEq)
 		{
-			if(EditMode)
-				m_frame.Rebuild(m_group);
+			m_frame.Rebuild(m_group);
 		}
 
 		bool m_editMode = false;
@@ -98,18 +100,9 @@ namespace Warps
 		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
-			{
-				if (Tree.ContextMenuStrip.Items[i].Text == "Paste Variable")
-					Tree.ContextMenuStrip.Items[i].Enabled = Utilities.GetClipboardObjType() == typeof(Equation);
-				if (Tree.ContextMenuStrip.Items[i].Text.ToLower().Contains("add") || Tree.ContextMenuStrip.Items[i].Text.ToLower().Contains("delete"))
-					Tree.ContextMenuStrip.Items[i].Enabled = EditMode;
-			}
+				if (Tree.ContextMenuStrip.Items[i].Text == "Paste Group")
+					Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsVariableType();
 			Tree.ContextMenuStrip.Show();
-		}
-
-		private bool ClipboardContainsVariable()
-		{
-			throw new NotImplementedException();
 		}
 
 		private void AddContextMenu()
@@ -250,7 +243,7 @@ namespace Warps
 			eqs.ForEach(eq => m_group.Add(eq));
 			m_frame.Rebuild(m_group);
 			//m_frame.Rebuild(null);
-			View.Refresh(); 
+			//View.Refresh(); 
 		}
 
 		public void OnSelect(object sender, EventArgs<IRebuild> e)

@@ -28,24 +28,18 @@ namespace Warps.Controls
 			m_sail = s;
 
 			// TODO: Complete member initialization
-			
-			autoCompleteTextBox1.Text = currentText;
+			autoCompleteTextBox1.Values = AutoFillVariables.ToArray();
 
-			if (AutoFillVariables != null)
+			autoCompleteTextBox1.Text = currentText.Replace("=","");
+
+			AutoFillVariables.ForEach(var =>
 			{
-				autoCompleteTextBox1.Values = AutoFillVariables.ToArray();
+				if (var is MouldCurve)
+					CurveListBox.Items.Add(var);
+				else if (var is Equation)
+					EquationListBox.Items.Add(var);
+			});
 
-				AutoFillVariables.ForEach(var =>
-				{
-					
-					if (var is MouldCurve)
-						CurveListBox.Items.Add(var);
-					else if (var is Equation)
-					{
-						EquationListBox.Items.Add((var as Equation).Label);
-					}
-				});
-			}
 		}
 
 		Sail m_sail = null;
@@ -66,16 +60,6 @@ namespace Warps.Controls
 			if (OnVariableAdded != null)
 				OnVariableAdded(this, autoCompleteTextBox1.Text.TrimStart(new char[]{' '}));
 			this.Close();
-		}
-
-		private void EquationListBox_DoubleClick(object sender, EventArgs e)
-		{
-			autoCompleteTextBox1.Text += EquationListBox.SelectedItem.ToString();
-		}
-
-		private void CurveListBox_MouseDoubleClick(object sender, MouseEventArgs e)
-		{
-			autoCompleteTextBox1.Text += CurveListBox.SelectedItem.ToString();
 		}
 	}
 }

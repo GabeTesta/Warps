@@ -18,7 +18,7 @@ namespace Warps.Trackers
 		public GuideCombTracker(GuideComb comb)
 		{
 			m_guide = comb;
-			m_edit = new GuideEditor(m_guide);
+			m_edit = new GuideEditor();
 		}
 
 		public void Track(WarpFrame frame)
@@ -83,11 +83,9 @@ namespace Warps.Trackers
 			IFitPoint[] pts = new IFitPoint[Comb.FitPoints.Length];
 			for (int i = 0; i < pts.Length; i++)
 				pts[i] = Comb[i].Clone();
-			//if (Comb is Geodesic)
-			//	m_temp = new Geodesic(cur.Label + "[preview]", Comb.Sail, pts);
-			//else if (Comb is SurfaceCurve)
+
 			m_temp = new GuideComb(cur.Label + "[preview]", Comb.Sail, pts, Comb.CombPnts);
-			//m_temp = new SurfaceCurve();
+
 			m_tents = View.AddRange(m_temp.CreateEntities(true));
 
 			foreach (Entity[] ents in m_tents)
@@ -106,6 +104,7 @@ namespace Warps.Trackers
 			Edit.Label = Comb.Label;
 			Edit.Length = m_temp.Length;
 			Edit.FitPoints = m_temp.FitPoints;
+			Edit.CombPnts = m_temp.CombPnts;
 			Edit.Refresh();
 			if (Tree.SelectedTag != Comb) Tree.SelectedTag = Comb;
 			//if (View.SelectedTag != Curve) 
@@ -243,9 +242,7 @@ namespace Warps.Trackers
 					else if (ents[i] is PointCloud)
 						ents[i].Vertices = verts[1].Vertices;
 					else if (ents[i] is Mesh && nMsh < verts.Count)
-					{
 						SurfaceTools.UpdateMesh(ents[i] as Mesh, verts[nMsh] as Mesh);
-					}
 				}
 			}
 			View.Regen();
@@ -301,9 +298,7 @@ namespace Warps.Trackers
 					pnts.Last().ReadEditor(Edit[i]);
 				}
 			}
-
 			m_temp.FitPoints = pnts.ToArray();
-			m_temp.Update(Sail);
 			//m_temp.CombPnts = Edit.CombPnts;
 			m_temp.FitComb(Edit.CombPnts);
 		}
@@ -473,7 +468,6 @@ namespace Warps.Trackers
 			//	m_temp[e.Value].WriteEditor(Edit[e.Value]);
 			//}
 			//else
-			
 			ReadEditor();
 			UpdateViewCurve(true);
 		}

@@ -10,12 +10,13 @@ namespace Warps
 	class CurvePoint : IFitPoint
 	{
 		public CurvePoint() : this(0, null, 0) { }
-		//public CurvePoint(CurvePoint c)
-		//	: this(c.S, c.m_curve, c.m_sCurve) {}
+
 		public CurvePoint(CurvePoint c)
 			: this(c.S, c.m_curve, c.m_sEqu) { }
+
 		public CurvePoint(MouldCurve curve, double sCurve)
 			: this(0, curve, sCurve) { }
+
 		public CurvePoint(double s, MouldCurve curve, double sCurve)
 		{
 			m_sPos = s;
@@ -25,7 +26,6 @@ namespace Warps
 
 		public CurvePoint(double s, MouldCurve curve, Equation Sequ)
 		{
-
 			m_sPos = s;
 			S_Equ = Sequ;
 			m_curve = curve;
@@ -33,7 +33,7 @@ namespace Warps
 
 		internal double m_sPos;
 		internal MouldCurve m_curve;
-		internal double m_sCurve;
+		//internal double m_sCurve;
 
 		Equation m_sEqu = new Equation();
 		Equation m_uEqu = new Equation();
@@ -97,16 +97,24 @@ namespace Warps
 			}
 		}
 
-		public double sCurve
+		/// <summary>
+		/// The user input (users can only change this)
+		/// </summary>
+		public double SCurve
 		{
-			get { return m_sEqu.Result; }
+			get { return S_Equ.Result; }
+			set
+			{
+				if (S_Equ.IsNumber())
+					S_Equ.Value = value;
+			}
 		}
 
 		public virtual string CurrentS
 		{
 			get
 			{
-				return S_Equ.Result.ToString("0.0000");
+				return S_Equ.Result.ToString("0.000");
 			}
 		}
 
@@ -125,10 +133,17 @@ namespace Warps
 				double dist = 0;
 				if (m_curve != null)
 				{
-					m_curve.uClosest(ref m_sCurve, ref value, ref dist, 1e-9);//m_curve.uClosest(ref m_sCurve, ref value, ref dist, 1e-9);
-					S_Equ.Value = m_sCurve;
+					double sCur = 0;
+					m_curve.uClosest(ref sCur, ref value, ref dist, 1e-9);//m_curve.uClosest(ref m_sCurve, ref value, ref dist, 1e-9);
+					if(m_sEqu.IsNumber())
+						S_Equ.Value = sCur;
 				}
 			}
+		}
+
+		public MouldCurve Curve
+		{
+			get { return m_curve; }
 		}
 
 		public double this[int i]
@@ -140,9 +155,9 @@ namespace Warps
 					case 0:
 						return S_Equ.Result;
 					case 1:
-						return U.Result;
+						return UV[0];
 					case 2:
-						return V.Result;
+						return UV[1];
 					default:
 						return 0;
 				}
@@ -152,13 +167,14 @@ namespace Warps
 				switch (i)
 				{
 					case 0:
-						S_Equ.Value = value;
+						if(S_Equ.IsNumber())
+							S_Equ.Value = value;
 						break;
 					case 1:
-						U.Value = value;
+						//U.Value = value;
 						break;
 					case 2:
-						V.Value = value;
+						//V.Value = value;
 						break;
 				}
 			}
@@ -214,6 +230,7 @@ namespace Warps
 			if (ce == null)
 				throw new ArgumentException("Invalid Editor in CurvePoint");
 			S_Equ = ce.CS;
+			
 			m_curve = ce.Curve == null ? m_curve : ce.Curve;
 		}
 

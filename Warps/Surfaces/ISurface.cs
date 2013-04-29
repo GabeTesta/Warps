@@ -19,7 +19,9 @@ namespace Warps
 
 	public interface ISurface
 	{
+		string Label { get; }
 		void xVal(Vect2 uv, ref Vect3 xyz);
+
 		void xVec(Vect2 uv, ref Vect3 xyz, ref Vect3 dxu, ref Vect3 dxv);
 		void xCvt(Vect2 uv, ref Vect3 xyz, ref Vect3 dxu, ref Vect3 dxv, ref Vect3 ddxu, ref Vect3 ddxv, ref Vect3 dduv);
 		void xNor(Vect2 uv, ref Vect3 xyz, ref Vect3 xnor);
@@ -28,10 +30,10 @@ namespace Warps
 
 		List<devDept.Eyeshot.Entities.Entity> CreateEntities(double[,] uvLims, bool bGauss);
 
-		bool ReadScript(Sail sail, IList<string> txt);
 		List<string> WriteScript();
+		bool ReadScript(Sail sail, IList<string> txt);
 
-		string Label { get; }
+		System.Windows.Forms.TreeNode WriteNode();
 	}
 
 	public static class SurfaceTools
@@ -309,23 +311,23 @@ namespace Warps
 		{
 			int rows = MESHU, cols = MESHV;
 			//Mesh mesh = new Mesh(meshNatureType.RichPlain);
-			meshNatureType meshtype = bGauss ? meshNatureType.MulticolorPlain : meshNatureType.ColorPlain;
+			meshNatureType meshtype = bGauss ? meshNatureType.MulticolorSmooth : meshNatureType.ColorSmooth;
 			Mesh mesh = new Mesh(meshtype);
 			mesh.ColorMethod = bGauss ? colorMethodType.byEntity : colorMethodType.byLayer;
 			mesh.Vertices = bGauss ? SurfaceTools.GetMeshGaussianPoints(s, rows, cols, uvLims) : SurfaceTools.GetExtensionPoints(s, rows, cols, uvLims);
 
 			mesh.RegenMode = regenType.RegenAndCompile;
-			mesh.Triangles = new IndexTriangle[(rows - 1) * (cols - 1) * 2];
+			mesh.Triangles = new SmoothTriangle[(rows - 1) * (cols - 1) * 2];
 			int count = 0;
 			for (int j = 0; j < (rows - 1); j++)
 			{
 				for (int i = 0; i < (cols - 1); i++)
 				{
 
-					mesh.Triangles[count++] = new IndexTriangle(i + j * cols,
+					mesh.Triangles[count++] = new SmoothTriangle(i + j * cols,
 																   i + j * cols + 1,
 																   i + (j + 1) * cols + 1);
-					mesh.Triangles[count++] = new IndexTriangle(i + j * cols,
+					mesh.Triangles[count++] = new SmoothTriangle(i + j * cols,
 																   i + (j + 1) * cols + 1,
 																   i + (j + 1) * cols);
 				}
@@ -349,19 +351,19 @@ namespace Warps
 		public static Mesh GetMesh(Point3D[] verts, int rows)
 		{
 			int cols = verts.Length / rows;
-			Mesh mesh = new Mesh(meshNatureType.ColorPlain);
+			Mesh mesh = new Mesh(meshNatureType.ColorSmooth);
 			mesh.Vertices = verts;
-			mesh.Triangles = new IndexTriangle[(rows - 1) * (cols - 1) * 2];
+			mesh.Triangles = new SmoothTriangle[(rows - 1) * (cols - 1) * 2];
 			int count = 0;
 			for (int j = 0; j < (rows - 1); j++)
 			{
 				for (int i = 0; i < (cols - 1); i++)
 				{
 
-					mesh.Triangles[count++] = new IndexTriangle(i + j * cols,
+					mesh.Triangles[count++] = new SmoothTriangle(i + j * cols,
 																   i + j * cols + 1,
 																   i + (j + 1) * cols + 1);
-					mesh.Triangles[count++] = new IndexTriangle(i + j * cols,
+					mesh.Triangles[count++] = new SmoothTriangle(i + j * cols,
 																   i + (j + 1) * cols + 1,
 																   i + (j + 1) * cols);
 				}

@@ -11,7 +11,7 @@ namespace Warps
 {
 	public class Sail
 	{
-		SurfaceType m_type = SurfaceType.COMBO;
+		SurfaceType m_type = SurfaceType.COF;
 
 		string m_path;
 		ISurface m_mould;
@@ -41,13 +41,13 @@ namespace Warps
 			switch (Path.GetExtension(path).ToLower())
 			{
 				case ".cof":
-					m_mould = CreateMould(path);
+					CreateMould(path);
 					m_layout = new List<IGroup>();//create default layout for cof file
-#if DEBUG
-					CreateVariableGroup();
-					CreateOuterCurves();
-					CreateInnerCurves();
-#endif
+
+//#if DEBUG
+//					CreateOuterCurves();
+//					CreateInnerCurves();
+//#endif
 					m_path = path;
 					break;
 				case ".wrp":
@@ -57,30 +57,56 @@ namespace Warps
 			}
 		}
 
-		ISurface CreateMould(string path)
+		void CreateMould(string path)
 		{
-			return CreateMould(null, path);
+			CreateMould(null, path);
 		}
-		ISurface CreateMould(string type, string path)
+		void CreateMould(string type, string path)
 		{
 			if (type == null)
 			{
 				switch (m_type)
 				{
 					case SurfaceType.COMBO:
-						return new ComboMould(path);
+						m_mould = new ComboMould();
+						(m_mould as ComboMould).ReadCofFile(this, path);
+						return;
 					case SurfaceType.COF:
-						return new CofMould(path);
+						m_mould = new CofMould();
+						(m_mould as CofMould).ReadCofFile(this, path);
+						return;
 					case SurfaceType.RBF:
-						return new RBFMould(path);
+						m_mould = new RBFMould();
+						(m_mould as RBFMould).ReadCofFile(this, path);
+						return;
 				}
 			}
 
 			if (type.Contains(':'))
 				type = type.Split(':')[0];
 
-			return Utilities.CreateInstance(type, new object[] { path }) as ISurface;
+			m_mould = Utilities.CreateInstance(type, new object[] { this, path }) as ISurface;
 		}
+		//ISurface CreateMould(string type, string path)
+		//{
+		//	if (type == null)
+		//	{
+		//		switch (m_type)
+		//		{
+		//			case SurfaceType.COMBO:
+		//				return new ComboMould(this, path);
+		//			case SurfaceType.COF:
+		//				return new CofMould(this, path);
+		//			case SurfaceType.RBF:
+		//				return new RBFMould(this, path);
+		//		}
+		//	}
+
+		//	if (type.Contains(':'))
+		//		type = type.Split(':')[0];
+
+		//	return Utilities.CreateInstance(type, new object[] { this, path }) as ISurface;
+		//}
 
 		void ReadScriptFile(string path)
 		{
@@ -95,7 +121,7 @@ namespace Warps
 				//	if (splits == null || splits.Length == 0)
 				//		return;
 				//}
-				m_mould = CreateMould(ScriptTools.ReadType(line), ScriptTools.ReadPath(line));
+				CreateMould(ScriptTools.ReadType(line), ScriptTools.ReadPath(line));
 			
 				//read layout
 				m_layout = new List<IGroup>();
@@ -277,8 +303,6 @@ namespace Warps
 			return updated;
 		}
 
-		
-
 		public List<IRebuild> GetConnected(IRebuild tag)
 		{
 			List<IRebuild> connected = null;
@@ -296,23 +320,36 @@ namespace Warps
 		}
 
 		TreeNode m_node;
-
 		public TreeNode WriteNode()
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Text = string.Format("{0}: {1}", GetType().Name, m_path);
+			m_node.Text = m_path;
 			m_node.Tag = this;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
 			m_node.Nodes.Clear();
-			var tn = m_node.Nodes.Add(string.Format("{0}: {1}", Mould.GetType().Name, Mould.Label));
-			tn.ImageKey = GetType().Name;
-			tn.SelectedImageKey = GetType().Name;
+			m_node.Nodes.Add(Mould.WriteNode());
 			foreach (IGroup g in Layout)
 				m_node.Nodes.Add(g.WriteNode());
 			return m_node;
 		}
+		//public TreeNode WriteNode()
+		//{
+		//	if (m_node == null)
+		//		m_node = new System.Windows.Forms.TreeNode();
+		//	m_node.Text = string.Format("{0}: {1}", GetType().Name, m_path);
+		//	m_node.Tag = this;
+		//	m_node.ImageKey = GetType().Name;
+		//	m_node.SelectedImageKey = GetType().Name;
+		//	m_node.Nodes.Clear();
+		//	var tn = m_node.Nodes.Add(string.Format("{0}: {1}", Mould.GetType().Name, Mould.Label));
+		//	tn.ImageKey = GetType().Name;
+		//	tn.SelectedImageKey = GetType().Name;
+		//	foreach (IGroup g in Layout)
+		//		m_node.Nodes.Add(g.WriteNode());
+		//	return m_node;
+		//}
 
 		public MouldCurve FindCurve(string curve)
 		{
@@ -439,7 +476,7 @@ namespace Warps
 				{
 					uv[1] = new Vect2(1.3, BLAS.interpolant(nAng, NANG));
 
-					SurfaceCurve g = new SurfaceCurve(string.Format(group.Label + "[{0}]", nAng), this, null);
+					MouldCurve g = new MouldCurve(string.Format(group.Label + "[{0}]", nAng), this, null);
 					g.Fit(uv[0], uv[1]);
 					group.Add(g);
 				}
@@ -447,16 +484,8 @@ namespace Warps
 			}
 
 		}
-		IGroup CreateVariableGroup()
-		{
-			if (FindGroup("Vars") != null)
-				return FindGroup("Vars");
 
-			VariableGroup variables = new VariableGroup("Vars", this);
-			Add(variables);
-			return variables;
-		}
-		IGroup CreateOuterCurves()
+		public IGroup CreateOuterCurves()
 		{
 			if (FindGroup("Outer") != null)
 				return FindGroup("Outer");
@@ -476,10 +505,10 @@ namespace Warps
 			FixedPoint[] ft = new FixedPoint[] { new FixedPoint(corners[0]), new FixedPoint(corners[3]) };
 
 
-			outer.Add(new SurfaceCurve("Luff", this, lu));
-			outer.Add(new SurfaceCurve("Leech", this, le));
-			outer.Add(new SurfaceCurve("Head", this, hd));
-			outer.Add(new SurfaceCurve("Foot", this, ft));
+			outer.Add(new MouldCurve("Luff", this, lu));
+			outer.Add(new MouldCurve("Leech", this, le));
+			outer.Add(new MouldCurve("Head", this, hd));
+			outer.Add(new MouldCurve("Foot", this, ft));
 
 			Add(outer);
 			return outer;
@@ -552,7 +581,7 @@ namespace Warps
 
 		}
 
-		IGroup[] CreateInnerCurves()
+		IGroup[] CreateInnerGirths()
 		{
 			CurveGroup outer = FindGroup("Outer") as CurveGroup;
 			if (outer == null)
@@ -574,9 +603,9 @@ namespace Warps
 					else
 						gir[0] = new CurvePoint(0, outer[2 * i], dg);
 
-					Geodesic girth = new Geodesic(String.Format("{0}ir-{1:##0}%", i == 0 ? "G" : "V", dg * 100), this, null);
-					if (girth.Geo(gir[0], gir[1]) )
-						girths.Add(girth);
+					MouldCurve girth = new MouldCurve(String.Format("{0}ir-{1:##0}%", i == 0 ? "G" : "V", dg * 100), this, null);
+					girth.Fit(gir);
+					girths.Add(girth);
 				}
 				Add(girths);
 				girvir[i] = girths;
@@ -584,6 +613,35 @@ namespace Warps
 			return girvir;
 		}
 
+		IGroup[] CreateInnerCurves()
+		{
+			CurveGroup outer = FindGroup("Outer") as CurveGroup;
+			if (outer == null)
+				outer = CreateOuterCurves() as CurveGroup;
+
+			IGroup[] rets = new IGroup[2];
+			//SurfaceCurve gir = null;
+			for (int i = 0; i < 2; i++)
+			{
+				CurveGroup curves = new CurveGroup(i == 0 ? "Horiz" : "Verts", this);
+				for (double dg = 0.0; dg < 1; dg += 0.1)
+				{
+					IFitPoint[] gir = new IFitPoint[2];
+					gir[1] = new CurvePoint(1, outer[2 * i + 1], dg);
+
+					//gir[1] = new FixedPoint(.3, .3);
+
+					gir[0] = new CurvePoint(0, outer[2 * i], dg);
+
+					MouldCurve curve = new MouldCurve(String.Format("{0}ec-{1:##0}%", i == 0 ? "S" : "V", dg * 100), this, null);
+					curve.Fit(gir);
+					curves.Add(curve);
+				}
+				Add(curves);
+				rets[i] = curves;
+			}
+			return rets;
+		}
 		#endregion
 
 		internal void Remove(IRebuild tag)

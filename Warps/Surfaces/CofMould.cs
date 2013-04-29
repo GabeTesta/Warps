@@ -5,14 +5,17 @@ using System.IO;
 using System.Drawing;
 using devDept.Geometry;
 using devDept.Eyeshot.Entities;
+using System.Windows.Forms;
 
 namespace Warps
 {
 	public class CofMould : ISurface
 	{
-		public CofMould(string cofPath)
+		public CofMould() { }
+		public CofMould(Sail sail, string cofPath)
 		{
-			ReadCofFile(cofPath);
+			//ReadMFCCofFile(cofPath);
+			ReadCofFile(sail, cofPath);
 		}
 
 		#region Cof
@@ -29,7 +32,7 @@ namespace Warps
 
 		string m_cofPath;
 
-		public void ReadCofFile(string cofPath)
+		public void ReadMFCCofFile(string cofPath)
 		{
 			m_cofPath = cofPath;
 			using (BinaryReader bin = new BinaryReader(File.Open(cofPath, FileMode.Open, FileAccess.Read), Encoding.ASCII))
@@ -40,40 +43,7 @@ namespace Warps
 				if (end > 0)
 					m_text = m_text.Substring(0, end);
 
-				m_Kn0t[0] = bin.ReadInt32();
-				m_Kn0t[1] = bin.ReadInt32();
-				m_Kn0t[2] = bin.ReadInt32();
-
-				m_Kn2t[0] = bin.ReadInt32();
-				m_Kn2t[1] = bin.ReadInt32();
-				m_Kn2t[2] = bin.ReadInt32();
-
-				m_Kn3t[0] = bin.ReadInt32();
-				m_Kn3t[1] = bin.ReadInt32();
-				m_Kn3t[2] = bin.ReadInt32();
-
-				m_Kn5t[0] = bin.ReadInt32();
-				m_Kn5t[1] = bin.ReadInt32();
-				m_Kn5t[2] = bin.ReadInt32();
-
-				for (int j = 0; j < 3; j++)
-					for (int i = 0; i < 21; i++)
-						m_xKnot[j, i] = bin.ReadDouble();
-
-				for (int j = 0; j < 3; j++)
-					for (int i = 0; i < 3; i++)
-						for (int k = 0; k < m_Kn3t[0]; k++)
-							m_CofCur[j, i, k] = bin.ReadDouble();
-
-				for (int j = 0; j < m_Kn3t[2]; j++)
-					for (int i = 0; i < 2; i++)
-						for (int k = 0; k < m_Kn3t[1]; k++)
-							m_CofSur[i, j, k] = bin.ReadDouble();
-
-				for (int j = 0; j < m_Kn3t[1]; j++)
-					for (int i = 0; i < 2; i++)
-						m_CofFot[i, j] = bin.ReadDouble();
-
+				ReadBinShape(bin);
 
 				double[,] xMat = new double[3, 3];
 				double[] xVec = new double[3];
@@ -86,8 +56,80 @@ namespace Warps
 				int iC = bin.ReadInt32();
 				byte[] DesMsm = bin.ReadBytes(iC);
 
-
 			}
+		}
+
+		public void ReadCofFile(Sail sail, string cofPath)
+		{
+			if( cofPath != null )
+				m_cofPath = cofPath;
+			
+			ReadMFCCofFile(cofPath);
+			return;
+
+			using (BinaryReader bin = new BinaryReader(File.Open(cofPath, FileMode.Open, FileAccess.Read), Encoding.ASCII))
+			{
+				m_text = Utilities.ReadCString(bin);
+
+				ReadBinShape(bin);
+
+				ReadBinCurves(bin, sail);
+			}
+		}
+		public void ReadBinShape(BinaryReader bin)
+		{
+			m_Kn0t[0] = bin.ReadInt32();
+			m_Kn0t[1] = bin.ReadInt32();
+			m_Kn0t[2] = bin.ReadInt32();
+
+			m_Kn2t[0] = bin.ReadInt32();
+			m_Kn2t[1] = bin.ReadInt32();
+			m_Kn2t[2] = bin.ReadInt32();
+
+			m_Kn3t[0] = bin.ReadInt32();
+			m_Kn3t[1] = bin.ReadInt32();
+			m_Kn3t[2] = bin.ReadInt32();
+
+			m_Kn5t[0] = bin.ReadInt32();
+			m_Kn5t[1] = bin.ReadInt32();
+			m_Kn5t[2] = bin.ReadInt32();
+
+			for (int j = 0; j < 3; j++)
+				for (int i = 0; i < 21; i++)
+					m_xKnot[j, i] = bin.ReadDouble();
+
+			for (int j = 0; j < 3; j++)
+				for (int i = 0; i < 3; i++)
+					for (int k = 0; k < m_Kn3t[0]; k++)
+						m_CofCur[j, i, k] = bin.ReadDouble();
+
+			for (int j = 0; j < m_Kn3t[2]; j++)
+				for (int i = 0; i < 2; i++)
+					for (int k = 0; k < m_Kn3t[1]; k++)
+						m_CofSur[i, j, k] = bin.ReadDouble();
+
+			for (int j = 0; j < m_Kn3t[1]; j++)
+				for (int i = 0; i < 2; i++)
+					m_CofFot[i, j] = bin.ReadDouble();
+
+		}
+		List<IGroup> m_moucurves;
+		List<RigLine> m_rigcurves;
+		void ReadBinCurves(BinaryReader bin, Sail sail)
+		{
+			//read 3d curve count
+			int iC = bin.ReadInt32();
+			m_rigcurves = new List<RigLine>(iC);
+			//read curves from bin file
+			for (int nC = 0; nC < iC; nC++)
+				m_rigcurves.Add(new RigLine(bin));
+
+			//read group count
+			iC = bin.ReadInt32();
+			m_moucurves = new List<IGroup>(iC);
+			//read curvegroups from bin file
+			for (int nC = 0; nC < iC; nC++)
+				m_moucurves.Add(new CurveGroup(bin, sail));
 		}
 
 		#endregion
@@ -425,6 +467,21 @@ namespace Warps
 		{
 			List<Entity> ents = new List<Entity>();
 			ents.Add(SurfaceTools.GetMesh(this, uvLims, bGauss));
+
+			if (!bGauss)//only add curves to non-gauss layer
+			{
+				if (m_rigcurves != null)
+					foreach (RigLine rig in m_rigcurves)
+					{
+						ents.Add(rig.CreateEntities());
+						ents[ents.Count - 1].EntityData = this;
+					}
+				if (m_moucurves != null)
+					foreach (IGroup g in m_moucurves)
+					{
+						ents.AddRange(g.CreateEntities());
+					}
+			}
 			return ents;
 			//m_entities.Add(SurfaceTools.GetMesh(this, true));
 			//m_entities.Last().LayerIndex 
@@ -437,7 +494,7 @@ namespace Warps
 			string line = ScriptTools.ReadLabel(txt[0]);
 			if (line != null)
 			{
-				ReadCofFile(line);
+				ReadMFCCofFile(line);
 				return true;
 			}
 			return false;
@@ -447,6 +504,26 @@ namespace Warps
 			List<string> s = new List<string>();
 			s.Add(ScriptTools.Label(GetType().Name, m_cofPath));
 			return s;
+		}
+
+		TreeNode m_node;
+		public TreeNode WriteNode()
+		{
+			if (m_node == null)
+				m_node = new System.Windows.Forms.TreeNode();
+			m_node.Text = string.Format("{0}: {1}", GetType().Name, CofPath);
+			m_node.Tag = this;
+			m_node.ImageKey = GetType().Name;
+			m_node.SelectedImageKey = GetType().Name;
+			m_node.Nodes.Clear();
+			if( m_moucurves != null )
+			foreach (IGroup g in m_moucurves)
+				m_node.Nodes.Add(g.WriteNode());
+			var tn = m_node.Nodes.Add("Rig Curves");
+			if( m_rigcurves != null )
+			foreach (RigLine rig in m_rigcurves)
+				tn.Nodes.Add(rig.ToString());
+			return m_node;
 		}
 
 		#endregion

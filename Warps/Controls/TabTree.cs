@@ -25,8 +25,7 @@ namespace Warps
 			imageList.Images.Add("empty", Warps.Properties.Resources.empty);
 			imageList.Images.Add("Sail", Warps.Properties.Resources.icon_sail);
 			imageList.Images.Add("CurveGroup", Warps.Properties.Resources.curvepath);
-			imageList.Images.Add("SurfaceCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
-			imageList.Images.Add("Geodesic", Warps.Properties.Resources.glyphicons_097_vector_path_line);
+			imageList.Images.Add("MouldCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
 			imageList.Images.Add("CurvePoint", Warps.Properties.Resources.CurvePoint);
 			imageList.Images.Add("SlidePoint", Warps.Properties.Resources.SlidePoint);
 			imageList.Images.Add("FixedPoint", Warps.Properties.Resources.FixedPoint);
@@ -389,22 +388,22 @@ namespace Warps
 			e.Handled = true;
 		}
 
-		//internal void AddUpdateEquation(TreeNode tmp)
-		//{
-		//	TreeNode found = FindNode(tmp.Tag);
+		internal void AddUpdateEquation(TreeNode tmp)
+		{
+			TreeNode found = FindNode(tmp.Tag);
 
-		//	if (found == null)
-		//		Add(tmp);
-		//	else
-		//		found = (TreeNode)tmp.Clone();
-		//}
+			if (found == null)
+				Add(tmp);
+			else
+				found = (TreeNode)tmp.Clone();
+		}
 
-		//internal void RemoveEquation(string eqText)
-		//{
-		//	TreeNode found = FindNode(eqText);
-		//	if (found != null)
-		//		m_seqtree.Nodes.RemoveByKey(found.Name);
-		//}
+		internal void RemoveEquation(string eqText)
+		{
+			TreeNode found = FindNode(eqText);
+			if (found != null)
+				m_seqtree.Nodes.RemoveByKey(found.Name);
+		}
 
 		internal void DeSelect(IGroup group)
 		{

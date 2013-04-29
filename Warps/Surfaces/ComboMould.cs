@@ -9,11 +9,13 @@ namespace Warps
 {
 	public class ComboMould : ISurface
 	{
-		string m_label;
-		public ComboMould(string cofpath)
+		public ComboMould() { }
+		public ComboMould(Sail sail, string cofpath)
 		{
-			ReadCofFile(cofpath);
+			ReadCofFile(sail, cofpath);
 		}
+
+		string m_label;
 
 		CofMould m_mould;
 		public CofMould Mould
@@ -27,9 +29,9 @@ namespace Warps
 			get { return m_extension; }
 		}
 
-		void ReadCofFile(string cofpath)
+		public void ReadCofFile(Sail sail, string cofpath)
 		{
-			m_mould = new CofMould(cofpath);
+			m_mould = new CofMould(sail, cofpath);
 			m_extension = new RBFMould(m_mould);
 			m_label = "Combo" + Mould.Label;
 		}
@@ -91,7 +93,6 @@ namespace Warps
 			return SurfaceTools.xClosest(this, ref uv, ref xyzTarget, ref dist, tol);
 		}
 
-
 		public List<Entity> CreateEntities(double[,] uvLims, bool bGauss)
 		{
 			List<Entity> ents = new List<Entity>();
@@ -108,7 +109,7 @@ namespace Warps
 			string line = ScriptTools.ReadLabel(txt[0]);
 			if (line != null)
 			{
-				ReadCofFile(line);
+				ReadCofFile(sail, line);
 				return true;
 			}
 			return false;
@@ -120,6 +121,21 @@ namespace Warps
 			return s;
 		}
 
+		System.Windows.Forms.TreeNode m_node;
+		public System.Windows.Forms.TreeNode WriteNode()
+		{
+			if (m_node == null)
+				m_node = new System.Windows.Forms.TreeNode();
+			m_node.Text = string.Format("{0}: {1}", GetType().Name, Label);
+			m_node.Tag = this;
+			m_node.ImageKey = GetType().Name;
+			m_node.SelectedImageKey = GetType().Name;
+			m_node.Nodes.Clear();
+			m_node.Nodes.Add(Mould.WriteNode());
+			m_node.Nodes.Add(Extension.WriteNode());
+			return m_node;
+
+		}
 
 		public string Label
 		{
@@ -132,7 +148,6 @@ namespace Warps
 		{
 			return Label;
 		}
-
 
 	}
 }

@@ -163,12 +163,7 @@ namespace Warps
 		{
 			if (m_temp == null || !EditMode)
 				return;
-			//if (e.Value >= 0)
-			//{
-			//	m_temp[e.Value].ReadEditor(Edit[e.Value]);
-			//	m_temp[e.Value].WriteEditor(Edit[e.Value]);
-			//}
-			//else
+
 			ReadEditor();
 			UpdateViewCurve(true);
 		}
@@ -184,6 +179,7 @@ namespace Warps
 				{
 					pnts.Add(fit as IFitPoint);
 					pnts.Last().ReadEditor(Edit[i]);
+					pnts.Last().Update(Sail);
 				}
 			}
 			m_temp.FitPoints = pnts.ToArray();
@@ -218,13 +214,8 @@ namespace Warps
 			IFitPoint[] pts = new IFitPoint[Curve.FitPoints.Length];
 			for (int i = 0; i < pts.Length; i++)
 				pts[i] = Curve[i].Clone();
-			if (Curve is Geodesic)
-				m_temp = new Geodesic(cur.Label + "[preview]", Curve.Sail, pts);
-			else if (Curve is SurfaceCurve)
-				m_temp = new SurfaceCurve(cur.Label + "[preview]", Curve.Sail, pts);
-			else if (Curve is GuideComb)
-				m_temp = new SurfaceCurve(cur.Label + "[preview]", Curve.Sail, pts);
 
+			m_temp = new MouldCurve(cur.Label + "[preview]", Curve.Sail, pts);
 			m_tents = View.AddRange(m_temp.CreateEntities(true));
 
 			foreach (Entity[] ents in m_tents)
@@ -232,6 +223,8 @@ namespace Warps
 				{
 					ee.Color = Color.LightSkyBlue;
 					ee.ColorMethod = colorMethodType.byEntity;
+					if ( ee.LineWeight == 1 ) ee.LineWeight = 2.0f;
+					ee.LineWeightMethod = colorMethodType.byEntity;
 				}
 
 			List<MouldCurve> mc = Sail.GetCurves(Curve);
@@ -378,11 +371,8 @@ namespace Warps
 		public void OnPaste(object sender, EventArgs e)
 		{
 			//result = null;
-			if (!Clipboard.ContainsData(typeof(MouldCurve).Name) 
-				|| !Clipboard.ContainsData(typeof(SurfaceCurve).Name)
-				|| !Clipboard.ContainsData(typeof(Geodesic).Name))
+			if (!Clipboard.ContainsData(typeof(MouldCurve).Name))
 				return;
-
 
 			List<string> result = (List<string>)Utilities.DeSerialize(Clipboard.GetData(typeof(MouldCurve).GetType().Name).ToString());
 			ScriptTools.ModifyScriptToShowCopied(ref result);
@@ -395,8 +385,7 @@ namespace Warps
 
 		void UpdateViewCurve(bool bEditor)
 		{
-			m_temp.Update(Sail);
-			//m_temp.ReFit();
+			m_temp.ReFit();
 			List<Entity> verts = m_temp.CreateEntities(true).ToList();
 			foreach (Entity[] ents in m_tents)
 			{
@@ -504,9 +493,7 @@ namespace Warps
 		bool ClipboardContainsCurve()
 		{
 			return Clipboard.ContainsData(typeof(CurveGroup).Name)
-				|| Clipboard.ContainsData(typeof(MouldCurve).Name)
-				|| Clipboard.ContainsData(typeof(SurfaceCurve).Name)
-				|| Clipboard.ContainsData(typeof(Geodesic).Name);
+				|| Clipboard.ContainsData(typeof(MouldCurve).Name);
 		}
 	}
 }

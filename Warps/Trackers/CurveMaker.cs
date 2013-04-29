@@ -55,9 +55,9 @@ namespace Warps
 			{
 				CurveGroup cg = (m_sail.Layout.Last() as CurveGroup);
 				cg.Add(Curve);
-				cg.Update(m_sail);//rebuild
+				cg.Update();//rebuild
 			}
-			Curve.Update(m_sail);//rebuild
+			Curve.Update();//rebuild
 			if (m_frame.AutoBuild)
 				m_sail.Rebuild(m_curve);
 
@@ -92,7 +92,7 @@ namespace Warps
 			fits.Add(ReadFitPoint(script, ++nS));
 
 			if (Curve == null)
-				Curve = new SurfaceCurve(script.Substring(7, 5), m_sail, fits.ToArray());
+				Curve = new MouldCurve(script.Substring(7, 5), m_sail, fits.ToArray());
 			else
 			{
 				Curve.Label = script.Substring(7, 5);
@@ -111,7 +111,7 @@ namespace Warps
 			fits[1] = ReadFitPoint(script, ++nS);
 
 			if( Curve == null )
-				Curve = new Geodesic(script.Substring(7, 5), m_sail, fits);
+				Curve = new MouldCurve(script.Substring(7, 5), m_sail, fits);
 			else
 			{
 				Curve.Label = script.Substring(7, 5);

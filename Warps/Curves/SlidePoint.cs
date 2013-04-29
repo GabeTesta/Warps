@@ -23,19 +23,5 @@ namespace Warps
 			return new SlidePoint(this);
 		}
 		
-		public MouldCurve Curve
-		{
-			get { return m_curve; }
-		}
-
-		public double SCurve
-		{
-			get { return m_sCurve; }
-			set 
-			{ 
-				m_sCurve = value;
-				S_Equ.Value = value;
-			}
-		}
 	}
 }

@@ -38,25 +38,30 @@ namespace Warps
 		public void Track(WarpFrame frame)
 		{
 			m_frame = frame;
-			m_frame.EditorPanel = null;
-			AddContextMenu();
 
-			//m_frame.okButton.Click += OnBuild;
-			//m_frame.cancelButton.Click += OnCancel;
-			//m_frame.previewButton.Click += OnPreview;
-			Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v
-			Tree.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
+			if (m_frame != null )
+			{
+				m_frame = frame;
+				m_frame.EditorPanel = null;
+				AddContextMenu();
 
-			View.AttachTracker(this);
+				//m_frame.okButton.Click += OnBuild;
+				//m_frame.cancelButton.Click += OnCancel;
+				//m_frame.previewButton.Click += OnPreview;
+				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v
+				Tree.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
 
+				View.DeSelectAllLayers();
+				View.AttachTracker(this);
+			}
 			//View.ShowAll();
 		}
 
 		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
-				if (Tree.ContextMenuStrip.Items[i].Text == "Paste Curve")
-					Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsCurve();
+			//for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
+			//	if (Tree.ContextMenuStrip.Items[i].Text == "Paste Group")
+			//		Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsCurve();
 			Tree.ContextMenuStrip.Show();
 			//Tree.ContextMenuStrip.Items["Paste Curve"].Enabled = ClipboardContainsCurve();
 		}
@@ -109,7 +114,7 @@ namespace Warps
 				Tree.ContextMenuStrip.Items.Add("Visible", new Bitmap(Warps.Properties.Resources.SmallEye), OnVisibleToggleClick);
 				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
 				//Tree.ContextMenuStrip.Items.Add("Copy Curve", new Bitmap(Warps.Properties.Resources.copy), OnCopy);
-				Tree.ContextMenuStrip.Items.Add("Paste Curve", new Bitmap(Warps.Properties.Resources.paste), OnPaste);
+				Tree.ContextMenuStrip.Items.Add("Paste Group", new Bitmap(Warps.Properties.Resources.paste), OnPaste);
 				Tree.ContextMenuStrip.Items[Tree.ContextMenuStrip.Items.Count - 1].Enabled = ClipboardContainsCurve();
 				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
 				Tree.ContextMenuStrip.Items.Add("Color", new Bitmap(Warps.Properties.Resources.showonly), EditColorClick);
@@ -202,11 +207,8 @@ namespace Warps
 
 		public void OnPaste(object sender, EventArgs e)
 		{
-			if (!ClipboardContainsCurve())
-				return;
-
 			Type type = Utilities.GetClipboardObjType();
-			if (type == null)
+			if (type == null || type.IsSubclassOf(typeof(IGroup)) )
 				return;
 
 			List<string> result = (List<string>)Utilities.DeSerialize(Clipboard.GetData(type.Name).ToString());
@@ -219,40 +221,40 @@ namespace Warps
 			if(Sail.FindGroup(groupname) != null) // doesn't have this group
 				ScriptTools.ModifyScriptToShowCopied(ref result);
 
-			Sail sail = (Sail)Tree.SelectedTag;
 
-			if (sail == null)
-				return;
-			if (type == typeof(CurveGroup))
+
+			IGroup g = Utilities.CreateInstance(type) as IGroup;
+
+			if (g != null)
 			{
-				CurveGroup g = new CurveGroup();
-				g.Sail = sail;
-				g.ReadScript(sail, result);
+				g.Sail = Sail;
+				g.ReadScript(Sail, result);
 
-				sail.Add(g);
+				Sail.Add(g);
 				//g.Rebuild(null);
 				m_frame.Rebuild(g);
+				Sail.WriteNode();
 			}
-			else if (type == typeof(VariableGroup))
-			{
-				VariableGroup g = new VariableGroup();
-				g.Sail = sail;
-				g.ReadScript(sail, result);
+			//else if (type == typeof(VariableGroup))
+			//{
+			//	VariableGroup g = new VariableGroup();
+			//	g.Sail = sail;
+			//	g.ReadScript(sail, result);
 
-				sail.Add(g);
-				//g.Rebuild(null);
-				m_frame.Rebuild(g);
-			}
-			else if (type == typeof(YarnGroup))
-			{
-				YarnGroup g = new YarnGroup();
-				g.Sail = sail;
-				g.ReadScript(sail, result);
+			//	sail.Add(g);
+			//	//g.Rebuild(null);
+			//	m_frame.Rebuild(g);
+			//}
+			//else if (type == typeof(YarnGroup))
+			//{
+			//	YarnGroup g = new YarnGroup();
+			//	g.Sail = sail;
+			//	g.ReadScript(sail, result);
 
-				sail.Add(g);
-				//g.Rebuild(null);
-				m_frame.Rebuild(g);
-			}
+			//	sail.Add(g);
+			//	//g.Rebuild(null);
+			//	m_frame.Rebuild(g);
+			//}
 
 		}
 

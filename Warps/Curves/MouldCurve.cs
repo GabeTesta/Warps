@@ -14,16 +14,51 @@ namespace Warps
 {
 	public delegate Point3D Transformer(Point3D pt);
 
-	abstract public class MouldCurve : IRebuild, IMouldCurve
+	public class MouldCurve : IRebuild, IMouldCurve
 	{
+		static bool EXTENDENTITY = false;
 		public MouldCurve()
 		{ }
-		public MouldCurve(string label, Sail sail)
+
+		public MouldCurve(string label, Sail sail, IFitPoint[] fits)
 		{
 			m_sail = sail;
 			m_label = label;
+			if (fits != null)
+				Fit(fits);
 		}
 
+		/// <summary>
+		/// ctor for reading curves from cof file
+		/// </summary>
+		/// <param name="bin">the cof file</param>
+		/// <param name="sail">the sail to map to</param>
+		public MouldCurve(System.IO.BinaryReader bin, Sail sail)
+		{
+			m_sail = sail;
+			//read label
+			m_label = Utilities.ReadCString(bin);
+
+			//read fit point positions
+			int nPos = bin.ReadInt32();
+			List<FixedPoint> pts = new List<FixedPoint>(nPos);
+			for (int nP = 0; nP < nPos; nP++)
+				pts.Add(new FixedPoint(bin.ReadDouble(), 0, 0));
+
+			FitPoints = pts.ToArray();
+			//read the spline
+			m_bSpline.ReadBin(bin);
+
+			//set the fixedpoints uv coords from the positions and spline
+			double[] uv = new double[2];
+			for (int nP = 0; nP < nPos; nP++)
+			{
+				Spline.BsVal(this[nP][0], ref uv);
+				this[nP][1] = uv[0];
+				this[nP][2] = uv[1];
+			}
+		}
+		
 		#region Members
 
 		string m_label;
@@ -119,6 +154,27 @@ namespace Warps
 			get { return FitPoints[i]; }
 		}
 
+		bool[] m_bGirths;
+		internal bool IsGirth(int nSegment)
+		{
+			return m_bGirths == null ? false : nSegment > m_bGirths.Length ? false : m_bGirths[nSegment];
+		}
+
+		/// <summary>
+		/// Check to see that all fitpoints in the curve are valid
+		/// </summary>
+		/// <returns>True if valid, otherwise false</returns>
+		internal bool AllFitPointsValid()
+		{
+			if (FitPoints == null)
+				return false;
+			bool valid = true;
+			foreach (IFitPoint pnt in FitPoints)
+				valid &= pnt.ValidFitPoint;
+
+			return valid;
+		}
+
 		public override string ToString()
 		{
 			return Label;
@@ -136,7 +192,46 @@ namespace Warps
 		{
 			Fit(new IFitPoint[] { new FixedPoint(uStart), new FixedPoint(uEnd) });
 		}
-		public abstract void Fit(IFitPoint[] points);
+		public virtual void Fit(IFitPoint[] points)
+		{
+			FitPoints = points;
+			//set girth settings from previous settings or defualt if change in segments
+			bool anyGirths = InitializeGirthSegments(points);
+			//if any segements are flagged as girths then attempt to Geodesic fit
+			if (anyGirths)
+				if (Geodesic.Geo(this, points))
+					return;
+			//defualt to SurfaceCurve fit
+			SurfaceCurve.Fit(this, points);
+		}
+
+		private bool InitializeGirthSegments(IFitPoint[] points)
+		{
+			if (m_bGirths == null || m_bGirths.Length != points.Length - 1)
+			{
+				////optionally reuse existing segment settings
+				//bool[] bGir = null;
+				//if (m_bGirths != null)
+				//	bGir = m_bGirths.Clone() as bool[];
+
+				////set internal segments to spline
+				//m_bGirths = new bool[points.Length - 1];
+				//for (int i = 0; i < m_bGirths.Length; i++)
+				//	m_bGirths[i] = bGir != null && bGir.Length > i ? bGir[i] : false;
+
+				////by default Girth the first and last segment(if more than 2 segments)
+				//if (bGir == null)
+				//{
+				m_bGirths = new bool[points.Length-1];
+					m_bGirths[0] = true;
+					if (m_bGirths.Length > 2)
+						m_bGirths[m_bGirths.Length - 1] = true;
+				//}
+			}
+			//true if any are true
+			return m_bGirths.Aggregate((cur, sum) => sum |= cur);
+		}
+
 		public void ReSpline(double[] sFits, Vect2[] uFits)
 		{
 			double[][] u = new double[2][];
@@ -156,7 +251,6 @@ namespace Warps
 		}
 		public void ReSpline(double[] sFits, double[][] uFits)
 		{
-			Length = -1;//reset length
 			Spline.Fit(sFits, uFits);//fit spline
 		}
 
@@ -289,173 +383,7 @@ namespace Warps
 
 		public bool CrossPoint(IMouldCurve otherCurve, ref Vect2 uv, ref Vect3 xyz, ref Vect2 sPos)
 		{
-			return CrossPoint(otherCurve, ref uv, ref xyz, ref sPos, 101);
-		}
-		public bool CrossPoint(IMouldCurve otherCurve, ref Vect2 uv, ref Vect3 xyz,  ref Vect2 sPos, int nRez)
-		{
-			//h(x) = 1st curve (this)
-			//g(x) = 2nd curve
-			//h(x) - g(x) = 0
-			//
-			//therefore:
-			//f(x) = h(x) - g(x)
-			//Xn+1 = Xn - f(Xn)/f'(Xn);
-
-			// move in s on each curve
-
-			Vect2 uv1, uv2, uvtmp, duv1, duv2;
-			uv1 = new Vect2(); uv2 = new Vect2(); uvtmp = new Vect2(); duv1 = new Vect2(); duv2 = new Vect2();
-
-			double length = 0;
-			//const int NUMPTS = 101;
-			const double ALI_EPSILON = 0.1e-11;
-			const double TOLERANCE = 0.1e-8;
-
-			// check endpoints first
-			for (int i = 0; i < 2; i++)
-			{
-				for (int j = 0; j < 2; j++)
-				{
-					otherCurve.uVec(i, ref uv1, ref duv1); // evaluate s's to get distance between
-
-					this.uVec(j, ref uv2, ref duv2); // evaluate s's to get distance between
-
-					length = uv1.Distance(uv2); // get distance
-
-					if (length < TOLERANCE)
-					{ // intersection found
-						this.xVal(j, ref uv, ref xyz);
-						return true;
-					}
-				}
-			}
-
-			List<Vect2> uas = new List<Vect2>(nRez);
-			List<Vect2> ubs = new List<Vect2>(nRez);
-
-			List<Vect3> xas = new List<Vect3>(nRez);
-			List<Vect3> xbs = new List<Vect3>(nRez);
-
-			int ia100, ib100, iNwt;
-
-			Vect2 tmpU = new Vect2(); Vect3 tmpX = new Vect3();
-			for (ia100 = 0; ia100 < nRez; ia100++)
-			{
-				xVal(BLAS.interpolant(ia100, nRez), ref tmpU, ref tmpX);
-				uas.Add(new Vect2(tmpU));
-				xas.Add(new Vect3(tmpX));
-
-				otherCurve.xVal(BLAS.interpolant(ia100, nRez), ref tmpU, ref tmpX);
-				ubs.Add(new Vect2(tmpU));
-				xbs.Add(new Vect3(tmpX));
-			}
-
-			double dx;
-			double dus, dMin, ta, tb, td, ad, bd, r1, r2;
-			ta = 0; tb = 0;
-			Vect2 du, ua, ub, da, db; 
-			du = new Vect2(); ua = new Vect2(); ub = new Vect2();
-			da = new Vect2(); db = new Vect2();
-
-			dMin = 1e6;
-			//	initialize minimum distance squared
-			for (ia100 = 0; ia100 < nRez; ia100++)
-			{
-				for (ib100 = 0; ib100 < nRez; ib100++)
-				{
-					du = uas[ia100] - ubs[ib100];
-
-					//	calculate (u)-distance squared between permutation of 1/100 points
-					dus = du.Norm;
-					dx = xas[ia100].Distance(xbs[ib100]);
-					//	track the minimum distance
-					if (dMin > dx)
-					{
-						dMin = dx;
-						ta = BLAS.interpolant(ia100, nRez);
-						tb = BLAS.interpolant(ib100, nRez);
-					}
-				}
-			}
-			Vect3 xa, xb; xa = new Vect3(); xb = new Vect3();
-			bool bLimit = true;
-			//	Newton-Raphson iteration from closest 1/100 points
-			for (iNwt = 0; iNwt < 250; iNwt++)
-			{
-				//	enforce end point limits
-
-				if (bLimit)
-				{
-					ta = ta > 0 ? ta : 0;
-					ta = ta < 1 ? ta : 1;
-					tb = tb > 0 ? tb : 0;
-					tb = tb < 1 ? tb : 1;
-				}
-
-				uVec(ta, ref ua, ref da);
-				xVal(ta, ref ua, ref xa);
-
-				otherCurve.uVec(tb, ref ub, ref db);
-				otherCurve.xVal(tb, ref ub, ref xb);
-
-				r1 = ua[0] - ub[0];
-				r2 = ua[1] - ub[1];
-
-				if (Math.Abs(r1) < ALI_EPSILON && Math.Abs(r2) < ALI_EPSILON)
-				{
-					//	enforce end point limits
-					if (bLimit)
-					{
-						if (ta < 0 && Math.Pow(ta, 2) > TOLERANCE)
-							return false; // TR 29 Jan 09 ta = 0;
-						if (ta > 1 && Math.Pow(1.0 - ta, 2) > TOLERANCE)
-							return false; // TR 29 Jan 09 ta = 1;
-
-						if (tb < 0 && Math.Pow(tb, 2) > TOLERANCE)
-							return false; // TR 29 Jan 09 tb = 0;
-						if (tb > 1 && Math.Pow(1.0 - tb, 2) > TOLERANCE)
-							return false; // TR 29 Jan 09 tb = 1;
-					}
-					//	chop off round off errors
-					//*(pa) = ta;
-					//*(pb) = tb;
-					//	which may effect the (u)-coordinates
-					uVec(ta, ref ua, ref da);
-					uv = new Vect2(ua);
-					xVal(uv, ref xyz);
-					//	return with updated calling parameters
-					//us[0] = ua[0];
-					//us[1] = ua[1];
-					sPos[0] = ta;
-					sPos[1] = tb;
-
-					return true;
-				}//if( fabs( r1 ) < ALI_EPSILON && fabs( r2 ) < ALI_EPSILON )
-
-				td = da[1] * db[0] - da[0] * db[1];
-
-				if (Math.Abs(td) < .1e-9)
-				{
-					break;
-				}
-
-				ad = (db[0] * r2 - db[1] * r1) / td;
-				bd = (da[0] * r2 - da[1] * r1) / td;
-
-				td = Math.Max(Math.Abs(ad), Math.Abs(bd));
-				//	enforce maximum increment
-				if (td > .1)
-				{
-					ad *= .1 / td;
-					bd *= .1 / td;
-				}
-
-				ta -= ad;
-				tb -= bd;
-			}//for( iNwt=0; iNwt<250; iNwt++ )
-
-			//	no_intersection terminate in error
-			return false;
+			return CurveTools.CrossPoint(this, otherCurve, ref uv, ref xyz, ref sPos, 101);
 		}
 
 		#endregion
@@ -564,98 +492,6 @@ namespace Warps
 		//}
 		#endregion
 
-		/// <summary>
-		/// Check to see that all fitpoints in the curve are valid
-		/// </summary>
-		/// <returns>True if valid, otherwise false</returns>
-		internal bool AllFitPointsValid()
-		{
-			bool valid = true;
-			foreach (IFitPoint pnt in FitPoints)
-				valid &= pnt.ValidFitPoint;
-
-			return valid;
-		}
-
-		//public Point3D[] GetPathPoints(IMouldCurve c, int CNT)
-		//{
-		//	double s;
-		//	Vect2 uv = new Vect2();
-		//	Vect3 xyz = new Vect3();
-		//	Point3D[] d = new Point3D[CNT];
-		//	for (int i = 0; i < CNT; i++)
-		//	{
-		//		s = (double)i / (double)(CNT - 1);
-		//		c.xVal(s, ref uv, ref xyz);
-		//		Utilities.Vect3ToPoint3D(ref d[i], xyz);
-		//	}
-		//	return d;
-		//}
-		//public Point3D[] GetCloudPoints(IMouldCurve c)
-		//{
-		//	Point3D[] pnts;
-		//	Vect2 uv = new Vect2();
-		//	Vect3 xyz = new Vect3();
-
-		//	pnts = new Point3D[c.NumFits];
-		//	double s;
-		//	for (int i = 0; i < c.NumFits; i++)
-		//	{
-		//		s = c.GetFitPos(i);
-		//		c.xVal(s, ref uv, ref xyz);
-		//		Utilities.Vect3ToPoint3D(ref pnts[i], xyz);
-		//	}
-		//	return pnts;
-		//}
-		//public Point3D[] GetCombPoints(IMouldCurve c, int CNT, out Point3D[] combs, bool bNor)
-		//{
-		//	bool useRad = false;
-		//	double s, k = 0;
-		//	Vect2 uv = new Vect2();
-		//	Vect3 xyz = new Vect3(), dx = new Vect3(), ddx = new Vect3(), xnor = new Vect3();
-		//	Point3D[] d = new Point3D[CNT];
-		//	combs = new Point3D[CNT];
-		//	for (int i = 0; i < CNT; i++)
-		//	{
-		//		s = (double)i / (double)(CNT - 1);
-		//		if (useRad)
-		//			c.xRad(s, ref uv, ref xyz, ref k);
-		//		else
-		//			c.xCvt(s, ref uv, ref xyz, ref dx, ref ddx);
-
-		//		if (useRad)
-		//		{
-		//			c.Surface.xNor(uv, ref xyz, ref xnor);
-		//			xnor.Scale(k * 5.0);
-		//			dx = xyz + xnor;
-		//			//BLAS.scale(ref xnor, k * 5);
-		//			//dx = BLAS.add(xyz, xnor);
-		//		}
-		//		else
-		//			if (bNor)
-		//			{
-		//				c.Surface.xNor(uv, ref xyz, ref xnor);
-		//				k = ddx.Magnitude / 10.0;
-		//				//xnor.Scale(k);
-		//				dx = xyz + xnor;
-		//				//k = BLAS.magnitude(ddx) / 10.0;
-		//				//BLAS.scale(ref xnor, k);
-		//				//dx = BLAS.add(xyz, xnor);
-		//			}
-		//			else
-		//			{
-		//				ddx.Scale(.01);
-		//				dx = xyz + ddx;
-		//				//BLAS.scale(ref ddx, .01);
-		//				//dx = BLAS.add(xyz, ddx);
-		//			}
-
-		//		Utilities.Vect3ToPoint3D(ref d[i], xyz);
-		//		Utilities.Vect3ToPoint3D(ref combs[i], dx);
-		//	}
-		//	return d;
-		//}
-
 		#region IRebuild Members
 
 		public bool Affected(List<IRebuild> connected)
@@ -663,7 +499,7 @@ namespace Warps
 			foreach (IFitPoint fp in FitPoints)
 				if (fp.Affected(connected))
 				{
-					//fp.Update(
+					//connected.Add(fp);
 					return true;
 				}
 
@@ -683,6 +519,10 @@ namespace Warps
 
 		public bool Delete() { return false; }
 
+		public bool Update()
+		{
+			return true;
+		}
 		public bool Update(Sail s)
 		{
 			foreach (IFitPoint fp in FitPoints)
@@ -692,7 +532,6 @@ namespace Warps
 				ReFit();
 			return AllFitPointsValid();
 		}
-
 		public virtual bool ReadScript(Sail sail, IList<string> txt)
 		{
 			if (txt == null || txt.Count == 0)
@@ -708,6 +547,7 @@ namespace Warps
 					Label += ":" + splits[i];
 			Label = Label.Trim();
 
+			string header;
 			for (int nLine = 1; nLine < txt.Count; )
 			{
 				IList<string> lines = ScriptTools.Block(ref nLine, txt);
@@ -715,12 +555,24 @@ namespace Warps
 
 				object cur = null;
 				splits = lines[0].Split(':');
+
 				if (splits.Length > 0)
-					cur = Utilities.CreateInstance(splits[0].Trim('\t'));
-				if (cur != null && cur is IFitPoint)
+					header = splits[0].Trim('\t');
+				else header = "";
+
+				if (header == "Girth Segments")
 				{
-					(cur as IFitPoint).ReadScript(Sail, lines);
-					fits.Add(cur as IFitPoint);
+					ReadGirthsScript(lines);
+					
+				}
+				else//fit points
+				{
+					cur = Utilities.CreateInstance(header);
+					if (cur != null && cur is IFitPoint)
+					{
+						(cur as IFitPoint).ReadScript(Sail, lines);
+						fits.Add(cur as IFitPoint);
+					}
 				}
 			}
 			FitPoints = fits.ToArray();
@@ -729,6 +581,21 @@ namespace Warps
 				ReFit();
 
 			return true;
+		}
+
+		private void ReadGirthsScript(IList<string> lines)
+		{
+			if (lines.Count <= 1)
+			{
+				m_bGirths = null;
+				return;
+			}
+			m_bGirths = new bool[lines.Count-1];
+			int i = 0;
+			for(i=1; i< lines.Count; i++ )
+			{
+				bool.TryParse(lines[i].Trim('\t'), out m_bGirths[i-1]);
+			}
 		}
 
 		public virtual List<string> WriteScript()
@@ -740,63 +607,19 @@ namespace Warps
 				foreach (string s in fp.WriteScript())
 					script.Add("\t" + s);
 			}
-			
+			if (m_bGirths != null)
+			{
+				script.Add("\tGirth Segments:");
+				foreach (bool b in m_bGirths)
+					script.Add("\t\t" + b);
+			}
+
 			return script;
 		}
 
 		#endregion
 
 		#region Forms
-
-		//public IList<string> Script
-		//{
-		//	get
-		//	{
-		//		List<string> script = new List<string>();
-		//		script.Add(GetType().Name + ": " + Label);
-		//		foreach (IFitPoint fp in FitPoints)
-		//		{
-		//			foreach (string s in fp.Script)
-		//				script.Add("\t" + s);
-		//		}
-		//		return script;
-		//	}
-		//	set
-		//	{
-		//		List<IFitPoint> fits = new List<IFitPoint>();
-		//		IList<string> txt = value;
-
-		//		if (txt == null || txt.Count == 0)
-		//			return;
-		//		string[] splits = txt[0].Split(':');
-		//		Label = "";
-		//		if (splits.Length > 0)//extract label
-		//			Label = splits[1];
-		//		if (splits.Length > 1)//incase label contains ":"
-		//			for (int i = 2; i < splits.Length; i++)
-		//				Label += ":" + splits[i];
-		//		Label = Label.Trim();
-
-		//		for (int nLine = 1; nLine < txt.Count;)
-		//		{
-		//			IList<string> lines = ScriptTools.Block(ref nLine, txt);
-		//			//nLine += lines.Count;
-
-		//			object cur = null;
-		//			splits = lines[0].Split(':');
-		//			if (splits.Length > 0)
-		//				cur = Utilities.CreateInstance(splits[0].Trim('\t'));
-		//			if (cur != null && cur is IFitPoint)
-		//			{
-		//				(cur as IFitPoint).Script = lines;
-		//				fits.Add(cur as IFitPoint);
-		//			}
-		//		}
-		//		FitPoints = fits.ToArray();
-		//		ReFit();
-		//		//Fit(fits.ToArray());
-		//	}
-		//}
 
 		System.Windows.Forms.TreeNode m_node = null;
 
@@ -809,8 +632,9 @@ namespace Warps
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
 			m_node.Nodes.Clear();
-			foreach (IFitPoint fp in FitPoints)
-				m_node.Nodes.Add(fp.Node);
+			if( FitPoints != null )
+				foreach (IFitPoint fp in FitPoints)
+					m_node.Nodes.Add(fp.Node);
 			return m_node;
 		}
 
@@ -847,7 +671,7 @@ namespace Warps
 			if (!AllFitPointsValid())
 			{
 				sPos = null;
-				return null;
+				return new List<Entity>();
 			}
 
 			List<double> spos = new List<double>();
@@ -909,31 +733,33 @@ namespace Warps
 					pnts.Add(new Point3D(xyz.ToArray()));
 					tans.Add(new Vect3(dx));
 					m_Length += xyz.Distance(xprev);
-					xprev = xyz;
+					xprev.Set(xyz);
 				}
 			}
 
 
-#if DEBUG
-			//add for-cast/back-cast points
-			for (int i = 0; i < 2; i++)
+			if (EXTENDENTITY)
 			{
-				for (nTest = 0; nTest < 10; nTest++)
+				//add for-cast/back-cast points
+				for (int i = 0; i < 2; i++)
 				{
-					smid = BLAS.interpolant(nTest, 10) * 0.1;//scale down to .3 cast
-					if (i == 0)
-						smid = -smid;
-					else
-						smid += 1.0;
+					for (nTest = 0; nTest < 10; nTest++)
+					{
+						smid = BLAS.interpolant(nTest, 10) * 0.05;//scale down to .1 cast
+						if (i == 0)
+							smid = -smid;
+						else
+							smid += 1.0;
 
-					xVal(smid, ref uv, ref xyz);
-					if (i == 0)
-						pnts.Insert(0, new Point3D(xyz.ToArray()));
-					else
-						pnts.Add(new Point3D(xyz.ToArray()));
+						xVal(smid, ref uv, ref xyz);
+						if (i == 0)
+							pnts.Insert(0, new Point3D(xyz.ToArray()));
+						else
+							pnts.Add(new Point3D(xyz.ToArray()));
+					}
 				}
 			}
-#endif
+
 			LinearPath lp = new LinearPath(pnts);
 			lp.EntityData = this;
 			//lp.LineWeight = 3.0f;
@@ -981,7 +807,7 @@ namespace Warps
 			}
 		}
 
-		public Point3D GetLabelPoint3D(double s)
+		public virtual Point3D GetLabelPoint3D(double s)
 		{
 			Vect3 xyz = new Vect3();
 			Vect2 uv = new Vect2();
@@ -1063,6 +889,7 @@ namespace Warps
 
 			for (int i = 0; i < 2; i++)
 			{
+
 				FitPoints[index][i + 1] = Utilities.LimitRange(0, FitPoints[index][i + 1] + du[i], 1);
 				//m_uFits[i][index] += du[i];
 				////ensure inbounds
@@ -1084,7 +911,7 @@ namespace Warps
 
 			//get the mouse-coord for the starting fixed point
 			CurvePoint warp = FitPoints[index] as CurvePoint;
-			warp.m_curve.xVal(warp.sCurve, ref uv, ref xyz0);
+			warp.m_curve.xVal(warp.SCurve, ref uv, ref xyz0);
 			Vect3 xyz = new Vect3(xyz0);
 			Point3D x0 = WorldToScreen(new Point3D(xyz0.Array));
 
@@ -1092,7 +919,7 @@ namespace Warps
 			double delta_s = .005;
 			//			for (; xyz.Distance(xyz0) < 1e-4 && delta_s < 1; delta_s +=.05 )//ensure nonzero tangent
 			//			{
-			warp.m_curve.xVal(warp.sCurve + delta_s, ref uv, ref xyz);
+			warp.m_curve.xVal(warp.SCurve + delta_s, ref uv, ref xyz);
 
 			//			}
 			//convert to mouse coords
@@ -1107,13 +934,10 @@ namespace Warps
 			double dot = dmds.Dot(dm);//mouse.X * dmds.X + mouse.Y * dmds.Y;
 			dot *= delta_s / reduce;// / dmds.Magnitude;
 			//	Utilities.LimitRange(-.005, ref dot, .005);
-			if (warp.S_Equ.IsNumber())
-			{
-				warp.S_Equ.Value = dot + warp.S_Equ.Result;
-				warp.S_Equ.Value = Utilities.LimitRange(-.2, dot + warp.S_Equ.Result, 1.2);
-				//warp.m_sCurve = Utilities.LimitRange(-.2, warp.m_sCurve + dot, 1.2);
-				//ReFit();
-			}
+			warp.SCurve += dot;
+
+			warp.SCurve = Utilities.LimitRange(-.2, warp.SCurve + dot, 1.2);
+			//ReFit();
 			return true;
 		}
 

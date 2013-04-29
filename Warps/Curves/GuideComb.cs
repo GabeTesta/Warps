@@ -24,7 +24,7 @@ namespace Warps
 		/// <param name="fits">optional array of fitpoints, geodesic if 2, otherwise spline</param>
 		/// <param name="combs">optonal array of comb heights, minimum 5</param>
 		public GuideComb(string label, Sail sail, IFitPoint[] fits, Vect2[] combs)
-			:base(label, sail)
+			:base(label, sail, fits)
 		{
 			if (fits != null)
 				Fit(fits);
@@ -88,21 +88,6 @@ namespace Warps
 			set { m_comb = value; }
 		}
 
-
-		public override void Fit(IFitPoint[] points)
-		{
-			if (points.Length == 2)
-				Geodesic.Geo(this, points[0], points[1]);
-			else
-				SurfaceCurve.Fit(this, points);
-
-			//FitComb(CombPnts);
-			//initialize comb with 5 points at unit height
-			//m_comb.Fit(
-			//	new double[] { 0, .25, .5, .75, 1 }, 
-			//	new double[][] { new double[]{ 1, 1, .5, .1, .1 } });
-		}
-
 		public void hVal(double s, ref Vect2 uv, ref double h)
 		{
 			uVal(s, ref uv);
@@ -133,11 +118,32 @@ namespace Warps
 			if (sPos == null)
 				return e;
 			
-			e.AddRange(CreateCombEntity(sPos, !bFitPoints));
+			e.AddRange(CreateCombEntity(sPos, false));
+			Vect2 u = new Vect2();
+			Vect3 xyz = new Vect3(), xup = new Vect3();
+			foreach (double s in SComb)
+			{
+				e.Add(CreateNormal(s, ref u, ref xyz, ref xup));
+			}
 
 			return e;
 		}
-
+		LinearPath CreateNormal(double s, ref Vect2 uv, ref Vect3 xyz, ref Vect3 xup)
+		{
+			LinearPath nor = new LinearPath(2);
+			xVal(s, ref uv, ref xyz, ref xup);
+			nor.Vertices[0] = Utilities.Vect3ToPoint3D(xyz);
+			Vect3 xnor = xup - xyz;
+			if (xnor.Magnitude > COMBMAX)//enforce maxmimum combheight
+			{
+				xnor.Magnitude = COMBMAX;
+				xup = xyz + xnor;//ensure you passt he values back to the caller
+			}
+			nor.Vertices[1] = Utilities.Vect3ToPoint3D(xup);
+			nor.EntityData = this;
+			///nor.GroupIndex = 0;
+			return nor;
+		}
 		public List<Entity> CreateCombEntity(double[] sPos, bool bNorms)
 		{
 			//create normal offset comb lines
@@ -145,32 +151,43 @@ namespace Warps
 			Vect2 uv = new Vect2();
 			Vect3 xyz = new Vect3();
 			Vect3 xup = new Vect3();
-			List<Point3D> pts = new List<Point3D>(100);
-			List<Point3D> pup = new List<Point3D>(100);
+			List<Point3D> pts = new List<Point3D>(sPos.Length*2);
+			List<Point3D> pup = new List<Point3D>(sPos.Length);
 			for (int i = 0; i < sPos.Length; i++)
 			{
-				xVal(sPos[i], ref uv, ref xyz, ref xup);
+				LinearPath nor = CreateNormal(sPos[i], ref uv, ref xyz, ref xup);
+				//xVal(sPos[i], ref uv, ref xyz, ref xup);
+				//pts.Add(Utilities.Vect3ToPoint3D(xyz));
+				//Vect3 xnor = xup - xyz;
+				//if (xnor.Magnitude > COMBMAX)//enforce maxmimum combheight
+				//{
+				//	xnor.Magnitude = COMBMAX;
+				//	xup = xyz + xnor;
+				//}
 				pts.Add(Utilities.Vect3ToPoint3D(xyz));
-				Vect3 xnor = xup - xyz;
-				if (xnor.Magnitude > COMBMAX)//enforce maxmimum combheight
-				{
-					xnor.Magnitude = COMBMAX;
-					xup = xyz + xnor;
-				}
 				pup.Add(Utilities.Vect3ToPoint3D(xup));
 				if (bNorms)
-				{
-					normals.Add(new LinearPath(pts.Last(), pup.Last()));
-					normals.Last().EntityData = this;
-				}
+					normals.Add(nor);
 			}
 			pts.AddRange(pup);
 
 			Mesh m = SurfaceTools.GetMesh(pts.ToArray(), 2);
+			//m.GroupIndex = 0;
+			m.EntityData = this;
 			normals.Add(m);
-			normals.Last().EntityData = this;
-
 			return normals;
+		}
+
+		public override Point3D GetLabelPoint3D(double s)
+		{
+			Vect2 u = new Vect2();
+			Vect3 x = new Vect3();
+			Vect3 c = new Vect3();
+
+			xVal(s, ref u, ref x, ref c);
+			c -= x; //get normal vector
+			c.Magnitude /= 2;//half height
+			return Utilities.Vect3ToPoint3D(x + c);
 		}
 
 		public override bool ReadScript(Sail sail, IList<string> txt)
@@ -230,13 +247,15 @@ namespace Warps
 
 		public override List<string> WriteScript()
 		{
-			List<string> script = new List<string>();
-			script.Add(GetType().Name + ": " + Label);
-			foreach (IFitPoint fp in FitPoints)
-			{
-				foreach (string s in fp.WriteScript())
-					script.Add("\t" + s);
-			}
+
+			List<string> script = base.WriteScript();
+
+			//script.Add(GetType().Name + ": " + Label);
+			//foreach (IFitPoint fp in FitPoints)
+			//{
+			//     foreach (string s in fp.WriteScript())
+			//          script.Add("\t" + s);
+			//}
 			foreach (Vect2 v in CombPnts)
 			{
 				script.Add("\t" + v.GetType().Name);

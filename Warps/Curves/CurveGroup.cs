@@ -20,6 +20,16 @@ namespace Warps
 			m_label = label;
 			m_sail = sail;
 		}
+
+		public CurveGroup(System.IO.BinaryReader bin, Sail sail)
+		{
+			m_sail = sail;
+			m_label = Utilities.ReadCString(bin);
+			int iC = bin.ReadInt32();
+			for (int nC = 0; nC < iC; nC++)
+				Add(new MouldCurve(bin, sail));
+		}
+
 		//List<MouldCurve> m_curves = new List<MouldCurve>();
 		string m_label;
 		Sail m_sail;
@@ -230,6 +240,7 @@ namespace Warps
 			this.ForEach((MouldCurve c) => { bupdate |= c.Affected(connected); });
 			return bupdate; 
 		}
+		public bool Update() { return true; }
 		public bool Update(Sail s) { return true; }
 		public bool Delete() { return false; }
 		public void GetConnected(List<IRebuild> connected)

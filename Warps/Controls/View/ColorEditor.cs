@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Warps
 {
-	public delegate void ColorChangedHandler(object sender, EventArgs<string, Color> e);
+	public delegate void ColorChangedHandler(object sender, EventArgs<string[], Color> e);
 	public partial class ColorEditor : UserControl
 	{
 		public static KeyValuePair<Form, ColorEditor> Show(ColorMap colors)
@@ -93,11 +93,18 @@ namespace Warps
 			}
 			set
 			{
-				if (SelectedItem != null)
+				if (m_list.SelectedItems == null)
+					return;
+				foreach (ListViewItem lvi in m_list.SelectedItems)
 				{
-					SelectedItem.BackColor = value;
-					SelectedItem.ForeColor = ColorMath.TextColor(value);
+					lvi.BackColor = value;
+					lvi.ForeColor = ColorMath.TextColor(value);
 				}
+				//if (SelectedItem != null)
+				//{
+				//	SelectedItem.BackColor = value;
+				//	SelectedItem.ForeColor = ColorMath.TextColor(value);
+				//}
 			}
 		}
 		string ListString
@@ -107,6 +114,20 @@ namespace Warps
 				if (SelectedItem != null)
 					return SelectedItem.Text;
 				return null;
+			}
+		}
+		List<string> ListStrings
+		{
+			get
+			{
+				if( m_list.SelectedItems == null ) 
+					return null;
+				List<string> s = new List<string>(m_list.SelectedItems.Count);
+				foreach (ListViewItem lvi in m_list.SelectedItems)
+				{
+					s.Add(lvi.Text);
+				}
+				return s;
 			}
 		}
 		ListViewItem SelectedItem
@@ -154,7 +175,7 @@ namespace Warps
 		{
 			Colors[ListString] = WheelColor;
 			if (ColorChanged != null)
-				ColorChanged(this, new EventArgs<string, Color>(ListString, WheelColor));
+				ColorChanged(this, new EventArgs<string[], Color>(ListStrings.ToArray(), WheelColor));
 		}
 
 		public event ColorChangedHandler ColorChanged;

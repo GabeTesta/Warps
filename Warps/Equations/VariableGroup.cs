@@ -154,7 +154,7 @@ namespace Warps
 
 		public bool Delete() { return false; }
 
-		public bool Update(Sail s)
+		public bool Update()
 		{
 			bool bupdate = false;
 			foreach (KeyValuePair<string, Equation> entry in this)
@@ -165,7 +165,17 @@ namespace Warps
 			//	WriteNode(updated == null);
 			return bupdate;
 		}
-
+		public bool Update(Sail s)
+		{
+			bool bupdate = false;
+			foreach (KeyValuePair<string, Equation> entry in this)
+				bupdate |= entry.Value.Update(s);
+			//if (bupdate && updated != null)
+			//	updated.Add(this);
+			//if (bupdate)
+			//	WriteNode(updated == null);
+			return bupdate;
+		}
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
 			if (txt == null || txt.Count == 0)

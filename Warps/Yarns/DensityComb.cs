@@ -35,7 +35,7 @@ namespace Warps
 			//yar0.xVal(m_sPos, ref uv, ref xyz);
 			double s1 = m_sPos, d = 0;
 			//fit.Add(new FixedPoint(uv));
-			double length = 0, h;
+			double length = 0, h=0;
 			Vect2 v;
 			List<Vect2> combs = new List<Vect2>(m_Group.Count);
 			for (int i = 0; i < m_Group.Count; i++)
@@ -46,26 +46,30 @@ namespace Warps
 				if (i < m_Group.Count - 1)
 				{
 					xyz.Set(xprev);
-
+					//find the spacing to the next yarn
 					if (!CurveTools.xClosest(m_Group[i + 1], ref s1, ref uv, ref xyz, ref d, 1e-6, true))
 						Logger.logger.Instance.Log("xClosest failed in DensityComb");
 						//throw new Exception("xClosest failed in DensityComb");
-					length += h = xyz.Distance(xprev);
-
+					h = xyz.Distance(xprev);
+					//store the spacing and x-distance
 					v = new Vect2();
 					v[0] = length;
 					v[1] = m_Group.InverseSpacing(h);
 					combs.Add(v);
+
+					length += h;//accumulate length
 				}
 			}
 
 			Length = length;
+			//convert x-distance to s-spacing
 			for (int i = 0; i < combs.Count; i++)
-				combs[i][0] /= length;
+				fit[i][0] = combs[i][0] /= length;
+			combs.Add(new Vect2(1, m_Group.InverseSpacing(h)));//add endpoint with spacing to previous curve
 			//fit to the intersection points
 			SurfaceCurve.SimpleFit(this, fit.ToArray());
 			FitComb(combs.ToArray());
-			return DPI = m_Group.YarnDenier.Result * .0254 * (m_Group.Count - 1) / length;
+			return DPI = m_Group.YarnDenier * .0254 * (m_Group.Count - 1) / length;
 		}
 		YarnGroup m_Group;
 		double m_sPos;

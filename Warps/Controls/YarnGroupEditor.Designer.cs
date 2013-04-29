@@ -34,14 +34,14 @@
 			this.m_guideListView = new System.Windows.Forms.ListView();
 			this.selectGuideButt = new System.Windows.Forms.Button();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.yarnDenierEQB = new Warps.Controls.EquationBoxAuto();
+			this.yarnDenierTB = new System.Windows.Forms.TextBox();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
 			this.selectWarpButt = new System.Windows.Forms.Button();
 			this.m_warpListView = new System.Windows.Forms.ListView();
 			this.groupBox5 = new System.Windows.Forms.GroupBox();
 			this.m_densityLocTextBox = new System.Windows.Forms.TextBox();
+			this.targetdpiTB = new System.Windows.Forms.TextBox();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
-			this.targetDPIEQB = new Warps.Controls.EquationBoxAuto();
 			this.groupBox1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.groupBox4.SuspendLayout();
@@ -103,25 +103,23 @@
 			// 
 			// groupBox2
 			// 
-			this.groupBox2.Controls.Add(this.yarnDenierEQB);
+			this.groupBox2.Controls.Add(this.yarnDenierTB);
 			this.groupBox2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.groupBox2.Location = new System.Drawing.Point(7, 314);
+			this.groupBox2.Location = new System.Drawing.Point(31, 314);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(165, 55);
+			this.groupBox2.Size = new System.Drawing.Size(110, 55);
 			this.groupBox2.TabIndex = 9;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Yarn Denier";
 			// 
-			// yarnDenierEQB
+			// yarnDenierTB
 			// 
-			this.yarnDenierEQB.AutoFillVariables = null;
-			this.yarnDenierEQB.Location = new System.Drawing.Point(15, 15);
-			this.yarnDenierEQB.MaximumSize = new System.Drawing.Size(201, 24);
-			this.yarnDenierEQB.Name = "yarnDenierEQB";
-			this.yarnDenierEQB.sail = null;
-			this.yarnDenierEQB.Size = new System.Drawing.Size(134, 24);
-			this.yarnDenierEQB.TabIndex = 2;
-			this.yarnDenierEQB.Value = 0D;
+			this.yarnDenierTB.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.yarnDenierTB.Location = new System.Drawing.Point(10, 19);
+			this.yarnDenierTB.Name = "yarnDenierTB";
+			this.yarnDenierTB.Size = new System.Drawing.Size(94, 20);
+			this.yarnDenierTB.TabIndex = 1;
+			this.yarnDenierTB.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// groupBox4
 			// 
@@ -176,27 +174,25 @@
 			this.m_densityLocTextBox.Text = "0.25, 0.5, 0.75";
 			this.m_densityLocTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
+			// targetdpiTB
+			// 
+			this.targetdpiTB.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.targetdpiTB.Location = new System.Drawing.Point(6, 19);
+			this.targetdpiTB.Name = "targetdpiTB";
+			this.targetdpiTB.Size = new System.Drawing.Size(98, 20);
+			this.targetdpiTB.TabIndex = 2;
+			this.targetdpiTB.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			// 
 			// groupBox3
 			// 
-			this.groupBox3.Controls.Add(this.targetDPIEQB);
+			this.groupBox3.Controls.Add(this.targetdpiTB);
 			this.groupBox3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.groupBox3.Location = new System.Drawing.Point(7, 375);
+			this.groupBox3.Location = new System.Drawing.Point(31, 375);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(165, 55);
+			this.groupBox3.Size = new System.Drawing.Size(110, 55);
 			this.groupBox3.TabIndex = 9;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "Target DPI";
-			// 
-			// targetDPIEQB
-			// 
-			this.targetDPIEQB.AutoFillVariables = null;
-			this.targetDPIEQB.Location = new System.Drawing.Point(15, 15);
-			this.targetDPIEQB.MaximumSize = new System.Drawing.Size(201, 24);
-			this.targetDPIEQB.Name = "targetDPIEQB";
-			this.targetDPIEQB.sail = null;
-			this.targetDPIEQB.Size = new System.Drawing.Size(134, 24);
-			this.targetDPIEQB.TabIndex = 3;
-			this.targetDPIEQB.Value = 0D;
 			// 
 			// YarnGroupEditor
 			// 
@@ -214,10 +210,12 @@
 			this.Load += new System.EventHandler(this.YarnGroupEditor_Load);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox2.ResumeLayout(false);
+			this.groupBox2.PerformLayout();
 			this.groupBox4.ResumeLayout(false);
 			this.groupBox5.ResumeLayout(false);
 			this.groupBox5.PerformLayout();
 			this.groupBox3.ResumeLayout(false);
+			this.groupBox3.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -230,14 +228,14 @@
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.GroupBox groupBox2;
 		private System.Windows.Forms.GroupBox groupBox4;
+		private System.Windows.Forms.TextBox yarnDenierTB;
 		private System.Windows.Forms.ListView m_warpListView;
 		private System.Windows.Forms.Button selectWarpButt;
 		private System.Windows.Forms.Button selectGuideButt;
 		private System.Windows.Forms.ListView m_guideListView;
 		private System.Windows.Forms.GroupBox groupBox5;
 		private System.Windows.Forms.TextBox m_densityLocTextBox;
+		private System.Windows.Forms.TextBox targetdpiTB;
 		private System.Windows.Forms.GroupBox groupBox3;
-		private EquationBoxAuto yarnDenierEQB;
-		private EquationBoxAuto targetDPIEQB;
 	}
 }

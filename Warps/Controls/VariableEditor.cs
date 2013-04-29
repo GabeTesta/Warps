@@ -23,18 +23,11 @@ namespace Warps.Controls
 			Label = label;
 			if (EqText.Length > 0)
 			{
-				if (!IsNumber(EqText))
-				{
+				//if (EqText[0] == '=')
 					m_eqBox.Text = EqText;
-				}else
-					m_eqBox.Text = EqText;
+				//else
+				//	m_eqBox.Text = "= " + EqText;
 			}
-		}
-
-		private bool IsNumber(string EqText)
-		{
-			double outtie = 0;
-			return double.TryParse(EqText, out outtie);
 		}
 
 		public event EventHandler<KeyEventArgs> ReturnPress;

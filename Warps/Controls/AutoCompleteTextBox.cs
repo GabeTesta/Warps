@@ -26,7 +26,6 @@ namespace Warps.Controls
 
 			_images.Images.Add("Warps.Equation", Warps.Properties.Resources.equation);
 			_images.Images.Add("Warps.SurfaceCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
-			_images.Images.Add("Warps.Geodesic", Warps.Properties.Resources.glyphicons_097_vector_path_line);
 		}
 
 		void _listBox_DrawItem(object sender, DrawItemEventArgs e)
