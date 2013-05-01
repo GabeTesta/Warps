@@ -134,11 +134,11 @@ namespace Warps.Trackers
 					if (Comb != null)
 						SelectCurve(Comb);
 				}
-				if (Tree != null)
-					Tree.EditMode = value;
+				//if (Tree != null)
+				//	Tree.EditMode = value;
 
-				if (value == false)
-					Tree.DeSelect(Comb);
+				//if (value == false)
+				//	Tree.DeSelect(Comb);
 			}
 		}
 
