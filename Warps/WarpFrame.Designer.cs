@@ -31,12 +31,10 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WarpFrame));
 			this.m_vertsplit = new System.Windows.Forms.SplitContainer();
 			this.m_horizsplit = new System.Windows.Forms.SplitContainer();
-			this.m_tree = new Warps.TabTree();
 			this.previewButton = new System.Windows.Forms.Button();
 			this.editPanel = new System.Windows.Forms.Panel();
 			this.cancelButton = new System.Windows.Forms.Button();
 			this.okButton = new System.Windows.Forms.Button();
-			this.m_dualView = new Warps.DualView();
 			this.m_toolstrip = new System.Windows.Forms.ToolStrip();
 			this.newToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.openToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -51,17 +49,18 @@
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-			this.m_curveStrip = new System.Windows.Forms.ToolStrip();
-			this.m_addCurve = new System.Windows.Forms.ToolStripButton();
-			this.m_modCurve = new System.Windows.Forms.ToolStripButton();
-			this.m_delCurve = new System.Windows.Forms.ToolStripButton();
+			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.m_editButton = new System.Windows.Forms.ToolStripButton();
 			this.m_buildStrip = new System.Windows.Forms.ToolStrip();
 			this.m_autoBtn = new System.Windows.Forms.ToolStripButton();
 			this.m_buildBtn = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-			this.m_cancelBtn = new System.Windows.Forms.ToolStripButton();
+			this.m_editButton = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.m_addCurve = new System.Windows.Forms.ToolStripButton();
+			this.m_tree = new Warps.TabTree();
+			this.m_dualView = new Warps.DualView();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
 			this.m_vertsplit.Panel1.SuspendLayout();
 			this.m_vertsplit.Panel2.SuspendLayout();
@@ -75,8 +74,6 @@
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
 			this.toolStripContainer1.SuspendLayout();
-			this.m_curveStrip.SuspendLayout();
-			this.toolStrip1.SuspendLayout();
 			this.m_buildStrip.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -118,16 +115,6 @@
 			this.m_horizsplit.Size = new System.Drawing.Size(405, 448);
 			this.m_horizsplit.SplitterDistance = 205;
 			this.m_horizsplit.TabIndex = 0;
-			// 
-			// m_tree
-			// 
-			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_tree.EditMode = false;
-			this.m_tree.Location = new System.Drawing.Point(0, 0);
-			this.m_tree.Name = "m_tree";
-			this.m_tree.SelectedTag = null;
-			this.m_tree.Size = new System.Drawing.Size(205, 448);
-			this.m_tree.TabIndex = 0;
 			// 
 			// previewButton
 			// 
@@ -181,15 +168,6 @@
 			this.okButton.UseVisualStyleBackColor = false;
 			this.okButton.MouseEnter += new System.EventHandler(this.okButton_MouseEnter);
 			this.okButton.MouseLeave += new System.EventHandler(this.okButton_MouseLeave);
-			// 
-			// m_dualView
-			// 
-			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_dualView.EditMode = false;
-			this.m_dualView.Location = new System.Drawing.Point(0, 0);
-			this.m_dualView.Name = "m_dualView";
-			this.m_dualView.Size = new System.Drawing.Size(613, 448);
-			this.m_dualView.TabIndex = 0;
 			// 
 			// m_toolstrip
 			// 
@@ -336,51 +314,16 @@
 			// toolStripContainer1.TopToolStripPanel
 			// 
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
-			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_curveStrip);
-			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_buildStrip);
+			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
 			// 
-			// m_curveStrip
+			// toolStrip1
 			// 
-			this.m_curveStrip.Dock = System.Windows.Forms.DockStyle.None;
-			this.m_curveStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.m_addCurve,
-            this.m_modCurve,
-            this.m_delCurve});
-			this.m_curveStrip.Location = new System.Drawing.Point(69, 50);
-			this.m_curveStrip.Name = "m_curveStrip";
-			this.m_curveStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-			this.m_curveStrip.Size = new System.Drawing.Size(112, 25);
-			this.m_curveStrip.TabIndex = 2;
-			// 
-			// m_addCurve
-			// 
-			this.m_addCurve.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.m_addCurve.Image = ((System.Drawing.Image)(resources.GetObject("m_addCurve.Image")));
-			this.m_addCurve.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_addCurve.Name = "m_addCurve";
-			this.m_addCurve.Size = new System.Drawing.Size(23, 22);
-			this.m_addCurve.Text = "Add";
-			this.m_addCurve.Click += new System.EventHandler(this.m_addCurve_Click);
-			// 
-			// m_modCurve
-			// 
-			this.m_modCurve.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.m_modCurve.Image = ((System.Drawing.Image)(resources.GetObject("m_modCurve.Image")));
-			this.m_modCurve.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_modCurve.Name = "m_modCurve";
-			this.m_modCurve.Size = new System.Drawing.Size(23, 22);
-			this.m_modCurve.Text = "Mod";
-			// 
-			// m_delCurve
-			// 
-			this.m_delCurve.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.m_delCurve.Image = ((System.Drawing.Image)(resources.GetObject("m_delCurve.Image")));
-			this.m_delCurve.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_delCurve.Name = "m_delCurve";
-			this.m_delCurve.Size = new System.Drawing.Size(23, 22);
-			this.m_delCurve.Text = "Del";
-			this.m_delCurve.Click += new System.EventHandler(this.m_delCurve_Click);
+			this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
+			this.toolStrip1.Location = new System.Drawing.Point(401, 0);
+			this.toolStrip1.Name = "toolStrip1";
+			this.toolStrip1.Size = new System.Drawing.Size(111, 25);
+			this.toolStrip1.TabIndex = 4;
 			// 
 			// toolStrip1
 			// 
@@ -408,14 +351,16 @@
 			// 
 			this.m_buildStrip.Dock = System.Windows.Forms.DockStyle.None;
 			this.m_buildStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.m_addCurve,
+            this.toolStripSeparator3,
             this.m_autoBtn,
             this.m_buildBtn,
             this.toolStripSeparator2,
-            this.m_cancelBtn});
-			this.m_buildStrip.Location = new System.Drawing.Point(10, 0);
+            this.m_editButton});
+			this.m_buildStrip.Location = new System.Drawing.Point(202, 0);
 			this.m_buildStrip.Name = "m_buildStrip";
 			this.m_buildStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-			this.m_buildStrip.Size = new System.Drawing.Size(140, 25);
+			this.m_buildStrip.Size = new System.Drawing.Size(199, 25);
 			this.m_buildStrip.TabIndex = 3;
 			// 
 			// m_autoBtn
@@ -445,15 +390,51 @@
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
 			this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
 			// 
-			// m_cancelBtn
+			// m_editButton
 			// 
-			this.m_cancelBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_cancelBtn.Image = ((System.Drawing.Image)(resources.GetObject("m_cancelBtn.Image")));
-			this.m_cancelBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_cancelBtn.Name = "m_cancelBtn";
-			this.m_cancelBtn.Size = new System.Drawing.Size(47, 22);
-			this.m_cancelBtn.Text = "Cancel";
-			this.m_cancelBtn.Click += new System.EventHandler(this.m_cancelBtn_Click);
+			this.m_editButton.CheckOnClick = true;
+			this.m_editButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.m_editButton.ForeColor = System.Drawing.Color.Black;
+			this.m_editButton.Image = ((System.Drawing.Image)(resources.GetObject("m_editButton.Image")));
+			this.m_editButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_editButton.Name = "m_editButton";
+			this.m_editButton.Size = new System.Drawing.Size(31, 22);
+			this.m_editButton.Text = "Edit";
+			this.m_editButton.CheckedChanged += new System.EventHandler(this.m_editButton_CheckedChanged);
+			this.m_editButton.Click += new System.EventHandler(this.m_editButton_Click);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+			// 
+			// m_addCurve
+			// 
+			this.m_addCurve.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.m_addCurve.Image = ((System.Drawing.Image)(resources.GetObject("m_addCurve.Image")));
+			this.m_addCurve.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_addCurve.Name = "m_addCurve";
+			this.m_addCurve.Size = new System.Drawing.Size(69, 22);
+			this.m_addCurve.Text = "Add Group";
+			this.m_addCurve.Click += new System.EventHandler(this.m_addCurve_Click);
+			// 
+			// m_tree
+			// 
+			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_tree.Location = new System.Drawing.Point(0, 0);
+			this.m_tree.Name = "m_tree";
+			this.m_tree.SelectedTag = null;
+			this.m_tree.Size = new System.Drawing.Size(205, 523);
+			this.m_tree.TabIndex = 0;
+			// 
+			// m_dualView
+			// 
+			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_dualView.EditMode = false;
+			this.m_dualView.Location = new System.Drawing.Point(0, 0);
+			this.m_dualView.Name = "m_dualView";
+			this.m_dualView.Size = new System.Drawing.Size(613, 523);
+			this.m_dualView.TabIndex = 0;
 			// 
 			// WarpFrame
 			// 
@@ -482,10 +463,6 @@
 			this.toolStripContainer1.TopToolStripPanel.PerformLayout();
 			this.toolStripContainer1.ResumeLayout(false);
 			this.toolStripContainer1.PerformLayout();
-			this.m_curveStrip.ResumeLayout(false);
-			this.m_curveStrip.PerformLayout();
-			this.toolStrip1.ResumeLayout(false);
-			this.toolStrip1.PerformLayout();
 			this.m_buildStrip.ResumeLayout(false);
 			this.m_buildStrip.PerformLayout();
 			this.ResumeLayout(false);
@@ -512,21 +489,18 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
 	   private System.Windows.Forms.ToolStripStatusLabel m_statusText;
 	   private System.Windows.Forms.ToolStripContainer toolStripContainer1;
-	   private System.Windows.Forms.ToolStrip m_curveStrip;
-	   private System.Windows.Forms.ToolStripButton m_modCurve;
-	   private System.Windows.Forms.ToolStripButton m_delCurve;
-	   private System.Windows.Forms.ToolStripButton m_addCurve;
 	   private System.Windows.Forms.ToolStrip m_buildStrip;
 	   private System.Windows.Forms.ToolStripButton m_autoBtn;
 	   private System.Windows.Forms.ToolStripButton m_buildBtn;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-	   private System.Windows.Forms.ToolStripButton m_cancelBtn;
 	   private System.Windows.Forms.Panel editPanel;
 	   public System.Windows.Forms.Button cancelButton;
 	   public System.Windows.Forms.Button okButton;
 	   public System.Windows.Forms.Button previewButton;
 	   private System.Windows.Forms.ToolStrip toolStrip1;
 	   private System.Windows.Forms.ToolStripButton m_editButton;
+	   private System.Windows.Forms.ToolStripButton m_addCurve;
+	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 	}
 }
 

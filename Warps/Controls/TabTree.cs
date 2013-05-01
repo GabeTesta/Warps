@@ -61,21 +61,21 @@ namespace Warps
 			//SorTree.AfterSelect -= tracker.OnSelect;
 		}
 
-		bool m_editMode = false;
+		//bool m_editMode = false;
 
-		/// <summary>
-		/// if true, we want to color the current node that is being editted with a different color than blue
-		/// </summary>
-		public bool EditMode
-		{
-			get { return m_editMode; }
-			set
-			{
-				m_editMode = value;
-				if (m_seqtree.SelectedNode != null)
-					m_seqtree.SelectedNode.BackColor = value ? Color.LightGreen : Color.White;
-			}
-		}
+		///// <summary>
+		///// if true, we want to color the current node that is being editted with a different color than blue
+		///// </summary>
+		//public bool EditMode
+		//{
+		//	get { return m_editMode; }
+		//	set
+		//	{
+		//		m_editMode = value;
+		//		if (m_seqtree.SelectedNode != null)
+		//			m_seqtree.SelectedNode.BackColor = value ? Color.LightGreen : Color.White;
+		//	}
+		//}
 
 		void SeqTree_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
 		{
@@ -195,7 +195,6 @@ namespace Warps
 				{
 					if ((tn.Tag as IGroup).Label.StartsWith(key))
 						found.Add(tn);
-
 				}
 
 				TreeNode tre = FindAllNodesBeginningWith(key, tn.Nodes, ref found);
@@ -388,45 +387,28 @@ namespace Warps
 			e.Handled = true;
 		}
 
-		internal void AddUpdateEquation(TreeNode tmp)
-		{
-			TreeNode found = FindNode(tmp.Tag);
+		//internal void DeSelect(IGroup group)
+		//{
+		//	TreeNode found = FindNode(group);
+		//	if (found != null)
+		//		found.BackColor = Color.White;
+		//}
 
-			if (found == null)
-				Add(tmp);
-			else
-				found = (TreeNode)tmp.Clone();
-		}
+		//internal void DeSelect(MouldCurve group)
+		//{
+		//	TreeNode found = FindNode(group);
+		//	if (found != null)
+		//		found.BackColor = Color.White;
 
-		internal void RemoveEquation(string eqText)
-		{
-			TreeNode found = FindNode(eqText);
-			if (found != null)
-				m_seqtree.Nodes.RemoveByKey(found.Name);
-		}
-
-		internal void DeSelect(IGroup group)
-		{
-			TreeNode found = FindNode(group);
-			if (found != null)
-				found.BackColor = Color.White;
-		}
-
-		internal void DeSelect(MouldCurve group)
-		{
-			TreeNode found = FindNode(group);
-			if (found != null)
-				found.BackColor = Color.White;
-
-			m_seqtree.Refresh();
-		}
+		//	m_seqtree.Refresh();
+		//}
 
 		internal void Remove(IRebuild tag)
 		{
 			TreeNode found = FindNode(tag);
 			if (found != null)
-				m_seqtree.Nodes.Remove(found);
-			m_seqtree.Refresh();
+				SeqTree.Nodes.Remove(found);
+			SeqTree.Refresh();
 		}
 	}
 }

@@ -229,7 +229,7 @@ namespace Warps.Yarns
 
 			if (sender != null)
 				m_frame.Rebuild(yarGroup);//returns false if AutoBuild is off
-
+			Edit.AchievedDPI = yarGroup.AchievedDpi;
 			View.Refresh(); 
 		}
 

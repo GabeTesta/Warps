@@ -85,26 +85,29 @@ namespace Warps
 		void DualView_MouseMove(object sender, MouseEventArgs e)
 		{
 			mousePnt = e.Location;
-			//if (EditMode && ActiveView.ActionMode == actionType.SelectVisibleByPick)
-			//{
+			if (ActiveView.ActionMode == actionType.SelectVisibleByPick)
+			{
 				int underMouse = ActiveView.GetEntityUnderMouseCursor(mousePnt);
 
 				if (-1 < underMouse && underMouse < ActiveView.Entities.Count)
 				{
 					if (prevMousedOverObj != null)
-					//	UnHighLight(prevMousedOverObj);
+						UnHighLight(prevMousedOverObj);
 
-				//	Highlight(ActiveView.Entities[underMouse].EntityData);
+					if (ActiveView.Entities[underMouse].EntityData is YarnGroup)
+						return;
+
+					Highlight(ActiveView.Entities[underMouse].EntityData);
 					ActiveView.Refresh();
 					prevMousedOverObj = ActiveView.Entities[underMouse].EntityData;
 				}
 				else if (prevMousedOverObj != null)
 				{
-				//	UnHighLight(prevMousedOverObj);
+					UnHighLight(prevMousedOverObj);
 					prevMousedOverObj = null;
 				}
 
-			//}
+			}
 		}
 		
 		/// <summary>

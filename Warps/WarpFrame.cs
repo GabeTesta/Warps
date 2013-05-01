@@ -31,7 +31,7 @@ namespace Warps
 			logger.Instance.Log("new instance loaded", LogPriority.Debug);
 #endif
 			//set background color from existing icon
-			ButtonUnSelected = m_modCurve.BackColor;
+			//ButtonUnSelected = m_modCurve.BackColor;
 
 			SetStyle(ControlStyles.OptimizedDoubleBuffer |
 				    ControlStyles.UserPaint |
@@ -246,16 +246,16 @@ namespace Warps
 			if (Tree.SelectedTag is IRebuild)
 				Rebuild(Tree.SelectedTag as IRebuild);
 		}
-		private void m_cancelBtn_Click(object sender, EventArgs e)
-		{
-			if (m_Tracker != null)
-			{
-				m_Tracker.OnCancel(sender, e);
-				m_Tracker = null;
-				EditorPanel = null;
-			}
-			m_modCurve.BackColor = ButtonUnSelected;
-		}
+		//private void m_cancelBtn_Click(object sender, EventArgs e)
+		//{
+		//	if (m_Tracker != null)
+		//	{
+		//		m_Tracker.OnCancel(sender, e);
+		//		m_Tracker = null;
+		//		EditorPanel = null;
+		//	}
+		//	//m_modCurve.BackColor = ButtonUnSelected;
+		//}
 
 		#endregion
 
@@ -338,11 +338,6 @@ namespace Warps
 
 			Status = "";
 			View.DeSelectAll();
-			GC.Collect();
-
-			//if (m_Tracker != null)
-			//	ClearTracker();
-
 
 			ITracker track = null;
 
@@ -375,14 +370,12 @@ namespace Warps
 			{
 				IGroup parent = ActiveSail.GetParentGroup(e.Value);
 				if (parent != null)
-				{
 					track = new VariableGroupTracker(parent as VariableGroup);
-				}
+				
 			}
 			else// if (e.Value is Sail)
-			{
 				track = new SailTracker(EditMode);
-			}
+			
 
 			if (track != null)
 			{
@@ -549,7 +542,7 @@ namespace Warps
 			varGroup.Add(new Equation("targetDPI", "targetScale * 14416", ActiveSail));
 			ActiveSail.Add(varGroup);
 
-			ActiveSail.CreateOuterCurves();
+			UpdateViews(ActiveSail.CreateOuterCurves());
 
 			//Geodesic geo = new Geodesic("Geo", ActiveSail, new IFitPoint[] { new FixedPoint(.1, .1), new FixedPoint(.1, .9) });
 			MouldCurve v1 = new MouldCurve("v1", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(.3, .4), new FixedPoint(.1, .8), new FixedPoint(0, 1) });
@@ -647,21 +640,14 @@ namespace Warps
 			View.Refresh();
 		}
 
-		private void m_delCurve_Click(object sender, EventArgs e)
+		private void toolStripButton1_Click(object sender, EventArgs e)
 		{
-						MouldCurve g = new MouldCurve("g4", ActiveSail,
-				new IFitPoint[] { 
-					new FixedPoint(1, 0), 
-					new FixedPoint(.4, .4), 
-					new FixedPoint(.3, .7),
-					new FixedPoint(0,1)});
 
-			Form f = new Form();
-			MouldCurveEditor edit = new MouldCurveEditor();
-			f.Controls.Add(edit);
-			edit.ReadCurve(g);
-			f.Show();
-			
+		}
+
+		private void m_editButton_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }

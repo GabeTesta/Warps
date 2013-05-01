@@ -28,29 +28,37 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			Warps.Equation equation2 = new Warps.Equation();
+			Warps.Equation equation1 = new Warps.Equation();
 			this.m_labelTextBox = new System.Windows.Forms.TextBox();
 			this.m_label = new System.Windows.Forms.Label();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.m_guideListView = new System.Windows.Forms.ListView();
 			this.selectGuideButt = new System.Windows.Forms.Button();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.yarnDenierEQB = new Warps.Controls.EquationBoxAuto();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
 			this.selectWarpButt = new System.Windows.Forms.Button();
 			this.m_warpListView = new System.Windows.Forms.ListView();
 			this.groupBox5 = new System.Windows.Forms.GroupBox();
 			this.m_densityLocTextBox = new System.Windows.Forms.TextBox();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
+			this.outputGroup = new System.Windows.Forms.GroupBox();
+			this.m_achievedDPI = new System.Windows.Forms.TextBox();
+			this.label1 = new System.Windows.Forms.Label();
 			this.targetDPIEQB = new Warps.Controls.EquationBoxAuto();
+			this.yarnDenierEQB = new Warps.Controls.EquationBoxAuto();
 			this.groupBox1.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.groupBox4.SuspendLayout();
 			this.groupBox5.SuspendLayout();
 			this.groupBox3.SuspendLayout();
+			this.outputGroup.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// m_labelTextBox
 			// 
+			this.m_labelTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.m_labelTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.m_labelTextBox.Location = new System.Drawing.Point(56, 3);
 			this.m_labelTextBox.Name = "m_labelTextBox";
@@ -59,6 +67,8 @@
 			// 
 			// m_label
 			// 
+			this.m_label.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.m_label.AutoSize = true;
 			this.m_label.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.m_label.Location = new System.Drawing.Point(7, 6);
@@ -69,10 +79,12 @@
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox1.Controls.Add(this.m_guideListView);
 			this.groupBox1.Controls.Add(this.selectGuideButt);
 			this.groupBox1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.groupBox1.Location = new System.Drawing.Point(3, 213);
+			this.groupBox1.Location = new System.Drawing.Point(3, 176);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(169, 95);
 			this.groupBox1.TabIndex = 8;
@@ -81,6 +93,7 @@
 			// 
 			// m_guideListView
 			// 
+			this.m_guideListView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
 			this.m_guideListView.AutoArrange = false;
 			this.m_guideListView.Location = new System.Drawing.Point(4, 15);
 			this.m_guideListView.Name = "m_guideListView";
@@ -88,9 +101,11 @@
 			this.m_guideListView.TabIndex = 6;
 			this.m_guideListView.UseCompatibleStateImageBehavior = false;
 			this.m_guideListView.View = System.Windows.Forms.View.List;
+			this.m_guideListView.DoubleClick += new System.EventHandler(this.m_guideListView_DoubleClick);
 			// 
 			// selectGuideButt
 			// 
+			this.selectGuideButt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
 			this.selectGuideButt.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			this.selectGuideButt.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.selectGuideButt.Location = new System.Drawing.Point(19, 59);
@@ -103,43 +118,38 @@
 			// 
 			// groupBox2
 			// 
+			this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox2.Controls.Add(this.yarnDenierEQB);
 			this.groupBox2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.groupBox2.Location = new System.Drawing.Point(7, 314);
+			this.groupBox2.Location = new System.Drawing.Point(3, 277);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(165, 55);
+			this.groupBox2.Size = new System.Drawing.Size(169, 55);
 			this.groupBox2.TabIndex = 9;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Yarn Denier";
 			// 
-			// yarnDenierEQB
-			// 
-			this.yarnDenierEQB.AutoFillVariables = null;
-			this.yarnDenierEQB.Location = new System.Drawing.Point(15, 15);
-			this.yarnDenierEQB.MaximumSize = new System.Drawing.Size(201, 24);
-			this.yarnDenierEQB.Name = "yarnDenierEQB";
-			this.yarnDenierEQB.sail = null;
-			this.yarnDenierEQB.Size = new System.Drawing.Size(134, 24);
-			this.yarnDenierEQB.TabIndex = 2;
-			this.yarnDenierEQB.Value = 0D;
-			// 
 			// groupBox4
 			// 
+			this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox4.Controls.Add(this.selectWarpButt);
 			this.groupBox4.Controls.Add(this.m_warpListView);
 			this.groupBox4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.groupBox4.Location = new System.Drawing.Point(3, 29);
 			this.groupBox4.Name = "groupBox4";
-			this.groupBox4.Size = new System.Drawing.Size(169, 178);
+			this.groupBox4.Size = new System.Drawing.Size(169, 141);
 			this.groupBox4.TabIndex = 10;
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "Warp Selection";
 			// 
 			// selectWarpButt
 			// 
+			this.selectWarpButt.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.selectWarpButt.BackColor = System.Drawing.SystemColors.ControlLightLight;
 			this.selectWarpButt.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.selectWarpButt.Location = new System.Drawing.Point(19, 147);
+			this.selectWarpButt.Location = new System.Drawing.Point(19, 110);
 			this.selectWarpButt.Name = "selectWarpButt";
 			this.selectWarpButt.Size = new System.Drawing.Size(134, 23);
 			this.selectWarpButt.TabIndex = 5;
@@ -149,18 +159,24 @@
 			// 
 			// m_warpListView
 			// 
+			this.m_warpListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.m_warpListView.AutoArrange = false;
 			this.m_warpListView.Location = new System.Drawing.Point(7, 19);
 			this.m_warpListView.Name = "m_warpListView";
-			this.m_warpListView.Size = new System.Drawing.Size(156, 122);
+			this.m_warpListView.Size = new System.Drawing.Size(156, 85);
 			this.m_warpListView.TabIndex = 4;
 			this.m_warpListView.UseCompatibleStateImageBehavior = false;
 			this.m_warpListView.View = System.Windows.Forms.View.List;
+			this.m_warpListView.DoubleClick += new System.EventHandler(this.m_warpListView_DoubleClick);
 			// 
 			// groupBox5
 			// 
+			this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox5.Controls.Add(this.m_densityLocTextBox);
-			this.groupBox5.Location = new System.Drawing.Point(3, 436);
+			this.groupBox5.Location = new System.Drawing.Point(3, 394);
 			this.groupBox5.Name = "groupBox5";
 			this.groupBox5.Size = new System.Drawing.Size(169, 50);
 			this.groupBox5.TabIndex = 11;
@@ -169,39 +185,98 @@
 			// 
 			// m_densityLocTextBox
 			// 
-			this.m_densityLocTextBox.Location = new System.Drawing.Point(7, 20);
+			this.m_densityLocTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_densityLocTextBox.Location = new System.Drawing.Point(3, 16);
 			this.m_densityLocTextBox.Name = "m_densityLocTextBox";
-			this.m_densityLocTextBox.Size = new System.Drawing.Size(146, 20);
+			this.m_densityLocTextBox.Size = new System.Drawing.Size(163, 20);
 			this.m_densityLocTextBox.TabIndex = 0;
 			this.m_densityLocTextBox.Text = "0.25, 0.5, 0.75";
 			this.m_densityLocTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// groupBox3
 			// 
+			this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox3.Controls.Add(this.targetDPIEQB);
 			this.groupBox3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.groupBox3.Location = new System.Drawing.Point(7, 375);
+			this.groupBox3.Location = new System.Drawing.Point(3, 333);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(165, 55);
+			this.groupBox3.Size = new System.Drawing.Size(172, 55);
 			this.groupBox3.TabIndex = 9;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "Target DPI";
 			// 
+			// outputGroup
+			// 
+			this.outputGroup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.outputGroup.Controls.Add(this.m_achievedDPI);
+			this.outputGroup.Controls.Add(this.label1);
+			this.outputGroup.Enabled = false;
+			this.outputGroup.Location = new System.Drawing.Point(4, 450);
+			this.outputGroup.Name = "outputGroup";
+			this.outputGroup.Size = new System.Drawing.Size(168, 40);
+			this.outputGroup.TabIndex = 12;
+			this.outputGroup.TabStop = false;
+			this.outputGroup.Text = "Output";
+			// 
+			// m_achievedDPI
+			// 
+			this.m_achievedDPI.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+			this.m_achievedDPI.Enabled = false;
+			this.m_achievedDPI.Location = new System.Drawing.Point(91, 13);
+			this.m_achievedDPI.Name = "m_achievedDPI";
+			this.m_achievedDPI.Size = new System.Drawing.Size(68, 20);
+			this.m_achievedDPI.TabIndex = 1;
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(6, 16);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(79, 13);
+			this.label1.TabIndex = 0;
+			this.label1.Text = "Archieved DPI:";
+			// 
 			// targetDPIEQB
 			// 
 			this.targetDPIEQB.AutoFillVariables = null;
-			this.targetDPIEQB.Location = new System.Drawing.Point(15, 15);
+			this.targetDPIEQB.Dock = System.Windows.Forms.DockStyle.Fill;
+			equation2.EquationText = "0.0000";
+			equation2.Label = "eq";
+			equation2.Result = 0D;
+			equation2.sail = null;
+			this.targetDPIEQB.Equation = equation2;
+			this.targetDPIEQB.Location = new System.Drawing.Point(3, 16);
 			this.targetDPIEQB.MaximumSize = new System.Drawing.Size(201, 24);
 			this.targetDPIEQB.Name = "targetDPIEQB";
 			this.targetDPIEQB.sail = null;
-			this.targetDPIEQB.Size = new System.Drawing.Size(134, 24);
+			this.targetDPIEQB.Size = new System.Drawing.Size(166, 24);
 			this.targetDPIEQB.TabIndex = 3;
 			this.targetDPIEQB.Value = 0D;
+			// 
+			// yarnDenierEQB
+			// 
+			this.yarnDenierEQB.AutoFillVariables = null;
+			this.yarnDenierEQB.Dock = System.Windows.Forms.DockStyle.Fill;
+			equation1.EquationText = "0.0000";
+			equation1.Label = "eq";
+			equation1.Result = 0D;
+			equation1.sail = null;
+			this.yarnDenierEQB.Equation = equation1;
+			this.yarnDenierEQB.Location = new System.Drawing.Point(3, 16);
+			this.yarnDenierEQB.MaximumSize = new System.Drawing.Size(201, 24);
+			this.yarnDenierEQB.Name = "yarnDenierEQB";
+			this.yarnDenierEQB.sail = null;
+			this.yarnDenierEQB.Size = new System.Drawing.Size(163, 24);
+			this.yarnDenierEQB.TabIndex = 2;
+			this.yarnDenierEQB.Value = 0D;
 			// 
 			// YarnGroupEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.outputGroup);
 			this.Controls.Add(this.groupBox5);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.groupBox3);
@@ -210,7 +285,7 @@
 			this.Controls.Add(this.m_labelTextBox);
 			this.Controls.Add(this.m_label);
 			this.Name = "YarnGroupEditor";
-			this.Size = new System.Drawing.Size(175, 492);
+			this.Size = new System.Drawing.Size(175, 490);
 			this.Load += new System.EventHandler(this.YarnGroupEditor_Load);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox2.ResumeLayout(false);
@@ -218,6 +293,8 @@
 			this.groupBox5.ResumeLayout(false);
 			this.groupBox5.PerformLayout();
 			this.groupBox3.ResumeLayout(false);
+			this.outputGroup.ResumeLayout(false);
+			this.outputGroup.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -239,5 +316,8 @@
 		private System.Windows.Forms.GroupBox groupBox3;
 		private EquationBoxAuto yarnDenierEQB;
 		private EquationBoxAuto targetDPIEQB;
+		private System.Windows.Forms.GroupBox outputGroup;
+		private System.Windows.Forms.TextBox m_achievedDPI;
+		private System.Windows.Forms.Label label1;
 	}
 }

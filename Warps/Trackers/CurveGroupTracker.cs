@@ -84,10 +84,10 @@ namespace Warps
 						View.Select(curve);
 					View.Refresh();
 				}
-				if (Tree != null)
-					Tree.EditMode = value;
-				if (value == false)
-					Tree.DeSelect(m_group);
+				//if (Tree != null)
+				//	Tree.EditMode = value;
+				//if (value == false)
+				//	Tree.DeSelect(m_group);
 
 			}
 		}

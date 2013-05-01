@@ -83,11 +83,11 @@ namespace Warps
 					if (Curve != null)
 						SelectCurve(Curve);
 				}
-				if (Tree != null)
-					Tree.EditMode = value;
+				//if (Tree != null)
+				//	Tree.EditMode = value;
 
-				if (value == false)
-					Tree.DeSelect(m_curve);
+				//if (value == false)
+				//	Tree.DeSelect(m_curve);
 			}
 		}
 
