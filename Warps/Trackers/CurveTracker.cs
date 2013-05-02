@@ -154,7 +154,7 @@ namespace Warps
 			//View.Remove(m_temp);
 			View.Remove(Curve);
 
-			Curve.Fit(m_temp.FitPoints);
+			Curve.Fit(m_temp);
 			Curve.Label = m_mcEdit.Label;
 
 			if( sender != null )
