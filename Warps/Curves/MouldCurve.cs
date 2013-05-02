@@ -1115,5 +1115,10 @@ namespace Warps
 		{
 			return FitPoints.Contains(p);
 		}
+
+		internal void Fit(MouldCurve clone)
+		{
+			Fit(clone.FitPoints.ToArray(), clone.m_bGirths.ToArray());
+		}
 	}
 }
