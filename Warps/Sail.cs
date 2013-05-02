@@ -63,6 +63,15 @@ namespace Warps
 		}
 		void CreateMould(string type, string path)
 		{
+			if (path.Length == 0)
+			{
+				string[] paths = WarpFrame.OpenFileDlg(1);
+				if (paths.Length > 0)
+					path = paths[0];
+
+				if (path == null || path.Length == 0)
+					return;
+			}
 			if (type == null)
 			{
 				switch (m_type)
