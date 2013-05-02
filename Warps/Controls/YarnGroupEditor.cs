@@ -39,7 +39,7 @@ namespace Warps.Controls
 			yarnDenierEQB.Prep(m_sail, YarGroup);
 			yarnDenierEQB.Text = YarGroup.YarnDenierEqu != null ? YarGroup.YarnDenierEqu.EquationText : "0";
 			targetDPIEQB.Text = YarGroup.TargetDenierEqu != null ? YarGroup.TargetDenierEqu.EquationText : "0";
-
+			
 			fillEditorWithData();
 		}
 
@@ -66,6 +66,11 @@ namespace Warps.Controls
 			set { m_achievedDPI.Text = value.ToString("#0.00"); }
 		}
 
+		public int AchievedYarnCount
+		{
+			set { m_yarnCountOut.Text = value.ToString(); }
+		}
+
 		DualView m_view = null;
 
 		public DualView View
@@ -82,12 +87,21 @@ namespace Warps.Controls
 			populateWarpBox();
 			if (YarGroup.Guide != null)
 				m_guideListView.Items.Add(YarGroup.Guide.Label, m_group.Guide.Label, "GuideComb");
-			//targetdpiTB.Text = m_group.TargetDenier.ToString();
-			//yarnDenierTB.Text = m_group.YarnDenier.ToString();
+
+			m_endingList.DataSource = null;
+			m_endingList.DataSource = System.Enum.GetValues(typeof(YarnGroup.Ending));
+			Ending = YarGroup.EndCondition;
+			//outputs
 			AchievedDPI = YarGroup.AchievedDpi;
+			AchievedYarnCount = YarGroup.Count;
+
 			populateDensityCurveLocationBox();
 		}
-
+		public YarnGroup.Ending Ending
+		{
+			get { return (YarnGroup.Ending)m_endingList.SelectedValue; }
+			set { m_endingList.Text = value.ToString(); }
+		}
 		private void populateDensityCurveLocationBox()
 		{
 			List<double> spos = m_group.DensityPos;

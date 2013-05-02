@@ -1213,7 +1213,8 @@ namespace Warps
 						m_targetDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'), sail);
 					else if (splits[0].ToLower().Contains("yarndenier"))
 						m_yarnDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'), sail);
-
+					else if(splits[0].ToLower().Contains("ending"))
+						EndCondition = (Ending)Enum.Parse(typeof(Ending), splits[1].Trim()); 
 					else if (splits[0].ToLower().Contains("scale"))
 						m_Scale = Convert.ToDouble(splits[1]);
 					else if (splits[0].ToLower().Contains("guide"))
@@ -1258,6 +1259,8 @@ namespace Warps
 			foreach (double v in DensityPos)
 				s += v.ToString() + ", ";
 			script.Add(s);
+
+			script.Add("\tEnding: " + EndCondition.ToString());
 
 			return script;
 		}
