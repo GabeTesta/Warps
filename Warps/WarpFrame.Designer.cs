@@ -51,12 +51,12 @@
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-			this.m_editButton = new System.Windows.Forms.ToolStripButton();
 			this.m_curveStrip = new System.Windows.Forms.ToolStrip();
 			this.m_addCurve = new System.Windows.Forms.ToolStripButton();
 			this.m_modCurve = new System.Windows.Forms.ToolStripButton();
 			this.m_delCurve = new System.Windows.Forms.ToolStripButton();
+			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+			this.m_editButton = new System.Windows.Forms.ToolStripButton();
 			this.m_buildStrip = new System.Windows.Forms.ToolStrip();
 			this.m_autoBtn = new System.Windows.Forms.ToolStripButton();
 			this.m_buildBtn = new System.Windows.Forms.ToolStripButton();
@@ -75,8 +75,8 @@
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
 			this.toolStripContainer1.SuspendLayout();
-			this.toolStrip1.SuspendLayout();
 			this.m_curveStrip.SuspendLayout();
+			this.toolStrip1.SuspendLayout();
 			this.m_buildStrip.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -94,7 +94,7 @@
 			// m_vertsplit.Panel2
 			// 
 			this.m_vertsplit.Panel2.Controls.Add(this.m_dualView);
-			this.m_vertsplit.Size = new System.Drawing.Size(1022, 523);
+			this.m_vertsplit.Size = new System.Drawing.Size(1022, 448);
 			this.m_vertsplit.SplitterDistance = 405;
 			this.m_vertsplit.TabIndex = 0;
 			// 
@@ -115,7 +115,7 @@
 			this.m_horizsplit.Panel2.Controls.Add(this.editPanel);
 			this.m_horizsplit.Panel2.Controls.Add(this.cancelButton);
 			this.m_horizsplit.Panel2.Controls.Add(this.okButton);
-			this.m_horizsplit.Size = new System.Drawing.Size(405, 523);
+			this.m_horizsplit.Size = new System.Drawing.Size(405, 448);
 			this.m_horizsplit.SplitterDistance = 205;
 			this.m_horizsplit.TabIndex = 0;
 			// 
@@ -126,7 +126,7 @@
 			this.m_tree.Location = new System.Drawing.Point(0, 0);
 			this.m_tree.Name = "m_tree";
 			this.m_tree.SelectedTag = null;
-			this.m_tree.Size = new System.Drawing.Size(205, 523);
+			this.m_tree.Size = new System.Drawing.Size(205, 448);
 			this.m_tree.TabIndex = 0;
 			// 
 			// previewButton
@@ -135,7 +135,7 @@
 			this.previewButton.BackColor = System.Drawing.Color.White;
 			this.previewButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.previewButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.previewButton.Location = new System.Drawing.Point(12, 497);
+			this.previewButton.Location = new System.Drawing.Point(12, 422);
 			this.previewButton.Name = "previewButton";
 			this.previewButton.Size = new System.Drawing.Size(75, 23);
 			this.previewButton.TabIndex = 3;
@@ -151,7 +151,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.editPanel.Location = new System.Drawing.Point(3, 3);
 			this.editPanel.Name = "editPanel";
-			this.editPanel.Size = new System.Drawing.Size(193, 488);
+			this.editPanel.Size = new System.Drawing.Size(193, 413);
 			this.editPanel.TabIndex = 2;
 			// 
 			// cancelButton
@@ -159,7 +159,7 @@
 			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cancelButton.BackColor = System.Drawing.Color.White;
 			this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cancelButton.Location = new System.Drawing.Point(114, 497);
+			this.cancelButton.Location = new System.Drawing.Point(114, 422);
 			this.cancelButton.Name = "cancelButton";
 			this.cancelButton.Size = new System.Drawing.Size(75, 23);
 			this.cancelButton.TabIndex = 1;
@@ -173,7 +173,7 @@
 			this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.okButton.BackColor = System.Drawing.Color.White;
 			this.okButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.okButton.Location = new System.Drawing.Point(33, 497);
+			this.okButton.Location = new System.Drawing.Point(33, 422);
 			this.okButton.Name = "okButton";
 			this.okButton.Size = new System.Drawing.Size(75, 23);
 			this.okButton.TabIndex = 0;
@@ -188,7 +188,7 @@
 			this.m_dualView.EditMode = false;
 			this.m_dualView.Location = new System.Drawing.Point(0, 0);
 			this.m_dualView.Name = "m_dualView";
-			this.m_dualView.Size = new System.Drawing.Size(613, 523);
+			this.m_dualView.Size = new System.Drawing.Size(613, 448);
 			this.m_dualView.TabIndex = 0;
 			// 
 			// m_toolstrip
@@ -206,7 +206,7 @@
             this.pasteToolStripButton,
             this.toolStripSeparator1,
             this.helpToolStripButton});
-			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
+			this.m_toolstrip.Location = new System.Drawing.Point(3, 75);
 			this.m_toolstrip.Name = "m_toolstrip";
 			this.m_toolstrip.Size = new System.Drawing.Size(199, 25);
 			this.m_toolstrip.TabIndex = 1;
@@ -302,7 +302,7 @@
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.m_statusText});
-			this.statusStrip1.Location = new System.Drawing.Point(0, 523);
+			this.statusStrip1.Location = new System.Drawing.Point(0, 448);
 			this.statusStrip1.Name = "statusStrip1";
 			this.statusStrip1.Size = new System.Drawing.Size(1022, 22);
 			this.statusStrip1.TabIndex = 2;
@@ -323,7 +323,7 @@
 			this.toolStripContainer1.ContentPanel.AutoScroll = true;
 			this.toolStripContainer1.ContentPanel.Controls.Add(this.m_vertsplit);
 			this.toolStripContainer1.ContentPanel.Controls.Add(this.statusStrip1);
-			this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(1022, 545);
+			this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(1022, 470);
 			this.toolStripContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.toolStripContainer1.LeftToolStripPanelVisible = false;
 			this.toolStripContainer1.Location = new System.Drawing.Point(0, 0);
@@ -340,28 +340,6 @@
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.toolStrip1);
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_buildStrip);
 			// 
-			// toolStrip1
-			// 
-			this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
-			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.m_editButton});
-			this.toolStrip1.Location = new System.Drawing.Point(309, 0);
-			this.toolStrip1.Name = "toolStrip1";
-			this.toolStrip1.Size = new System.Drawing.Size(43, 25);
-			this.toolStrip1.TabIndex = 4;
-			// 
-			// m_editButton
-			// 
-			this.m_editButton.CheckOnClick = true;
-			this.m_editButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_editButton.ForeColor = System.Drawing.Color.Black;
-			this.m_editButton.Image = ((System.Drawing.Image)(resources.GetObject("m_editButton.Image")));
-			this.m_editButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_editButton.Name = "m_editButton";
-			this.m_editButton.Size = new System.Drawing.Size(31, 22);
-			this.m_editButton.Text = "Edit";
-			this.m_editButton.CheckedChanged += new System.EventHandler(this.m_editButton_CheckedChanged);
-			// 
 			// m_curveStrip
 			// 
 			this.m_curveStrip.Dock = System.Windows.Forms.DockStyle.None;
@@ -369,10 +347,10 @@
             this.m_addCurve,
             this.m_modCurve,
             this.m_delCurve});
-			this.m_curveStrip.Location = new System.Drawing.Point(216, 0);
+			this.m_curveStrip.Location = new System.Drawing.Point(69, 50);
 			this.m_curveStrip.Name = "m_curveStrip";
 			this.m_curveStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-			this.m_curveStrip.Size = new System.Drawing.Size(81, 25);
+			this.m_curveStrip.Size = new System.Drawing.Size(112, 25);
 			this.m_curveStrip.TabIndex = 2;
 			// 
 			// m_addCurve
@@ -402,6 +380,29 @@
 			this.m_delCurve.Name = "m_delCurve";
 			this.m_delCurve.Size = new System.Drawing.Size(23, 22);
 			this.m_delCurve.Text = "Del";
+			this.m_delCurve.Click += new System.EventHandler(this.m_delCurve_Click);
+			// 
+			// toolStrip1
+			// 
+			this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
+			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.m_editButton});
+			this.toolStrip1.Location = new System.Drawing.Point(107, 25);
+			this.toolStrip1.Name = "toolStrip1";
+			this.toolStrip1.Size = new System.Drawing.Size(43, 25);
+			this.toolStrip1.TabIndex = 4;
+			// 
+			// m_editButton
+			// 
+			this.m_editButton.CheckOnClick = true;
+			this.m_editButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.m_editButton.ForeColor = System.Drawing.Color.Black;
+			this.m_editButton.Image = ((System.Drawing.Image)(resources.GetObject("m_editButton.Image")));
+			this.m_editButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_editButton.Name = "m_editButton";
+			this.m_editButton.Size = new System.Drawing.Size(31, 22);
+			this.m_editButton.Text = "Edit";
+			this.m_editButton.CheckedChanged += new System.EventHandler(this.m_editButton_CheckedChanged);
 			// 
 			// m_buildStrip
 			// 
@@ -411,10 +412,10 @@
             this.m_buildBtn,
             this.toolStripSeparator2,
             this.m_cancelBtn});
-			this.m_buildStrip.Location = new System.Drawing.Point(383, 0);
+			this.m_buildStrip.Location = new System.Drawing.Point(10, 0);
 			this.m_buildStrip.Name = "m_buildStrip";
 			this.m_buildStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-			this.m_buildStrip.Size = new System.Drawing.Size(171, 25);
+			this.m_buildStrip.Size = new System.Drawing.Size(140, 25);
 			this.m_buildStrip.TabIndex = 3;
 			// 
 			// m_autoBtn
@@ -481,10 +482,10 @@
 			this.toolStripContainer1.TopToolStripPanel.PerformLayout();
 			this.toolStripContainer1.ResumeLayout(false);
 			this.toolStripContainer1.PerformLayout();
-			this.toolStrip1.ResumeLayout(false);
-			this.toolStrip1.PerformLayout();
 			this.m_curveStrip.ResumeLayout(false);
 			this.m_curveStrip.PerformLayout();
+			this.toolStrip1.ResumeLayout(false);
+			this.toolStrip1.PerformLayout();
 			this.m_buildStrip.ResumeLayout(false);
 			this.m_buildStrip.PerformLayout();
 			this.ResumeLayout(false);

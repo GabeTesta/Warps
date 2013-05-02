@@ -18,24 +18,6 @@ namespace Warps
 			m_cs.ReturnPress += m_cs_ReturnPress;
 		}
 
-		public string Label
-		{
-			set
-			{
-				if (value == null)
-				{
-					m_label.Text = "";
-					image.Image = Warps.Properties.Resources.CurvePoint;
-					return;
-				}
-				else if (value == "SlidePoint")
-					image.Image = Warps.Properties.Resources.SlidePoint;
-				else
-					image.Image = Warps.Properties.Resources.CurvePoint;
-				m_label.Text = value;
-			}
-		}
-
 		public Equation CS
 		{
 			get
@@ -52,20 +34,6 @@ namespace Warps
 				//m_cs.Text = value.ToString("0.0000");
 			}
 		}
-
-		[DefaultValue("")]
-		public string CSText
-		{
-			get
-			{
-				return m_cs.Text;
-			}
-			set
-			{
-				m_cs.Text = value;
-			}
-		}
-
 		public MouldCurve Curve
 		{
 			get
@@ -80,6 +48,19 @@ namespace Warps
 			}
 		}
 
+		[DefaultValue("")]
+		public string CSText
+		{
+			get
+			{
+				return m_cs.Text;
+			}
+			set
+			{
+				m_cs.Text = value;
+			}
+		}
+
 		public IEnumerable<MouldCurve> Curves 
 		{
 			set 
@@ -90,6 +71,18 @@ namespace Warps
 		}
 
 		#region IFitEditor Members
+
+		public IFitPoint CreatePoint()
+		{
+			object fit = Utilities.CreateInstance(FitType.Name);
+			if (fit != null && fit is CurvePoint)
+			{
+				(fit as CurvePoint).S_Equ = CS;
+				(fit as CurvePoint).m_curve = Curve;
+				return fit as IFitPoint;
+			}
+			return null;
+		}
 
 		public event EventHandler<KeyEventArgs> ReturnPress;
 		void m_cs_ReturnPress(object sender, KeyEventArgs e)
@@ -118,6 +111,17 @@ namespace Warps
 
 				m_auto = value;
 				m_cs.AutoFillVariables = value.ToList();
+				MouldCurve c = Curve;//backup current curve
+				m_curves.Items.Clear();
+				foreach (object o in value)
+				{
+					if (o is MouldCurve)
+					{
+						if (!m_curves.Items.Contains(o))
+							m_curves.Items.Add(o);
+					}
+				}
+				Curve = c;//select currecnt curve
 			} 
 		}
 		Sail m_sail = null;
@@ -133,20 +137,17 @@ namespace Warps
 
 		#endregion
 
-		private void CurvePointEditor_Load(object sender, EventArgs e)
+		protected override void OnLayout(LayoutEventArgs e)
 		{
-			//if(m_curves!=null)
+			base.OnLayout(e);
+			int wid = Width / 2 - (2 * Padding.Horizontal);
 
-
-		}
-
-		private void SwitchEditor(string p)
-		{
-			
-		}
-
-		private void m_cs_TextChanged(object sender, EventArgs e)
-		{
+			m_cs.Width = wid;
+			m_curves.Left = wid+Padding.Horizontal;
+			m_curves.Width = wid;
+			//m_cs.Height = 23;
+			//m_curves.Height = 23;
+			//Height = 23;
 
 		}
 	}

@@ -103,12 +103,6 @@
     <Compile Include="Controls\ColorWheelForm.Designer.cs">
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\CurveEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\CurveEditor.Designer.cs">
-      <DependentUpon>CurveEditor.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\EquationBoxAuto.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -121,6 +115,15 @@
     <Compile Include="Controls\GuideEditor.Designer.cs">
       <DependentUpon>GuideEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ImageComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\MouldCurveEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\MouldCurveEditor.Designer.cs">
+      <DependentUpon>MouldCurveEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\VariableEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -132,12 +135,6 @@
     </Compile>
     <Compile Include="Controls\InputEquationForm.Designer.cs">
       <DependentUpon>InputEquationForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\PointTypeSwitcher.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\PointTypeSwitcher.Designer.cs">
-      <DependentUpon>PointTypeSwitcher.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\EquationBox.cs">
       <SubType>Component</SubType>
@@ -228,6 +225,12 @@
     <Compile Include="Trackers\SailTracker.cs" />
     <Compile Include="Trackers\VariableGroupTracker.cs" />
     <Compile Include="Trackers\VariableTracker.cs" />
+    <Compile Include="UserControl1.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControl1.Designer.cs">
+      <DependentUpon>UserControl1.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utilities\logger.cs" />
     <Compile Include="Utilities\ScriptTools.cs" />
     <Compile Include="Curves\SlidePoint.cs" />
@@ -259,9 +262,6 @@
     <EmbeddedResource Include="Controls\ColorWheelForm.resx">
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CurveEditor.resx">
-      <DependentUpon>CurveEditor.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Controls\CurveGroupEditor.resx">
       <DependentUpon>CurveGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -274,20 +274,17 @@
     <EmbeddedResource Include="Controls\GuideEditor.resx">
       <DependentUpon>GuideEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MouldCurveEditor.resx">
+      <DependentUpon>MouldCurveEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\VariableEditor.resx">
       <DependentUpon>VariableEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\InputEquationForm.resx">
       <DependentUpon>InputEquationForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\PointTypeSwitcher.resx">
-      <DependentUpon>PointTypeSwitcher.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Controls\EquationBox.resx">
       <DependentUpon>EquationBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\PointTypeSwitcher.yo.resx">
-      <DependentUpon>PointTypeSwitcher.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\VariableGroupEditor.resx">
       <DependentUpon>VariableGroupEditor.cs</DependentUpon>
@@ -307,11 +304,17 @@
     <EmbeddedResource Include="Controls\TabTree.resx">
       <DependentUpon>TabTree.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\View\NsPlot.resx">
+      <DependentUpon>NsPlot.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\YarnGroupEditor.resx">
       <DependentUpon>YarnGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Testing\EquationEditorForm.resx">
       <DependentUpon>EquationEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserControl1.resx">
+      <DependentUpon>UserControl1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WarpFrame.resx">
       <DependentUpon>WarpFrame.cs</DependentUpon>
@@ -415,7 +418,13 @@
     <None Include="Resources\showonly.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Curves\curvept.PNG" />
+    <None Include="Curves\fixedpt.PNG" />
+    <None Include="Curves\slidept.PNG" />
     <Content Include="icon.ico" />
+    <Content Include="Resources\curvept.PNG" />
+    <Content Include="Resources\fixedpt.PNG" />
+    <Content Include="Resources\slidept.PNG" />
     <None Include="Resources\Warps.png" />
     <None Include="Resources\GuideComb.png" />
     <None Include="Resources\yarns.png" />

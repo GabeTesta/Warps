@@ -157,7 +157,12 @@ namespace Warps
 		bool[] m_bGirths;
 		internal bool IsGirth(int nSegment)
 		{
-			return m_bGirths == null ? false : nSegment > m_bGirths.Length ? false : m_bGirths[nSegment];
+			return m_bGirths == null ? false : nSegment >= m_bGirths.Length ? false : m_bGirths[nSegment];
+		}
+		internal void Girth(int nSeg, bool bGirth)
+		{
+			if (0 <= nSeg && nSeg < m_bGirths.Length)
+				m_bGirths[nSeg] = bGirth;
 		}
 
 		/// <summary>
@@ -191,6 +196,11 @@ namespace Warps
 		public void Fit(Vect2 uStart, Vect2 uEnd)
 		{
 			Fit(new IFitPoint[] { new FixedPoint(uStart), new FixedPoint(uEnd) });
+		}
+		public void Fit(IFitPoint[] points, bool[] girths)
+		{
+			m_bGirths = girths.Clone() as bool[];
+			Fit(points);
 		}
 		public virtual void Fit(IFitPoint[] points)
 		{
@@ -627,7 +637,7 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Text = string.Format("{0}: {1} [{2:0.000}]", GetType().Name, Label, Length);
+			m_node.Text = string.Format("{0} [{1:0.000}]", Label, Length);
 			m_node.Tag = this;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
@@ -638,22 +648,22 @@ namespace Warps
 			return m_node;
 		}
 
-		public virtual CurveEditor UpdateEditor(CurveEditor edit)
-		{
-			if (edit == null)
-				edit = new CurveEditor();
-			edit.Tag = this;
-			edit.Label = Label;
-			edit.Length = Length;
-			edit.FitPoints = FitPoints;
-			return edit;
-		}
-		public virtual void ReadEditor(CurveEditor edit)
-		{
-			for (int i = 0; i < FitPoints.Length; i++)
-				FitPoints[i].ReadEditor(edit[i]);
+		//public virtual CurveEditor UpdateEditor(CurveEditor edit)
+		//{
+		//	if (edit == null)
+		//		edit = new CurveEditor();
+		//	edit.Tag = this;
+		//	edit.Label = Label;
+		//	edit.Length = Length;
+		//	edit.FitPoints = FitPoints;
+		//	return edit;
+		//}
+		//public virtual void ReadEditor(CurveEditor edit)
+		//{
+		//	for (int i = 0; i < FitPoints.Length; i++)
+		//		FitPoints[i].ReadEditor(edit[i]);
 
-		}
+		//}
 
 		public virtual Entity[] CreateEntities()
 		{

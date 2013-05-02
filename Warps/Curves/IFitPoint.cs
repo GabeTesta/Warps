@@ -14,9 +14,9 @@ namespace Warps
 		double S { get; set; }
 		Vect2 UV { get; set; }
 
-		Equation S_Equ { get; set; }
-		Equation U { get; set; }
-		Equation V { get; set; }
+		//Equation S_Equ { get; set; }
+		//Equation U { get; set; }
+		//Equation V { get; set; }
 
 		IFitPoint Clone();
 		/// <summary>
@@ -33,14 +33,18 @@ namespace Warps
 		/// </summary>
 		TreeNode Node { get; set; }
 
+		//void ReadEditor(PointTypeSwitcher edit);
+		//PointTypeSwitcher WriteEditor(PointTypeSwitcher edit);
+		
+		Control WriteEditor(ref IFitEditor edit);
+		void ReadEditor(IFitEditor edit);
+
 		bool Affected(List<IRebuild> connected);
 
 		bool Delete();
 
 		bool Update(Sail s);
-
-		PointTypeSwitcher WriteEditor(PointTypeSwitcher edit);
-		void ReadEditor(PointTypeSwitcher edit);
+		
 		bool ValidFitPoint { get; set; }
 	}
 }

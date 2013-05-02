@@ -32,7 +32,7 @@
 			this.m_scriptBox = new System.Windows.Forms.TextBox();
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.m_import = new System.Windows.Forms.ToolStripButton();
-			this.m_curveEdit = new Warps.CurveEditor();
+			this.m_curveEdit = new Warps.Controls.MouldCurveEditor();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.toolStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -122,7 +122,7 @@
 		#endregion
 
 		private System.Windows.Forms.TextBox m_scriptBox;
-		private CurveEditor m_curveEdit;
+		private Warps.Controls.MouldCurveEditor m_curveEdit;
 		private System.Windows.Forms.ToolStrip toolStrip1;
 		private System.Windows.Forms.ToolStripButton m_import;
 		private System.Windows.Forms.SplitContainer splitContainer1;

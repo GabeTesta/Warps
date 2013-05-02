@@ -78,5 +78,16 @@ namespace Warps
 		}
 
 		#endregion
+
+		private void InitializeComponent()
+		{
+			this.SuspendLayout();
+			// 
+			// NsPlot
+			// 
+			this.Cursor = System.Windows.Forms.Cursors.Cross;
+			this.ResumeLayout(false);
+
+		}
 	}
 }

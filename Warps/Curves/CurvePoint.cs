@@ -36,9 +36,6 @@ namespace Warps
 		//internal double m_sCurve;
 
 		Equation m_sEqu = new Equation();
-		Equation m_uEqu = new Equation();
-		Equation m_vEqu = new Equation();
-
 		public Equation S_Equ
 		{
 			get
@@ -48,30 +45,6 @@ namespace Warps
 			set
 			{
 				m_sEqu = value; m_sEqu.Label = "S";
-			}
-		}
-
-		public Equation U
-		{
-			get
-			{
-				return m_uEqu;
-			}
-			set
-			{
-				m_uEqu = value; m_uEqu.Label = "U";
-			}
-		}
-
-		public Equation V
-		{
-			get
-			{
-				return m_vEqu;
-			}
-			set
-			{
-				m_vEqu = value; m_vEqu.Label = "V";
 			}
 		}
 
@@ -207,31 +180,55 @@ namespace Warps
 			set { }
 		}
 
-		public PointTypeSwitcher WriteEditor(PointTypeSwitcher edit)
-		{
-			if (edit == null)
-				edit = new PointTypeSwitcher();
-			CurvePointEditor ce = edit.Edit as CurvePointEditor;
-			if (ce == null)
-				ce = new CurvePointEditor();
-			ce.Tag = GetType();
-			ce.Label = GetType().Name;
-			ce.Curves = PointTypeSwitcher.GetCurves();
-			ce.Curve = m_curve;
-			ce.CS = S_Equ;
+		//#region PointTypeSwitcher
+		//public PointTypeSwitcher WriteEditor(PointTypeSwitcher edit)
+		//{
+		//	if (edit == null)
+		//		edit = new PointTypeSwitcher();
+		//	CurvePointEditor ce = edit.Edit as CurvePointEditor;
+		//	if (ce == null)
+		//		ce = new CurvePointEditor();
+		//	ce.Tag = GetType();
+		//	//ce.Label = GetType().Name;
+		//	ce.Curves = PointTypeSwitcher.GetCurves();
+		//	ce.Curve = m_curve;
+		//	ce.CS = S_Equ;
 
-			edit.SetEdit(ce);
-			return edit;
+		//	edit.SetEdit(ce);
+		//	return edit;
+		//}
+		//public void ReadEditor(PointTypeSwitcher edit)
+		//{
+		//	CurvePointEditor ce = edit.Edit as CurvePointEditor;
+		//	if (ce == null)
+		//		throw new ArgumentException("Invalid Editor in CurvePoint");
+		//	S_Equ = ce.CS;
+
+		//	m_curve = ce.Curve == null ? m_curve : ce.Curve;
+		//} 
+		//#endregion
+
+		public Control WriteEditor(ref IFitEditor edit)
+		{
+			if (edit == null || !(edit is CurvePointEditor))
+				edit = new CurvePointEditor();
+			CurvePointEditor cdit = edit as CurvePointEditor;
+			cdit.Tag = GetType();
+			cdit.Curve = m_curve;
+			cdit.CS = S_Equ;
+
+			return cdit;
 		}
 
-		public void ReadEditor(PointTypeSwitcher edit)
+		public void ReadEditor(IFitEditor edit)
 		{
-			CurvePointEditor ce = edit.Edit as CurvePointEditor;
-			if (ce == null)
-				throw new ArgumentException("Invalid Editor in CurvePoint");
-			S_Equ = ce.CS;
-			
-			m_curve = ce.Curve == null ? m_curve : ce.Curve;
+			if (edit == null )
+			throw new ArgumentNullException();
+			if( !(edit is CurvePointEditor) )
+				throw new ArgumentException("Type must be CurvePointEditor");
+			CurvePointEditor cdit = edit as CurvePointEditor;
+			m_curve = cdit.Curve;
+			S_Equ = cdit.CS;
 		}
 
 		#endregion
@@ -247,25 +244,19 @@ namespace Warps
 				{
 					if (element is MouldCurve)
 					{
-						if (S_Equ.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower())
-							|| U.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower())
-							|| V.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower()))
+						if (S_Equ.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower()))
 							bupdate = true;
 					}
 					else if (element is Equation)
 					{
-						if (S_Equ.EquationText.ToLower().Contains((element as Equation).Label.ToLower())
-							|| U.EquationText.ToLower().Contains((element as Equation).Label.ToLower())
-							|| V.EquationText.ToLower().Contains((element as Equation).Label.ToLower()))
+						if (S_Equ.EquationText.ToLower().Contains((element as Equation).Label.ToLower()))
 							bupdate = true;
 					}
 					else if (element is VariableGroup)
 					{
 						foreach (KeyValuePair<string, Equation> e in element as VariableGroup)
 						{
-							if (S_Equ.EquationText.ToLower().Contains(e.Key.ToLower())
-							|| U.EquationText.ToLower().Contains(e.Key.ToLower())
-							|| V.EquationText.ToLower().Contains(e.Key.ToLower()))
+							if (S_Equ.EquationText.ToLower().Contains(e.Key.ToLower()))
 								bupdate = true;
 						}
 					}
@@ -280,8 +271,8 @@ namespace Warps
 
 			bool ret = true;
 			ret &= S_Equ.Evaluate(s) != Double.NaN;
-			ret &= U.Evaluate(s) != Double.NaN;
-			ret &= V.Evaluate(s) != Double.NaN;
+			//ret &= U.Evaluate(s) != Double.NaN;
+			//ret &= V.Evaluate(s) != Double.NaN;
 			return ret;
 		}
 		public bool Delete() { return false; }
@@ -323,7 +314,6 @@ namespace Warps
 			//return true; 
 			#endregion
 		}
-
 		public List<string> WriteScript()
 		{
 			List<string> script = new List<string>();
@@ -340,7 +330,6 @@ namespace Warps
 		{
 			return string.Format("{0}: {1:0.0000} [{2}]", GetType().Name, CurrentS, UV.ToString("0.0000"));
 		}
-
 		public bool ValidFitPoint
 		{
 			get
@@ -349,5 +338,6 @@ namespace Warps
 			}
 			set { }
 		}
+
 	}
 }

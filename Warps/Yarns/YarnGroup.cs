@@ -19,7 +19,7 @@ namespace Warps
 		{
 			Label = label;
 			Sail = s;
-			m_yarnDenier = new Equation("yd", yarnDenier, s); // individual yarn denier (input)
+			m_yarnDenier = new Equation("YarnDenier", yarnDenier, s); // individual yarn denier (input)
 		}
 
 		public YarnGroup(string label, Sail s, Equation yarnDenier, Equation targetDPI)
@@ -40,8 +40,8 @@ namespace Warps
 		//double m_targetDenier = 0;
 		//double m_yarnDenier = 0;
 
-		Equation m_yarnDenier = new Equation("yd", 0.0);
-		Equation m_targetDenier = new Equation("td", 0.0);
+		Equation m_yarnDenier = new Equation("YarnDenier", 0.0);
+		Equation m_targetDenier = new Equation("TargetDpi", 0.0);
 
 		public Equation YarnDenierEqu
 		{
@@ -256,7 +256,11 @@ namespace Warps
 			{
 				//spread yarns, no target count
 				SpreadYar(-1);
-
+				if (Count == MAXYAR) //ended early, increase scale and try again
+				{
+					m_Scale = 1 / this.Last().m_p;
+					continue;
+				}
 				AchievedDpi = CheckDpi(DensityPos);
 				if( YarnsUpdated != null )
 					YarnsUpdated(this, new EventArgs<YarnGroup>(this));
@@ -1167,9 +1171,11 @@ namespace Warps
 		{
 			bool ret = true;
 			ret &= YarnDenierEqu.Evaluate(s) != Double.NaN;
+			ret &= YarnDenierEqu.Result != 0;
 			ret &= TargetDenierEqu.Evaluate(s) != Double.NaN;
-			if(ret)
-				ret &= LayoutYarns() == -1;
+			ret &= TargetDenierEqu.Result != 0;
+			if (ret)
+				ret &= LayoutYarns() > 0;
 			return ret;
 		}
 
@@ -1203,9 +1209,9 @@ namespace Warps
 				splits = lines[0].Split(':');
 				if (splits.Length > 0)
 				{
-					if (splits[0].ToLower().Contains("td"))
+					if (splits[0].ToLower().Contains("targetdpi"))
 						m_targetDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'), sail);
-					else if (splits[0].ToLower().Contains("yd"))
+					else if (splits[0].ToLower().Contains("yarndenier"))
 						m_yarnDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'), sail);
 
 					else if (splits[0].ToLower().Contains("scale"))

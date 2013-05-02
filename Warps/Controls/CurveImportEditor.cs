@@ -31,7 +31,8 @@ namespace Warps
 				{
 					m_curveEdit.Label = value.Label;
 					m_curveEdit.Length = value.Length;
-					m_curveEdit.FitPoints = value.FitPoints;
+					m_curveEdit.ReadCurve(value);
+					//m_curveEdit.FitPoints = value.FitPoints;
 				}
 			}
 		}

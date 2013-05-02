@@ -123,5 +123,22 @@ namespace Warps.Controls
 		{
 			AutoFillVariables = m_sail.GetAutoFillData(group);
 		}
+
+		protected override void OnLayout(LayoutEventArgs e)
+		{
+			base.OnLayout(e);
+			button1.Top = 0;
+			equationBox.Top = 0;
+
+			//square button
+			button1.Height = button1.Width = Height;
+
+			//full height text box
+			equationBox.Height = Height;
+
+			//right-justified button
+			button1.Left = Width - button1.Width-3;
+			equationBox.Width = Width - button1.Width-3;
+		}
 	}
 }

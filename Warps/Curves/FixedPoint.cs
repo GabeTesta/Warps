@@ -10,35 +10,16 @@ namespace Warps
 	class FixedPoint : IFitPoint
 	{
 		public FixedPoint() : this(0, 0) { }
-		public FixedPoint(FixedPoint f)
-			: this(f[0], f[1], f[2]) 
-		{
-			U = f.U;
-			V = f.V;
-		}
-		public FixedPoint(double u, double v)
-		{ 
-			U = new Equation("u", u.ToString(), null); 
-			V = new Equation("v", v.ToString(), null); 
-		}
+		public FixedPoint(FixedPoint f) : this(f.U, f.V) { m_s = f[0]; }
 
-		public FixedPoint(Vect2 uv)
-		{
-			S_Equ = new Equation("s", "-1", null);
-			U = new Equation("u", uv[0].ToString(), null);
-			V = new Equation("v", uv[1].ToString(), null); 
-		}
-
+		public FixedPoint(Vect2 uv)	:this(0, uv){}
+		public FixedPoint(double s, Vect2 uv) : this(s, uv[0], uv[1]) { }
+		public FixedPoint(double u, double v):this(0,u,v){}
 		public FixedPoint(double s, double u, double v)
 		{
-			S_Equ = new Equation("s", s.ToString(), null);
+			m_s = s;
 			U = new Equation("u", u.ToString(), null);
 			V = new Equation("v", v.ToString(), null); 
-		}
-		public FixedPoint(double s, Vect2 uv)
-		{
-			m_s = s;
-			m_uv = uv;
 		}
 
 		public FixedPoint(Equation ueq, Equation veq)
@@ -48,7 +29,6 @@ namespace Warps
 		}
 
 		double m_s;
-		Vect2 m_uv;
 
 		#region IFitPoint Members
 
@@ -59,32 +39,23 @@ namespace Warps
 
 		public double S
 		{
-			get { return S_Equ.Result; }
-			set { S_Equ.Value = value; }
+			get { return m_s; }
+			set { m_s = value; }
 		}
 
 		public Vect2 UV
 		{
 			get { return new Vect2(U.Result, V.Result); }
-			set { }
+			set
+			{
+				U.Value = value.u;
+				V.Value = value.v;
+			}
 			//set { m_uv = value; }
 		}
 
-		Equation m_sEqu = new Equation();
 		Equation m_uEqu = new Equation();
 		Equation m_vEqu = new Equation();
-
-		public Equation S_Equ
-		{
-			get
-			{
-				return m_sEqu;
-			}
-			set
-			{
-				m_sEqu = value; m_sEqu.Label = "S";
-			}
-		}
 
 		public Equation U
 		{
@@ -125,7 +96,7 @@ namespace Warps
 				switch (i)
 				{
 					case 0:
-						return S_Equ.Result;
+						return S;
 					case 1:
 						return U.Result;
 					case 2:
@@ -139,8 +110,7 @@ namespace Warps
 				switch (i)
 				{
 					case 0:
-						if(S_Equ.IsNumber())
-							S_Equ.Value = value;
+						S = value;
 						break;
 					case 1:
 						if (U.IsNumber())
@@ -198,51 +168,74 @@ namespace Warps
 			}
 		}
 
-		public PointTypeSwitcher WriteEditor(PointTypeSwitcher edit)
+		public Control WriteEditor(ref IFitEditor edit)
+		{
+			if (edit == null || !(edit is FixedPointEditor))
+				edit = new FixedPointEditor();
+			FixedPointEditor cdit = edit as FixedPointEditor;
+			cdit.Tag = GetType();
+			cdit.U = U;
+			cdit.V = V;
+
+			return cdit;
+		}
+
+		public void ReadEditor(IFitEditor edit)
 		{
 			if (edit == null)
-				edit = new PointTypeSwitcher();
-			FixedPointEditor fp = edit.Edit as FixedPointEditor;
-			//fp.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-			if (fp == null)
-				fp = new FixedPointEditor();
-			fp.Tag = GetType();
-			fp.Label = GetType().Name;
-			fp.U = U;
-			fp.V = V;
-			edit.SetEdit(fp);
-			return edit;
+				throw new ArgumentNullException();
+			if (!(edit is FixedPointEditor))
+				throw new ArgumentException("Type must be FixedPointEditor");
+
+			FixedPointEditor pdit = edit as FixedPointEditor;
+			U = pdit.U;
+			V = pdit.V;
 		}
 
-		public void ReadEditor(PointTypeSwitcher edit)
-		{
-			FixedPointEditor fp = edit.Edit as FixedPointEditor;
-			if (fp == null)
-				return;
-			U = fp.U;
-			V = fp.V;
-		}
+		//#region PointTypeSwitcher
+		//public PointTypeSwitcher WriteEditor(PointTypeSwitcher edit)
+		//{
+		//	if (edit == null)
+		//		edit = new PointTypeSwitcher();
+		//	FixedPointEditor fp = edit.Edit as FixedPointEditor;
+		//	//fp.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+		//	if (fp == null)
+		//		fp = new FixedPointEditor();
+		//	fp.Tag = GetType();
+		//	fp.U = U;
+		//	fp.V = V;
+		//	edit.SetEdit(fp);
+		//	return edit;
+		//}
+		//public void ReadEditor(PointTypeSwitcher edit)
+		//{
+		//	FixedPointEditor fp = edit.Edit as FixedPointEditor;
+		//	if (fp == null)
+		//		return;
+		//	U = fp.U;
+		//	V = fp.V;
+		//}
+		//public Control Editor
+		//{
+		//	get
+		//	{
+		//		FixedPointEditor fp = new FixedPointEditor();
+		//		fp.U = U;
+		//		fp.V = V;
+		//		return fp;
+		//	}
+		//	set
+		//	{
+		//		FixedPointEditor fp = value as FixedPointEditor;
+		//		if (fp == null)
+		//			return;
+		//		U = fp.U;
+		//		V = fp.V;
+		//	}
+		//}
 
-		public Control Editor
-		{
-			get
-			{
-				FixedPointEditor fp = new FixedPointEditor();
-				fp.Label = GetType().Name;
-				fp.U = U;
-				fp.V = V;
-				return fp;
-			}
-			set
-			{
-				FixedPointEditor fp = value as FixedPointEditor;
-				if (fp == null)
-					return;
-				U = fp.U;
-				V = fp.V;
-			}
-		}
-
+		//#endregion
+	
 		#endregion
 
 		#region IRebuild Members
@@ -256,15 +249,13 @@ namespace Warps
 				{
 					if (element is MouldCurve)
 					{
-						if (S_Equ.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower())
-							|| U.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower())
+						if (U.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower())
 							|| V.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower()))
 							bupdate = true;
 					}
 					else if (element is Equation)
 					{
-						if (S_Equ.EquationText.ToLower().Contains((element as Equation).Label.ToLower())
-							|| U.EquationText.ToLower().Contains((element as Equation).Label.ToLower())
+						if (U.EquationText.ToLower().Contains((element as Equation).Label.ToLower())
 							|| V.EquationText.ToLower().Contains((element as Equation).Label.ToLower()))
 							bupdate = true;
 					}
@@ -272,8 +263,7 @@ namespace Warps
 					{
 						foreach (KeyValuePair<string, Equation> e in element as VariableGroup)
 						{
-							if (S_Equ.EquationText.ToLower().Contains(e.Key.ToLower())
-							|| U.EquationText.ToLower().Contains(e.Key.ToLower())
+							if (U.EquationText.ToLower().Contains(e.Key.ToLower())
 							|| V.EquationText.ToLower().Contains(e.Key.ToLower()))
 								bupdate = true;
 						}
@@ -289,7 +279,6 @@ namespace Warps
 		public bool Update(Sail s)
 		{
 			bool ret = true;
-			ret &= S_Equ.Evaluate(s) != Double.NaN;
 			ret &= U.Evaluate(s) != Double.NaN;
 			ret &= V.Evaluate(s) != Double.NaN;
 			return ret;
@@ -335,6 +324,5 @@ namespace Warps
 			}
 			set { }
 		}
-	
 	}
 }

@@ -18,7 +18,7 @@ namespace Warps
 		public CurveTracker(MouldCurve curve)
 		{
 			m_curve = curve;
-			m_edit = new CurveEditor(Curve);
+			//m_edit = new CurveEditor(Curve);
 		}
 
 		public void Track(WarpFrame frame)
@@ -31,7 +31,7 @@ namespace Warps
 			//m_frame.cancelButton.Click += OnCancel;
 			//m_frame.previewButton.Click += OnPreview;
 
-			m_frame.EditorPanel = Edit;
+			m_frame.EditorPanel = m_mcEdit;
 			EditMode = frame.EditMode;
 			
 			CreateTreePopup();
@@ -71,8 +71,10 @@ namespace Warps
 			set 
 			{ 
 				m_editMode = value;
-				if (Edit != null)
-					Edit.Enabled = value;
+				//if (Edit != null)
+				//	Edit.Enabled = value;
+				if (m_mcEdit != null)
+					m_mcEdit.Enabled = value;
 
 				if (View != null)
 				{
@@ -90,7 +92,8 @@ namespace Warps
 		}
 
 		MouldCurve m_curve;
-		CurveEditor m_edit;
+		//CurveEditor m_edit;
+		MouldCurveEditor m_mcEdit = new MouldCurveEditor();
 		WarpFrame m_frame;
 
 		public MouldCurve Curve
@@ -98,10 +101,10 @@ namespace Warps
 			get { return m_curve; }
 			set { m_curve = value; }
 		}
-		CurveEditor Edit
-		{
-			get { return m_edit; }
-		}
+		//CurveEditor Edit
+		//{
+		//	get { return m_edit; }
+		//}
 		DualView View
 		{
 			get { return m_frame != null ? m_frame.View : null; }
@@ -152,7 +155,7 @@ namespace Warps
 			View.Remove(Curve);
 
 			Curve.Fit(m_temp.FitPoints);
-			Curve.Label = Edit.Label;
+			Curve.Label = m_mcEdit.Label;
 
 			if( sender != null )
 				m_frame.Rebuild(Curve);//returns false if AutoBuild is off
@@ -169,20 +172,22 @@ namespace Warps
 		}
 		void ReadEditor()
 		{
-			List<IFitPoint> pnts = new List<IFitPoint>();
-			for (int i = 0; i < Edit.Count; i++)  
-			{
-				object fit = null;
-				if (Edit[i] != null)
-					fit = Utilities.CreateInstance(Edit[i].FitType.Name);
-				if (fit != null && fit is IFitPoint)
-				{
-					pnts.Add(fit as IFitPoint);
-					pnts.Last().ReadEditor(Edit[i]);
-					pnts.Last().Update(Sail);
-				}
-			}
-			m_temp.FitPoints = pnts.ToArray();
+			m_mcEdit.WriteCurve(m_temp);
+
+			//List<IFitPoint> pnts = new List<IFitPoint>();
+			//for (int i = 0; i < Edit.Count; i++)  
+			//{
+			//	object fit = null;
+			//	if (Edit[i] != null)
+			//		fit = Utilities.CreateInstance(Edit[i].FitType.Name);
+			//	if (fit != null && fit is IFitPoint)
+			//	{
+			//		pnts.Add(fit as IFitPoint);
+			//		pnts.Last().ReadEditor(Edit[i]);
+			//		pnts.Last().Update(Sail);
+			//	}
+			//}
+			//m_temp.FitPoints = pnts.ToArray();
 		}
 
 
@@ -227,16 +232,19 @@ namespace Warps
 					ee.LineWeightMethod = colorMethodType.byEntity;
 				}
 
-			List<MouldCurve> mc = Sail.GetCurves(Curve);
-			PointTypeSwitcher.SetCurves(mc);
-			PointTypeSwitcher.SetAutofill(Sail.GetAutoFillData(Curve));
-			PointTypeSwitcher.SetSail(Sail);
+			//List<MouldCurve> mc = Sail.GetCurves(Curve);
+			//PointTypeSwitcher.SetCurves(mc);
+			//PointTypeSwitcher.SetAutofill(Sail.GetAutoFillData(Curve));
+			//PointTypeSwitcher.SetSail(Sail);
 
 			//if( EditMode ) View.StopSelect();
-			Edit.Label = Curve.Label;
-			Edit.Length = m_temp.Length;
-			Edit.FitPoints = m_temp.FitPoints;
-			Edit.Refresh();
+			m_mcEdit.ReadCurve(m_temp);
+			m_mcEdit.Label = Curve.Label;
+			m_mcEdit.Refresh();
+			//Edit.Label = Curve.Label;
+			//Edit.Length = m_temp.Length;
+			//Edit.FitPoints = m_temp.FitPoints;
+			//Edit.Refresh();
 			if (Tree.SelectedTag != Curve) Tree.SelectedTag = Curve;
 			//if (View.SelectedTag != Curve) 
 			View.Select(Curve);
@@ -401,20 +409,17 @@ namespace Warps
 			View.Refresh();
 			if (bEditor)
 			{
-
-				//bEditor = Edit.Enabled;//store the exising edit state
-				//Edit.Enabled = true;//set enabled to allow controls to update
-
-				Edit.Count = m_temp.FitPoints.Length; 
-				for (int i = 0; i < m_temp.FitPoints.Length; i++)
-				{
-					m_temp[i].WriteEditor(Edit[i]);
-					Edit[i].Invalidate();
-				}
-				Edit.Length = m_temp.Length;
-				Edit.Update();
-
-				//Edit.Enabled = bEditor;//restore previous edit state
+				m_mcEdit.ReadCurve(m_temp);
+				m_mcEdit.Label = Curve.Label;
+				m_mcEdit.Update();
+				//Edit.Count = m_temp.FitPoints.Length; 
+				//for (int i = 0; i < m_temp.FitPoints.Length; i++)
+				//{
+				//	m_temp[i].WriteEditor(Edit[i]);
+				//	Edit[i].Invalidate();
+				//}
+				//Edit.Length = m_temp.Length;
+				//Edit.Update();
 			}
 		}
 

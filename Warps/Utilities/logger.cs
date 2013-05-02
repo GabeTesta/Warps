@@ -282,7 +282,6 @@ namespace Warps.Logger
 
 		string m_path;
 
-		public event EventHandler LogChanged;
 
 		public int Errors
 		{

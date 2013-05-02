@@ -96,16 +96,20 @@ namespace Warps.Trackers
 				}
 
 			List<MouldCurve> mc = Sail.GetCurves(Comb);
-			PointTypeSwitcher.SetCurves(mc);
-			PointTypeSwitcher.SetAutofill(Sail.GetAutoFillData(Comb));
-			PointTypeSwitcher.SetSail(Sail);
+			//PointTypeSwitcher.SetCurves(mc);
+			//PointTypeSwitcher.SetAutofill(Sail.GetAutoFillData(Comb));
+			//PointTypeSwitcher.SetSail(Sail);
+
+			Edit.ReadComb(m_temp);
+			Edit.Label = Comb.Label;
+			Edit.Refresh();
 
 			//if( EditMode ) View.StopSelect();
-			Edit.Label = Comb.Label;
-			Edit.Length = m_temp.Length;
-			Edit.FitPoints = m_temp.FitPoints;
-			Edit.CombPnts = m_temp.CombPnts;
-			Edit.Refresh();
+			//Edit.Label = Comb.Label;
+			//Edit.Length = m_temp.Length;
+			////Edit.FitPoints = m_temp.FitPoints;
+			//Edit.CombPnts = m_temp.CombPnts;
+			//Edit.Refresh();
 			if (Tree.SelectedTag != Comb) Tree.SelectedTag = Comb;
 			//if (View.SelectedTag != Curve) 
 			View.Select(Comb);
@@ -249,19 +253,23 @@ namespace Warps.Trackers
 			View.Refresh();
 			if (bEditor)
 			{
+				Edit.ReadComb(m_temp);
+				Edit.Label = Comb.Label;
+				Edit.Update();
+
 
 				//bEditor = Edit.Enabled;//store the exising edit state
 				//Edit.Enabled = true;//set enabled to allow controls to update
 
-				Edit.Count = m_temp.FitPoints.Length;
-				for (int i = 0; i < m_temp.FitPoints.Length; i++)
-				{
-					m_temp[i].WriteEditor(Edit[i]);
-					Edit[i].Invalidate();
-				}
-				Edit.Length = m_temp.Length;
-				Edit.CombPnts = m_temp.CombPnts;
-				Edit.Update();
+				//Edit.Count = m_temp.FitPoints.Length;
+				//for (int i = 0; i < m_temp.FitPoints.Length; i++)
+				//{
+				//	m_temp[i].WriteEditor(Edit[i]);
+				//	Edit[i].Invalidate();
+				//}
+				//Edit.Length = m_temp.Length;
+				//Edit.CombPnts = m_temp.CombPnts;
+				//Edit.Update();
 
 				//Edit.Enabled = bEditor;//restore previous edit state
 			}
@@ -286,19 +294,20 @@ namespace Warps.Trackers
 		}
 		void ReadEditor()
 		{
-			List<IFitPoint> pnts = new List<IFitPoint>();
-			for (int i = 0; i < Edit.Count; i++)
-			{
-				object fit = null;
-				if (Edit[i] != null)
-					fit = Utilities.CreateInstance(Edit[i].FitType.Name);
-				if (fit != null && fit is IFitPoint)
-				{
-					pnts.Add(fit as IFitPoint);
-					pnts.Last().ReadEditor(Edit[i]);
-				}
-			}
-			m_temp.FitPoints = pnts.ToArray();
+			//List<IFitPoint> pnts = new List<IFitPoint>();
+			//for (int i = 0; i < Edit.Count; i++)
+			//{
+			//	object fit = null;
+			//	if (Edit[i] != null)
+			//		fit = Utilities.CreateInstance(Edit[i].FitType.Name);
+			//	if (fit != null && fit is IFitPoint)
+			//	{
+			//		pnts.Add(fit as IFitPoint);
+			//		pnts.Last().ReadEditor(Edit[i]);
+			//	}
+			//}
+			//m_temp.FitPoints = pnts.ToArray();
+			Edit.WriteCurve(m_temp);
 			//m_temp.CombPnts = Edit.CombPnts;
 			m_temp.FitComb(Edit.CombPnts);
 		}

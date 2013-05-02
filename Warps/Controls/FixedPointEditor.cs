@@ -19,9 +19,25 @@ namespace Warps
 			m_vEq.ReturnPress += OnReturnPress;
 		}
 
-		public string Label
+
+		public Vect2 UV
 		{
-			set { label1.Text = value; }
+			get { return new Vect2(u, v); }
+			set
+			{
+				u = value.u;
+				v = value.v;
+			}
+		}
+		public Equation U
+		{
+			get { return m_uEq.Equation; }
+			set { m_uEq.Equation = value; }
+		}
+		public Equation V
+		{
+			get { return m_vEq.Equation; }
+			set { m_vEq.Equation = value; }
 		}
 
 		[DefaultValue(0)]
@@ -36,13 +52,6 @@ namespace Warps
 				m_uEq.Text = value.ToString("0.0000");
 			}
 		}
-
-		public Equation U
-		{
-			get { return m_uEq.Equation; }
-			set { m_uEq.Equation = value; }
-		}
-
 		[DefaultValue(0)]
 		double v
 		{
@@ -56,23 +65,20 @@ namespace Warps
 			}
 		}
 
-		public Equation V
-		{
-			get { return m_vEq.Equation; }
-			set { m_vEq.Equation = value; }
-		}
-
-		public Vect2 UV
-		{
-			get { return new Vect2(u, v); }
-			set
-			{
-				u = value.u;
-				v = value.v;
-			}
-		}
 
 		#region IFitEditor Members
+
+		public IFitPoint CreatePoint()
+		{
+			object fit = Utilities.CreateInstance(FitType.Name);
+			if (fit != null && fit is FixedPoint)
+			{
+				(fit as FixedPoint).U = U;
+				(fit as FixedPoint).V = V;
+				return fit as IFitPoint;
+			}
+			return null;
+		}
 
 		public event EventHandler<KeyEventArgs> ReturnPress;
 		void OnReturnPress(object sender, KeyEventArgs e)
@@ -111,6 +117,18 @@ namespace Warps
 		}
 
 		#endregion
+
+		protected override void OnLayout(LayoutEventArgs e)
+		{
+			base.OnLayout(e);
+			int wid = Width / 2 - (2 * Padding.Horizontal);
+
+			m_uEq.Width = wid;
+			m_vEq.Left = wid +Padding.Horizontal;
+			m_vEq.Width = wid;
+			Height = 23;
+			m_vEq.Height = m_uEq.Height = 23;
+		}
 	}
 }
  

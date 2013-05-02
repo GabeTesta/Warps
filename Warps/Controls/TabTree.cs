@@ -26,9 +26,9 @@ namespace Warps
 			imageList.Images.Add("Sail", Warps.Properties.Resources.icon_sail);
 			imageList.Images.Add("CurveGroup", Warps.Properties.Resources.curvepath);
 			imageList.Images.Add("MouldCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
-			imageList.Images.Add("CurvePoint", Warps.Properties.Resources.CurvePoint);
-			imageList.Images.Add("SlidePoint", Warps.Properties.Resources.SlidePoint);
-			imageList.Images.Add("FixedPoint", Warps.Properties.Resources.FixedPoint);
+			imageList.Images.Add("CurvePoint", Warps.Properties.Resources.curvept);
+			imageList.Images.Add("SlidePoint", Warps.Properties.Resources.slidept);
+			imageList.Images.Add("FixedPoint", Warps.Properties.Resources.fixedpt);
 			imageList.Images.Add("Equation", Warps.Properties.Resources.equation);
 			imageList.Images.Add("EquationText", Warps.Properties.Resources.EqText);
 			imageList.Images.Add("Result", Warps.Properties.Resources.EqNum);
