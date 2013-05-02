@@ -511,6 +511,7 @@ namespace Warps
 			outer.Add(new MouldCurve("Foot", this, ft));
 
 			Add(outer);
+			
 			return outer;
 			//LinearPath[] paths = new LinearPath[4];
 			//Entity[] es;

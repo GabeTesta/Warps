@@ -32,10 +32,14 @@ namespace Warps.Controls
 			m_guideListView.LargeImageList = imgList2;
 			m_guideListView.StateImageList = imgList2;
 
-			m_group = group;
-			sail = m_group.Sail;
-			targetDPIEQB.sail = sail;
-			yarnDenierEQB.sail = sail;
+			YarGroup = group;
+			sail = YarGroup.Sail;
+
+			targetDPIEQB.Prep(m_sail, YarGroup);
+			yarnDenierEQB.Prep(m_sail, YarGroup);
+			yarnDenierEQB.Text = YarGroup.YarnDenierEqu != null ? YarGroup.YarnDenierEqu.EquationText : "0";
+			targetDPIEQB.Text = YarGroup.TargetDenierEqu != null ? YarGroup.TargetDenierEqu.EquationText : "0";
+
 			fillEditorWithData();
 		}
 
@@ -48,17 +52,18 @@ namespace Warps.Controls
 			set 
 			{ 
 				m_sail = value;
-				targetDPIEQB.Prep(m_sail, YarnGroup);
-				yarnDenierEQB.Prep(m_sail, YarnGroup);
-				targetDPIEQB.Text = m_group.YarnDenierEqu != null ? m_group.YarnDenierEqu.EquationText : "0";
-				yarnDenierEQB.Text = m_group.TargetDenierEqu != null ? m_group.TargetDenierEqu.EquationText : "0";
 			}
 		}
 
-		public YarnGroup YarnGroup
+		public YarnGroup YarGroup
 		{
 			get { return m_group; }
 			set { m_group = value; }
+		}
+
+		public double AchievedDPI
+		{
+			set { m_achievedDPI.Text = value.ToString("#0.00"); }
 		}
 
 		DualView m_view = null;
@@ -73,13 +78,13 @@ namespace Warps.Controls
 
 		public void fillEditorWithData()
 		{
-			m_labelTextBox.Text = m_group.Label;
+			m_labelTextBox.Text = YarGroup.Label;
 			populateWarpBox();
-			if(m_group.Guide!=null)
-				m_guideListView.Items.Add(m_group.Guide.Label, m_group.Guide.Label, "GuideComb");
+			if (YarGroup.Guide != null)
+				m_guideListView.Items.Add(YarGroup.Guide.Label, m_group.Guide.Label, "GuideComb");
 			//targetdpiTB.Text = m_group.TargetDenier.ToString();
 			//yarnDenierTB.Text = m_group.YarnDenier.ToString();
-			
+			AchievedDPI = YarGroup.AchievedDpi;
 			populateDensityCurveLocationBox();
 		}
 
@@ -92,7 +97,7 @@ namespace Warps.Controls
 		public void populateWarpBox()
 		{
 			m_warpListView.Items.Clear();
-			YarnGroup.Warps.ForEach(wrp => m_warpListView.Items.Add(wrp.Label, wrp.Label, wrp.GetType().Name));
+			YarGroup.Warps.ForEach(wrp => m_warpListView.Items.Add(wrp.Label, wrp.Label, wrp.GetType().Name));
 			//availableCurves.ForEach(cur => m_warpSelectionCheckbox.Items.Add(cur, m_group.Warps.Contains(cur)));
 		}
 
@@ -144,11 +149,12 @@ namespace Warps.Controls
 		public bool EditMode
 		{
 
-			get { return m_labelTextBox.Enabled; }
+			get { return this.Enabled; }
 
 			set
 			{
 				this.Enabled = value;
+				outputGroup.Enabled = false; // always false
 			}
 		}
 
@@ -180,25 +186,6 @@ namespace Warps.Controls
 			View.SetActionMode(m_selectingGuide ? devDept.Eyeshot.actionType.SelectVisibleByPick : devDept.Eyeshot.actionType.None);
 		}
 
-		//public double YarnDenier
-		//{
-		//	get
-		//	{
-		//		double outie = 0;
-		//		double.TryParse(yarnDenierTB.Text, out outie);
-		//		return outie;
-		//	}
-		//}
-
-		//public double TargetDPI
-		//{
-		//	get
-		//	{
-		//		double outie = 0;
-		//		double.TryParse(targetdpiTB.Text, out outie);
-		//		return outie;
-		//	}
-		//}
 		public Equation YarnDenierEqu
 		{
 			get
@@ -215,24 +202,26 @@ namespace Warps.Controls
 			}
 		}
 
-		public GuideComb Guide {
+		public GuideComb Guide 
+		{
 			get
 			{
 				if (m_group.Sail != null && m_guideListView.Items.Count > 0)
-					return m_group.Sail.FindCurve(m_guideListView.Items[0].Name) as GuideComb;
+					return YarGroup.Sail.FindCurve(m_guideListView.Items[0].Name) as GuideComb;
 
 				return null;
 			}
 		}
 
-		public List<MouldCurve> SelectedWarps {
+		public List<MouldCurve> SelectedWarps 
+		{
 			get
 			{
 				List<MouldCurve> ret = new List<MouldCurve>();
-				if (m_group.Sail != null && m_warpListView.Items.Count > 0)
+				if (YarGroup.Sail != null && m_warpListView.Items.Count > 0)
 				{
 					for (int i = 0; i < m_warpListView.Items.Count; i++)
-						ret.Add(m_group.Sail.FindCurve(m_warpListView.Items[i].Name));
+						ret.Add(YarGroup.Sail.FindCurve(m_warpListView.Items[i].Name));
 					
 				}
 
@@ -255,6 +244,26 @@ namespace Warps.Controls
 				}
 
 				return ret;
+			}
+		}
+
+		private void m_warpListView_DoubleClick(object sender, EventArgs e)
+		{
+			if (m_warpListView.SelectedIndices.Count > 0)
+			{
+				foreach (var v in m_warpListView.SelectedIndices)
+					m_warpListView.Items.RemoveAt(Convert.ToInt32(v));
+				m_warpListView.Refresh();
+			}
+		}
+
+		private void m_guideListView_DoubleClick(object sender, EventArgs e)
+		{
+			if (m_guideListView.SelectedIndices.Count > 0)
+			{
+				foreach (var v in m_guideListView.SelectedIndices)
+					m_guideListView.Items.RemoveAt(Convert.ToInt32(v));
+				m_guideListView.Refresh();
 			}
 		}
 	}

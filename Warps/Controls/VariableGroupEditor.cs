@@ -93,7 +93,7 @@ namespace Warps.Controls
 			}
 			set
 			{
-				this.Enabled = value;
+				this.Enabled = value;		
 			}
 		}
 
