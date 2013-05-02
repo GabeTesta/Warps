@@ -220,7 +220,8 @@ namespace Warps
 			for (int i = 0; i < pts.Length; i++)
 				pts[i] = Curve[i].Clone();
 
-			m_temp = new MouldCurve(cur.Label + "[preview]", Curve.Sail, pts);
+			m_temp = new MouldCurve(cur);
+			m_temp.Label += "[preview]";
 			m_tents = View.AddRange(m_temp.CreateEntities(true));
 
 			foreach (Entity[] ents in m_tents)

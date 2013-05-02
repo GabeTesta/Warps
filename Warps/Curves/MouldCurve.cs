@@ -20,6 +20,12 @@ namespace Warps
 		public MouldCurve()
 		{ }
 
+		public MouldCurve(MouldCurve curve)
+		{
+			m_sail = curve.Sail;
+			m_label = curve.Label;
+			Fit(curve);
+		}
 		public MouldCurve(string label, Sail sail, IFitPoint[] fits)
 		{
 			m_sail = sail;
