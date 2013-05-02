@@ -40,8 +40,8 @@ namespace Warps
 		//double m_targetDenier = 0;
 		//double m_yarnDenier = 0;
 
-		Equation m_yarnDenier = new Equation("yarndenier", 0.0);
-		Equation m_targetDenier = new Equation("targetdpi", 0.0);
+		Equation m_yarnDenier = new Equation("YarnDenier", 0.0);
+		Equation m_targetDenier = new Equation("TargetDpi", 0.0);
 
 		public Equation YarnDenierEqu
 		{
