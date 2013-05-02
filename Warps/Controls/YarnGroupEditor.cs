@@ -33,9 +33,13 @@ namespace Warps.Controls
 			m_guideListView.StateImageList = imgList2;
 
 			YarGroup = group;
-			sail = m_group.Sail;
-			targetDPIEQB.sail = sail;
-			yarnDenierEQB.sail = sail;
+			sail = YarGroup.Sail;
+
+			targetDPIEQB.Prep(m_sail, YarGroup);
+			yarnDenierEQB.Prep(m_sail, YarGroup);
+			yarnDenierEQB.Text = YarGroup.YarnDenierEqu != null ? YarGroup.YarnDenierEqu.EquationText : "0";
+			targetDPIEQB.Text = YarGroup.TargetDenierEqu != null ? YarGroup.TargetDenierEqu.EquationText : "0";
+
 			fillEditorWithData();
 		}
 
@@ -48,10 +52,6 @@ namespace Warps.Controls
 			set 
 			{ 
 				m_sail = value;
-				targetDPIEQB.Prep(m_sail, YarGroup);
-				yarnDenierEQB.Prep(m_sail, YarGroup);
-				targetDPIEQB.Text = YarGroup.YarnDenierEqu != null ? YarGroup.YarnDenierEqu.EquationText : "0";
-				yarnDenierEQB.Text = YarGroup.TargetDenierEqu != null ? YarGroup.TargetDenierEqu.EquationText : "0";
 			}
 		}
 

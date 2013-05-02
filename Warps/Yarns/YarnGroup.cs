@@ -46,13 +46,13 @@ namespace Warps
 		public Equation YarnDenierEqu
 		{
 			get { return m_yarnDenier; }
-			set { m_yarnDenier = value; }
+			set { m_yarnDenier = value; m_yarnDenier.Label = "yd"; }
 		}
 		
 		public Equation TargetDenierEqu
 		{
 			get { return m_targetDenier; }
-			set { m_targetDenier = value; }
+			set { m_targetDenier = value; m_targetDenier.Label = "td"; }
 		}
 
 		public double AchievedDpi = 0;
