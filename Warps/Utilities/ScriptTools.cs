@@ -16,19 +16,31 @@ namespace Warps
 
 		public static string ReadType(string line)
 		{
+			if (line == null)
+				return null;
 			int nc = line.IndexOf(':');
+			if (nc == -1 || line.Length == 0)
+				return null;
 			return line.Substring(0, nc).Trim(' ', '\t', '\n', '\r');		
 		}
 
 		public static string ReadPath(string line)
 		{
+			if (line == null)
+				return null;
 			int nc = line.IndexOf('[')+1;
+			if (nc == -1 || line.Length == 0)
+				return null;
 			return line.Substring(nc, (line.Length-1) - nc).Trim(' ', '\t', '\n', '\r');	
 		}
 
 		public static string ReadLabel(string line)
 		{
+			if (line == null)
+				return null;
 			int nc = line.IndexOf(':');
+			if (nc == -1 || line.Length == 0)
+				return null;
 			return line.Substring(nc + 1).Trim(' ', '\t', '\n', '\r');		
 		}
 

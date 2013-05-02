@@ -640,21 +640,14 @@ namespace Warps
 			View.Refresh();
 		}
 
-		private void m_delCurve_Click(object sender, EventArgs e)
+		private void toolStripButton1_Click(object sender, EventArgs e)
 		{
-						MouldCurve g = new MouldCurve("g4", ActiveSail,
-				new IFitPoint[] { 
-					new FixedPoint(1, 0), 
-					new FixedPoint(.4, .4), 
-					new FixedPoint(.3, .7),
-					new FixedPoint(0,1)});
 
-			Form f = new Form();
-			MouldCurveEditor edit = new MouldCurveEditor();
-			f.Controls.Add(edit);
-			edit.ReadCurve(g);
-			f.Show();
-			
+		}
+
+		private void m_editButton_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }
