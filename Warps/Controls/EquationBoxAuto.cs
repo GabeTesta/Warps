@@ -119,8 +119,9 @@ namespace Warps.Controls
 		/// </summary>
 		/// <param name="m_sail">Sail reference</param>
 		/// <param name="group">watermark group</param>
-		internal void Prep(Sail m_sail, IRebuild group)
+		internal void Prep(Sail sail, IRebuild group)
 		{
+			m_sail = sail;
 			AutoFillVariables = m_sail.GetAutoFillData(group);
 		}
 	}
