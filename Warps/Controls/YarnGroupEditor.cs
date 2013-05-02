@@ -63,7 +63,7 @@ namespace Warps.Controls
 
 		public double AchievedDPI
 		{
-			set { m_achievedDPI.Text = value.ToString(); }
+			set { m_achievedDPI.Text = value.ToString("#0.00"); }
 		}
 
 		DualView m_view = null;
@@ -84,7 +84,7 @@ namespace Warps.Controls
 				m_guideListView.Items.Add(YarGroup.Guide.Label, m_group.Guide.Label, "GuideComb");
 			//targetdpiTB.Text = m_group.TargetDenier.ToString();
 			//yarnDenierTB.Text = m_group.YarnDenier.ToString();
-			m_achievedDPI.Text = YarGroup.AchievedDpi.ToString();
+			AchievedDPI = YarGroup.AchievedDpi;
 			populateDensityCurveLocationBox();
 		}
 
