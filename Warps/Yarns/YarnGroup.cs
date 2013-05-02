@@ -19,7 +19,7 @@ namespace Warps
 		{
 			Label = label;
 			Sail = s;
-			m_yarnDenier = new Equation("YarnDenier", yarnDenier, s); // individual yarn denier (input)
+			m_yarnDenier = new Equation("yarndenier", yarnDenier, s); // individual yarn denier (input)
 		}
 
 		public YarnGroup(string label, Sail s, Equation yarnDenier, Equation targetDPI)
@@ -40,19 +40,19 @@ namespace Warps
 		//double m_targetDenier = 0;
 		//double m_yarnDenier = 0;
 
-		Equation m_yarnDenier = new Equation("YarnDenier", 0.0);
-		Equation m_targetDenier = new Equation("TargetDpi", 0.0);
+		Equation m_yarnDenier = new Equation("yarndenier", 0.0);
+		Equation m_targetDenier = new Equation("targetdpi", 0.0);
 
 		public Equation YarnDenierEqu
 		{
 			get { return m_yarnDenier; }
-			set { m_yarnDenier = value; m_yarnDenier.Label = "yd"; }
+			set { m_yarnDenier = value; m_yarnDenier.Label = "yarndenier"; }
 		}
 		
 		public Equation TargetDenierEqu
 		{
 			get { return m_targetDenier; }
-			set { m_targetDenier = value; m_targetDenier.Label = "td"; }
+			set { m_targetDenier = value; m_targetDenier.Label = "targetdpi"; }
 		}
 
 		public double AchievedDpi = 0;
