@@ -639,15 +639,5 @@ namespace Warps
 			UpdateViews(e.Value);
 			View.Refresh();
 		}
-
-		private void toolStripButton1_Click(object sender, EventArgs e)
-		{
-
-		}
-
-		private void m_editButton_Click(object sender, EventArgs e)
-		{
-
-		}
 	}
 }
