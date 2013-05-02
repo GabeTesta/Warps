@@ -226,10 +226,11 @@ namespace Warps.Yarns
 			yarGroup.TargetDenierEqu = Edit.TargetDPIEqu;
 			yarGroup.Guide = Edit.Guide;
 			yarGroup.DensityPos = Edit.sPos;
-
+			yarGroup.EndCondition = Edit.Ending;
 			if (sender != null)
 				m_frame.Rebuild(yarGroup);//returns false if AutoBuild is off
 			Edit.AchievedDPI = yarGroup.AchievedDpi;
+			Edit.AchievedYarnCount = yarGroup.Count;
 			View.Refresh(); 
 		}
 

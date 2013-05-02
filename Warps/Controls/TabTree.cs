@@ -193,7 +193,7 @@ namespace Warps
 					continue;
 				if (tn.Tag is IGroup)
 				{
-					if ((tn.Tag as IGroup).Label.StartsWith(key))
+					if ((tn.Tag as IGroup).Label.ToLower().StartsWith(key.ToLower()))
 						found.Add(tn);
 				}
 
@@ -217,13 +217,13 @@ namespace Warps
 					continue;
 				if (tn.Tag is IGroup)
 				{
-					if ((tn.Tag as IGroup).Label.StartsWith(key) && !tn.IsSelected)
+					if ((tn.Tag as IGroup).Label.ToLower().StartsWith(key.ToLower()) && !tn.IsSelected)
 					{
 						if (ActiveTree.SelectedNode == null)
 							return tn;
 						if (ActiveTree.SelectedNode.Tag is IGroup)
 						{
-							if ((ActiveTree.SelectedNode.Tag as IGroup).Label.StartsWith(key))
+							if ((ActiveTree.SelectedNode.Tag as IGroup).Label.ToLower().StartsWith(key.ToLower()))
 							{
 								if (foundNodes.IndexOf(ActiveTree.SelectedNode) == foundNodes.Count - 1)
 								{

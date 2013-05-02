@@ -45,6 +45,10 @@
 			this.outputGroup = new System.Windows.Forms.GroupBox();
 			this.m_achievedDPI = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
+			this.groupBox6 = new System.Windows.Forms.GroupBox();
+			this.m_endingList = new System.Windows.Forms.ComboBox();
+			this.label2 = new System.Windows.Forms.Label();
+			this.m_yarnCountOut = new System.Windows.Forms.TextBox();
 			this.targetDPIEQB = new Warps.Controls.EquationBoxAuto();
 			this.yarnDenierEQB = new Warps.Controls.EquationBoxAuto();
 			this.groupBox1.SuspendLayout();
@@ -53,6 +57,7 @@
 			this.groupBox5.SuspendLayout();
 			this.groupBox3.SuspendLayout();
 			this.outputGroup.SuspendLayout();
+			this.groupBox6.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// m_labelTextBox
@@ -210,12 +215,14 @@
 			// 
 			this.outputGroup.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.outputGroup.Controls.Add(this.m_yarnCountOut);
+			this.outputGroup.Controls.Add(this.label2);
 			this.outputGroup.Controls.Add(this.m_achievedDPI);
 			this.outputGroup.Controls.Add(this.label1);
 			this.outputGroup.Enabled = false;
-			this.outputGroup.Location = new System.Drawing.Point(4, 450);
+			this.outputGroup.Location = new System.Drawing.Point(4, 496);
 			this.outputGroup.Name = "outputGroup";
-			this.outputGroup.Size = new System.Drawing.Size(168, 40);
+			this.outputGroup.Size = new System.Drawing.Size(168, 65);
 			this.outputGroup.TabIndex = 12;
 			this.outputGroup.TabStop = false;
 			this.outputGroup.Text = "Output";
@@ -237,6 +244,47 @@
 			this.label1.Size = new System.Drawing.Size(79, 13);
 			this.label1.TabIndex = 0;
 			this.label1.Text = "Archieved DPI:";
+			// 
+			// groupBox6
+			// 
+			this.groupBox6.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.groupBox6.Controls.Add(this.m_endingList);
+			this.groupBox6.Location = new System.Drawing.Point(4, 451);
+			this.groupBox6.Name = "groupBox6";
+			this.groupBox6.Size = new System.Drawing.Size(168, 39);
+			this.groupBox6.TabIndex = 13;
+			this.groupBox6.TabStop = false;
+			this.groupBox6.Text = "Ending Condition";
+			// 
+			// m_endingList
+			// 
+			this.m_endingList.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_endingList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.m_endingList.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.m_endingList.FormattingEnabled = true;
+			this.m_endingList.Location = new System.Drawing.Point(3, 16);
+			this.m_endingList.Name = "m_endingList";
+			this.m_endingList.Size = new System.Drawing.Size(162, 21);
+			this.m_endingList.TabIndex = 0;
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(6, 40);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(63, 13);
+			this.label2.TabIndex = 2;
+			this.label2.Text = "Yarn Count:";
+			// 
+			// m_yarnCountOut
+			// 
+			this.m_yarnCountOut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+			this.m_yarnCountOut.Enabled = false;
+			this.m_yarnCountOut.Location = new System.Drawing.Point(91, 37);
+			this.m_yarnCountOut.Name = "m_yarnCountOut";
+			this.m_yarnCountOut.Size = new System.Drawing.Size(68, 20);
+			this.m_yarnCountOut.TabIndex = 3;
 			// 
 			// targetDPIEQB
 			// 
@@ -276,6 +324,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.groupBox6);
 			this.Controls.Add(this.outputGroup);
 			this.Controls.Add(this.groupBox5);
 			this.Controls.Add(this.groupBox4);
@@ -285,7 +334,7 @@
 			this.Controls.Add(this.m_labelTextBox);
 			this.Controls.Add(this.m_label);
 			this.Name = "YarnGroupEditor";
-			this.Size = new System.Drawing.Size(175, 490);
+			this.Size = new System.Drawing.Size(175, 564);
 			this.Load += new System.EventHandler(this.YarnGroupEditor_Load);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox2.ResumeLayout(false);
@@ -295,6 +344,7 @@
 			this.groupBox3.ResumeLayout(false);
 			this.outputGroup.ResumeLayout(false);
 			this.outputGroup.PerformLayout();
+			this.groupBox6.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -319,5 +369,9 @@
 		private System.Windows.Forms.GroupBox outputGroup;
 		private System.Windows.Forms.TextBox m_achievedDPI;
 		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.GroupBox groupBox6;
+		private System.Windows.Forms.ComboBox m_endingList;
+		private System.Windows.Forms.TextBox m_yarnCountOut;
+		private System.Windows.Forms.Label label2;
 	}
 }
