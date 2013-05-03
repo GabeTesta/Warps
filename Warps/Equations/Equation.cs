@@ -22,6 +22,7 @@ namespace Warps
 		public Equation(string label, double value)
 		{
 			m_label = label;
+			m_text = value.ToString();
 			SetValue(value);
 		}
 
