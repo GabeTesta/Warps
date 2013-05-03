@@ -58,44 +58,43 @@
 			// 
 			// m_flow
 			// 
-			this.m_flow.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.m_flow.Location = new System.Drawing.Point(6, 50);
+			this.m_flow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+			this.m_flow.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.m_flow.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+			this.m_flow.Location = new System.Drawing.Point(6, 70);
 			this.m_flow.Name = "m_flow";
-			this.m_flow.Size = new System.Drawing.Size(291, 219);
+			this.m_flow.Size = new System.Drawing.Size(220, 227);
 			this.m_flow.TabIndex = 8;
 			// 
 			// m_labelBox
 			// 
 			this.m_labelBox.Location = new System.Drawing.Point(53, 7);
 			this.m_labelBox.Name = "m_labelBox";
-			this.m_labelBox.Size = new System.Drawing.Size(100, 20);
+			this.m_labelBox.Size = new System.Drawing.Size(170, 20);
 			this.m_labelBox.TabIndex = 9;
 			// 
 			// button1
 			// 
-			this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.button1.BackColor = System.Drawing.SystemColors.ButtonHighlight;
 			this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.button1.Location = new System.Drawing.Point(6, 275);
+			this.button1.Location = new System.Drawing.Point(97, 33);
 			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(32, 23);
+			this.button1.Size = new System.Drawing.Size(58, 28);
 			this.button1.TabIndex = 0;
-			this.button1.Text = "+";
+			this.button1.Text = "New";
 			this.button1.UseVisualStyleBackColor = false;
 			this.button1.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// button2
 			// 
-			this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.button2.BackColor = System.Drawing.SystemColors.ButtonHighlight;
 			this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.button2.Location = new System.Drawing.Point(44, 275);
+			this.button2.Location = new System.Drawing.Point(161, 33);
 			this.button2.Name = "button2";
-			this.button2.Size = new System.Drawing.Size(32, 23);
+			this.button2.Size = new System.Drawing.Size(64, 28);
 			this.button2.TabIndex = 10;
-			this.button2.Text = "-";
+			this.button2.Text = "Delete";
 			this.button2.UseVisualStyleBackColor = false;
 			this.button2.Click += new System.EventHandler(this.button2_Click);
 			// 
@@ -110,7 +109,7 @@
 			this.Controls.Add(this.m_count);
 			this.Controls.Add(this.m_label);
 			this.Name = "VariableGroupEditor";
-			this.Size = new System.Drawing.Size(300, 300);
+			this.Size = new System.Drawing.Size(229, 300);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

@@ -672,6 +672,7 @@ namespace Warps
 				View.ClearAll();
 				m_sail.Layout.Clear();
 				m_sail = null;
+				EditorPanel = null;
 			}
 		}
 	}
