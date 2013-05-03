@@ -135,9 +135,9 @@ namespace Warps
 			//View.Refresh();
 
 			RemoveContextMenu();
-			m_frame.okButton.Click -= OnBuild;
-			m_frame.cancelButton.Click -= OnCancel;
-			m_frame.previewButton.Click -= OnPreview;
+			//m_frame.okButton.Click -= OnBuild;
+			////m_frame.cancelButton.Click -= OnCancel;
+			//m_frame.previewButton.Click -= OnPreview;
 			Tree.KeyUp -= Tree_KeyUp;
 		//	if (m_eqEditor != null)
 		//	{

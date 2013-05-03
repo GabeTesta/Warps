@@ -406,10 +406,7 @@ namespace Warps
 #if DEBUG
 				logger.Instance.Log(String.Format("Creating new {0} from {1}", track.GetType().Name, e.Value == null ? "null" : e.Value.GetType().Name), LogPriority.Debug);
 #endif
-				if (EditMode)
-					EditTracker(track);
-				else
-					ReadonlyTracker(track);
+				PostTracker(track);
 			}
 
 		}
@@ -427,26 +424,43 @@ namespace Warps
 			m_editButton.BackColor = EditMode ? ButtonSelected : ButtonUnSelected;
 			m_editButton.ForeColor = EditMode ? Color.White : Color.Black;
 
-			okButton.Enabled = EditMode;
-			cancelButton.Enabled = EditMode;
-			previewButton.Enabled = EditMode;
-
 			if (m_Tracker != null)
 			{
-				m_Tracker.EditMode = EditMode;
-				if (EditMode)
-				{
-					okButton.Click += m_Tracker.OnBuild;
-					cancelButton.Click += m_Tracker.OnCancel;
-					previewButton.Click += m_Tracker.OnPreview;
-				}
-				else
-				{
-					okButton.Click -= m_Tracker.OnBuild;
-					cancelButton.Click -= m_Tracker.OnCancel;
-					previewButton.Click -= m_Tracker.OnPreview;
-				}
+				ITracker tracker = m_Tracker;
+				ClearTracker();
+				tracker.EditMode = EditMode;
+				PostTracker(tracker);
 			}
+
+			cancelButton.Enabled = EditMode;
+
+			//okButton.Enabled = EditMode;
+			//previewButton.Enabled = EditMode;
+
+			//if (m_Tracker != null)
+			//{
+			//	m_Tracker.EditMode = EditMode;
+			//	if (EditMode)
+			//	{
+			//		okButton.Click += m_Tracker.OnBuild;
+			//		cancelButton.Click += m_Tracker.OnCancel;
+			//		previewButton.Click += m_Tracker.OnPreview;
+			//	}
+			//	else
+			//	{
+			//		okButton.Click -= m_Tracker.OnBuild;
+			//		cancelButton.Click -= m_Tracker.OnCancel;
+			//		previewButton.Click -= m_Tracker.OnPreview;
+			//	}
+			//}
+		}
+
+		private void PostTracker(ITracker tracker)
+		{
+			if (EditMode)
+				EditTracker(tracker);
+			else
+				ReadonlyTracker(tracker);
 		}
 
 		ITracker m_Tracker;
@@ -463,7 +477,7 @@ namespace Warps
 
 			m_Tracker.Track(this);
 			okButton.Click += m_Tracker.OnBuild;
-			cancelButton.Click += m_Tracker.OnCancel;
+			//cancelButton.Click += m_Tracker.OnCancel;
 			previewButton.Click += m_Tracker.OnPreview;
 
 			return m_Tracker;//return it
@@ -487,10 +501,10 @@ namespace Warps
 		internal void ClearTracker()
 		{
 			if (m_Tracker != null)
-				m_Tracker.OnCancel(this, null);//clear any existing tracker
+				m_Tracker.OnCancel(null, null);//clear any existing tracker
 
 			okButton.Click -= m_Tracker.OnBuild;
-			cancelButton.Click -= m_Tracker.OnCancel;
+			//cancelButton.Click -= m_Tracker.OnCancel;
 			previewButton.Click -= m_Tracker.OnPreview;
 
 			m_Tracker = null;
@@ -530,21 +544,12 @@ namespace Warps
 			//(sender as Button).ForeColor = Color.White;
 			if (sender == okButton)
 				okButton.BackColor = Color.SeaGreen;
-			else if (sender == cancelButton)
-				cancelButton.BackColor = Color.Pink;
 			else if (sender == previewButton)
 				previewButton.BackColor = Color.LightSkyBlue;
 		}
 		private void okButton_MouseLeave(object sender, EventArgs e)
 		{
-			//(sender as Button).ForeColor = Color.Black;
-			if (sender == okButton)
-				okButton.BackColor = Color.White;
-			else if (sender == cancelButton)
-				cancelButton.BackColor = Color.White;
-			else if (sender == previewButton)
-				previewButton.BackColor = Color.White;
-
+			if (sender is Button) (sender as Button).BackColor = Color.White;
 		}
 		void cancelButton_Click(object sender, EventArgs e)
 		{
@@ -664,7 +669,7 @@ namespace Warps
 			View.Refresh();
 		}
 
-		private void toolStripButton1_Click(object sender, EventArgs e)
+		private void clearAll_Click(object sender, EventArgs e)
 		{
 			if (DialogResult.Yes == MessageBox.Show("Are you sure you want to clear all?", String.Format("Warps v{0}", Utilities.CurVersion), MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
 			{
