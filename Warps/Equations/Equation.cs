@@ -10,7 +10,7 @@ namespace Warps
 {
 	public class Equation: IRebuild
 	{
-		public Equation() { m_label = "empty"; m_text = "0"; Result = 0; }
+		public Equation() { m_label = "empty"; m_text = "0"; Value = 0; }
 
 		public Equation(string label, string equationText, Sail s)
 		{
@@ -43,6 +43,7 @@ namespace Warps
 			sail = s;
 			IsNumber();
 		}
+
 		Sail m_sail = null;
 		string m_text = null;
 		string m_label = null;
@@ -81,23 +82,7 @@ namespace Warps
 		public double Result
 		{
 			get { return m_result; }
-			set { m_result = value; }
-		}
-
-		public double Evaluate()
-		{
-			if (sail == null)
-				return double.NaN;
-
-			if (IsNumber()) 
-				return Result;
-
-			if (EquationEvaluator.Evaluate(this, sail, out m_result))
-				return Result;
-			else
-				MessageBox.Show(String.Format("Error Evaluting {0}\nExpression: {1}", Label, EquationText));
-
-			return double.NaN;
+			//set { m_result = value; }
 		}
 
 		public double Evaluate(Sail s)
@@ -105,10 +90,9 @@ namespace Warps
 			if (IsNumber())
 				return Result;
 
+			if (s == null) return double.NaN;
 			if (EquationEvaluator.Evaluate(this, s, out m_result))
 				return Result;
-			else
-				MessageBox.Show(String.Format("Error Evaluting {0}\nExpression: {1}", Label, EquationText));
 
 			return double.NaN;
 		}
@@ -126,8 +110,12 @@ namespace Warps
 			}
 		}
 
-		public bool Update() { return Evaluate() == double.NaN; }
-		public bool Update(Sail s) { return Evaluate(s) == double.NaN; }
+		public bool Update(Sail s) { return !double.IsNaN(Evaluate(s)); }
+
+		/// <summary>
+		/// this only returns false currently.  
+		/// </summary>
+		/// <returns></returns>
 		public bool Delete() { return false; }
 		public void GetConnected(List<IRebuild> connected)
 		{
@@ -206,7 +194,7 @@ namespace Warps
 			//[1] = "\t\t\tstep:0.05"
 			
 			
-			Evaluate();
+			Evaluate(sail);
 			return true;
 		}
 
@@ -285,7 +273,12 @@ namespace Warps
 				throw new ArgumentException("Invalid Editor in CurvePoint");
 			Label = edit.Label;
 			EquationText = edit.EquationText;
-			Evaluate();
+			Evaluate(edit.sail);
+		}
+
+		internal void SetResult(double result)
+		{
+			m_result = result;
 		}
 	}
 
@@ -330,13 +323,13 @@ namespace Warps
 			try
 			{
 				result = (double)ex.Evaluate();
-				labelToEvaluate.Result = result;
+				labelToEvaluate.SetResult(result);
 				worked = true;
 			}
 			catch(Exception exx)
 			{
 				worked = double.TryParse(labelToEvaluate.EquationText, out result);
-				labelToEvaluate.Result = result;
+				labelToEvaluate.SetResult(result);
 				Warps.Logger.logger.Instance.LogErrorException(exx);
 			}
 			finally

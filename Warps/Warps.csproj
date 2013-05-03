@@ -225,12 +225,6 @@
     <Compile Include="Trackers\SailTracker.cs" />
     <Compile Include="Trackers\VariableGroupTracker.cs" />
     <Compile Include="Trackers\VariableTracker.cs" />
-    <Compile Include="UserControl1.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UserControl1.Designer.cs">
-      <DependentUpon>UserControl1.cs</DependentUpon>
-    </Compile>
     <Compile Include="Utilities\logger.cs" />
     <Compile Include="Utilities\ScriptTools.cs" />
     <Compile Include="Curves\SlidePoint.cs" />
@@ -312,9 +306,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Testing\EquationEditorForm.resx">
       <DependentUpon>EquationEditorForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UserControl1.resx">
-      <DependentUpon>UserControl1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WarpFrame.resx">
       <DependentUpon>WarpFrame.cs</DependentUpon>

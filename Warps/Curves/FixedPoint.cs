@@ -48,10 +48,11 @@ namespace Warps
 			get { return new Vect2(U.Result, V.Result); }
 			set
 			{
-				U.Value = value.u;
-				V.Value = value.v;
+				if(U.IsNumber())
+					U.Value = value.u;
+				if(V.IsNumber())
+					V.Value = value.v;
 			}
-			//set { m_uv = value; }
 		}
 
 		Equation m_uEqu = new Equation();
@@ -65,7 +66,7 @@ namespace Warps
 			}
 			set
 			{
-				m_uEqu = value; m_uEqu.Label = "U";
+				m_uEqu = value; m_uEqu.Label = "u";
 			}
 		}
 
@@ -77,7 +78,7 @@ namespace Warps
 			}
 			set
 			{
-				m_vEqu = value; m_vEqu.Label = "V";
+				m_vEqu = value; m_vEqu.Label = "v";
 			}
 		}
 
@@ -279,8 +280,8 @@ namespace Warps
 		public bool Update(Sail s)
 		{
 			bool ret = true;
-			ret &= U.Evaluate(s) != Double.NaN;
-			ret &= V.Evaluate(s) != Double.NaN;
+			ret &= !double.IsNaN(U.Evaluate(s));// != Double.NaN;
+			ret &= !double.IsNaN(V.Evaluate(s));
 			return ret;
 		}
 		public bool ReadScript(Sail sail, IList<string> txt)

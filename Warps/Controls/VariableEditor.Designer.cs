@@ -67,7 +67,7 @@
 			this.m_eqBox.AutoFillVariables = null;
 			equation1.EquationText = "0.0000";
 			equation1.Label = "eq";
-			equation1.Result = 0D;
+			//equation1.Result = 0D;
 			equation1.sail = null;
 			this.m_eqBox.Equation = equation1;
 			this.m_eqBox.Location = new System.Drawing.Point(4, 23);

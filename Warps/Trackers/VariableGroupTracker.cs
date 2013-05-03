@@ -243,8 +243,6 @@ namespace Warps
 			m_group.Clear();
 			eqs.ForEach(eq => m_group.Add(eq));
 			m_frame.Rebuild(m_group);
-			//m_frame.Rebuild(null);
-			//View.Refresh(); 
 		}
 
 		public void OnSelect(object sender, EventArgs<IRebuild> e)

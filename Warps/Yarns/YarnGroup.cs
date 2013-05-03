@@ -1167,13 +1167,12 @@ namespace Warps
 		//	LayoutYarns(); 
 		//	return true; 
 		//}
+		
 		public bool Update(Sail s)
 		{
 			bool ret = true;
-			ret &= YarnDenierEqu.Evaluate(s) != Double.NaN;
-			ret &= YarnDenierEqu.Result != 0;
-			ret &= TargetDenierEqu.Evaluate(s) != Double.NaN;
-			ret &= TargetDenierEqu.Result != 0;
+			ret &= !double.IsNaN(YarnDenierEqu.Evaluate(s));
+			ret &= !double.IsNaN(TargetDenierEqu.Evaluate(s));
 			if (ret)
 				ret &= LayoutYarns() > 0;
 			return ret;

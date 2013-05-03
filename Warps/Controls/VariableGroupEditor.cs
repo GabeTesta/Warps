@@ -107,15 +107,18 @@ namespace Warps.Controls
 		{
 			if (MessageBox.Show("delete selected variables?","", MessageBoxButtons.YesNo) == DialogResult.Yes)
 			{
+				List<VariableEditor> toBremoved = new List<VariableEditor>();
 				foreach (VariableEditor ved in m_flow.Controls)
 				{
 					if (ved.Selected)
 					{
 						ved.ReturnPress -= ve_ReturnPress;
-						m_group.Remove(ved.Label);
+						toBremoved.Add(ved);
 					}
 				}
-				Equations = m_group.ToArray();
+				m_flow.SuspendLayout();
+				toBremoved.ForEach(cntl => m_flow.Controls.Remove(cntl));
+				m_flow.ResumeLayout();
 			}
 		}
 	}

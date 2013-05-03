@@ -49,7 +49,7 @@
 			this.m_cs.AutoFillVariables = null;
 			equation1.EquationText = "0.0000";
 			equation1.Label = "eq";
-			equation1.Result = 0D;
+			//equation1.Result = 0D;
 			equation1.sail = null;
 			this.m_cs.Equation = equation1;
 			this.m_cs.Location = new System.Drawing.Point(0, 0);

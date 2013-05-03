@@ -39,7 +39,7 @@
 			this.m_vEq.AutoFillVariables = null;
 			equation1.EquationText = "0.0000";
 			equation1.Label = "eq";
-			equation1.Result = 0D;
+			//equation1.Result = 0D;
 			equation1.sail = null;
 			this.m_vEq.Equation = equation1;
 			this.m_vEq.Location = new System.Drawing.Point(95, 0);
@@ -55,7 +55,7 @@
 			this.m_uEq.AutoFillVariables = null;
 			equation2.EquationText = "0.0000";
 			equation2.Label = "eq";
-			equation2.Result = 0D;
+			//equation2.Result = 0D;
 			equation2.sail = null;
 			this.m_uEq.Equation = equation2;
 			this.m_uEq.Location = new System.Drawing.Point(0, 0);

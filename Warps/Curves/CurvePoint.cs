@@ -270,7 +270,7 @@ namespace Warps
 		public bool Update(Sail s) {
 
 			bool ret = true;
-			ret &= S_Equ.Evaluate(s) != Double.NaN;
+			ret &= !double.IsNaN(S_Equ.Evaluate(s));
 			//ret &= U.Evaluate(s) != Double.NaN;
 			//ret &= V.Evaluate(s) != Double.NaN;
 			return ret;
