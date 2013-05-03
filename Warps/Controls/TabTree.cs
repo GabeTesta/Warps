@@ -410,5 +410,13 @@ namespace Warps
 				SeqTree.Nodes.Remove(found);
 			SeqTree.Refresh();
 		}
+
+		internal void ClearAll()
+		{
+			SeqTree.Nodes.Clear();
+			SorTree.Nodes.Clear();
+			SeqTree.Refresh();
+			SorTree.Refresh();
+		}
 	}
 }

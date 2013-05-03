@@ -53,9 +53,9 @@ namespace Warps
 		private void addButton_Click(object sender, EventArgs e)
 		{
 			if (!m_group.ContainsKey(EquationNameBox.Text))
-				m_group.Add(EquationNameBox.Text, new Equation(EquationNameBox.Text, autoCompleteTextBox1.Text, m_sail));
+				m_group.Add(EquationNameBox.Text, new Equation(EquationNameBox.Text, autoCompleteTextBox1.Text));
 			else
-				m_group[EquationNameBox.Text] = new Equation(EquationNameBox.Text, autoCompleteTextBox1.Text, m_sail);
+				m_group[EquationNameBox.Text] = new Equation(EquationNameBox.Text, autoCompleteTextBox1.Text);
 
 			if (OnVariableAdded != null)
 				OnVariableAdded(this, m_group[EquationNameBox.Text]);
@@ -92,7 +92,7 @@ namespace Warps
 		{
 			string eqname = EquationListBox.SelectedItem.ToString();
 			m_group.Remove(eqname);
-			m_group.Add(eqname, new Equation(eqname, autoCompleteTextBoxEdit.Text, m_sail));
+			m_group.Add(eqname, new Equation(eqname, autoCompleteTextBoxEdit.Text));
 			ToggleEditEnable(false);
 
 			if (OnVariableAdded != null)

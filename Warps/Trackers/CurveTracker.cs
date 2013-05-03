@@ -273,16 +273,8 @@ namespace Warps
 					int i;
 					//if ( target != null && m_temp.InsertPoint(new Vect3(target.ToArray()), out i))
 					if ( m_temp.InsertPoint(mpt, View.ActiveView.WorldToScreen, out i) )
-					{
 						UpdateViewCurve(true);
-						//Vect3 xyz = new Vect3();
-						//m_temp.xVal(m_temp.FitPoints[i].UV, ref xyz);
-						//Point3D target = View.ActiveView.ScreenToWorld(mpt);
-						//LinearPath p = new LinearPath(target, new Point3D(xyz.ToArray()));
-						//p.Color = Color.HotPink;
-						//p.ColorMethod = colorMethodType.byEntity;
-						//View.Add(p);
-					}
+					
 				}
 
 			}
@@ -332,19 +324,7 @@ namespace Warps
 				m_index = -1;
 			}
 			else
-			{
 				UpdateViewCurve(true);
-				//m_temp[m_index].WriteEditor(Edit[m_index]);
-				//Edit[m_index].Refresh();
-				//for (int i = 0; i < m_temp.FitPoints.Length; i++)
-				//{
-				//	m_temp[i].WriteEditor(Edit[i]);
-				//	Edit[i].Refresh();
-				//}
-				//Edit.Refresh();
-				//m_mousePnt = new PointF(e.X, Viewport.Height - e.Y);
-			}
-
 		}
 
 		public void OnUp(object sender, MouseEventArgs e)

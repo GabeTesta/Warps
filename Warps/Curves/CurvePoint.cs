@@ -20,7 +20,7 @@ namespace Warps
 		public CurvePoint(double s, MouldCurve curve, double sCurve)
 		{
 			m_sPos = s;
-			S_Equ = new Equation("s", sCurve.ToString(), null);
+			S_Equ = new Equation("s", sCurve.ToString());
 			m_curve = curve;
 		}
 
@@ -78,8 +78,7 @@ namespace Warps
 			get { return S_Equ.Result; }
 			set
 			{
-				if (S_Equ.IsNumber())
-					S_Equ.Value = value;
+				S_Equ.SetValue(value);
 			}
 		}
 
@@ -108,8 +107,7 @@ namespace Warps
 				{
 					double sCur = 0;
 					m_curve.uClosest(ref sCur, ref value, ref dist, 1e-9);//m_curve.uClosest(ref m_sCurve, ref value, ref dist, 1e-9);
-					if(m_sEqu.IsNumber())
-						S_Equ.Value = sCur;
+					S_Equ.SetValue(sCur);
 				}
 			}
 		}
@@ -140,8 +138,7 @@ namespace Warps
 				switch (i)
 				{
 					case 0:
-						if(S_Equ.IsNumber())
-							S_Equ.Value = value;
+						S_Equ.SetValue(value);
 						break;
 					case 1:
 						//U.Value = value;
@@ -270,7 +267,7 @@ namespace Warps
 		public bool Update(Sail s) {
 
 			bool ret = true;
-			ret &= S_Equ.Evaluate(s) != Double.NaN;
+			ret &= !double.IsNaN(S_Equ.Evaluate(s));
 			//ret &= U.Evaluate(s) != Double.NaN;
 			//ret &= V.Evaluate(s) != Double.NaN;
 			return ret;

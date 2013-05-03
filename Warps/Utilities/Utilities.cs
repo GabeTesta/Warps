@@ -14,6 +14,9 @@ namespace Warps
 {
 	public static class Utilities
 	{
+		/// <summary>
+		/// get the execution directory
+		/// </summary>
 		public static string ExeDir
 		{
 			get
@@ -21,6 +24,14 @@ namespace Warps
 				return
 					System.IO.Path.GetDirectoryName(Application.ExecutablePath);
 			}
+		}
+
+		/// <summary>
+		/// get the current version of Warps
+		/// </summary>
+		public static string CurVersion
+		{
+			get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
 		}
 
 		public static void LimitRange(int low, ref int val, int high)

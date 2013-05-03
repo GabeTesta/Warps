@@ -72,7 +72,7 @@ namespace Warps.Controls
 
 		public Equation Equation
 		{
-			get { return new Equation("eq", Text, m_sail); }
+			get { return new Equation("eq", Text); }
 			set
 			{
 				Text = value.Label;

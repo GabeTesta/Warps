@@ -29,16 +29,16 @@ namespace Warps
 				AddContextMenu();
 				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v
 
-				View.DeSelectAll();
-				if (m_equ != null)
-				{
-					List<MouldCurve> referencedCurves = m_equ.ExtractReferencedCurves();
-					foreach (MouldCurve curve in referencedCurves)
-					{
-						View.Select(curve);
-					}
-				}
-				View.Refresh();
+				//View.DeSelectAll();
+				//if (m_equ != null)
+				//{
+					//List<MouldCurve> referencedCurves = m_equ.ExtractReferencedCurves();
+					//foreach (MouldCurve curve in referencedCurves)
+					//{
+					//	View.Select(curve);
+					//}
+				//}
+				//View.Refresh();
 			}
 		}
 		bool m_editMode = false;
@@ -129,10 +129,10 @@ namespace Warps
 
 		public void OnCancel(object sender, EventArgs e)
 		{
-			foreach (MouldCurve curve in m_equ.ExtractReferencedCurves())
-				View.DeSelect(curve);
+			//foreach (MouldCurve curve in m_equ.ExtractReferencedCurves())
+			//	View.DeSelect(curve);
 
-			View.Refresh();
+			//View.Refresh();
 
 			RemoveContextMenu();
 			m_frame.okButton.Click -= OnBuild;

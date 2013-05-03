@@ -220,9 +220,6 @@ namespace Warps
 				{
 					YarnGroup grp = Layout[i] as YarnGroup;
 					found = grp == tag as YarnGroup;
-					//IEnumerable<KeyValuePair<string, Equation>> mcs = grp.GetEquations(tag);
-					//if (mcs.Count() != grp.Count)
-					//	break;
 					if (found)
 						break;
 				}

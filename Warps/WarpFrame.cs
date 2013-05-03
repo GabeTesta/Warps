@@ -148,19 +148,43 @@ namespace Warps
 			if (AutoBuild)
 			{
 				//List<IRebuild> updated = ActiveSail.Rebuild(tag);
-				List<IRebuild> test = ActiveSail.GetConnected(tag);
+				List<IRebuild> connected = ActiveSail.GetConnected(tag);
+				List<IRebuild> succeeded = new List<IRebuild>();
+				List<IRebuild> failed = new List<IRebuild>();
 				DateTime before = DateTime.Now;
-				if(test!=null)
-					test.ForEach(item => item.Update(ActiveSail));
+				if(connected!=null){
+					foreach (IRebuild item in connected)
+					{
+						if (item.Update(ActiveSail))
+							succeeded.Add(item);
+						else
+							failed.Add(item);
+					}
+					//connected.ForEach(item => item.Update(ActiveSail));
+				}
+				//two lists (failed and succeeded)
+				// update succeeded
+				// invalidate failed
 				DateTime after = DateTime.Now;
 				Console.WriteLine("{0} ms", (after - before).TotalMilliseconds);
-				StringBuilder b = new StringBuilder("Rebuilt:\n");
-				if(test!=null)
-					foreach (IRebuild item in test)//updated
+				StringBuilder b = new StringBuilder("Rebuilt Succeeded:\n");
+				if (connected != null)
+				{
+					foreach (IRebuild item in succeeded)//succeeded
 					{
 						UpdateViews(item);
 						b.AppendLine(item.ToString());
 					}
+					if(failed.Count > 0)
+						 b.AppendLine("\nRebuilt Failed:\n");
+					foreach (IRebuild item in failed)//failed
+					{
+						View.Invalidate(item);
+						Tree.Invalidate(item);
+						b.AppendLine(item.ToString());
+					}
+					View.Refresh();
+				}
 #if DEBUG
 				MessageBox.Show(b.ToString());
 #endif
@@ -536,10 +560,10 @@ namespace Warps
 				return;
 
 			VariableGroup varGroup = new VariableGroup("Vars", ActiveSail);
-			varGroup.Add(new Equation("yarScale", 1.0, ActiveSail));
-			varGroup.Add(new Equation("yarnDPI", "yarScale * 12780", ActiveSail));
-			varGroup.Add(new Equation("targetScale", 1.0, ActiveSail));
-			varGroup.Add(new Equation("targetDPI", "targetScale * 14416", ActiveSail));
+			varGroup.Add(new Equation("yarScale", 1.0));
+			varGroup.Add(new Equation("yarnDPI", "yarScale * 12780"));
+			varGroup.Add(new Equation("targetScale", 1.0));
+			varGroup.Add(new Equation("targetDPI", "targetScale * 14416"));
 			ActiveSail.Add(varGroup);
 
 			UpdateViews(ActiveSail.CreateOuterCurves());
@@ -638,6 +662,17 @@ namespace Warps
 		{
 			UpdateViews(e.Value);
 			View.Refresh();
+		}
+
+		private void toolStripButton1_Click(object sender, EventArgs e)
+		{
+			if (DialogResult.Yes == MessageBox.Show("Are you sure you want to clear all?", String.Format("Warps v{0}", Utilities.CurVersion), MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+			{
+				Tree.ClearAll();
+				View.ClearAll();
+				m_sail.Layout.Clear();
+				m_sail = null;
+			}
 		}
 	}
 }

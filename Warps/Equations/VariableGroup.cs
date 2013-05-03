@@ -145,35 +145,18 @@ namespace Warps
 			bool bupdate = false;
 			foreach (KeyValuePair<string, Equation> entry in this)
 				bupdate |= entry.Value.Affected(connected);
-			//if (bupdate && updated != null)
-			//	updated.Add(this);
-			//if (bupdate)
-			//	WriteNode(updated == null);
+
 			return bupdate;
 		}
 
 		public bool Delete() { return false; }
 
-		public bool Update()
-		{
-			bool bupdate = false;
-			foreach (KeyValuePair<string, Equation> entry in this)
-				bupdate |= entry.Value.Update();
-			//if (bupdate && updated != null)
-			//	updated.Add(this);
-			//if (bupdate)
-			//	WriteNode(updated == null);
-			return bupdate;
-		}
 		public bool Update(Sail s)
 		{
-			bool bupdate = false;
+			bool bupdate = true;
 			foreach (KeyValuePair<string, Equation> entry in this)
-				bupdate |= entry.Value.Update(s);
-			//if (bupdate && updated != null)
-			//	updated.Add(this);
-			//if (bupdate)
-			//	WriteNode(updated == null);
+				bupdate &= entry.Value.Update(s);
+
 			return bupdate;
 		}
 		public bool ReadScript(Sail sail, IList<string> txt)
@@ -200,7 +183,7 @@ namespace Warps
 					equ = Utilities.CreateInstance(splits[0].Trim('\t'));
 				if (equ != null && equ is Equation)
 				{
-					(equ as Equation).sail = Sail;
+					//(equ as Equation).sail = Sail;
 					(equ as Equation).ReadScript(Sail, lines);
 					Add(equ as Equation);
 				}

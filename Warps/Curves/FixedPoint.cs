@@ -18,8 +18,8 @@ namespace Warps
 		public FixedPoint(double s, double u, double v)
 		{
 			m_s = s;
-			U = new Equation("u", u.ToString(), null);
-			V = new Equation("v", v.ToString(), null); 
+			U = new Equation("u", u.ToString());
+			V = new Equation("v", v.ToString()); 
 		}
 
 		public FixedPoint(Equation ueq, Equation veq)
@@ -48,10 +48,9 @@ namespace Warps
 			get { return new Vect2(U.Result, V.Result); }
 			set
 			{
-				U.Value = value.u;
-				V.Value = value.v;
+				U.SetValue(value.u);
+				V.SetValue(value.v);
 			}
-			//set { m_uv = value; }
 		}
 
 		Equation m_uEqu = new Equation();
@@ -65,7 +64,7 @@ namespace Warps
 			}
 			set
 			{
-				m_uEqu = value; m_uEqu.Label = "U";
+				m_uEqu = value; m_uEqu.Label = "u";
 			}
 		}
 		public Equation V
@@ -76,7 +75,7 @@ namespace Warps
 			}
 			set
 			{
-				m_vEqu = value; m_vEqu.Label = "V";
+				m_vEqu = value; m_vEqu.Label = "v";
 			}
 		}
 
@@ -112,12 +111,10 @@ namespace Warps
 						S = value;
 						break;
 					case 1:
-						if (U.IsNumber())
-							U.Value = value;
+						U.SetValue(value);
 						break;
 					case 2:
-						if (V.IsNumber())
-							V.Value = value;
+						V.SetValue(value);
 						break;
 				}
 			}
@@ -278,8 +275,8 @@ namespace Warps
 		public bool Update(Sail s)
 		{
 			bool ret = true;
-			ret &= U.Evaluate(s) != Double.NaN;
-			ret &= V.Evaluate(s) != Double.NaN;
+			ret &= !double.IsNaN(U.Evaluate(s));// != Double.NaN;
+			ret &= !double.IsNaN(V.Evaluate(s));
 			return ret;
 		}
 		public bool ReadScript(Sail sail, IList<string> txt)
