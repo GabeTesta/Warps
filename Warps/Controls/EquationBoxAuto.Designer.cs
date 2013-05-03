@@ -73,7 +73,6 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.equationBox);
 			this.Controls.Add(this.button1);
-			this.MaximumSize = new System.Drawing.Size(201, 24);
 			this.Name = "EquationBoxAuto";
 			this.Size = new System.Drawing.Size(101, 24);
 			this.Load += new System.EventHandler(this.EquationBoxAuto_Load);

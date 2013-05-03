@@ -67,7 +67,6 @@ namespace Warps
 				m_uEqu = value; m_uEqu.Label = "u";
 			}
 		}
-
 		public Equation V
 		{
 			get

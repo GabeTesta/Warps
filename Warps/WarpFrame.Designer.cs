@@ -31,10 +31,11 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WarpFrame));
 			this.m_vertsplit = new System.Windows.Forms.SplitContainer();
 			this.m_horizsplit = new System.Windows.Forms.SplitContainer();
+			this.m_tree = new Warps.TabTree();
 			this.previewButton = new System.Windows.Forms.Button();
 			this.editPanel = new System.Windows.Forms.Panel();
-			this.cancelButton = new System.Windows.Forms.Button();
 			this.okButton = new System.Windows.Forms.Button();
+			this.m_dualView = new Warps.DualView();
 			this.m_toolstrip = new System.Windows.Forms.ToolStrip();
 			this.newToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.openToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -44,21 +45,20 @@
 			this.cutToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.copyToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.pasteToolStripButton = new System.Windows.Forms.ToolStripButton();
-			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.m_addCurve = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.m_autoBtn = new System.Windows.Forms.ToolStripButton();
+			this.m_buildBtn = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.m_editButton = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+			this.cancelButton = new System.Windows.Forms.ToolStripButton();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-			this.m_addCurve = new System.Windows.Forms.ToolStripButton();
-			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-			this.m_autoBtn = new System.Windows.Forms.ToolStripButton();
-			this.m_buildBtn = new System.Windows.Forms.ToolStripButton();
-			this.m_editButton = new System.Windows.Forms.ToolStripButton();
-			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-			this.m_tree = new Warps.TabTree();
-			this.m_dualView = new Warps.DualView();
+			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
 			this.m_vertsplit.Panel1.SuspendLayout();
 			this.m_vertsplit.Panel2.SuspendLayout();
@@ -107,11 +107,19 @@
 			// 
 			this.m_horizsplit.Panel2.Controls.Add(this.previewButton);
 			this.m_horizsplit.Panel2.Controls.Add(this.editPanel);
-			this.m_horizsplit.Panel2.Controls.Add(this.cancelButton);
 			this.m_horizsplit.Panel2.Controls.Add(this.okButton);
 			this.m_horizsplit.Size = new System.Drawing.Size(405, 523);
 			this.m_horizsplit.SplitterDistance = 205;
 			this.m_horizsplit.TabIndex = 0;
+			// 
+			// m_tree
+			// 
+			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_tree.Location = new System.Drawing.Point(0, 0);
+			this.m_tree.Name = "m_tree";
+			this.m_tree.SelectedTag = null;
+			this.m_tree.Size = new System.Drawing.Size(205, 523);
+			this.m_tree.TabIndex = 0;
 			// 
 			// previewButton
 			// 
@@ -119,7 +127,7 @@
 			this.previewButton.BackColor = System.Drawing.Color.White;
 			this.previewButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.previewButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.previewButton.Location = new System.Drawing.Point(12, 472);
+			this.previewButton.Location = new System.Drawing.Point(3, 497);
 			this.previewButton.Name = "previewButton";
 			this.previewButton.Size = new System.Drawing.Size(75, 23);
 			this.previewButton.TabIndex = 3;
@@ -135,36 +143,31 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.editPanel.Location = new System.Drawing.Point(3, 3);
 			this.editPanel.Name = "editPanel";
-			this.editPanel.Size = new System.Drawing.Size(193, 463);
+			this.editPanel.Size = new System.Drawing.Size(193, 488);
 			this.editPanel.TabIndex = 2;
-			// 
-			// cancelButton
-			// 
-			this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.cancelButton.BackColor = System.Drawing.Color.White;
-			this.cancelButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.cancelButton.Location = new System.Drawing.Point(114, 472);
-			this.cancelButton.Name = "cancelButton";
-			this.cancelButton.Size = new System.Drawing.Size(75, 23);
-			this.cancelButton.TabIndex = 1;
-			this.cancelButton.Text = "Cancel";
-			this.cancelButton.UseVisualStyleBackColor = false;
-			this.cancelButton.MouseEnter += new System.EventHandler(this.okButton_MouseEnter);
-			this.cancelButton.MouseLeave += new System.EventHandler(this.okButton_MouseLeave);
 			// 
 			// okButton
 			// 
 			this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.okButton.BackColor = System.Drawing.Color.White;
 			this.okButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.okButton.Location = new System.Drawing.Point(33, 472);
+			this.okButton.Location = new System.Drawing.Point(119, 497);
 			this.okButton.Name = "okButton";
 			this.okButton.Size = new System.Drawing.Size(75, 23);
 			this.okButton.TabIndex = 0;
-			this.okButton.Text = "OK";
+			this.okButton.Text = "Apply";
 			this.okButton.UseVisualStyleBackColor = false;
 			this.okButton.MouseEnter += new System.EventHandler(this.okButton_MouseEnter);
 			this.okButton.MouseLeave += new System.EventHandler(this.okButton_MouseLeave);
+			// 
+			// m_dualView
+			// 
+			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_dualView.EditMode = false;
+			this.m_dualView.Location = new System.Drawing.Point(0, 0);
+			this.m_dualView.Name = "m_dualView";
+			this.m_dualView.Size = new System.Drawing.Size(613, 523);
+			this.m_dualView.TabIndex = 0;
 			// 
 			// m_toolstrip
 			// 
@@ -180,6 +183,8 @@
             this.copyToolStripButton,
             this.pasteToolStripButton,
             this.helpToolStripButton,
+            this.toolStripSeparator5,
+            this.toolStripButton1,
             this.toolStripSeparator4,
             this.m_addCurve,
             this.toolStripSeparator1,
@@ -187,11 +192,10 @@
             this.m_buildBtn,
             this.toolStripSeparator3,
             this.m_editButton,
-            this.toolStripSeparator2,
-            this.toolStripButton1});
+            this.cancelButton});
 			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
 			this.m_toolstrip.Name = "m_toolstrip";
-			this.m_toolstrip.Size = new System.Drawing.Size(447, 25);
+			this.m_toolstrip.Size = new System.Drawing.Size(494, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
 			// 
@@ -266,11 +270,6 @@
 			this.pasteToolStripButton.Size = new System.Drawing.Size(23, 22);
 			this.pasteToolStripButton.Text = "&Paste";
 			// 
-			// toolStripSeparator1
-			// 
-			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-			// 
 			// helpToolStripButton
 			// 
 			this.helpToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -280,6 +279,85 @@
 			this.helpToolStripButton.Size = new System.Drawing.Size(23, 22);
 			this.helpToolStripButton.Text = "He&lp";
 			this.helpToolStripButton.Click += new System.EventHandler(this.helpToolStripButton_Click);
+			// 
+			// toolStripSeparator4
+			// 
+			this.toolStripSeparator4.Name = "toolStripSeparator4";
+			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+			// 
+			// m_addCurve
+			// 
+			this.m_addCurve.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.m_addCurve.Image = ((System.Drawing.Image)(resources.GetObject("m_addCurve.Image")));
+			this.m_addCurve.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_addCurve.Name = "m_addCurve";
+			this.m_addCurve.Size = new System.Drawing.Size(69, 22);
+			this.m_addCurve.Text = "Add Group";
+			this.m_addCurve.Click += new System.EventHandler(this.m_addCurve_Click);
+			// 
+			// toolStripSeparator1
+			// 
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+			// 
+			// m_autoBtn
+			// 
+			this.m_autoBtn.CheckOnClick = true;
+			this.m_autoBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.m_autoBtn.Image = ((System.Drawing.Image)(resources.GetObject("m_autoBtn.Image")));
+			this.m_autoBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_autoBtn.Name = "m_autoBtn";
+			this.m_autoBtn.Size = new System.Drawing.Size(37, 22);
+			this.m_autoBtn.Text = "Auto";
+			this.m_autoBtn.ToolTipText = "Toggle Rolling Rebuilds";
+			this.m_autoBtn.CheckedChanged += new System.EventHandler(this.m_autoBtn_CheckedChanged);
+			// 
+			// m_buildBtn
+			// 
+			this.m_buildBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.m_buildBtn.Image = ((System.Drawing.Image)(resources.GetObject("m_buildBtn.Image")));
+			this.m_buildBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_buildBtn.Name = "m_buildBtn";
+			this.m_buildBtn.Size = new System.Drawing.Size(38, 22);
+			this.m_buildBtn.Text = "Build";
+			this.m_buildBtn.Click += new System.EventHandler(this.m_buildBtn_Click);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+			// 
+			// m_editButton
+			// 
+			this.m_editButton.CheckOnClick = true;
+			this.m_editButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.m_editButton.ForeColor = System.Drawing.Color.Black;
+			this.m_editButton.Image = ((System.Drawing.Image)(resources.GetObject("m_editButton.Image")));
+			this.m_editButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_editButton.Name = "m_editButton";
+			this.m_editButton.Size = new System.Drawing.Size(31, 22);
+			this.m_editButton.Text = "Edit";
+			this.m_editButton.CheckedChanged += new System.EventHandler(this.m_editButton_CheckedChanged);
+			// 
+			// toolStripButton1
+			// 
+			this.toolStripButton1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButton1.Name = "toolStripButton1";
+			this.toolStripButton1.Size = new System.Drawing.Size(55, 22);
+			this.toolStripButton1.Text = "Clear All";
+			this.toolStripButton1.Click += new System.EventHandler(this.clearAll_Click);
+			// 
+			// cancelButton
+			// 
+			this.cancelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.cancelButton.Image = ((System.Drawing.Image)(resources.GetObject("cancelButton.Image")));
+			this.cancelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.cancelButton.Name = "cancelButton";
+			this.cancelButton.Size = new System.Drawing.Size(47, 22);
+			this.cancelButton.Text = "Cancel";
 			// 
 			// statusStrip1
 			// 
@@ -320,93 +398,10 @@
 			// 
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
 			// 
-			// m_addCurve
+			// toolStripSeparator5
 			// 
-			this.m_addCurve.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_addCurve.Image = ((System.Drawing.Image)(resources.GetObject("m_addCurve.Image")));
-			this.m_addCurve.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_addCurve.Name = "m_addCurve";
-			this.m_addCurve.Size = new System.Drawing.Size(69, 22);
-			this.m_addCurve.Text = "Add Group";
-			this.m_addCurve.Click += new System.EventHandler(this.m_addCurve_Click);
-			// 
-			// toolStripSeparator4
-			// 
-			this.toolStripSeparator4.Name = "toolStripSeparator4";
-			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-			// 
-			// m_autoBtn
-			// 
-			this.m_autoBtn.CheckOnClick = true;
-			this.m_autoBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_autoBtn.Image = ((System.Drawing.Image)(resources.GetObject("m_autoBtn.Image")));
-			this.m_autoBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_autoBtn.Name = "m_autoBtn";
-			this.m_autoBtn.Size = new System.Drawing.Size(37, 22);
-			this.m_autoBtn.Text = "Auto";
-			this.m_autoBtn.ToolTipText = "Toggle Rolling Rebuilds";
-			this.m_autoBtn.CheckedChanged += new System.EventHandler(this.m_autoBtn_CheckedChanged);
-			// 
-			// m_buildBtn
-			// 
-			this.m_buildBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_buildBtn.Image = ((System.Drawing.Image)(resources.GetObject("m_buildBtn.Image")));
-			this.m_buildBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_buildBtn.Name = "m_buildBtn";
-			this.m_buildBtn.Size = new System.Drawing.Size(38, 22);
-			this.m_buildBtn.Text = "Build";
-			this.m_buildBtn.Click += new System.EventHandler(this.m_buildBtn_Click);
-			// 
-			// m_editButton
-			// 
-			this.m_editButton.CheckOnClick = true;
-			this.m_editButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_editButton.ForeColor = System.Drawing.Color.Black;
-			this.m_editButton.Image = ((System.Drawing.Image)(resources.GetObject("m_editButton.Image")));
-			this.m_editButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_editButton.Name = "m_editButton";
-			this.m_editButton.Size = new System.Drawing.Size(31, 22);
-			this.m_editButton.Text = "Edit";
-			this.m_editButton.CheckedChanged += new System.EventHandler(this.m_editButton_CheckedChanged);
-			// 
-			// toolStripSeparator3
-			// 
-			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
-			// 
-			// toolStripButton1
-			// 
-			this.toolStripButton1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton1.Name = "toolStripButton1";
-			this.toolStripButton1.Size = new System.Drawing.Size(55, 22);
-			this.toolStripButton1.Text = "Clear All";
-			this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
-			// 
-			// toolStripSeparator2
-			// 
-			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
-			// 
-			// m_tree
-			// 
-			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_tree.Location = new System.Drawing.Point(0, 0);
-			this.m_tree.Name = "m_tree";
-			this.m_tree.SelectedTag = null;
-			this.m_tree.Size = new System.Drawing.Size(205, 523);
-			this.m_tree.TabIndex = 0;
-			// 
-			// m_dualView
-			// 
-			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_dualView.EditMode = false;
-			this.m_dualView.Location = new System.Drawing.Point(0, 0);
-			this.m_dualView.Name = "m_dualView";
-			this.m_dualView.Size = new System.Drawing.Size(613, 523);
-			this.m_dualView.TabIndex = 0;
+			this.toolStripSeparator5.Name = "toolStripSeparator5";
+			this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
 			// 
 			// WarpFrame
 			// 
@@ -460,7 +455,6 @@
 	   private System.Windows.Forms.ToolStripStatusLabel m_statusText;
 	   private System.Windows.Forms.ToolStripContainer toolStripContainer1;
 	   private System.Windows.Forms.Panel editPanel;
-	   public System.Windows.Forms.Button cancelButton;
 	   public System.Windows.Forms.Button okButton;
 	   public System.Windows.Forms.Button previewButton;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
@@ -469,8 +463,9 @@
 	   private System.Windows.Forms.ToolStripButton m_buildBtn;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 	   private System.Windows.Forms.ToolStripButton m_editButton;
-	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 	   private System.Windows.Forms.ToolStripButton toolStripButton1;
+	   private System.Windows.Forms.ToolStripButton cancelButton;
+	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
 	}
 }
 

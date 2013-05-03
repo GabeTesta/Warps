@@ -48,7 +48,6 @@
 			this.m_dgv.Name = "m_dgv";
 			this.m_dgv.Size = new System.Drawing.Size(250, 125);
 			this.m_dgv.TabIndex = 0;
-			this.m_dgv.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.m_dgv_CellValueChanged);
 			// 
 			// splitContainer1
 			// 
