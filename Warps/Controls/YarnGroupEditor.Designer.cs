@@ -293,7 +293,7 @@
 			equation2.EquationText = "0.0000";
 			equation2.Label = "eq";
 			//equation2.Result = 0D;
-			equation2.sail = null;
+		//	equation2.sail = null;
 			this.targetDPIEQB.Equation = equation2;
 			this.targetDPIEQB.Location = new System.Drawing.Point(3, 16);
 			this.targetDPIEQB.MaximumSize = new System.Drawing.Size(201, 24);
@@ -310,7 +310,7 @@
 			equation1.EquationText = "0.0000";
 			equation1.Label = "eq";
 			//equation1.Result = 0D;
-			equation1.sail = null;
+			//equation1.sail = null;
 			this.yarnDenierEQB.Equation = equation1;
 			this.yarnDenierEQB.Location = new System.Drawing.Point(3, 16);
 			this.yarnDenierEQB.MaximumSize = new System.Drawing.Size(201, 24);

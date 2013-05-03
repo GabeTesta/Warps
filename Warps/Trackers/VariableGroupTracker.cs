@@ -233,7 +233,7 @@ namespace Warps
 					fit = Utilities.CreateInstance(typeof(Equation));
 				if (fit != null && fit is Equation)
 				{
-					(fit as Equation).sail = sail;
+					//(fit as Equation).sail = sail;
 					eqs.Add(fit as Equation);
 					eqs.Last().ReadEditor(Edit[i]);
 				}
@@ -309,7 +309,7 @@ namespace Warps
 				return;
 
 			Equation eq = new Equation();
-			eq.sail = group.Sail;
+			//eq.sail = group.Sail;
 			eq.ReadScript(group.Sail, result);
 			//eq.Evaluate();
 			group.Add(eq);

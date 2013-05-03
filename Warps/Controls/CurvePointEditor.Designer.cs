@@ -50,7 +50,7 @@
 			equation1.EquationText = "0.0000";
 			equation1.Label = "eq";
 			//equation1.Result = 0D;
-			equation1.sail = null;
+			//equation1.sail = null;
 			this.m_cs.Equation = equation1;
 			this.m_cs.Location = new System.Drawing.Point(0, 0);
 			this.m_cs.MaximumSize = new System.Drawing.Size(101, 24);

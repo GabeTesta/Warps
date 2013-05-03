@@ -560,10 +560,10 @@ namespace Warps
 				return;
 
 			VariableGroup varGroup = new VariableGroup("Vars", ActiveSail);
-			varGroup.Add(new Equation("yarScale", 1.0, ActiveSail));
-			varGroup.Add(new Equation("yarnDPI", "yarScale * 12780", ActiveSail));
-			varGroup.Add(new Equation("targetScale", 1.0, ActiveSail));
-			varGroup.Add(new Equation("targetDPI", "targetScale * 14416", ActiveSail));
+			varGroup.Add(new Equation("yarScale", 1.0));
+			varGroup.Add(new Equation("yarnDPI", "yarScale * 12780"));
+			varGroup.Add(new Equation("targetScale", 1.0));
+			varGroup.Add(new Equation("targetDPI", "targetScale * 14416"));
 			ActiveSail.Add(varGroup);
 
 			UpdateViews(ActiveSail.CreateOuterCurves());

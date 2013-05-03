@@ -19,7 +19,7 @@ namespace Warps
 		{
 			Label = label;
 			Sail = s;
-			m_yarnDenier = new Equation("yarndenier", yarnDenier, s); // individual yarn denier (input)
+			m_yarnDenier = new Equation("yarndenier", yarnDenier); // individual yarn denier (input)
 		}
 
 		public YarnGroup(string label, Sail s, Equation yarnDenier, Equation targetDPI)
@@ -85,12 +85,12 @@ namespace Warps
 		public double TargetDpi
 		{
 			get { return m_targetDenier.Result; }
-			set { if(m_targetDenier.IsNumber()) m_targetDenier.Value = value; }
+			set { m_targetDenier.SetValue(value); }
 		}
 		public double YarnDenier
 		{
 			get { return m_yarnDenier.Result; }
-			set { if(m_yarnDenier.IsNumber()) m_yarnDenier.Value = value; }
+			set { m_yarnDenier.SetValue(value); }
 		}
 		public List<double> DensityPos
 		{
@@ -1209,9 +1209,9 @@ namespace Warps
 				if (splits.Length > 0)
 				{
 					if (splits[0].ToLower().Contains("targetdpi"))
-						m_targetDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'), sail);
+						m_targetDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
 					else if (splits[0].ToLower().Contains("yarndenier"))
-						m_yarnDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'), sail);
+						m_yarnDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
 					else if(splits[0].ToLower().Contains("ending"))
 						EndCondition = (Ending)Enum.Parse(typeof(Ending), splits[1].Trim()); 
 					else if (splits[0].ToLower().Contains("scale"))

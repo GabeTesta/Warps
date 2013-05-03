@@ -40,7 +40,7 @@
 			equation1.EquationText = "0.0000";
 			equation1.Label = "eq";
 			//equation1.Result = 0D;
-			equation1.sail = null;
+			//equation1.sail = null;
 			this.m_vEq.Equation = equation1;
 			this.m_vEq.Location = new System.Drawing.Point(95, 0);
 			this.m_vEq.MaximumSize = new System.Drawing.Size(101, 24);
@@ -56,7 +56,7 @@
 			equation2.EquationText = "0.0000";
 			equation2.Label = "eq";
 			//equation2.Result = 0D;
-			equation2.sail = null;
+			//equation2.sail = null;
 			this.m_uEq.Equation = equation2;
 			this.m_uEq.Location = new System.Drawing.Point(0, 0);
 			this.m_uEq.MaximumSize = new System.Drawing.Size(101, 24);

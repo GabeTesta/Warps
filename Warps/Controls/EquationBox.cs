@@ -42,7 +42,7 @@ namespace Warps
 				{
 					double result = 0;
 
-					if (EquationEvaluator.Evaluate(new Equation("Test", Text, sail), sail, out result))
+					if (EquationEvaluator.Evaluate(new Equation("Test", Text), sail, out result))
 						return result;
 				}
 				else if (double.TryParse(Text, out u))

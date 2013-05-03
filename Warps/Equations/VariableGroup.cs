@@ -183,7 +183,7 @@ namespace Warps
 					equ = Utilities.CreateInstance(splits[0].Trim('\t'));
 				if (equ != null && equ is Equation)
 				{
-					(equ as Equation).sail = Sail;
+					//(equ as Equation).sail = Sail;
 					(equ as Equation).ReadScript(Sail, lines);
 					Add(equ as Equation);
 				}

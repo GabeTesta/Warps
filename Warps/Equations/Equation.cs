@@ -12,15 +12,6 @@ namespace Warps
 	{
 		public Equation() { m_label = "empty"; m_text = "0"; Value = 0; }
 
-		public Equation(string label, string equationText, Sail s)
-		{
-			m_label = label;
-			m_text = equationText;
-			m_text = equationText;
-			sail = s;
-			IsNumber();
-		}
-
 		public Equation(string label, string equationText)
 		{
 			m_label = label;
@@ -31,17 +22,7 @@ namespace Warps
 		public Equation(string label, double value)
 		{
 			m_label = label;
-			m_text = value.ToString();
-			IsNumber();
-		}
-
-		public Equation(string label, double value, Sail s)
-		{
-			// TODO: Complete member initialization
-			m_label = label;
-			m_text = value.ToString();
-			sail = s;
-			IsNumber();
+			SetValue(value);
 		}
 
 		Sail m_sail = null;
@@ -56,12 +37,6 @@ namespace Warps
 			return double.TryParse(EquationText, out m_result);
 		}
 
-		public Sail sail
-		{
-			get { return m_sail; }
-			set { m_sail = value; }
-		}
-
 		public string Label
 		{
 			get { return m_label; }
@@ -74,9 +49,24 @@ namespace Warps
 			set { m_text = value; }
 		}
 
-		public double Value
+		private double Value
 		{
 			set { m_text = value.ToString(); IsNumber(); }
+		}
+
+		/// <summary>
+		/// Attempt to set the EquationText and Result to value (if equation uses an expression, this will return false)
+		/// </summary>
+		/// <param name="val">double to attempt to set</param>
+		/// <returns>true if equation is a number and can be set this way, false if equation is expression</returns>
+		public bool SetValue(double val)
+		{
+			if (IsNumber())
+			{
+				Value = val;
+				return true;
+			}
+			return false;
 		}
 
 		public double Result
@@ -90,7 +80,8 @@ namespace Warps
 			if (IsNumber())
 				return Result;
 
-			if (s == null) return double.NaN;
+			if (s == null) 
+				return double.NaN;
 			if (EquationEvaluator.Evaluate(this, s, out m_result))
 				return Result;
 
@@ -117,6 +108,7 @@ namespace Warps
 		/// </summary>
 		/// <returns></returns>
 		public bool Delete() { return false; }
+
 		public void GetConnected(List<IRebuild> connected)
 		{
 			bool bupdate = false;
@@ -183,6 +175,7 @@ namespace Warps
 
 			return bupdate;
 		}
+
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
 			if (txt.Count != 2)
@@ -191,8 +184,6 @@ namespace Warps
 			txt[1] = txt[1].Trim('\t');
 			Label = txt[1].Split(new char[] { ':' })[0];
 			EquationText = txt[1].Split(new char[] { ':' })[1];
-			//[1] = "\t\t\tstep:0.05"
-			
 			
 			Evaluate(sail);
 			return true;
@@ -236,19 +227,19 @@ namespace Warps
 			return string.Format("{0}:{1}", Label, EquationText);
 		}
 
-		public List<MouldCurve> ExtractReferencedCurves()
-		{
-			if (sail == null)
-				return null;
+		//public List<MouldCurve> ExtractReferencedCurves()
+		//{
+		//	if (sail == null)
+		//		return null;
 
-			return EquationEvaluator.ExtractCurves(this, sail);
-		}
+		//	return EquationEvaluator.ExtractCurves(this, sail);
+		//}
 
 		Warps.Controls.VariableEditor GetEditor()
 		{
 			Warps.Controls.VariableEditor eq = new Warps.Controls.VariableEditor(Label, EquationText);
-			eq.AutoFillData = sail.GetAutoFillData(this).ToArray();
-			eq.sail = sail;
+			//eq.AutoFillData = sail.GetAutoFillData(this).ToArray();
+			//eq.sail = sail;
 			return eq;
 		}
 
@@ -259,9 +250,9 @@ namespace Warps
 			Warps.Controls.VariableEditor ee = edit as Warps.Controls.VariableEditor;
 			if (ee == null)
 				ee = new Warps.Controls.VariableEditor(Label, EquationText);
-			ee.sail = sail;
-			if(sail!=null)
-				ee.AutoFillData = sail.GetAutoFillData(this).ToArray();
+			//ee.sail = sail;
+			//if(sail!=null)
+			//	ee.AutoFillData = sail.GetAutoFillData(this).ToArray();
 			ee.Tag = GetType();
 			//ee.Label = GetType().Name;
 			return edit;
