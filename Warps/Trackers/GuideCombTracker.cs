@@ -13,12 +13,12 @@ using System.Drawing;
 
 namespace Warps.Trackers
 {
-	class GuideCombTracker: ITracker
+	public class GuideCombTracker: ITracker
 	{
 		public GuideCombTracker(GuideComb comb)
 		{
 			m_guide = comb;
-			m_edit = new GuideEditor();
+			m_edit = new GuideEditor(this);
 		}
 
 		public void Track(WarpFrame frame)
@@ -307,7 +307,7 @@ namespace Warps.Trackers
 			//	}
 			//}
 			//m_temp.FitPoints = pnts.ToArray();
-			Edit.WriteCurve(m_temp);
+			Edit.WriteComb(m_temp);
 			//m_temp.CombPnts = Edit.CombPnts;
 			m_temp.FitComb(Edit.CombPnts);
 		}
@@ -317,7 +317,6 @@ namespace Warps.Trackers
 		{
 			//throw new NotImplementedException();
 		}
-
 		public void OnClick(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			if (m_temp == null || e.Button != MouseButtons.Left)
@@ -361,56 +360,69 @@ namespace Warps.Trackers
 			if (!EditMode)
 				return;
 
-			Point3D vert;
-			PointF m_mousePnt = (PointF)e.Location;
-			m_mousePnt.Y = View.ActiveView.Height - m_mousePnt.Y;
-
-			int nview = View.ActiveViewIndex;
-			for (int i = 0; i < m_tents.Length; i++)
+			if (sender is Viewport)
 			{
-				if (m_tents[i][nview] is PointCloud)
+				Point3D vert;
+				PointF m_mousePnt = (PointF)e.Location;
+				m_mousePnt.Y = View.ActiveView.Height - m_mousePnt.Y;
+
+				int nview = View.ActiveViewIndex;
+				for (int i = 0; i < m_tents.Length; i++)
 				{
-					for (int nVert = 0; nVert < m_tents[i][nview].Vertices.Length; nVert++)
+					if (m_tents[i][nview] is PointCloud)
 					{
-						vert = View.ActiveView.WorldToScreen(m_tents[i][nview].Vertices[nVert]);
-						double dis = Math.Pow(vert.X - m_mousePnt.X, 2) + Math.Pow(vert.Y - m_mousePnt.Y, 2);
-						if (dis < Math.Pow(10, 2))
+						for (int nVert = 0; nVert < m_tents[i][nview].Vertices.Length; nVert++)
 						{
-							m_index = nVert;
-							break;
+							vert = View.ActiveView.WorldToScreen(m_tents[i][nview].Vertices[nVert]);
+							double dis = Math.Pow(vert.X - m_mousePnt.X, 2) + Math.Pow(vert.Y - m_mousePnt.Y, 2);
+							if (dis < Math.Pow(10, 2))
+							{
+								m_index = nVert;
+								break;
+							}
 						}
 					}
 				}
 			}
+			else if (sender is NsPlot)
+			{
+				PickComb(sender, e);
+			}
 		}
-
 		public void OnMove(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			if (m_temp == null || e.Button != MouseButtons.Left || m_index == -1)
 				return;
 			if (!EditMode)
 				return;
-			Transformer wts = View.ActiveView.WorldToScreen;
-			PointF mpt = new PointF(e.X, View.ActiveView.Height - e.Y);
-			if (!m_temp.DragPoint(m_index, mpt, wts))
+
+			if (sender is Viewport)
 			{
-				m_index = -1;
+				Transformer wts = View.ActiveView.WorldToScreen;
+				PointF mpt = new PointF(e.X, View.ActiveView.Height - e.Y);
+				if (!m_temp.DragPoint(m_index, mpt, wts))
+				{
+					m_index = -1;
+				}
+				else
+				{
+					UpdateViewCurve(true);
+					//m_temp[m_index].WriteEditor(Edit[m_index]);
+					//Edit[m_index].Refresh();
+					//for (int i = 0; i < m_temp.FitPoints.Length; i++)
+					//{
+					//	m_temp[i].WriteEditor(Edit[i]);
+					//	Edit[i].Refresh();
+					//}
+					//Edit.Refresh();
+					//m_mousePnt = new PointF(e.X, Viewport.Height - e.Y);
+				}		
 			}
-			else
+			else if (sender is NsPlot)
 			{
-				UpdateViewCurve(true);
-				//m_temp[m_index].WriteEditor(Edit[m_index]);
-				//Edit[m_index].Refresh();
-				//for (int i = 0; i < m_temp.FitPoints.Length; i++)
-				//{
-				//	m_temp[i].WriteEditor(Edit[i]);
-				//	Edit[i].Refresh();
-				//}
-				//Edit.Refresh();
-				//m_mousePnt = new PointF(e.X, Viewport.Height - e.Y);
+				DragComb(sender, e);
 			}
 		}	
-
 		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			if (m_temp == null)
@@ -420,6 +432,46 @@ namespace Warps.Trackers
 			if (e.Button == MouseButtons.Left)
 			{
 				m_index = -1;
+			}
+		}
+
+		private void PickComb(object sender, MouseEventArgs e)
+		{
+			if (Control.ModifierKeys == Keys.Shift || Control.ModifierKeys == Keys.Control)
+				return;//dont drag on shift or ctrl drag
+			if (e.Button == MouseButtons.Left)
+			{
+				NsPlot plot = sender as NsPlot;
+				double x = plot.PhysicalXAxis1Cache.PhysicalToWorld(e.Location, true);
+				double y = plot.PhysicalYAxis1Cache.PhysicalToWorld(e.Location, true);
+
+				int i = 0;
+				foreach (Vect2 v in m_edit.CombPnts)
+				{
+					if (BLAS.is_equal(v.u, x, .01))
+					{
+						m_index = i;
+						break;
+					}
+					i++;
+				}
+			}
+		}
+		private void DragComb(object sender, MouseEventArgs e)
+		{
+			if (Control.ModifierKeys == Keys.Shift || Control.ModifierKeys == Keys.Control || m_index == -1)
+				return;//dont drag on shift or ctrl drag
+			if (e.Button == MouseButtons.Left)
+			{
+				NsPlot plot = sender as NsPlot;
+				double x = plot.PhysicalXAxis1Cache.PhysicalToWorld(e.Location, true);
+				double y = plot.PhysicalYAxis1Cache.PhysicalToWorld(e.Location, true);
+
+				m_temp.CombPnts[m_index].u = x;
+				m_temp.CombPnts[m_index].v = y;
+
+				m_temp.FitComb(null);
+				UpdateViewCurve(true);
 			}
 		}
 
@@ -437,7 +489,6 @@ namespace Warps.Trackers
 			m_frame.Status = String.Format("{0}:{1} Copied", group.GetType().Name, group.Label);
 
 		}
-
 		public void OnPaste(object sender, EventArgs e)
 		{
 			//throw new NotImplementedException();
@@ -461,12 +512,10 @@ namespace Warps.Trackers
 
 			View.Refresh(); 
 		}
-
 		public void OnCancel(object sender, EventArgs e)
 		{
 			Cancel();
 		}
-
 		public void OnPreview(object sender, EventArgs e)
 		{
 			if (m_temp == null || !EditMode)

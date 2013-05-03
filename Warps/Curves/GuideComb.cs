@@ -50,7 +50,10 @@ namespace Warps
 		//}
 		public void FitComb(Vect2[] combs)
 		{
-			CombPnts = combs;
+			if (combs != null)
+				CombPnts = combs;
+			else
+				combs = CombPnts;
 
 			List<double[]> x = new List<double[]>();
 			List<double> s = new List<double>();

@@ -8,17 +8,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NPlot;
+using Warps;
 
 namespace Warps.Controls
 {
 	public partial class GuideEditor : UserControl
 	{
-		public GuideEditor()
+		public GuideEditor(Warps.Trackers.GuideCombTracker tracker)
 		{
 			InitializeComponent();
 			//InitializeNsPlot();
 			//Comb = comb;
 			InitializeGrid();
+			if (tracker != null)
+			{
+				m_nsPlot.MouseDown += tracker.OnDown;
+				m_nsPlot.MouseMove += tracker.OnMove;
+				m_nsPlot.MouseUp += tracker.OnUp;
+			}
 			//InitializePlotterComponents();
 		}
 
@@ -177,14 +184,9 @@ namespace Warps.Controls
 			return rbf;
 		}
 
-		private void m_dgv_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-		{
-			
-		}
-
 		#endregion 
 
-		internal void WriteCurve(GuideComb comb)
+		internal void WriteComb(GuideComb comb)
 		{
 			m_curveEditor.WriteCurve(comb);
 			comb.FitComb(CombPnts);
