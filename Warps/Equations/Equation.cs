@@ -71,7 +71,6 @@ namespace Warps
 		public double Result
 		{
 			get { return m_result; }
-			//set { m_result = value; }
 		}
 
 		public double Evaluate(Sail s)
