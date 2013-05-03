@@ -25,7 +25,7 @@ namespace Warps
 			SetValue(value);
 		}
 
-		Sail m_sail = null;
+		//Sail m_sail = null;
 		string m_text = null;
 		string m_label = null;
 		double m_result = double.NaN;
