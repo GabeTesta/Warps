@@ -54,6 +54,14 @@ namespace Warps
 			m_horizsplit.SplitterDistance = m_horizsplit.ClientRectangle.Width - 250;
 		}
 
+		/// <summary>
+		/// get the current version of Warps
+		/// </summary>
+		string CurVersion
+		{
+			get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+		}
+
 		public string Status
 		{
 			get { return m_statusText.Text; }
@@ -638,6 +646,17 @@ namespace Warps
 		{
 			UpdateViews(e.Value);
 			View.Refresh();
+		}
+
+		private void toolStripButton1_Click(object sender, EventArgs e)
+		{
+			if (DialogResult.Yes == MessageBox.Show("Are you sure you want to clear all?", String.Format("Warps v{0}", CurVersion), MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+			{
+				Tree.ClearAll();
+				View.ClearAll();
+				m_sail.Layout.Clear();
+				m_sail = null;
+			}
 		}
 	}
 }

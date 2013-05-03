@@ -1156,5 +1156,16 @@ namespace Warps
 			}
 
 		}
+
+		internal void ClearAll()
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				this[i].Entities.Clear();
+				this[i].Layers.Clear();
+				
+			}
+			Refresh();
+		}
 	}
 }

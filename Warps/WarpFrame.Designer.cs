@@ -49,13 +49,14 @@
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-			this.m_buildStrip = new System.Windows.Forms.ToolStrip();
 			this.m_addCurve = new System.Windows.Forms.ToolStripButton();
-			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.m_autoBtn = new System.Windows.Forms.ToolStripButton();
 			this.m_buildBtn = new System.Windows.Forms.ToolStripButton();
-			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.m_editButton = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.m_tree = new Warps.TabTree();
 			this.m_dualView = new Warps.DualView();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
@@ -71,7 +72,6 @@
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
 			this.toolStripContainer1.SuspendLayout();
-			this.m_buildStrip.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// m_vertsplit
@@ -179,11 +179,19 @@
             this.cutToolStripButton,
             this.copyToolStripButton,
             this.pasteToolStripButton,
+            this.helpToolStripButton,
+            this.toolStripSeparator4,
+            this.m_addCurve,
             this.toolStripSeparator1,
-            this.helpToolStripButton});
-			this.m_toolstrip.Location = new System.Drawing.Point(6, 0);
+            this.m_autoBtn,
+            this.m_buildBtn,
+            this.toolStripSeparator3,
+            this.m_editButton,
+            this.toolStripSeparator2,
+            this.toolStripButton1});
+			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
 			this.m_toolstrip.Name = "m_toolstrip";
-			this.m_toolstrip.Size = new System.Drawing.Size(199, 25);
+			this.m_toolstrip.Size = new System.Drawing.Size(447, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
 			// 
@@ -311,23 +319,6 @@
 			// toolStripContainer1.TopToolStripPanel
 			// 
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
-			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_buildStrip);
-			// 
-			// m_buildStrip
-			// 
-			this.m_buildStrip.Dock = System.Windows.Forms.DockStyle.None;
-			this.m_buildStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.m_addCurve,
-            this.toolStripSeparator3,
-            this.m_autoBtn,
-            this.m_buildBtn,
-            this.toolStripSeparator2,
-            this.m_editButton});
-			this.m_buildStrip.Location = new System.Drawing.Point(205, 0);
-			this.m_buildStrip.Name = "m_buildStrip";
-			this.m_buildStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-			this.m_buildStrip.Size = new System.Drawing.Size(199, 25);
-			this.m_buildStrip.TabIndex = 3;
 			// 
 			// m_addCurve
 			// 
@@ -339,10 +330,10 @@
 			this.m_addCurve.Text = "Add Group";
 			this.m_addCurve.Click += new System.EventHandler(this.m_addCurve_Click);
 			// 
-			// toolStripSeparator3
+			// toolStripSeparator4
 			// 
-			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+			this.toolStripSeparator4.Name = "toolStripSeparator4";
+			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
 			// 
 			// m_autoBtn
 			// 
@@ -366,11 +357,6 @@
 			this.m_buildBtn.Text = "Build";
 			this.m_buildBtn.Click += new System.EventHandler(this.m_buildBtn_Click);
 			// 
-			// toolStripSeparator2
-			// 
-			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
-			// 
 			// m_editButton
 			// 
 			this.m_editButton.CheckOnClick = true;
@@ -382,6 +368,27 @@
 			this.m_editButton.Size = new System.Drawing.Size(31, 22);
 			this.m_editButton.Text = "Edit";
 			this.m_editButton.CheckedChanged += new System.EventHandler(this.m_editButton_CheckedChanged);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+			// 
+			// toolStripButton1
+			// 
+			this.toolStripButton1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButton1.Name = "toolStripButton1";
+			this.toolStripButton1.Size = new System.Drawing.Size(55, 22);
+			this.toolStripButton1.Text = "Clear All";
+			this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
+			// 
+			// toolStripSeparator2
+			// 
+			this.toolStripSeparator2.Name = "toolStripSeparator2";
+			this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
 			// 
 			// m_tree
 			// 
@@ -428,8 +435,6 @@
 			this.toolStripContainer1.TopToolStripPanel.PerformLayout();
 			this.toolStripContainer1.ResumeLayout(false);
 			this.toolStripContainer1.PerformLayout();
-			this.m_buildStrip.ResumeLayout(false);
-			this.m_buildStrip.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -454,17 +459,18 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
 	   private System.Windows.Forms.ToolStripStatusLabel m_statusText;
 	   private System.Windows.Forms.ToolStripContainer toolStripContainer1;
-	   private System.Windows.Forms.ToolStrip m_buildStrip;
-	   private System.Windows.Forms.ToolStripButton m_autoBtn;
-	   private System.Windows.Forms.ToolStripButton m_buildBtn;
-	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 	   private System.Windows.Forms.Panel editPanel;
 	   public System.Windows.Forms.Button cancelButton;
 	   public System.Windows.Forms.Button okButton;
 	   public System.Windows.Forms.Button previewButton;
+	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
 	   private System.Windows.Forms.ToolStripButton m_addCurve;
+	   private System.Windows.Forms.ToolStripButton m_autoBtn;
+	   private System.Windows.Forms.ToolStripButton m_buildBtn;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 	   private System.Windows.Forms.ToolStripButton m_editButton;
+	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+	   private System.Windows.Forms.ToolStripButton toolStripButton1;
 	}
 }
 
