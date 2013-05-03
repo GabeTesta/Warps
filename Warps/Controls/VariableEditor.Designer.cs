@@ -38,7 +38,7 @@
 			// m_variableTextBox
 			// 
 			this.m_variableTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.m_variableTextBox.Location = new System.Drawing.Point(73, 2);
+			this.m_variableTextBox.Location = new System.Drawing.Point(69, 2);
 			this.m_variableTextBox.Name = "m_variableTextBox";
 			this.m_variableTextBox.Size = new System.Drawing.Size(82, 20);
 			this.m_variableTextBox.TabIndex = 0;
@@ -47,7 +47,7 @@
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(29, 4);
+			this.label1.Location = new System.Drawing.Point(25, 4);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(38, 13);
 			this.label1.TabIndex = 3;
@@ -67,14 +67,11 @@
 			this.m_eqBox.AutoFillVariables = null;
 			equation1.EquationText = "0.0000";
 			equation1.Label = "eq";
-			//equation1.Result = 0D;
-			//equation1.sail = null;
 			this.m_eqBox.Equation = equation1;
 			this.m_eqBox.Location = new System.Drawing.Point(4, 23);
-			this.m_eqBox.MaximumSize = new System.Drawing.Size(201, 24);
 			this.m_eqBox.Name = "m_eqBox";
 			this.m_eqBox.sail = null;
-			this.m_eqBox.Size = new System.Drawing.Size(160, 24);
+			this.m_eqBox.Size = new System.Drawing.Size(213, 24);
 			this.m_eqBox.TabIndex = 2;
 			this.m_eqBox.Value = 0D;
 			// 
@@ -87,7 +84,7 @@
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.m_eqBox);
 			this.Name = "VariableEditor";
-			this.Size = new System.Drawing.Size(167, 50);
+			this.Size = new System.Drawing.Size(220, 50);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
