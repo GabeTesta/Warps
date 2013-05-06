@@ -11,7 +11,7 @@ namespace Warps
 {
 	public class Sail
 	{
-		SurfaceType m_type = SurfaceType.COF;
+		SurfaceType m_type = SurfaceType.COMBO;
 
 		string m_path;
 		ISurface m_mould;
@@ -63,7 +63,7 @@ namespace Warps
 		}
 		void CreateMould(string type, string path)
 		{
-			if (path.Length == 0)
+			if (path == null || path.Length == 0)
 			{
 				string[] paths = WarpFrame.OpenFileDlg(1);
 				if (paths.Length > 0)

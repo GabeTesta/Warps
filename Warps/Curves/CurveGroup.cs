@@ -80,7 +80,8 @@ namespace Warps
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Tag = this;
-			m_node.Text = GetType().Name + ": " + Label;
+			//m_node.Text = GetType().Name + ": " + Label;
+			m_node.Text = Label;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
 			if (m_node.Nodes.Count != this.Count || bclear)

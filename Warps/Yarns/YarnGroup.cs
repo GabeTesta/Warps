@@ -425,6 +425,9 @@ namespace Warps
 				P = Math.Min(1, P);
 				p = GlobalToBracket(P, pWarps, ref nWrp);
 
+				if (Count > 2 && BLAS.is_equal(p, this.Last().m_p, 1e-7)) //zero length space
+					break;
+
 				//create a yarn with an initial spacing
 				cur = new YarnCurve(p, m_Warps[nWrp - 1], m_Warps[nWrp]);
 				Add(cur);
@@ -1031,7 +1034,8 @@ namespace Warps
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Tag = this;
-			m_node.Text = GetType().Name + ": " + Label;
+			//m_node.Text = GetType().Name + ": " + Label;
+			m_node.Text = Label;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
 

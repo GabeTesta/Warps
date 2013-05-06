@@ -34,7 +34,6 @@ namespace Warps
 			//ButtonUnSelected = m_modCurve.BackColor;
 
 			SetStyle(ControlStyles.OptimizedDoubleBuffer |
-				    ControlStyles.UserPaint |
 				    ControlStyles.AllPaintingInWmPaint, true);
 
 			EditorPanel = null;//collapse edit panel

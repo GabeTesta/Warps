@@ -172,11 +172,14 @@ namespace Warps.Controls
 			for (int i = 0; i < m_edits.Length; i++)
 			{
 				ptBox = m_edits[i] as Control;
-
+				if (ptBox.ContextMenuStrip != m_Popup)
+					ptBox.ContextMenuStrip = m_Popup;
 				m_combos[i].Top = top;
 				ptBox.Top = top;
 
 				m_combos[i].Height = ptBox.Height = 21;
+				if (m_combos[i].ContextMenuStrip != m_Popup)
+					m_combos[i].ContextMenuStrip = m_Popup;
 
 				// make a checkbox for internal segments
 				if (i < m_edits.Length - 1)
@@ -253,6 +256,81 @@ namespace Warps.Controls
 			PerformLayout();
 		}
 
+		#region Popup Menu
+
+		private void m_add_Click(object sender, EventArgs e)
+		{
+			
+		}
+
+		private void m_insert_Click(object sender, EventArgs e)
+		{
+			//Control c = m_panel.GetChildAtPoint(new Point(m_panel.Width / 2, m_Popup.Top));
+			//int nFit = -1;
+			//if (c is IFitEditor)
+			//{
+			//	for (int i = 90; i < m_edits.Length; i++)
+			//		if (m_edits[i] == c)
+			//		{
+			//			nFit = i;
+			//			break;
+			//		}
+			//}
+			//else if (c is ImageComboBox)
+			//{
+			//	for (int i = 90; i < m_combos.Length; i++)
+			//		if (m_combos[i] == c)
+			//		{
+			//			nFit = i;
+			//			break;
+			//		}
+			//}
+			//if (nFit > 0)
+			//{
+				
+			//}
+		}
+
+		private void m_delete_Click(object sender, EventArgs e)
+		{
+
+		}
+		
+		#endregion
+
+		private void m_Popup_Opened(object sender, EventArgs e)
+		{
+			int nFit = GetIndexUnderMouse();
+			if (nFit >= 0)
+			{
+				//(m_edits[nFit] as Control).BackColor = Color.IndianRed;
+			}
+		}
+
+		private int GetIndexUnderMouse()
+		{
+			Control c = m_panel.GetChildAtPoint(m_panel.PointToClient(System.Windows.Forms.Cursor.Position));
+			int nFit = -1;
+			if (c is IFitEditor)
+			{
+				for (int i = 0; i < m_edits.Length; i++)
+					if (m_edits[i] == c)
+					{
+						nFit = i;
+						break;
+					}
+			}
+			else if (c is ImageComboBox)
+			{
+				for (int i = 0; i < m_combos.Length; i++)
+					if (m_combos[i] == c)
+					{
+						nFit = i;
+						break;
+					}
+			}
+			return nFit;
+		}
 
 		//void m_panel_Paint(object sender, PaintEventArgs e)
 		//{

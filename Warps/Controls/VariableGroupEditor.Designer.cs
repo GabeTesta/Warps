@@ -60,7 +60,6 @@
 			// 
 			this.m_flow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-			this.m_flow.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.m_flow.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
 			this.m_flow.Location = new System.Drawing.Point(6, 70);
 			this.m_flow.Name = "m_flow";

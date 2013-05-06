@@ -393,7 +393,7 @@ namespace Warps
 			if (bEditor)
 			{
 				m_edit.ReadCurve(m_temp);
-				m_edit.Label = Curve.Label;
+				//m_edit.Label = Curve.Label;
 				m_edit.Update();
 				//Edit.Count = m_temp.FitPoints.Length; 
 				//for (int i = 0; i < m_temp.FitPoints.Length; i++)

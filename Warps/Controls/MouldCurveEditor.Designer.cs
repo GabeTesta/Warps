@@ -28,9 +28,15 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.m_label = new System.Windows.Forms.TextBox();
 			this.m_length = new System.Windows.Forms.Label();
 			this.m_panel = new System.Windows.Forms.Panel();
+			this.m_Popup = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.m_add = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_insert = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_delete = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_Popup.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// m_label
@@ -65,6 +71,38 @@
 			this.m_panel.Size = new System.Drawing.Size(244, 405);
 			this.m_panel.TabIndex = 2;
 			// 
+			// m_Popup
+			// 
+			this.m_Popup.Enabled = false;
+			this.m_Popup.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.m_add,
+            this.m_insert,
+            this.m_delete});
+			this.m_Popup.Name = "m_Popup";
+			this.m_Popup.Size = new System.Drawing.Size(153, 92);
+			this.m_Popup.Opened += new System.EventHandler(this.m_Popup_Opened);
+			// 
+			// m_add
+			// 
+			this.m_add.Name = "m_add";
+			this.m_add.Size = new System.Drawing.Size(152, 22);
+			this.m_add.Text = "Add";
+			this.m_add.Click += new System.EventHandler(this.m_add_Click);
+			// 
+			// m_insert
+			// 
+			this.m_insert.Name = "m_insert";
+			this.m_insert.Size = new System.Drawing.Size(152, 22);
+			this.m_insert.Text = "Insert";
+			this.m_insert.Click += new System.EventHandler(this.m_insert_Click);
+			// 
+			// m_delete
+			// 
+			this.m_delete.Name = "m_delete";
+			this.m_delete.Size = new System.Drawing.Size(152, 22);
+			this.m_delete.Text = "Delete";
+			this.m_delete.Click += new System.EventHandler(this.m_delete_Click);
+			// 
 			// MouldCurveEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -74,6 +112,7 @@
 			this.Controls.Add(this.m_length);
 			this.Name = "MouldCurveEditor";
 			this.Size = new System.Drawing.Size(250, 434);
+			this.m_Popup.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -84,5 +123,9 @@
 		private System.Windows.Forms.TextBox m_label;
 		private System.Windows.Forms.Label m_length;
 		private System.Windows.Forms.Panel m_panel;
+		private System.Windows.Forms.ContextMenuStrip m_Popup;
+		private System.Windows.Forms.ToolStripMenuItem m_add;
+		private System.Windows.Forms.ToolStripMenuItem m_insert;
+		private System.Windows.Forms.ToolStripMenuItem m_delete;
 	}
 }

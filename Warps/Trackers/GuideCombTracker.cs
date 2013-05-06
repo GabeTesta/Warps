@@ -95,11 +95,11 @@ namespace Warps.Trackers
 					ee.ColorMethod = colorMethodType.byEntity;
 				}
 
-			List<MouldCurve> mc = Sail.GetCurves(Comb);
 			//PointTypeSwitcher.SetCurves(mc);
 			//PointTypeSwitcher.SetAutofill(Sail.GetAutoFillData(Comb));
 			//PointTypeSwitcher.SetSail(Sail);
 
+			Edit.AutoFill = Sail.GetAutoFillData(Comb);
 			Edit.ReadComb(m_temp);
 			Edit.Label = Comb.Label;
 			Edit.Refresh();
@@ -360,7 +360,7 @@ namespace Warps.Trackers
 			if (!EditMode)
 				return;
 
-			if (sender is Viewport)
+			if (sender is ViewportLayout)
 			{
 				Point3D vert;
 				PointF m_mousePnt = (PointF)e.Location;
@@ -396,7 +396,7 @@ namespace Warps.Trackers
 			if (!EditMode)
 				return;
 
-			if (sender is Viewport)
+			if (sender is ViewportLayout)
 			{
 				Transformer wts = View.ActiveView.WorldToScreen;
 				PointF mpt = new PointF(e.X, View.ActiveView.Height - e.Y);
