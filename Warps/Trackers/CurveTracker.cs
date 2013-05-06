@@ -18,6 +18,7 @@ namespace Warps
 		public CurveTracker(MouldCurve curve)
 		{
 			m_curve = curve;
+			//m_mcEdit.ReturnPress += OnPreview;
 			//m_edit = new CurveEditor(Curve);
 		}
 
@@ -31,7 +32,7 @@ namespace Warps
 			//m_frame.cancelButton.Click += OnCancel;
 			//m_frame.previewButton.Click += OnPreview;
 
-			m_frame.EditorPanel = m_mcEdit;
+			m_frame.EditorPanel = m_edit;
 			EditMode = frame.EditMode;
 			
 			CreateTreePopup();
@@ -73,8 +74,8 @@ namespace Warps
 				m_editMode = value;
 				//if (Edit != null)
 				//	Edit.Enabled = value;
-				if (m_mcEdit != null)
-					m_mcEdit.Enabled = value;
+				if (m_edit != null)
+					m_edit.Enabled = value;
 
 				if (View != null)
 				{
@@ -93,7 +94,7 @@ namespace Warps
 
 		MouldCurve m_curve;
 		//CurveEditor m_edit;
-		MouldCurveEditor m_mcEdit = new MouldCurveEditor();
+		MouldCurveEditor m_edit = new MouldCurveEditor();
 		WarpFrame m_frame;
 
 		public MouldCurve Curve
@@ -155,7 +156,7 @@ namespace Warps
 			View.Remove(Curve);
 
 			Curve.Fit(m_temp);
-			Curve.Label = m_mcEdit.Label;
+			Curve.Label = m_edit.Label;
 
 			if( sender != null )
 				m_frame.Rebuild(Curve);//returns false if AutoBuild is off
@@ -172,7 +173,7 @@ namespace Warps
 		}
 		void ReadEditor()
 		{
-			m_mcEdit.WriteCurve(m_temp);
+			m_edit.WriteCurve(m_temp);
 
 			//List<IFitPoint> pnts = new List<IFitPoint>();
 			//for (int i = 0; i < Edit.Count; i++)  
@@ -239,9 +240,10 @@ namespace Warps
 			//PointTypeSwitcher.SetSail(Sail);
 
 			//if( EditMode ) View.StopSelect();
-			m_mcEdit.ReadCurve(m_temp);
-			m_mcEdit.Label = Curve.Label;
-			m_mcEdit.Refresh();
+			m_edit.AutoFill = Sail.GetAutoFillData(Curve);
+			m_edit.ReadCurve(m_temp);
+			m_edit.Label = Curve.Label;
+			m_edit.Refresh();
 			//Edit.Label = Curve.Label;
 			//Edit.Length = m_temp.Length;
 			//Edit.FitPoints = m_temp.FitPoints;
@@ -390,9 +392,9 @@ namespace Warps
 			View.Refresh();
 			if (bEditor)
 			{
-				m_mcEdit.ReadCurve(m_temp);
-				m_mcEdit.Label = Curve.Label;
-				m_mcEdit.Update();
+				m_edit.ReadCurve(m_temp);
+				m_edit.Label = Curve.Label;
+				m_edit.Update();
 				//Edit.Count = m_temp.FitPoints.Length; 
 				//for (int i = 0; i < m_temp.FitPoints.Length; i++)
 				//{

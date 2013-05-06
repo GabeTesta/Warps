@@ -12,9 +12,8 @@ namespace Warps
 	{
 		IFitPoint CreatePoint();
 
-		event EventHandler<KeyEventArgs> ReturnPress;
+		//event KeyEventHandler ReturnPress;
 		Type FitType { get; }
-		object[] AutoFillData { get; set; }
-		Sail sail { get; set; }
+		List<object> AutoFillData { set; }
 	}
 }

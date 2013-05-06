@@ -16,6 +16,7 @@ namespace Warps.Controls
 		{
 			InitializeComponent();
 			m_bak = Color.White;
+		//	equationBox.ReturnPress += ReturnPress;
 		}
 		Color m_bak = Color.Empty;
 		private Sail m_sail = null;
@@ -92,15 +93,19 @@ namespace Warps.Controls
 			}
 		}
 
-		protected override void OnKeyDown(KeyEventArgs e)
-		{
-			base.OnKeyDown(e);
-			if (ReturnPress != null && e.KeyCode == Keys.Enter)
-				ReturnPress(this, e);
-		}
+		//protected override void OnKeyDown(KeyEventArgs e)
+		//{
+		//	base.OnKeyDown(e);
+		//	if (ReturnPress != null && e.KeyCode == Keys.Enter)
+		//		ReturnPress(this, e);
+		//}
 
-		public event KeyEventHandler ReturnPress;
-
+		//public event KeyEventHandler ReturnPress;
+		//private void OnReturnPress(object sender, KeyEventArgs e)
+		//{
+		//	if (ReturnPress != null)
+		//		ReturnPress(this, e);
+		//}
 		private void EquationBoxAuto_Load(object sender, EventArgs e)
 		{
 			equationBox_TextChanged(sender, e);

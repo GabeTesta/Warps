@@ -37,6 +37,13 @@ namespace Warps.Controls
 		CheckBox[] m_girths;
 		ImageComboBox[] m_combos;
 		IFitEditor[] m_edits;
+		List<object> m_autoFill;
+
+		public List<object> AutoFill
+		{
+			get { return m_autoFill; }
+			set { m_autoFill = value; }
+		}
 
 		ControlCollection Panel
 		{ get { return m_panel.Controls; } }
@@ -94,8 +101,8 @@ namespace Warps.Controls
 			}
 			Control ptBox = null;
 			Control old = null;
-			//get the list of available curves from the sail
-			object[] autofill =  c.Sail.GetAutoFillData(c).ToArray();
+			////get the list of available curves from the sail
+			//object[] autofill =  c.Sail.GetAutoFillData(c).ToArray();
 
 			//create the point controls and add them to the panel
 			for (int i = 0; i < c.FitPoints.Length; i++)
@@ -103,7 +110,8 @@ namespace Warps.Controls
 				//create the type-speific point editor
 				old = m_edits[i] as Control;
 				ptBox = c[i].WriteEditor(ref m_edits[i]);
-				m_edits[i].AutoFillData = autofill;
+				if( AutoFill != null )
+					m_edits[i].AutoFillData = AutoFill;
 				//remove old control if new pointeditor
 				if (old != ptBox)
 					Panel.Remove(old);
@@ -130,6 +138,7 @@ namespace Warps.Controls
 			PerformLayout();
 			m_panel.Invalidate();//invalidate the panel for next redraw
 		}
+
 		public void WriteCurve(MouldCurve c)
 		{
 			//c.Label = Label;
@@ -205,7 +214,7 @@ namespace Warps.Controls
 				return;
 
 			DropDownImage item = box.SelectedItem as DropDownImage;
-			SetType(nFit, item.Tag as Type);
+			SetPointType(nFit, item.Tag as Type);
 		}
 
 		void SetCombo(ImageComboBox box, Type fpType)
@@ -221,7 +230,7 @@ namespace Warps.Controls
 
 		}
 
-		void SetType(int nFit, Type fitPointType)
+		void SetPointType(int nFit, Type fitPointType)
 		{
 			//set the type selection in the combo box
 			SetCombo(m_combos[nFit], fitPointType);
@@ -233,6 +242,9 @@ namespace Warps.Controls
 			Vect2 uv = (old as IFitEditor).CreatePoint().UV;
 			(fit as IFitPoint).UV = uv;//copy over the uv coords if possible
 			Control ptBox = (fit as IFitPoint).WriteEditor(ref m_edits[nFit]);
+			m_edits[nFit].AutoFillData = AutoFill;
+			//m_edits[nFit].ReturnPress += ReturnPress;
+
 			ptBox.Top = old.Top;
 			ptBox.Left = old.Left;
 
@@ -240,6 +252,7 @@ namespace Warps.Controls
 			Panel.Add(ptBox);//add the new one
 			PerformLayout();
 		}
+
 
 		//void m_panel_Paint(object sender, PaintEventArgs e)
 		//{
