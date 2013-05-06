@@ -22,10 +22,10 @@ namespace Warps
 		public Equation(string label, double value)
 		{
 			m_label = label;
+			m_text = value.ToString();
 			SetValue(value);
 		}
 
-		//Sail m_sail = null;
 		string m_text = null;
 		string m_label = null;
 		double m_result = double.NaN;
@@ -72,7 +72,6 @@ namespace Warps
 		public double Result
 		{
 			get { return m_result; }
-			//set { m_result = value; }
 		}
 
 		public double Evaluate(Sail s)
