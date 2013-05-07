@@ -16,7 +16,6 @@ namespace Warps
 			this.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.Size = new System.Drawing.Size(80, 20);
 			this.TextAlign = HorizontalAlignment.Right;
-			//this.SetTopLevel(true);
 		}
 
 		public Sail sail = null;

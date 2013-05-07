@@ -1029,6 +1029,15 @@ namespace Warps
 		//	}
 		//	return m_node;
 		//}
+
+		private string GetToolTipData()
+		{
+			string ret = String.Format(
+				"{0}\nTargetDPI:{1}\nAchievedDPI:{2}\n#:{3}",
+				GetType().Name, TargetDpi, AchievedDpi.ToString("#0.00"), Count);
+			return ret;
+		}
+
 		private TreeNode WriteNode(bool bclear)
 		{
 			if (m_node == null)
@@ -1038,7 +1047,7 @@ namespace Warps
 			m_node.Text = Label;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
-			m_node.ToolTipText = GetType().Name;
+			m_node.ToolTipText = GetToolTipData();
 			if (bclear)
 			{
 				m_node.Nodes.Clear();

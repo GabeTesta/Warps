@@ -246,6 +246,7 @@ namespace Warps.Controls
 			(fit as IFitPoint).UV = uv;//copy over the uv coords if possible
 			Control ptBox = (fit as IFitPoint).WriteEditor(ref m_edits[nFit]);
 			m_edits[nFit].AutoFillData = AutoFill;
+			//m_edits[nFit]
 			//m_edits[nFit].ReturnPress += ReturnPress;
 
 			ptBox.Top = old.Top;
