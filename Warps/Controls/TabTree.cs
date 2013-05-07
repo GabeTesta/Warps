@@ -18,6 +18,8 @@ namespace Warps
 		{
 			InitializeComponent();
 			this.DoubleBuffered = true;
+			SeqTree.ShowNodeToolTips = true;
+			SorTree.ShowNodeToolTips = true;
 			SeqTree.AfterSelect += Tree_AfterSelect;
 			SorTree.AfterSelect += Tree_AfterSelect;
 			imageList = new ImageList();

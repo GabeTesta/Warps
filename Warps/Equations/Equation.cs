@@ -209,6 +209,7 @@ namespace Warps
 			m_node.ImageKey = "Equation";
 			m_node.SelectedImageKey = "Equation";
 			m_node.Tag = this;
+			m_node.ToolTipText = this.ToString();
 			m_node.Name = Label;
 			TreeNode tmp1 = new TreeNode(string.Format("Text: {0}", EquationText));
 			tmp1.ImageKey = "EquationText";

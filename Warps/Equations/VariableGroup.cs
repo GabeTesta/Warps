@@ -96,6 +96,7 @@ namespace Warps
 			m_node.Tag = this;
 		//	m_node.Text = GetType().Name + ": " + Label;
 			m_node.Text = Label;
+			m_node.ToolTipText = GetType().Name;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
 			if (m_node.Nodes.Count != this.Count || bclear)

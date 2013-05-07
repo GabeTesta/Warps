@@ -1038,7 +1038,7 @@ namespace Warps
 			m_node.Text = Label;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
-
+			m_node.ToolTipText = GetType().Name;
 			if (bclear)
 			{
 				m_node.Nodes.Clear();

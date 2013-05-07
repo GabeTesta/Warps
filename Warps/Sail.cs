@@ -334,6 +334,7 @@ namespace Warps
 			m_node.Tag = this;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = GetType().Name;
 			m_node.Nodes.Clear();
 			m_node.Nodes.Add(Mould.WriteNode());
 			foreach (IGroup g in Layout)

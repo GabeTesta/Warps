@@ -81,6 +81,7 @@ namespace Warps
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Tag = this;
 			//m_node.Text = GetType().Name + ": " + Label;
+			m_node.ToolTipText = GetType().Name;
 			m_node.Text = Label;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
