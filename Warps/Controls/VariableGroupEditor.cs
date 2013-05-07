@@ -16,13 +16,19 @@ namespace Warps.Controls
 		{
 			InitializeComponent();
 			this.DoubleBuffered = true;
-			m_group = varGroup;
+			VarGroup = varGroup;
 			Count = 0;
 			Equations = varGroup.ToArray();
 			Label = varGroup.Label;
 		}
 
 		VariableGroup m_group;
+
+		public VariableGroup VarGroup
+		{
+			get { return m_group; }
+			set { m_group = value; }
+		}
 
 		public string Label
 		{
@@ -47,7 +53,7 @@ namespace Warps.Controls
 				foreach (KeyValuePair<string,Equation> eq in value)
 					Add(eq.Key, eq.Value);
 
-				Count = m_group.Count;
+				Count = VarGroup.Count;
 				m_flow.ResumeLayout();
 			}
 		}
@@ -60,7 +66,8 @@ namespace Warps.Controls
 		void Add(string label, Equation eq)
 		{
 			VariableEditor ve = eq.WriteEditor(null);
-			//ve.Size = new System.Drawing.Size(159, 50);
+			ve.sail = VarGroup.Sail;
+			ve.AutoFillData = VarGroup.Sail.GetAutoFillData(eq).ToArray();
 			m_flow.Controls.Add(ve);
 			ve.ReturnPress += ve_ReturnPress;
 		}
@@ -100,7 +107,7 @@ namespace Warps.Controls
 		private void button1_Click(object sender, EventArgs e)
 		{
 			Add("new var", new Equation());
-			Count = m_group.Count;
+			Count = VarGroup.Count;
 		}
 
 		private void button2_Click(object sender, EventArgs e)

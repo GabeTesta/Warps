@@ -144,11 +144,13 @@ namespace Warps
 		public bool Affected(List<IRebuild> connected)
 		{
 			bool bupdate = false;
+
 			//if (connected == null)
 			//{
 			//	Evaluate();
 			//	return bupdate;
 			//}
+
 			if (connected == null)
 				return false;
 
