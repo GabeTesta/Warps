@@ -15,7 +15,7 @@ namespace Warps
 		public CurvePointEditor()
 		{
 			InitializeComponent();
-			m_cs.ReturnPress += m_cs_ReturnPress;
+			//m_cs.ReturnPress += ReturnPress;
 		}
 
 		public Equation CS
@@ -74,7 +74,7 @@ namespace Warps
 
 		public IFitPoint CreatePoint()
 		{
-			object fit = Utilities.CreateInstance(FitType.Name);
+			object fit = Utilities.CreateInstance(FitType);
 			if (fit != null && fit is CurvePoint)
 			{
 				(fit as CurvePoint).S_Equ = CS;
@@ -83,13 +83,13 @@ namespace Warps
 			}
 			return null;
 		}
-
-		public event EventHandler<KeyEventArgs> ReturnPress;
-		void m_cs_ReturnPress(object sender, KeyEventArgs e)
-		{
-			if (ReturnPress != null)
-				ReturnPress(sender, e);
-		}
+		
+		//public event KeyEventHandler ReturnPress;
+		//void m_cs_ReturnPress(object sender, KeyEventArgs e)
+		//{
+		//	if (ReturnPress != null)
+		//		ReturnPress(sender, e);
+		//}
 
 		public Type FitType
 		{
@@ -99,18 +99,14 @@ namespace Warps
 			}
 		}
 
-		object[] m_auto = null;
-
-		public object[] AutoFillData
+		public List<object> AutoFillData
 		{
-			get { return m_auto; }
 			set
 			{
 				if (value == null)
 					return;
 
-				m_auto = value;
-				m_cs.AutoFillVariables = value.ToList();
+				m_cs.AutoFillVariables = value;
 				MouldCurve c = Curve;//backup current curve
 				m_curves.Items.Clear();
 				foreach (object o in value)
@@ -123,16 +119,6 @@ namespace Warps
 				}
 				Curve = c;//select currecnt curve
 			} 
-		}
-		Sail m_sail = null;
-		public Sail sail
-		{
-			get { return m_sail; }
-			set
-			{
-				m_sail = value;
-				m_cs.sail = value;
-			}
 		}
 
 		#endregion

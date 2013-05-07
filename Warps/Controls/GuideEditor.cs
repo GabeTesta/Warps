@@ -186,9 +186,16 @@ namespace Warps.Controls
 
 		#endregion 
 
+		public List<object> AutoFill
+		{
+			get { return m_curveEditor != null ? m_curveEditor.AutoFill : null; }
+			set { if (m_curveEditor != null) m_curveEditor.AutoFill = value; }
+		}
+
 		internal void WriteComb(GuideComb comb)
 		{
 			m_curveEditor.WriteCurve(comb);
+			comb.Label = m_curveEditor.Label;
 			comb.FitComb(CombPnts);
 			UpdatePlot();
 		}

@@ -34,7 +34,6 @@ namespace Warps
 			//ButtonUnSelected = m_modCurve.BackColor;
 
 			SetStyle(ControlStyles.OptimizedDoubleBuffer |
-				    ControlStyles.UserPaint |
 				    ControlStyles.AllPaintingInWmPaint, true);
 
 			EditorPanel = null;//collapse edit panel
@@ -52,6 +51,9 @@ namespace Warps
 			cancelButton.Click += cancelButton_Click;
 
 			m_horizsplit.SplitterDistance = m_horizsplit.ClientRectangle.Width - 250;
+
+			
+
 		}
 
 		public string Status

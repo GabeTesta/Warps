@@ -15,8 +15,8 @@ namespace Warps
 		public FixedPointEditor()
 		{
 			InitializeComponent();
-			m_uEq.ReturnPress += OnReturnPress;
-			m_vEq.ReturnPress += OnReturnPress;
+			//m_uEq.ReturnPress += ReturnPress;
+			//m_vEq.ReturnPress += ReturnPress;
 		}
 
 
@@ -80,40 +80,25 @@ namespace Warps
 			return null;
 		}
 
-		public event EventHandler<KeyEventArgs> ReturnPress;
-		void OnReturnPress(object sender, KeyEventArgs e)
-		{
-			if (ReturnPress != null)
-				ReturnPress(sender, e);
-		}
+		//public event KeyEventHandler ReturnPress;
+		//void OnReturnPress(object sender, KeyEventArgs e)
+		//{
+		//	if (ReturnPress != null)
+		//		ReturnPress(sender, e);
+		//}
 
 		public Type FitType
 		{
 			get { return typeof(FixedPoint); }
 		}
 
-		object[] m_auto = null;
-
-		public object[] AutoFillData 
+		public List<object> AutoFillData 
 		{ 
-			get { return m_auto; } 
 			set 
 			{ 
-				m_auto = value;
-				m_uEq.AutoFillVariables = value.ToList();
-				m_vEq.AutoFillVariables = value.ToList();
+				m_uEq.AutoFillVariables = value;
+				m_vEq.AutoFillVariables = value;
 			} 
-		}
-		Sail m_sail = null;
-		public Sail sail
-		{
-			get { return m_sail; }
-			set 
-			{ 
-				m_sail = value;
-				m_uEq.sail = value;
-				m_vEq.sail = value;
-			}
 		}
 
 		#endregion
