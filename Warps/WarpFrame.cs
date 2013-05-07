@@ -15,6 +15,7 @@ using Warps.Controls;
 using Warps.Logger;
 using Warps.Yarns;
 using Warps.Trackers;
+using System.Threading;
 
 namespace Warps
 {
@@ -681,6 +682,66 @@ namespace Warps
 				m_sail = null;
 				EditorPanel = null;
 			}
+		}
+
+		private void printToolStripButton_Click(object sender, EventArgs e)
+		{
+			//Write 3dl file
+			logger.Instance.Log("Saving project to 3dl file");
+			SaveFileDialog dlg = new SaveFileDialog();
+			dlg.DefaultExt = ".3dl";
+			dlg.AddExtension = true;
+			dlg.Filter = "3dl files (*.3dl)|*.txt|All files (*.*)|*.*";
+			dlg.InitialDirectory = Utilities.ExeDir;
+			if (dlg.ShowDialog() == DialogResult.OK)
+			{
+				//Save3dlFile(dlg.FileName);
+			}
+			
+		}
+
+		void Save3dlFile(string fullfilename)
+		{
+			Thread tw = new Thread(() =>
+			{
+				using (StreamWriter sw = new StreamWriter(fullfilename))
+				{
+					/*
+					-we need the header to tokenize the layout version
+						tokenized with "//"
+	  
+					- we tokenize each yarns header to get the count
+						currently written on index 6 (int count = atoi(tmp[6].c_str()))
+	   
+					///function that parses each line of the yarn.3dl file
+					void	YarnGantPass::SplitLine(std::string line)
+					{
+						std::vector<std::string> shifter;
+						std::vector<int> widths;
+						widths.push_back(8);
+						widths.push_back(8);
+						widths.push_back(5);
+						widths.push_back(10);
+						widths.push_back(10);
+						widths.push_back(10);
+						widths.push_back(10);
+						widths.push_back(10);
+						widths.push_back(10);
+						widths.push_back(10);
+
+						shifter = Tokenize(line, widths);
+
+						AddUV(atof(shifter[0].c_str()),atof(shifter[1].c_str()));
+						AddXYZ(atof(shifter[3].c_str()),atof(shifter[4].c_str()),atof(shifter[5].c_str()));
+					}
+					 
+					  OUS102439-001, Fat26, EnergySolution ITA14313, Main ORCi, 10850 dpi, 3Dl 680, Capitani/NSI,//3DLayOut_Release 1.1.0.171
+					  FOOT   1.0000   FT_IN  0.0000  spacing  0.0853    48 offsets on yarn #1
+					  0.98647-0.00093    0  3.726569 -0.020588  0.007790  0.155863  0.003351  0.987773  0.000000
+					 */
+				}
+			});
+			tw.Start();
 		}
 	}
 }
