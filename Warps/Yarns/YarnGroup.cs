@@ -1032,10 +1032,10 @@ namespace Warps
 
 		private string GetToolTipData()
 		{
-			string ret = String.Format(
+			return String.Format(
 				"{0}\nTargetDPI:{1}\nAchievedDPI:{2}\n#:{3}",
-				GetType().Name, TargetDpi, AchievedDpi.ToString("#0.00"), Count);
-			return ret;
+				GetType().Name, TargetDpi, AchievedDpi.ToString("#0.00"), Count
+			);
 		}
 
 		private TreeNode WriteNode(bool bclear)
