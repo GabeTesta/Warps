@@ -694,19 +694,16 @@ namespace Warps
 			dlg.Filter = "3dl files (*.3dl)|*.3dl|All files (*.*)|*.*";
 			dlg.InitialDirectory = Utilities.ExeDir;
 			if (dlg.ShowDialog() == DialogResult.OK)
-			{
 				Save3dlFile(dlg.FileName);
-			}
+			
 		}
 
 		void Save3dlFile(string fullfilename)
 		{
-			//Status = "Saving 3dl file...";
 			logger.Instance.Log("saving 3dl file...");
 			Thread tw = new Thread(() =>
 			{
 				logger.Instance.Log("saving {0} to {1}...", Path.GetFileName(fullfilename), Path.GetDirectoryName(fullfilename));
-				//logger.Instance.Log(string.Format("saving {0} to {1}...", Path.GetFileName(fullfilename), Path.GetDirectoryName(fullfilename)));
 				using (StreamWriter sw = new StreamWriter(fullfilename))
 				{
 					//write header
