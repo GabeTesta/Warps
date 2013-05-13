@@ -53,14 +53,12 @@ namespace Warps
 
 			m_horizsplit.SplitterDistance = m_horizsplit.ClientRectangle.Width - 250;
 
-			
-
 		}
 
 		public string Status
 		{
 			get { return m_statusText.Text; }
-			set { m_statusText.Text = value;}
+			set { m_statusText.Text = value; }
 		}
 
 		public DualView View
@@ -155,7 +153,8 @@ namespace Warps
 				List<IRebuild> succeeded = new List<IRebuild>();
 				List<IRebuild> failed = new List<IRebuild>();
 				DateTime before = DateTime.Now;
-				if(connected!=null){
+				if (connected != null)
+				{
 					foreach (IRebuild item in connected)
 					{
 						if (item.Update(ActiveSail))
@@ -178,8 +177,8 @@ namespace Warps
 						UpdateViews(item);
 						b.AppendLine(item.ToString());
 					}
-					if(failed.Count > 0)
-						 b.AppendLine("\nRebuilt Failed:\n");
+					if (failed.Count > 0)
+						b.AppendLine("\nRebuilt Failed:\n");
 					foreach (IRebuild item in failed)//failed
 					{
 						View.Invalidate(item);
@@ -248,7 +247,7 @@ namespace Warps
 				EditMode = false;
 				return connected.Count;
 			}
-						
+
 			return -1;
 		}
 
@@ -341,7 +340,7 @@ namespace Warps
 
 		//	m_editButton.BackColor = AutoBuild ? Color.SeaGreen : Color.IndianRed;
 		//	m_editButton.ForeColor = AutoBuild ? Color.White : Color.DarkRed;
-	
+
 
 		//	okButton.Enabled = m_editButton.Checked;
 		//	cancelButton.Enabled = m_editButton.Checked;
@@ -398,11 +397,11 @@ namespace Warps
 				IGroup parent = ActiveSail.GetParentGroup(e.Value);
 				if (parent != null)
 					track = new VariableGroupTracker(parent as VariableGroup);
-				
+
 			}
 			else// if (e.Value is Sail)
 				track = new SailTracker(EditMode);
-			
+
 
 			if (track != null)
 			{
@@ -414,13 +413,14 @@ namespace Warps
 
 		}
 
-		public bool EditMode 
-		{ 
+		public bool EditMode
+		{
 			get { return !m_editButton.Checked; }
-			set { 
-				m_editButton.Checked = !value; 
+			set
+			{
+				m_editButton.Checked = !value;
 				m_editButton_CheckedChanged(this, new EventArgs());
-			} 
+			}
 		}
 		private void m_editButton_CheckedChanged(object sender, EventArgs e)
 		{
@@ -578,9 +578,9 @@ namespace Warps
 
 			//Geodesic geo = new Geodesic("Geo", ActiveSail, new IFitPoint[] { new FixedPoint(.1, .1), new FixedPoint(.1, .9) });
 			MouldCurve v1 = new MouldCurve("v1", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(.3, .4), new FixedPoint(.1, .8), new FixedPoint(0, 1) });
-			
+
 			MouldCurve v2 = new MouldCurve("v2", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(0, 1) });
-			
+
 			MouldCurve v3 = new MouldCurve("v3", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(.95, .25), new FixedPoint(.9, .55), new FixedPoint(.65, .85), new FixedPoint(0, 1) });
 			//MouldCurve v4 = new MouldCurve("v4", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(.8, .5), new FixedPoint(1, 1) });
 			//MouldCurve v5 = new MouldCurve("v5", ActiveSail, new IFitPoint[] { new FixedPoint(1, 0), new FixedPoint(1, 1) });
@@ -656,7 +656,7 @@ namespace Warps
 			////	ActiveSail.Add(LeYar);
 
 			////Rebuild(null);
-		
+
 			//UpdateViews(LuYar);
 			//Rebuild(grp);
 			//Rebuild(grp);
@@ -691,21 +691,62 @@ namespace Warps
 			SaveFileDialog dlg = new SaveFileDialog();
 			dlg.DefaultExt = ".3dl";
 			dlg.AddExtension = true;
-			dlg.Filter = "3dl files (*.3dl)|*.txt|All files (*.*)|*.*";
+			dlg.Filter = "3dl files (*.3dl)|*.3dl|All files (*.*)|*.*";
 			dlg.InitialDirectory = Utilities.ExeDir;
 			if (dlg.ShowDialog() == DialogResult.OK)
 			{
-				//Save3dlFile(dlg.FileName);
+				Save3dlFile(dlg.FileName);
 			}
-			
 		}
 
 		void Save3dlFile(string fullfilename)
 		{
+			//Status = "Saving 3dl file...";
+			logger.Instance.Log("saving 3dl file...");
 			Thread tw = new Thread(() =>
 			{
+				logger.Instance.Log("saving {0} to {1}...", Path.GetFileName(fullfilename), Path.GetDirectoryName(fullfilename));
+				//logger.Instance.Log(string.Format("saving {0} to {1}...", Path.GetFileName(fullfilename), Path.GetDirectoryName(fullfilename)));
 				using (StreamWriter sw = new StreamWriter(fullfilename))
 				{
+					//write header
+					//OUS102439-001, Fat26, EnergySolution ITA14313, Main ORCi, 10850 dpi, 3Dl 680, Capitani/NSI,//3DLayOut_Release 1.1.0.171
+					sw.WriteLine("{0} //Warps v{1}", ActiveSail.ToString(), Utilities.CurVersion);
+					foreach (YarnGroup yar in ActiveSail.Layout.FindAll(grp => grp is YarnGroup))
+					{
+						Entity[] ents = yar.CreateOnlyYarnEntities();
+
+						double sPos = 0;
+						Vect2 uv = new Vect2(); Vect3 xyz = new Vect3();
+						for (int i = 0; i < yar.Count; i++)
+						{
+							//FOOT   1.0000   FT_IN  0.0000  spacing  0.0853    48 offsets on yarn #1
+							sw.WriteLine("{0}   {1}   {2}  {3}  {4}  {5}    {6} offsets on yarn #{7}"
+									, yar.Label, 1.0, "name", 0, "spacing", 0, ents[i].Vertices.Length, i);
+
+							for (int j = 0; j < ents[i].Vertices.Length; j++)
+							{
+								sPos = (double)j / (double)(ents[i].Vertices.Length - 1);
+								yar[i].uVal(sPos, ref uv);
+
+								sw.WriteLine("{0:#0.00000} {1:#0.00000}    {2}  {3:#0.00000} {4:#0.00000}  {5:#0.00000}  {6:#0.00000}  {7:#0.00000}  {8:#0.00000}  {9:#0.00000}",
+									uv[0], uv[1], j
+									, ents[i].Vertices[j].X, ents[i].Vertices[j].Y, ents[i].Vertices[j].Z
+									, 0, 0, 0
+									, 0);
+								//0.98647-0.00093    0  3.726569 -0.020588  0.007790  0.155863  0.003351  0.987773  0.000000
+							}
+						}
+
+					}
+					//read the yarn points from the entities
+					//out s, uv, xyz
+					//just use 100 points for now
+					//createlinearpath
+					//this will be what we used eventually
+					//List<Entity> CreateEntities(bool bFitPoints, double TolAngle, out double[] sPos)
+					//for now use 1/100 evenly spaced sPos
+
 					/*
 					-we need the header to tokenize the layout version
 						tokenized with "//"
@@ -740,8 +781,10 @@ namespace Warps
 					  0.98647-0.00093    0  3.726569 -0.020588  0.007790  0.155863  0.003351  0.987773  0.000000
 					 */
 				}
+				logger.Instance.Log("saving done");
 			});
 			tw.Start();
+			
 		}
 	}
 }

@@ -164,6 +164,12 @@ namespace Warps.Logger
 			Log(message, LogPriority.Debug);
 		}
 
+		public void Log(string text, params object[] args)
+		{
+			var message = args.Length == 0 ? text : string.Format(text, args);
+			Log(message);
+		}
+
 		#region ILogger Members
 
 		public void OnLog(object sender, EventArgs<string, LogPriority> e)

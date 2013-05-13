@@ -1126,6 +1126,21 @@ namespace Warps
 			return yarns.ToArray();
 		}
 
+		public Entity[] CreateOnlyYarnEntities()
+		{
+			List<Entity> yarns = new List<Entity>(Count);
+			Vect3[] pnts;
+
+			foreach (YarnCurve yarn in this)
+			{
+				pnts = yarn.GetPathPoints(100);
+				yarns.Add(new LinearPath(ConvertPoints(pnts)));
+				yarns.Last().EntityData = this;
+			}
+
+			return yarns.ToArray();
+		}
+
 		/// <summary>
 		/// converts all Vect3 to Point3D
 		/// </summary>
