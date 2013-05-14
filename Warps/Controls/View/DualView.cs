@@ -1155,8 +1155,8 @@ namespace Warps
 			{
 				this[i].Entities.Clear();
 				this[i].Layers.Clear();
-				
 			}
+
 			Refresh();
 		}
 
