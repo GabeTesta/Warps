@@ -522,5 +522,27 @@ namespace Warps
 			ex.Evaluate();
 			return param;
 		}
+
+		public static List<MouldCurve> ExtractCurves(string eq, Sail sail)
+		{
+			List<MouldCurve> param = new List<MouldCurve>();
+			Expression ex = new Expression(eq);
+
+			ex.EvaluateFunction += delegate(string name, FunctionArgs args)
+			{
+				if (name == "Length")
+					param.Add(sail.FindCurve(args.Parameters[0].ToString()));
+				args.Result = 1;
+			};
+
+			ex.EvaluateParameter += delegate(string name, ParameterArgs args)
+			{
+				param.AddRange(ExtractCurves(name, sail));
+				args.Result = 1;
+			};
+
+			ex.Evaluate();
+			return param;
+		}
 	}
 }
