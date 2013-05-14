@@ -32,7 +32,25 @@ namespace Warps
 
 		string m_cofPath;
 
-		public void ReadMFCCofFile(string cofPath)
+		public void ReadCofFile(Sail sail, string cofPath)
+		{
+			if( cofPath != null )
+				m_cofPath = cofPath;
+
+			if (Path.GetExtension(m_cofPath).ToLower() == ".cof")
+				ReadMFCCofFile(cofPath);
+			else
+				using (BinaryReader bin = new BinaryReader(File.Open(cofPath, FileMode.Open, FileAccess.Read), Encoding.ASCII))
+				{
+					m_text = Utilities.ReadCString(bin);
+
+					ReadBinShape(bin);
+
+					ReadBinCurves(bin, sail);
+				}
+		}
+
+		void ReadMFCCofFile(string cofPath)
 		{
 			m_cofPath = cofPath;
 			using (BinaryReader bin = new BinaryReader(File.Open(cofPath, FileMode.Open, FileAccess.Read), Encoding.ASCII))
@@ -59,24 +77,9 @@ namespace Warps
 			}
 		}
 
-		public void ReadCofFile(Sail sail, string cofPath)
-		{
-			if( cofPath != null )
-				m_cofPath = cofPath;
-			
-			ReadMFCCofFile(cofPath);
-			return;
+		#region .Sail Bin file
 
-			using (BinaryReader bin = new BinaryReader(File.Open(cofPath, FileMode.Open, FileAccess.Read), Encoding.ASCII))
-			{
-				m_text = Utilities.ReadCString(bin);
-
-				ReadBinShape(bin);
-
-				ReadBinCurves(bin, sail);
-			}
-		}
-		public void ReadBinShape(BinaryReader bin)
+		void ReadBinShape(BinaryReader bin)
 		{
 			m_Kn0t[0] = bin.ReadInt32();
 			m_Kn0t[1] = bin.ReadInt32();
@@ -132,6 +135,8 @@ namespace Warps
 				m_moucurves.Add(new CurveGroup(bin, sail));
 		}
 
+		#endregion
+		
 		#endregion
 
 		#region Coefficients

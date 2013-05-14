@@ -107,15 +107,15 @@ namespace Warps
 				//}
 			}
 		}
-		string ListString
-		{
-			get
-			{
-				if (SelectedItem != null)
-					return SelectedItem.Text;
-				return null;
-			}
-		}
+		//string ListString
+		//{
+		//	get
+		//	{
+		//		if (SelectedItem != null)
+		//			return SelectedItem.Text;
+		//		return null;
+		//	}
+		//}
 		List<string> ListStrings
 		{
 			get
@@ -173,7 +173,10 @@ namespace Warps
 
 		void RaiseColorChanged()
 		{
-			Colors[ListString] = WheelColor;
+			if (ListStrings == null)//nothing selected
+				return;
+			foreach(String s in ListStrings)
+				Colors[s] = WheelColor;
 			if (ColorChanged != null)
 				ColorChanged(this, new EventArgs<string[], Color>(ListStrings.ToArray(), WheelColor));
 		}

@@ -11,7 +11,7 @@ namespace Warps
 {
 	public class Sail
 	{
-		SurfaceType m_type = SurfaceType.COMBO;
+		SurfaceType m_type = SurfaceType.COF;
 
 		string m_path;
 		ISurface m_mould;
@@ -40,18 +40,17 @@ namespace Warps
 		{
 			switch (Path.GetExtension(path).ToLower())
 			{
-				case ".cof":
+				case ".wrp":
+					ReadScriptFile(path);
+					m_path = path;
+					break;
+				default:
 					CreateMould(path);
 					m_layout = new List<IGroup>();//create default layout for cof file
-
 //#if DEBUG
 //					CreateOuterCurves();
 //					CreateInnerCurves();
 //#endif
-					m_path = path;
-					break;
-				case ".wrp":
-					ReadScriptFile(path);
 					m_path = path;
 					break;
 			}
@@ -77,16 +76,16 @@ namespace Warps
 				switch (m_type)
 				{
 					case SurfaceType.COMBO:
-						m_mould = new ComboMould();
-						(m_mould as ComboMould).ReadCofFile(this, path);
+						m_mould = new ComboMould(this, path);
+						//(m_mould as ComboMould).ReadCofFile(this, path);
 						return;
 					case SurfaceType.COF:
-						m_mould = new CofMould();
-						(m_mould as CofMould).ReadCofFile(this, path);
+						m_mould = new CofMould(this, path);
+						//(m_mould as CofMould).ReadCofFile(this, path);
 						return;
 					case SurfaceType.RBF:
-						m_mould = new RBFMould();
-						(m_mould as RBFMould).ReadCofFile(this, path);
+						m_mould = new RBFMould(this, path);
+						//(m_mould as RBFMould).ReadCofFile(this, path);
 						return;
 				}
 			}

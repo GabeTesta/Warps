@@ -44,7 +44,7 @@
 			this.colorWheel1.TabIndex = 0;
 			this.colorWheel1.Text = "colorWheel1";
 			this.colorWheel1.HueChanged += new System.EventHandler(this.colorWheel1_HueChanged);
-			this.colorWheel1.SLChanged += new System.EventHandler(this.colorWheel1_SLChanged);
+			this.colorWheel1.SLChanged += new System.EventHandler(this.colorWheel1_HueChanged);
 			// 
 			// ColorWheelForm
 			// 

@@ -13,7 +13,7 @@ namespace Warps
 		//string Label { get; set; }
 		Sail Sail { get; set; }
 		//TreeNode WriteNode();
-		Control Editor { get; set; }
+		//Control Editor { get; set; }
 		//Entity[] CreateEntities();
 		//devDept.Eyeshot.Labels.Label[] EntityLabel { get; }
 	}

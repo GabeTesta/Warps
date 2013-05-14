@@ -535,10 +535,7 @@ namespace Warps
 
 		public bool Delete() { return false; }
 
-		public bool Update()
-		{
-			return true;
-		}
+
 		public bool Update(Sail s)
 		{
 			foreach (IFitPoint fp in FitPoints)
@@ -939,16 +936,22 @@ namespace Warps
 
 			//			}
 			//convert to mouse coords
-			Point3D pnt = WorldToScreen(new Point3D(xyz.ToArray()));
-			Vect2 dmds = new Vect2(pnt.X - x0.X, pnt.Y - x0.Y);
+			Point3D del = WorldToScreen(new Point3D(xyz.ToArray()));
+			Vect2 dmds = new Vect2(del.X - x0.X, del.Y - x0.Y);
 			//dmds -= new Vect2(x0.X, x0.Y);//get deltaxy/deltas
 
 			Vect2 dm = new Vect2(mouse);
 			dm -= new Vect2(x0.X, x0.Y);//get delta mouse
 
-			double reduce = Math.Max(dm.Magnitude, dmds.Magnitude);
+			//double reduce = Math.Max(dm.Magnitude, dmds.Magnitude);
 			double dot = dmds.Dot(dm);//mouse.X * dmds.X + mouse.Y * dmds.Y;
-			dot *= delta_s / reduce;// / dmds.Magnitude;
+			dot = dot / (dm.Magnitude * dmds.Magnitude);
+			if (BLAS.is_equal(dot, 0, 1e-5))//dont move when perpendicular to the mouse
+				return true;
+
+			dot *= delta_s;// / dmds.Magnitude;
+			//dot *= delta_s / reduce;// / dmds.Magnitude;
+			
 			//	Utilities.LimitRange(-.005, ref dot, .005);
 			warp.SCurve += dot;
 

@@ -92,7 +92,7 @@ namespace Warps
 		public static string[] OpenFileDlg(int extension)
 		{
 			OpenFileDialog ofd = new OpenFileDialog();
-			ofd.Filter = "cof files (*.cof)|*.cof|warp files (*.wrp)|*.wrp|All files (*.*)|*.*";
+			ofd.Filter = "sail files (*.sail)|*.sail|cof files (*.cof)|*.cof|warp files (*.wrp)|*.wrp|All files (*.*)|*.*";
 			ofd.Multiselect = true;
 			ofd.FilterIndex = Math.Min(extension, 2);
 			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -102,7 +102,6 @@ namespace Warps
 
 		void LoadSail(string path)
 		{
-
 			Status = String.Format("Loading {0}", path);
 
 			Sail s = new Sail();
@@ -113,7 +112,6 @@ namespace Warps
 			//if (s.Layout == null || s.Layout.Count == 0)
 			//	CreateOuterCurves(s);
 			//else
-
 
 			m_tree.Add(s.WriteNode());
 
@@ -293,7 +291,7 @@ namespace Warps
 		}
 		private void openToolStripButton_Click(object sender, EventArgs e)
 		{
-			OpenFile(2);
+			OpenFile(3);
 		}
 		private void saveToolStripButton_Click(object sender, EventArgs e)
 		{

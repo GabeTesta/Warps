@@ -57,7 +57,7 @@ namespace Warps
 				cg.Add(Curve);
 				cg.Update();//rebuild
 			}
-			Curve.Update();//rebuild
+			Curve.Update(m_sail);//rebuild
 			if (m_frame.AutoBuild)
 				m_sail.Rebuild(m_curve);
 
