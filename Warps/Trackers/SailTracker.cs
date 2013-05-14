@@ -221,8 +221,6 @@ namespace Warps
 			if(Sail.FindGroup(groupname) != null) // doesn't have this group
 				ScriptTools.ModifyScriptToShowCopied(ref result);
 
-
-
 			IGroup g = Utilities.CreateInstance(type) as IGroup;
 
 			if (g != null)
