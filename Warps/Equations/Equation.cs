@@ -307,10 +307,10 @@ namespace Warps
 			//Set up a custom delegate so NCalc will ask you for a parameter's value
 			//   when it first comes across a variable
 
-			ex.EvaluateParameter += delegate(string name, ParameterArgs args)
+			ex.EvaluateFunction += delegate(string name, FunctionArgs args)
 			{
-				if (name.ToLower().Contains("length"))
-					args.Result = EvaluateToDouble(name, sail);
+				if (name.ToLower() == "length")
+					args.Result = EvaluateToDouble(args.Parameters[0].ParsedExpression.ToString(), "length", sail);
 			};
 
 			try
@@ -338,64 +338,7 @@ namespace Warps
 			return worked;
 		}
 
-		public static List<MouldCurve> ExtractCurves(Equation Equ, Sail sail)
-		{
-			List<MouldCurve> ret = new List<MouldCurve>();
-
-			double result = 0;
-
-			Expression ex = null;
-
-			List<KeyValuePair<string, Equation>> availableEqs = sail.GetEquations(Equ);
-
-			availableEqs.ForEach(eq => {
-				if (Equ.EquationText.Contains(eq.Key))
-				{
-					ex = new Expression(eq.Value.EquationText, EvaluateOptions.IgnoreCase);
-					ex.EvaluateParameter += delegate(string name, ParameterArgs args)
-					{
-						if (name.ToLower().Contains("length"))
-						{
-							args.Result = EvaluateToDouble(name, sail, ref ret);
-						}
-					};
-					try
-					{
-						result = (double)ex.Evaluate();
-					}
-					catch
-					{
-						System.Windows.Forms.MessageBox.Show("Error parsing equation");
-						result = double.NaN;
-					}
-
-					ex.Parameters[eq.Key] = eq.Value.Result;
-				}
-			});
-
-			ex = new Expression(Equ.EquationText, EvaluateOptions.IgnoreCase);
-			ex.EvaluateParameter += delegate(string name, ParameterArgs args)
-			{
-				if (name.ToLower().Contains("length"))
-				{
-					args.Result = EvaluateToDouble(name, sail, ref ret);
-				}
-			};
-
-			try
-			{
-				result = (double)ex.Evaluate();
-			}
-			catch
-			{
-				//System.Windows.Forms.MessageBox.Show("Error parsing equation");
-				result = double.NaN;
-			}
-
-			return ret;
-		}
-
-		private static double EvaluateToDouble(string entry, Sail sail)
+		private static double EvaluateToDouble(string entry, string function, Sail sail)
 		{
 			if (sail == null)
 				return Double.NaN;
@@ -408,13 +351,10 @@ namespace Warps
 
 			for (int i = 0; i < KeyWords.Count; i++)
 			{
-				if (entry.Contains(KeyWords[i]))
+				if (function.Contains(KeyWords[i]))
 				{
-					string curveName = entry.Replace(KeyWords[i], "");
-					curveName = curveName.Replace("(", "");
-					curveName = curveName.Replace(")", "");
-					curveName = curveName.Replace("\"", "");
-					curveName = curveName.Trim();
+					entry = entry.Replace("[", "");
+					string curveName = entry.Replace("]", "");
 					ret = EvaluteKeyWordOnCurve(KeyWords[i], curveName, sail);
 				}
 			}
@@ -422,32 +362,32 @@ namespace Warps
 			return ret;
 		}
 
-		private static double EvaluateToDouble(string entry, Sail sail, ref List<MouldCurve> curves)
-		{
-			if (sail == null)
-				return Double.NaN;
+		//private static double EvaluateToDouble(string entry, Sail sail, ref List<MouldCurve> curves)
+		//{
+		//	if (sail == null)
+		//		return Double.NaN;
 
-			string oldEntry = entry;
+		//	string oldEntry = entry;
 
-			entry = entry.ToLower();
+		//	entry = entry.ToLower();
 
-			double ret = 0;
+		//	double ret = 0;
 
-			for (int i = 0; i < KeyWords.Count; i++)
-			{
-				if (entry.Contains(KeyWords[i]))
-				{
-					string curveName = entry.Replace(KeyWords[i], "");
-					curveName = curveName.Replace("(", "");
-					curveName = curveName.Replace(")", "");
-					curveName = curveName.Replace("\"", "");
-					curveName = curveName.Trim();
-					ret = EvaluteKeyWordOnCurve(KeyWords[i], curveName, sail, ref curves);
-				}
-			}
+		//	for (int i = 0; i < KeyWords.Count; i++)
+		//	{
+		//		if (entry.Contains(KeyWords[i]))
+		//		{
+		//			string curveName = entry.Replace(KeyWords[i], "");
+		//			curveName = curveName.Replace("(", "");
+		//			curveName = curveName.Replace(")", "");
+		//			curveName = curveName.Replace("\"", "");
+		//			curveName = curveName.Trim();
+		//			ret = EvaluteKeyWordOnCurve(KeyWords[i], curveName, sail, ref curves);
+		//		}
+		//	}
 
-			return ret;
-		}
+		//	return ret;
+		//}
 
 		private static double EvaluteKeyWordOnCurve(string KeyWord, string curveName, Sail sail)
 		{
