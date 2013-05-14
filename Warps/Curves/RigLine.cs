@@ -34,7 +34,7 @@ namespace Warps
 			{
 				v = new Vect3();
 				for (int ix = 0; ix < 3; ix++)
-					v[ix] = bin.ReadDouble();
+					v[ix] = bin.ReadSingle();
 				Add(v);
 			}
 		}

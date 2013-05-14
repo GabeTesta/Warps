@@ -113,19 +113,6 @@ namespace Warps
 			return m_node;
 		}
 
-		public System.Windows.Forms.Control Editor
-		{
-			get
-			{
-				//if (m_edit == null)
-				//	m_edit = new EquationEditorbox();
-				return null;
-			}
-			set
-			{
-				
-			}
-		}
 
 		public devDept.Eyeshot.Entities.Entity[] CreateEntities()
 		{

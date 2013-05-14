@@ -1056,12 +1056,12 @@ namespace Warps
 
 		}
 
-		private void toolStripMenuItem1_Click(object sender, EventArgs e)
-		{
-			Warps.Controls.ColorWheelForm cwf = new Controls.ColorWheelForm(ActiveView);
-			cwf.Location = MousePosition;
-			cwf.Show(this);
-		}
+		//private void toolStripMenuItem1_Click(object sender, EventArgs e)
+		//{
+		//	Warps.Controls.ColorWheelForm cwf = new Controls.ColorWheelForm(ActiveView);
+		//	cwf.Location = MousePosition;
+		//	cwf.Show(this);
+		//}
 
 		internal Layer GetLayer(IRebuild group)
 		{
@@ -1094,6 +1094,9 @@ namespace Warps
 		{
 			KeyValuePair<Form, ColorEditor> p = ColorEditor.Show(Colors);
 			p.Key.Owner = this.ParentForm;
+			System.Drawing.Point loc = this.PointToScreen(ActiveView.Location);
+			loc.X -= p.Key.Width;
+			p.Key.Location = loc;
 			p.Value.ColorChanged += Value_ColorChanged;
 			//Warps.Controls.ColorWheelForm cwf = new Controls.ColorWheelForm(ActiveView);
 			//cwf.Location = MousePosition;
@@ -1128,6 +1131,16 @@ namespace Warps
 		private void loadColorsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Colors.ReadIniFile(null);
+
+			for (int i = 0; i < 2; i++)
+			{
+				this[i].Background.TopColor = Colors["Background", this[i].Background.TopColor];
+				this[i].Grid.MajorLineColor = Colors["GridLines"];
+				this[i].SelectionColor = Colors["Selection", this[i].SelectionColor];
+				foreach (Layer L in this[i].Layers)
+					L.Color = Colors[L.Name, L.Color];
+				this[i].Refresh();
+			}
 		}
 
 		bool m_editMode = false;
@@ -1137,7 +1150,6 @@ namespace Warps
 			get { return m_editMode; }
 			set { m_editMode = value; }
 		}
-
 
 		internal void ToggleGroup(int p)
 		{

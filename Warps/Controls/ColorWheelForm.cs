@@ -51,23 +51,9 @@ namespace Warps.Controls
 			{
 				m_layer.Color = colorWheel1.RGBColor;
 				
+				
 			}
 			this.Invalidate();
-		}
-
-		private void colorWheel1_SLChanged(object sender, EventArgs e)
-		{
-			if (m_view != null)
-			{
-				m_view.Background.TopColor = colorWheel1.RGBColor;
-				m_view.Refresh();
-			}
-			else if (m_layer != null)
-			{
-				m_layer.Color = colorWheel1.RGBColor;
-			}
-			this.Invalidate();
-
 		}
 
 		private void ColorWheelForm_Paint(object sender, PaintEventArgs e)

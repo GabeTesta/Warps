@@ -13,6 +13,13 @@ namespace Warps
 	{
 		//static Color DEFAULT = Color.SlateGray;
 		Dictionary<string, Color> m_colors = new Dictionary<string, Color>();
+
+		/// <summary>
+		/// Find the color for the specified label and returns it. Will create a new entry in the color map if the lbl does not already exist.
+		/// </summary>
+		/// <param name="lbl">The color object's label</param>
+		/// <param name="def">The Default color to return if not defined, can be null</param>
+		/// <returns>The Ini/Map color, the default color, or a new Random color</returns>
 		public Color this[string lbl, Color def]
 		{
 			get
@@ -25,7 +32,7 @@ namespace Warps
 						col = IniColor(lbl);
 					//use default color if not supplied by ini
 					if (col.IsEmpty)
-						col = def.IsEmpty ? ColorMath.GetRandomColor() : def;
+						col = def == null || def.IsEmpty ? ColorMath.GetRandomColor() : def;
 
 					m_colors.Add(lbl, col);
 					logger.Instance.Log(string.Format("ColorMap: {0} added for type \"{1}\"", col, lbl));
@@ -49,23 +56,40 @@ namespace Warps
 			}
 		}
 
+		/// <summary>
+		/// Searches the ini lines for the specified color
+		/// </summary>
+		/// <param name="lbl">The color to search for</param>
+		/// <returns>The ini color or Color.Empty if not found</returns>
 		private Color IniColor(string lbl)
 		{
 			if (!HasIniFile)
 				return Color.Empty;
 			foreach (string s in m_lines)
-				if (s.StartsWith(lbl, StringComparison.InvariantCultureIgnoreCase))
-					return ReadLine(s);
+			{
+				if (s.Length == 0)
+					continue;
+				string[] txt = s.Split(':');
+				if (txt != null && txt.Length == 2 && txt[0].Equals(lbl, StringComparison.InvariantCultureIgnoreCase))
+					return ReadLine(txt[1]);
+			}
 			return Color.Empty;
 		}
+
+
+		/// <summary>
+		/// Parses a line of text and returns the color
+		/// </summary>
+		/// <param name="line">The space-seperated RGB color string, e.g., "125 50 255"</param>
+		/// <returns>A new color object from the passed RGB</returns>
 		private Color ReadLine(string line)
 		{
-			string[] splits = line.Split(new char[]{':'}, StringSplitOptions.RemoveEmptyEntries);
-			if (splits.Length < 2)
-				return Color.Empty;
-			else
-			{
-				splits = splits[1].Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
+			//string[] splits = line.Split(new char[]{':'}, StringSplitOptions.RemoveEmptyEntries);
+			//if (splits.Length < 2)
+			//	return Color.Empty;
+			//else
+			//{
+				string[] splits = line.Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
 				if (splits.Length < 3)
 					return Color.Empty;
 
@@ -74,7 +98,7 @@ namespace Warps
 					int.TryParse(splits[i], out rgb[i]);
 
 				return Color.FromArgb(rgb[0], rgb[1], rgb[2]);
-			}
+		//	}
 		}
 
 		string[] m_lines = null;
@@ -97,10 +121,12 @@ namespace Warps
 						List<string> lines = new List<string>();
 						foreach (string s in colortexts)
 						{
-							lines.AddRange(File.ReadAllLines(path));
+							lines.AddRange(File.ReadAllLines(s));
 							path = s;
 						}
 						m_lines = lines.ToArray();
+						foreach (string s in this)
+							this[s] = IniColor(s);//refresh the local color with the ini values
 					}
 				}
 				else
@@ -117,6 +143,12 @@ namespace Warps
 			}
 		}
 
+
+		/// <summary>
+		/// Stores the current color values to the specified file
+		/// </summary>
+		/// <param name="path">The file to write. If null a SaveFileDialog will prompt the user</param>
+		/// <returns>true if successful, false otherwise</returns>
 		public bool WriteIniFile(string path)
 		{
 			if (path != null)
