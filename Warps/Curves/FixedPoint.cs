@@ -270,7 +270,14 @@ namespace Warps
 
 			return false;
 		}
-		public bool Delete() { return false; }
+		public void GetParents(Sail s, List<IRebuild> parents)
+		{
+			//parents.Add(m_uEqu);
+			m_uEqu.GetParents(s, parents);
+
+			//parents.Add(m_vEqu);
+			m_vEqu.GetParents(s, parents);
+		}
 
 		public bool Update(Sail s)
 		{
@@ -320,5 +327,6 @@ namespace Warps
 			}
 			set { }
 		}
+
 	}
 }

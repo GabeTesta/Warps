@@ -665,5 +665,10 @@ namespace Warps
 				Layout.Remove(g);
 			}
 		}
+
+		public IRebuild FindItem(string lbl)
+		{
+			return null;
+		}
 	}
 }

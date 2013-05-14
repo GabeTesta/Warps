@@ -133,6 +133,11 @@ namespace Warps
 					break;
 				}
 		}
+		public void GetParents(Sail s, List<IRebuild> parents)
+		{
+			foreach (KeyValuePair<string, Equation> entry in this)
+				entry.Value.GetParents(s, parents);
+		}
 
 		public bool Affected(List<IRebuild> connected)
 		{

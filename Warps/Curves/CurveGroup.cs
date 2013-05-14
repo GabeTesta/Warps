@@ -234,20 +234,12 @@ namespace Warps
 
 		#region IRebuild Members
 
-		//public bool Rebuild(List<IRebuild> updated)
-		//{
-		//	bool bupdate = updated == null;
-		//	this.ForEach((MouldCurve c) => { bupdate |= c.Rebuild(updated); });
-		//	return bupdate;
-		//}
-
 		public bool Affected(List<IRebuild> connected)
 		{
 			bool bupdate = false;
 			this.ForEach((MouldCurve c) => { bupdate |= c.Affected(connected); });
 			return bupdate; 
 		}
-		public bool Update() { return true; }
 		public bool Update(Sail s) { return true; }
 		public bool Delete() { return false; }
 		public void GetConnected(List<IRebuild> connected)
@@ -257,6 +249,11 @@ namespace Warps
 				if (c.Affected(connected))
 					connected.Add(c); 
 			});
+		}
+		public void GetParents(Sail s, List<IRebuild> parents)
+		{
+			foreach (MouldCurve mc in this)
+				mc.GetParents(s, parents);
 		}
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
@@ -293,7 +290,6 @@ namespace Warps
 
 			return true;
 		}
-
 		public List<string> WriteScript()
 		{
 			List<string> script = new List<string>(Count * 3);

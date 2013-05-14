@@ -10,28 +10,24 @@ namespace Warps
 {
 	public interface IRebuild
 	{
-		//bool Rebuild(List<IRebuild> parents);
+		string Label { get; set; } 
 		
-		bool ReadScript(Sail sail, IList<string> txt);
 		List<string> WriteScript();
+		bool ReadScript(Sail sail, IList<string> txt);
+
+		TreeNode WriteNode();
+		Entity[] CreateEntities();
+		devDept.Eyeshot.Labels.Label[] EntityLabel { get; }
+
 		/// <summary>
 		/// get a list of GetConnect objects
 		/// </summary>
 		/// <param name="updated">object to search from</param>
 		/// <returns>List of connected objects</returns>
 		void GetConnected(List<IRebuild> updated);
-
+		void GetParents(Sail s, List<IRebuild> parents);
 		bool Affected(List<IRebuild> connected);
-
-		bool Delete();
-
 		bool Update(Sail s);
-
-		string Label { get; set; } 
-
-		TreeNode WriteNode();
-
-		Entity[] CreateEntities();
-		devDept.Eyeshot.Labels.Label[] EntityLabel { get; }
+		bool Delete();
 	}
 }

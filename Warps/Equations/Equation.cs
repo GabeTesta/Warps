@@ -140,7 +140,20 @@ namespace Warps
 				connected.Add(this);
 			}
 		}
-
+		public void GetParents(Sail s, List<IRebuild> parents)
+		{
+			List<string> labels = EquationEvaluator.ListParameters(this);
+			if (labels.Count > 0)
+			{
+				IRebuild rbld;
+				foreach (string lbl in labels)
+				{
+					rbld = s.FindItem(lbl);
+					if (rbld != null)
+						parents.Add(rbld);
+				}
+			}
+		}
 		public bool Affected(List<IRebuild> connected)
 		{
 			bool bupdate = false;
@@ -176,7 +189,6 @@ namespace Warps
 
 			return bupdate;
 		}
-
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
 			if (txt.Count != 2)
@@ -244,7 +256,6 @@ namespace Warps
 			//eq.sail = sail;
 			return eq;
 		}
-
 		public Warps.Controls.VariableEditor WriteEditor(Warps.Controls.VariableEditor edit)
 		{
 			if (edit == null)
@@ -259,7 +270,6 @@ namespace Warps
 			//ee.Label = GetType().Name;
 			return edit;
 		}
-
 		public void ReadEditor(Warps.Controls.VariableEditor edit)
 		{
 			if (edit == null)
@@ -319,7 +329,7 @@ namespace Warps
 				labelToEvaluate.SetResult(result);
 				worked = true;
 			}
-			catch(Exception exx)
+			catch (Exception exx)
 			{
 				worked = double.TryParse(labelToEvaluate.EquationText, out result);
 				labelToEvaluate.SetResult(result);
@@ -329,7 +339,7 @@ namespace Warps
 			{
 				if (!worked)
 				{
-					if(showBox)
+					if (showBox)
 						System.Windows.Forms.MessageBox.Show("Error parsing equation");
 					result = double.NaN;
 				}
@@ -348,7 +358,8 @@ namespace Warps
 
 			List<KeyValuePair<string, Equation>> availableEqs = sail.GetEquations(Equ);
 
-			availableEqs.ForEach(eq => {
+			availableEqs.ForEach(eq =>
+			{
 				if (Equ.EquationText.Contains(eq.Key))
 				{
 					ex = new Expression(eq.Value.EquationText, EvaluateOptions.IgnoreCase);
@@ -474,7 +485,7 @@ namespace Warps
 				case "length":
 
 					MouldCurve curve = sail.FindCurve(curveName);
-					
+
 					if (curve == null)
 						return double.NaN;
 
@@ -487,6 +498,29 @@ namespace Warps
 
 					return double.NaN;
 			}
+		}
+
+		public static List<string> ListParameters(Equation Equ)
+		{
+			List<string> param = new List<string>();
+			Expression ex = new Expression(Equ.EquationText);
+
+			ex.EvaluateFunction += delegate(string name, FunctionArgs args)
+			{
+				if (name == "Length")
+					param.Add(args.Parameters[0].ToString());
+				args.Result = 1;
+			};
+
+			ex.EvaluateParameter += delegate(string name, ParameterArgs args)
+			{
+				param.Add(name);
+				args.Result = 1;
+			};
+			if (ex.HasErrors())
+				MessageBox.Show(ex.Error);
+			ex.Evaluate();
+			return param;
 		}
 	}
 }

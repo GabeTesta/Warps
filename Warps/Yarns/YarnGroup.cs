@@ -47,14 +47,12 @@ namespace Warps
 		{
 			get { return m_yarnDenier; }
 			set { m_yarnDenier = value; m_yarnDenier.Label = "yarndenier"; }
-		}
-		
+		}	
 		public Equation TargetDenierEqu
 		{
 			get { return m_targetDenier; }
 			set { m_targetDenier = value; m_targetDenier.Label = "targetdpi"; }
 		}
-
 		public double AchievedDpi = 0;
 
 		//Fitting Values
@@ -1164,18 +1162,6 @@ namespace Warps
 
 		#region IRebuild Members
 
-		//public bool Rebuild(List<IRebuild> parents)
-		//{
-		//	bool bupdate = Affected(parents);
-
-		//	if (bupdate && parents != null)
-		//		parents.Add(this);
-
-		//	if (bupdate)
-		//		LayoutYarns();
-
-		//	return bupdate;
-		//}
 
 		public bool Affected(List<IRebuild> connected)
 		{
@@ -1189,13 +1175,7 @@ namespace Warps
 				bupdate |= YarnDenierEqu == null ? false : YarnDenierEqu.Affected(connected);
 			}
 			return bupdate;
-		}
-
-		//public bool Update() { 
-		//	LayoutYarns(); 
-		//	return true; 
-		//}
-		
+		}		
 		public bool Update(Sail s)
 		{
 			bool ret = true;
@@ -1205,15 +1185,24 @@ namespace Warps
 				ret &= LayoutYarns() > 0;
 			return ret;
 		}
-
 		public bool Delete() { return false; }
-
 		public void GetConnected(List<IRebuild> connected)
 		{
 			if (Affected(connected) && connected != null)
 			{
 				connected.Add(this);
 			}
+		}
+		public void GetParents(Sail s, List<IRebuild> parents)
+		{
+			parents.Add(Guide);
+			parents.AddRange(Warps);
+
+		//	parents.Add(TargetDenierEqu);
+			TargetDenierEqu.GetParents(s, parents);
+
+		//	parents.Add(YarnDenierEqu);
+			YarnDenierEqu.GetParents(s, parents);
 		}
 
 		public bool ReadScript(Sail sail, IList<string> txt)
@@ -1269,7 +1258,6 @@ namespace Warps
 
 			return true;
 		}
-
 		public List<string> WriteScript()
 		{
 			List<string> script = new List<string>();
@@ -1293,5 +1281,6 @@ namespace Warps
 		}
 
 		#endregion
+
 	}
 }
