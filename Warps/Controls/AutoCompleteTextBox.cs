@@ -24,8 +24,8 @@ namespace Warps.Controls
 			_listBox.DrawMode = DrawMode.OwnerDrawFixed;
 			_listBox.DrawItem += _listBox_DrawItem;
 
-			_images.Images.Add("Warps.Equation", Warps.Properties.Resources.equation);
-			_images.Images.Add("Warps.SurfaceCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
+			_images.Images.Add("String", Warps.Properties.Resources.equation);
+			_images.Images.Add("MouldCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
 		}
 
 		void _listBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -49,7 +49,7 @@ namespace Warps.Controls
 
 			if (_images != null)
 			{
-				img = _images.Images[_listBox.Items[e.Index].GetType().ToString()];
+				img = _images.Images[_listBox.Items[e.Index].GetType().Name];
 				Rectangle imgRect = new Rectangle(e.Bounds.Left,
 								e.Bounds.Top, img.Width, img.Height);
 				gr.DrawImage(img, imgRect, 0, 0, img.Width,
@@ -124,6 +124,16 @@ namespace Warps.Controls
 						if ((_listBox.Visible) && (_listBox.SelectedIndex > 0))
 							_listBox.SelectedIndex--;
 
+						break;
+					}
+				case Keys.Enter:
+					{
+						if (_listBox.Visible)
+						{
+							InsertWord(_listBox.SelectedItem.ToString());
+							ResetListBox();
+							_formerValue = Text;
+						}
 						break;
 					}
 			}

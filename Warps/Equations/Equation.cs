@@ -144,11 +144,13 @@ namespace Warps
 		public bool Affected(List<IRebuild> connected)
 		{
 			bool bupdate = false;
+
 			//if (connected == null)
 			//{
 			//	Evaluate();
 			//	return bupdate;
 			//}
+
 			if (connected == null)
 				return false;
 
@@ -207,11 +209,12 @@ namespace Warps
 			m_node.ImageKey = "Equation";
 			m_node.SelectedImageKey = "Equation";
 			m_node.Tag = this;
+			m_node.ToolTipText = this.ToString() + "\nResult: " + Result;
 			m_node.Name = Label;
 			TreeNode tmp1 = new TreeNode(string.Format("Text: {0}", EquationText));
 			tmp1.ImageKey = "EquationText";
 			tmp1.SelectedImageKey = "EquationText";
-			TreeNode tmp2 = new TreeNode(string.Format("Value: {0}", Result));
+			TreeNode tmp2 = new TreeNode(string.Format("Result: {0}", Result));
 			tmp2.ImageKey = "Result";
 			tmp2.SelectedImageKey = "Result";
 			m_node.Nodes.Clear();

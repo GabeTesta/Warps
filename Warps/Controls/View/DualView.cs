@@ -24,7 +24,6 @@ namespace Warps
 			
 			for (int i = 0; i < 2; i++)
 			{
-
 				this[i].Unlock("EYENBS-6216-4FJGA-JUE2S-L8MPA");
 				this[i].Rendered.EnvironmentMapping = false;
 				this[i].Rendered.PlanarReflections = false;

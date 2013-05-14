@@ -82,7 +82,7 @@
 			this.m_treeContext.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this.m_treeContext.Name = "m_treeContext";
 			this.m_treeContext.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-			this.m_treeContext.Size = new System.Drawing.Size(153, 26);
+			this.m_treeContext.Size = new System.Drawing.Size(61, 4);
 			this.m_treeContext.Opening += new System.ComponentModel.CancelEventHandler(this.m_treeContext_Opening);
 			// 
 			// sortab

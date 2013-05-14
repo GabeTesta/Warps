@@ -70,6 +70,11 @@ namespace Warps
 
 		TreeNode m_node;
 
+		private string GetToolTipData()
+		{
+			return String.Format("{0}\n#:{1}", GetType().Name, Count);
+		}
+
 		public TreeNode WriteNode()
 		{
 			return WriteNode(true);
@@ -81,6 +86,7 @@ namespace Warps
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Tag = this;
 			//m_node.Text = GetType().Name + ": " + Label;
+			m_node.ToolTipText = GetToolTipData();
 			m_node.Text = Label;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;

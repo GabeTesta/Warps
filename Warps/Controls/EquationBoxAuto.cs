@@ -16,6 +16,7 @@ namespace Warps.Controls
 		{
 			InitializeComponent();
 			m_bak = Color.White;
+			
 		//	equationBox.ReturnPress += ReturnPress;
 		}
 		Color m_bak = Color.Empty;
@@ -55,7 +56,7 @@ namespace Warps.Controls
 		{
 			SetText(eqText);
 			toolTip1.ToolTipTitle = equationBox.Text;
-			if (EQ != null)
+			if (EQ != null && !equationBox.IsNumber())
 				button1.BackColor = Color.Lime;
 			else
 				button1.BackColor = m_bak;

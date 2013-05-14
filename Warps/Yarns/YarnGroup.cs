@@ -1029,6 +1029,15 @@ namespace Warps
 		//	}
 		//	return m_node;
 		//}
+
+		private string GetToolTipData()
+		{
+			return String.Format(
+				"{0}\nTargetDPI:{1}\nAchievedDPI:{2}\n#:{3}",
+				GetType().Name, TargetDpi, AchievedDpi.ToString("#0.00"), Count
+			);
+		}
+
 		private TreeNode WriteNode(bool bclear)
 		{
 			if (m_node == null)
@@ -1038,7 +1047,7 @@ namespace Warps
 			m_node.Text = Label;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
-
+			m_node.ToolTipText = GetToolTipData();
 			if (bclear)
 			{
 				m_node.Nodes.Clear();
@@ -1113,6 +1122,21 @@ namespace Warps
 						e.EntityData = this;
 					yarns.AddRange(es);
 				}
+
+			return yarns.ToArray();
+		}
+
+		public Entity[] CreateOnlyYarnEntities()
+		{
+			List<Entity> yarns = new List<Entity>(Count);
+			Vect3[] pnts;
+
+			foreach (YarnCurve yarn in this)
+			{
+				pnts = yarn.GetPathPoints(100);
+				yarns.Add(new LinearPath(ConvertPoints(pnts)));
+				yarns.Last().EntityData = this;
+			}
 
 			return yarns.ToArray();
 		}

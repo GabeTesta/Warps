@@ -37,6 +37,7 @@ namespace Warps
 		//PointTypeSwitcher WriteEditor(PointTypeSwitcher edit);
 		
 		Control WriteEditor(ref IFitEditor edit);
+
 		void ReadEditor(IFitEditor edit);
 
 		bool Affected(List<IRebuild> connected);

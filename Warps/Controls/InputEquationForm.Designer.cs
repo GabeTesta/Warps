@@ -34,7 +34,7 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.addButton = new System.Windows.Forms.Button();
 			this.resultBox = new System.Windows.Forms.TextBox();
-			this.button1 = new System.Windows.Forms.Button();
+			this.CalculateButton = new System.Windows.Forms.Button();
 			this.autoCompleteTextBox1 = new Warps.Controls.AutoCompleteTextBox();
 			this.SuspendLayout();
 			// 
@@ -102,21 +102,22 @@
 			this.resultBox.Name = "resultBox";
 			this.resultBox.Size = new System.Drawing.Size(76, 20);
 			this.resultBox.TabIndex = 15;
+			this.resultBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// button1
 			// 
-			this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.button1.BackColor = System.Drawing.Color.White;
-			this.button1.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-			this.button1.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-			this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.button1.Location = new System.Drawing.Point(135, 38);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(64, 23);
-			this.button1.TabIndex = 20;
-			this.button1.Text = "Calculate";
-			this.button1.UseVisualStyleBackColor = false;
-			this.button1.Click += new System.EventHandler(this.button1_Click);
+			this.CalculateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.CalculateButton.BackColor = System.Drawing.Color.White;
+			this.CalculateButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+			this.CalculateButton.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+			this.CalculateButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.CalculateButton.Location = new System.Drawing.Point(135, 38);
+			this.CalculateButton.Name = "button1";
+			this.CalculateButton.Size = new System.Drawing.Size(64, 23);
+			this.CalculateButton.TabIndex = 20;
+			this.CalculateButton.Text = "Calculate";
+			this.CalculateButton.UseVisualStyleBackColor = false;
+			this.CalculateButton.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// autoCompleteTextBox1
 			// 
@@ -134,7 +135,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(313, 237);
-			this.Controls.Add(this.button1);
+			this.Controls.Add(this.CalculateButton);
 			this.Controls.Add(this.resultBox);
 			this.Controls.Add(this.autoCompleteTextBox1);
 			this.Controls.Add(this.addButton);
@@ -159,6 +160,6 @@
 		private AutoCompleteTextBox autoCompleteTextBox1;
 		private System.Windows.Forms.Button addButton;
 		private System.Windows.Forms.TextBox resultBox;
-		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.Button CalculateButton;
 	}
 }

@@ -234,6 +234,7 @@ namespace Warps
 			{
 				if (Layout[i] is VariableGroup)
 				{
+					//continue;
 					VariableGroup grp = Layout[i] as VariableGroup;
 					found = grp == tag as VariableGroup;
 					IEnumerable<KeyValuePair<string, Equation>> mcs = grp.GetEquations(tag);
@@ -333,6 +334,7 @@ namespace Warps
 			m_node.Tag = this;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = GetType().Name;
 			m_node.Nodes.Clear();
 			m_node.Nodes.Add(Mould.WriteNode());
 			foreach (IGroup g in Layout)
@@ -415,7 +417,7 @@ namespace Warps
 			List<MouldCurve> curves = GetCurves(tag);
 			curves.ForEach(cur => { autoComplete.Add(cur); });
 			List<KeyValuePair<string, Equation>> availableEqs = GetEquations(tag);
-			availableEqs.ForEach(eq => { autoComplete.Add(eq.Value); });
+			availableEqs.ForEach(eq => { autoComplete.Add(eq.Value.Label); });
 			return autoComplete;
 		}
 

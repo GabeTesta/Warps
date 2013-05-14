@@ -46,6 +46,8 @@
 			this.copyToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.pasteToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.m_addCurve = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -53,12 +55,10 @@
 			this.m_buildBtn = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.m_editButton = new System.Windows.Forms.ToolStripButton();
-			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
 			this.cancelButton = new System.Windows.Forms.ToolStripButton();
 			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
 			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
 			this.m_vertsplit.Panel1.SuspendLayout();
 			this.m_vertsplit.Panel2.SuspendLayout();
@@ -195,7 +195,7 @@
             this.cancelButton});
 			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
 			this.m_toolstrip.Name = "m_toolstrip";
-			this.m_toolstrip.Size = new System.Drawing.Size(494, 25);
+			this.m_toolstrip.Size = new System.Drawing.Size(525, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
 			// 
@@ -237,6 +237,8 @@
 			this.printToolStripButton.Name = "printToolStripButton";
 			this.printToolStripButton.Size = new System.Drawing.Size(23, 22);
 			this.printToolStripButton.Text = "&Print";
+			this.printToolStripButton.ToolTipText = "Save to 3dl file";
+			this.printToolStripButton.Click += new System.EventHandler(this.printToolStripButton_Click);
 			// 
 			// toolStripSeparator
 			// 
@@ -280,6 +282,23 @@
 			this.helpToolStripButton.Text = "He&lp";
 			this.helpToolStripButton.Click += new System.EventHandler(this.helpToolStripButton_Click);
 			// 
+			// toolStripSeparator5
+			// 
+			this.toolStripSeparator5.Name = "toolStripSeparator5";
+			this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+			// 
+			// toolStripButton1
+			// 
+			this.toolStripButton1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButton1.Name = "toolStripButton1";
+			this.toolStripButton1.Size = new System.Drawing.Size(55, 22);
+			this.toolStripButton1.Text = "Clear All";
+			this.toolStripButton1.ToolTipText = "Clear project";
+			this.toolStripButton1.Click += new System.EventHandler(this.clearAll_Click);
+			// 
 			// toolStripSeparator4
 			// 
 			this.toolStripSeparator4.Name = "toolStripSeparator4";
@@ -293,6 +312,7 @@
 			this.m_addCurve.Name = "m_addCurve";
 			this.m_addCurve.Size = new System.Drawing.Size(69, 22);
 			this.m_addCurve.Text = "Add Group";
+			this.m_addCurve.ToolTipText = "Add group to project";
 			this.m_addCurve.Click += new System.EventHandler(this.m_addCurve_Click);
 			// 
 			// toolStripSeparator1
@@ -337,18 +357,8 @@
 			this.m_editButton.Name = "m_editButton";
 			this.m_editButton.Size = new System.Drawing.Size(31, 22);
 			this.m_editButton.Text = "Edit";
+			this.m_editButton.ToolTipText = "Toggle Edit Mode";
 			this.m_editButton.CheckedChanged += new System.EventHandler(this.m_editButton_CheckedChanged);
-			// 
-			// toolStripButton1
-			// 
-			this.toolStripButton1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton1.Name = "toolStripButton1";
-			this.toolStripButton1.Size = new System.Drawing.Size(55, 22);
-			this.toolStripButton1.Text = "Clear All";
-			this.toolStripButton1.Click += new System.EventHandler(this.clearAll_Click);
 			// 
 			// cancelButton
 			// 
@@ -397,11 +407,6 @@
 			// toolStripContainer1.TopToolStripPanel
 			// 
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
-			// 
-			// toolStripSeparator5
-			// 
-			this.toolStripSeparator5.Name = "toolStripSeparator5";
-			this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
 			// 
 			// WarpFrame
 			// 
