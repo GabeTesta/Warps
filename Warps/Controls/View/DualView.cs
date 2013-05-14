@@ -915,13 +915,6 @@ namespace Warps
 			Refresh();
 		}
 
-		//void ToggleAll(bool show)
-		//{
-		//	for (int i = 0; i < 2; i++)
-		//		for (int j = 0; j < this[i].Entities.Count; j++)
-		//			this[i].Entities[j].Visible = show;// = colorMethodType.byLayer;
-		//}
-
 		internal void ShowAll()
 		{
 			for (int i = 0; i < 2; i++)
@@ -1166,5 +1159,46 @@ namespace Warps
 			}
 			Refresh();
 		}
+
+		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			SaveFileDialog mySaveFileDialog = new SaveFileDialog();
+
+			mySaveFileDialog.InitialDirectory = ".";
+			mySaveFileDialog.Filter = "Bitmap (*.bmp)|*.bmp|" +
+				"Portable Network Graphics (*.png)|*.png|" +
+				"Windows metafile (*.wmf)|*.wmf|" +
+				"Enhanced Windows Metafile (*.emf)|*.emf|" +
+				"Joint Photographic Experts Group (*.jpeg) |*.jpeg";
+
+			mySaveFileDialog.FilterIndex = 2;
+			mySaveFileDialog.RestoreDirectory = true;
+
+			if (mySaveFileDialog.ShowDialog() == DialogResult.OK)
+			{
+
+				switch (mySaveFileDialog.FilterIndex)
+				{
+
+					case 1: ActiveView.WriteToFileRaster(2, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Bmp);
+						break;
+					case 2: ActiveView.WriteToFileRaster(3, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Png);
+						break;
+					case 3: ActiveView.WriteToFileRaster(2, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Wmf);
+						break;
+					case 4: ActiveView.WriteToFileRaster(2, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Emf);
+						break;
+					case 5: ActiveView.WriteToFileRaster(4, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
+						break;
+				}
+
+			}
+		}
+
+		private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			ActiveView.CopyToClipboardRaster(2);
+		}
+
 	}
 }
