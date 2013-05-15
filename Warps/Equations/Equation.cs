@@ -140,7 +140,20 @@ namespace Warps
 				connected.Add(this);
 			}
 		}
-
+		public void GetParents(Sail s, List<IRebuild> parents)
+		{
+			List<string> labels = EquationEvaluator.ListParameters(this);
+			if (labels.Count > 0)
+			{
+				IRebuild rbld;
+				foreach (string lbl in labels)
+				{
+					rbld = s.FindItem(lbl);
+					if (rbld != null)
+						parents.Add(rbld);
+				}
+			}
+		}
 		public bool Affected(List<IRebuild> connected)
 		{
 			bool bupdate = false;
@@ -176,7 +189,6 @@ namespace Warps
 
 			return bupdate;
 		}
-
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
 			if (txt.Count != 2)
@@ -244,7 +256,6 @@ namespace Warps
 			//eq.sail = sail;
 			return eq;
 		}
-
 		public Warps.Controls.VariableEditor WriteEditor(Warps.Controls.VariableEditor edit)
 		{
 			if (edit == null)
@@ -259,7 +270,6 @@ namespace Warps
 			//ee.Label = GetType().Name;
 			return edit;
 		}
-
 		public void ReadEditor(Warps.Controls.VariableEditor edit)
 		{
 			if (edit == null)
@@ -290,20 +300,19 @@ namespace Warps
 			return Evaluate(labelToEvaluate, sail, out result, false);
 		}
 
-		public static bool Evaluate(Equation labelToEvaluate, Sail sail, out double result, bool showBox)
+		public static bool Evaluate(Equation equation, Sail sail, out double result, bool showBox)
 		{
-			if (labelToEvaluate == null)
+			if (equation == null)
 			{
 				result = 0;
 				return false;
 			}
 			bool worked = false;
 
-			Expression ex = new Expression(labelToEvaluate.EquationText, EvaluateOptions.IgnoreCase);
+			Expression ex = new Expression(equation.EquationText, EvaluateOptions.IgnoreCase);
 
-			List<KeyValuePair<string, Equation>> availableEqs = sail.GetEquations(labelToEvaluate);
-
-			availableEqs.ForEach(eq => ex.Parameters[eq.Key] = eq.Value.Result);
+			List<Equation> avails = sail.WatermarkEqs(equation);
+			avails.ForEach(eq => ex.Parameters[eq.Label] = eq.Result);
 			//Set up a custom delegate so NCalc will ask you for a parameter's value
 			//   when it first comes across a variable
 
@@ -316,20 +325,20 @@ namespace Warps
 			try
 			{
 				result = (double)ex.Evaluate();
-				labelToEvaluate.SetResult(result);
+				equation.SetResult(result);
 				worked = true;
 			}
-			catch(Exception exx)
+			catch (Exception exx)
 			{
-				worked = double.TryParse(labelToEvaluate.EquationText, out result);
-				labelToEvaluate.SetResult(result);
+				worked = double.TryParse(equation.EquationText, out result);
+				equation.SetResult(result);
 				Warps.Logger.logger.Instance.LogErrorException(exx);
 			}
 			finally
 			{
 				if (!worked)
 				{
-					if(showBox)
+					if (showBox)
 						System.Windows.Forms.MessageBox.Show("Error parsing equation");
 					result = double.NaN;
 				}
@@ -339,6 +348,64 @@ namespace Warps
 		}
 
 		private static double EvaluateToDouble(string entry, string function, Sail sail)
+		{
+			List<MouldCurve> ret = new List<MouldCurve>();
+
+			double result = 0;
+
+			Expression ex = null;
+
+			List<Equation> availableEqs = sail.WatermarkEqs(Equ);
+
+			availableEqs.ForEach(eq =>
+			{
+				if (Equ.EquationText.Contains(eq.Label))
+				{
+					ex = new Expression(eq.EquationText, EvaluateOptions.IgnoreCase);
+					ex.EvaluateParameter += delegate(string name, ParameterArgs args)
+					{
+						if (name.ToLower().Contains("length"))
+						{
+							args.Result = EvaluateToDouble(name, sail, ref ret);
+						}
+					};
+					try
+					{
+						result = (double)ex.Evaluate();
+					}
+					catch
+					{
+						System.Windows.Forms.MessageBox.Show("Error parsing equation");
+						result = double.NaN;
+					}
+
+					ex.Parameters[eq.Label] = eq.Result;
+				}
+			});
+
+			ex = new Expression(Equ.EquationText, EvaluateOptions.IgnoreCase);
+			ex.EvaluateParameter += delegate(string name, ParameterArgs args)
+			{
+				if (name.ToLower().Contains("length"))
+				{
+					args.Result = EvaluateToDouble(name, sail, ref ret);
+				}
+			};
+
+			try
+			{
+				result = (double)ex.Evaluate();
+			}
+			catch
+			{
+				//System.Windows.Forms.MessageBox.Show("Error parsing equation");
+				result = double.NaN;
+			}
+
+			return ret;
+		}
+
+		private static double EvaluateToDouble(string entry, Sail sail)
 		{
 			if (sail == null)
 				return Double.NaN;
@@ -414,7 +481,7 @@ namespace Warps
 				case "length":
 
 					MouldCurve curve = sail.FindCurve(curveName);
-					
+
 					if (curve == null)
 						return double.NaN;
 
@@ -427,6 +494,51 @@ namespace Warps
 
 					return double.NaN;
 			}
+		}
+
+		public static List<string> ListParameters(Equation Equ)
+		{
+			List<string> param = new List<string>();
+			Expression ex = new Expression(Equ.EquationText);
+
+			ex.EvaluateFunction += delegate(string name, FunctionArgs args)
+			{
+				if (name == "Length")
+					param.Add(args.Parameters[0].ToString());
+				args.Result = 1;
+			};
+
+			ex.EvaluateParameter += delegate(string name, ParameterArgs args)
+			{
+				param.Add(name);
+				args.Result = 1;
+			};
+			if (ex.HasErrors())
+				MessageBox.Show(ex.Error);
+			ex.Evaluate();
+			return param;
+		}
+
+		public static List<MouldCurve> ExtractCurves(string eq, Sail sail)
+		{
+			List<MouldCurve> param = new List<MouldCurve>();
+			Expression ex = new Expression(eq);
+
+			ex.EvaluateFunction += delegate(string name, FunctionArgs args)
+			{
+				if (name == "Length")
+					param.Add(sail.FindCurve(args.Parameters[0].ToString()));
+				args.Result = 1;
+			};
+
+			ex.EvaluateParameter += delegate(string name, ParameterArgs args)
+			{
+				param.AddRange(ExtractCurves(name, sail));
+				args.Result = 1;
+			};
+
+			ex.Evaluate();
+			return param;
 		}
 	}
 }

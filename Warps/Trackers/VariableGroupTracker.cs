@@ -35,6 +35,20 @@ namespace Warps
 				EditMode = m_frame.EditMode;
 				AddContextMenu();
 				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v
+
+				//View.DeSelectAll();
+				//if (m_group != null)
+				//{
+				//	foreach (KeyValuePair<string, Equation> eq in m_group)
+				//	{
+				//		List<MouldCurve> referencedCurves = EquationEvaluator.ExtractCurves(eq.Value.EquationText, m_frame.ActiveSail);
+				//		foreach (MouldCurve curve in referencedCurves)
+				//		{
+				//			View.Select(curve);
+				//		}
+				//	}
+				//}
+				//View.Refresh();
 			}
 		}
 		public void Cancel()

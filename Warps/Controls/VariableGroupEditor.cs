@@ -67,7 +67,7 @@ namespace Warps.Controls
 		{
 			VariableEditor ve = eq.WriteEditor(null);
 			ve.sail = VarGroup.Sail;
-			ve.AutoFillData = VarGroup.Sail.GetAutoFillData(eq).ToArray();
+			ve.AutoFillData = VarGroup.Sail.Watermark(VarGroup).ToList<object>();
 			m_flow.Controls.Add(ve);
 			ve.ReturnPress += ve_ReturnPress;
 		}
@@ -112,7 +112,7 @@ namespace Warps.Controls
 
 		private void button2_Click(object sender, EventArgs e)
 		{
-			if (MessageBox.Show("delete selected variables?","", MessageBoxButtons.YesNo) == DialogResult.Yes)
+			if (MessageBox.Show("Delete selected variables?","", MessageBoxButtons.YesNo) == DialogResult.Yes)
 			{
 				List<VariableEditor> toBremoved = new List<VariableEditor>();
 				foreach (VariableEditor ved in m_flow.Controls)

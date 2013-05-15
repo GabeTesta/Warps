@@ -240,7 +240,7 @@ namespace Warps
 			//PointTypeSwitcher.SetSail(Sail);
 
 			//if( EditMode ) View.StopSelect();
-			m_edit.AutoFill = Sail.GetAutoFillData(Curve);
+			m_edit.AutoFill = Sail.Watermark(Curve).ToList<object>();
 			m_edit.ReadCurve(m_temp);
 			m_edit.Label = Curve.Label;
 			m_edit.Refresh();

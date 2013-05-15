@@ -32,11 +32,11 @@ namespace Warps
 				//View.DeSelectAll();
 				//if (m_equ != null)
 				//{
-					//List<MouldCurve> referencedCurves = m_equ.ExtractReferencedCurves();
-					//foreach (MouldCurve curve in referencedCurves)
-					//{
-					//	View.Select(curve);
-					//}
+				//	List<MouldCurve> referencedCurves = EquationEvaluator.ExtractCurves(m_equ.EquationText, m_frame.ActiveSail);
+				//	foreach (MouldCurve curve in referencedCurves)
+				//	{
+				//		View.Select(curve);
+				//	}
 				//}
 				//View.Refresh();
 			}

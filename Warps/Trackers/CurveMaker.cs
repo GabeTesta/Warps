@@ -55,7 +55,7 @@ namespace Warps
 			{
 				CurveGroup cg = (m_sail.Layout.Last() as CurveGroup);
 				cg.Add(Curve);
-				cg.Update();//rebuild
+				cg.Update(m_sail);//rebuild
 			}
 			Curve.Update(m_sail);//rebuild
 			if (m_frame.AutoBuild)

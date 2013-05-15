@@ -25,28 +25,28 @@ namespace Warps
 			m_sail = group.Sail;
 			if (m_sail != null)
 			{
-				List<object> autoComplete = m_sail.GetAutoFillData(group);
-				List<MouldCurve> curves = m_sail.GetCurves(group);
-				//curves.ForEach(cur => { autoComplete.Add(cur); });
-				curves.ForEach(curve => CurveListBox.Items.Add(curve));
-				availableEqs = m_sail.GetEquations(m_group);
+				List<IRebuild> watermark = m_sail.Watermark(group);
+				//availableEqs = new List<Equation>();
+				CurveListBox.Items.Clear();
 				EquationListBox.Items.Clear();
-				foreach (KeyValuePair<string, Equation> entry in availableEqs)
+				listView1.Items.Clear();
+				foreach (IRebuild entry in watermark)
 				{
-					//autoComplete.Add(entry.Value);
-					EquationListBox.Items.Add(entry.Key);
-					listView1.Items.Add(entry.Key);
-					if (!m_group.ContainsKey(entry.Key))
-						listView1.Items[listView1.Items.Count - 1].Font = new Font("Microsoft Sans Serif", 8.25f, FontStyle.Italic);
-					//else
-					//	listView1.Items[listView1.Items.Count - 1].BackColor = Color.White;
-					//	EquationListBox.Items[EquationListBox.Items.Count-1]
+					if (entry is Equation)
+					{
+					//	availableEqs.Add(entry as Equation);
+						EquationListBox.Items.Add(entry.Label);
+						listView1.Items.Add(entry.Label);
+						if (!m_group.ContainsKey(entry.Label))
+							listView1.Items[listView1.Items.Count - 1].Font = new Font("Microsoft Sans Serif", 8.25f, FontStyle.Italic);
+					}
+					else if( entry is MouldCurve )
+						CurveListBox.Items.Add(entry as MouldCurve);
 				}
-				autoCompleteTextBox1.Values = autoComplete.ToArray();
+				autoCompleteTextBox1.Values = watermark.ToArray<object>();
 			}
 		}
 
-		List<KeyValuePair<string, Equation>> availableEqs = null;
 		VariableGroup m_group = null;
 		Sail m_sail = null;
 
@@ -60,10 +60,10 @@ namespace Warps
 			if (OnVariableAdded != null)
 				OnVariableAdded(this, m_group[EquationNameBox.Text]);
 
-			List<KeyValuePair<string, Equation>> availableEqs = m_sail.GetEquations(m_group);
+			List<Equation> availableEqs = m_sail.WatermarkEqs(m_group);
 			EquationListBox.Items.Clear();
-			foreach (KeyValuePair<string, Equation> entry in availableEqs)
-				EquationListBox.Items.Add(entry.Key);
+			foreach ( Equation entry in availableEqs)
+				EquationListBox.Items.Add(entry.Label);
 		}
 
 		void ToggleEditEnable(bool show)

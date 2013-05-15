@@ -521,7 +521,6 @@ namespace Warps
 
 			return false;
 		}
-
 		public void GetConnected(List<IRebuild> connected)
 		{
 			foreach (IFitPoint fp in FitPoints)
@@ -532,10 +531,7 @@ namespace Warps
 				}
 			
 		}
-
 		public bool Delete() { return false; }
-
-
 		public bool Update(Sail s)
 		{
 			foreach (IFitPoint fp in FitPoints)
@@ -545,6 +541,14 @@ namespace Warps
 				ReFit();
 			return AllFitPointsValid();
 		}
+		public void GetParents(Sail s, List<IRebuild> parents)
+		{
+			if (FitPoints != null)
+				foreach (IFitPoint fp in FitPoints)
+					fp.GetParents(s, parents);
+		}
+
+
 		public virtual bool ReadScript(Sail sail, IList<string> txt)
 		{
 			if (txt == null || txt.Count == 0)
@@ -595,7 +599,6 @@ namespace Warps
 
 			return true;
 		}
-
 		private void ReadGirthsScript(IList<string> lines)
 		{
 			if (lines.Count <= 1)
@@ -610,7 +613,6 @@ namespace Warps
 				bool.TryParse(lines[i].Trim('\t'), out m_bGirths[i-1]);
 			}
 		}
-
 		public virtual List<string> WriteScript()
 		{
 			List<string> script = new List<string>();

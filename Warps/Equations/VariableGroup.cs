@@ -19,6 +19,13 @@ namespace Warps
 			m_sail = s;
 		}
 
+		public  Equation this[int index]
+		{
+			get
+			{
+				return this[this.Keys.ElementAt(index)];
+			}
+		}
 		public new Equation this[string label]
 		{
 			get
@@ -44,22 +51,9 @@ namespace Warps
 			return base[curve.Label];
 		}
 
-		//public Equation[] Equations
-		//{
-		//	get
-		//	{
-		//		foreach (KeyValuePair<string,Equation> e in this)
-		//		{
-
-		//		}
-		//	}
-
-		//}
+		#region IRebuild Members
 
 		string m_label;
-		Sail m_sail; 
-		TreeNode m_node;
-
 		public string Label
 		{
 			get
@@ -72,34 +66,17 @@ namespace Warps
 			}
 		}
 
-		public Sail Sail
-		{
-			get
-			{
-				return m_sail;
-			}
-			set
-			{
-				m_sail = value;
-			}
-		}
-
-		private string GetToolTipData()
-		{
-			return String.Format("{0}\n#:{1}", GetType().Name, Count);
-		}
-
+		TreeNode m_node;
 		public TreeNode WriteNode()
 		{
 			return WriteNode(true);
 		}
-
 		private TreeNode WriteNode(bool bclear)
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Tag = this;
-		//	m_node.Text = GetType().Name + ": " + Label;
+			//	m_node.Text = GetType().Name + ": " + Label;
 			m_node.Text = Label;
 			m_node.ToolTipText = GetToolTipData();
 			m_node.ImageKey = GetType().Name;
@@ -112,16 +89,18 @@ namespace Warps
 			}
 			return m_node;
 		}
-
-
-		public devDept.Eyeshot.Entities.Entity[] CreateEntities()
+		private string GetToolTipData()
 		{
-			return null;
+			return String.Format("{0}\n#:{1}", GetType().Name, Count);
 		}
 
 		public devDept.Eyeshot.Labels.Label[] EntityLabel
 		{
 			get { return null; }
+		}
+		public devDept.Eyeshot.Entities.Entity[] CreateEntities()
+		{
+			return null;
 		}
 
 		public void GetConnected(List<IRebuild> connected)
@@ -133,7 +112,11 @@ namespace Warps
 					break;
 				}
 		}
-
+		public void GetParents(Sail s, List<IRebuild> parents)
+		{
+			foreach (KeyValuePair<string, Equation> entry in this)
+				entry.Value.GetParents(s, parents);
+		}
 		public bool Affected(List<IRebuild> connected)
 		{
 			bool bupdate = false;
@@ -142,9 +125,7 @@ namespace Warps
 
 			return bupdate;
 		}
-
 		public bool Delete() { return false; }
-
 		public bool Update(Sail s)
 		{
 			bool bupdate = true;
@@ -153,6 +134,7 @@ namespace Warps
 
 			return bupdate;
 		}
+
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
 			if (txt == null || txt.Count == 0)
@@ -187,7 +169,6 @@ namespace Warps
 
 			return true;
 		}
-
 		public List<string> WriteScript()
 		{
 			List<string> script = new List<string>(Count * 3);
@@ -201,6 +182,8 @@ namespace Warps
 			return script;
 		}
 
+		#endregion
+
 		internal List<string> ParametersToString(object tag)
 		{
 			//tag is the watermark 
@@ -209,7 +192,6 @@ namespace Warps
 				ret.Add(String.Format("{0}", entry.Key));
 			return ret;
 		}
-
 		internal IEnumerable<KeyValuePair<string,Equation>> GetEquations(object tag)
 		{
 			int i = -1;
@@ -230,5 +212,42 @@ namespace Warps
 				return this.Take(i).ToList();
 			return this.ToList();
 		}
+
+		#region IGroup Members
+
+		Sail m_sail;
+		public Sail Sail
+		{
+			get
+			{
+				return m_sail;
+			}
+			set
+			{
+				m_sail = value;
+			}
+		}
+
+		public IRebuild FindItem(string label)
+		{
+			//search by label
+			return this[label];
+		}
+
+		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
+		{
+			if (tag is Equation)
+				for (int nEq = 0; nEq < this.Count; nEq++)
+				{
+					if (this[nEq].Equals(tag))
+						return true;
+					rets.Add(this[nEq]);
+				}
+			else
+				rets.AddRange(this.Values);
+			return false;
+		}
+
+		#endregion
 	}
 }

@@ -36,6 +36,11 @@ namespace Warps
 			m_label = "Combo" + Mould.Label;
 		}
 
+		public List<IGroup> Groups
+		{
+			get { return m_mould != null ? m_mould.Groups : null; }
+		}
+
 		#region IsOutside
 
 		bool IsOutside(Vect2 uv)
@@ -126,7 +131,7 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Text = string.Format("{0}: {1}", GetType().Name, Label);
+			m_node.Text = ScriptTools.Label(GetType().Name, Label);
 			m_node.Tag = this;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
@@ -134,7 +139,6 @@ namespace Warps
 			m_node.Nodes.Add(Mould.WriteNode());
 			m_node.Nodes.Add(Extension.WriteNode());
 			return m_node;
-
 		}
 
 		public string Label

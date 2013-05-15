@@ -69,9 +69,9 @@ namespace Warps.Controls
 			//m_eqBox.Focus();
 		}
 
-		object[] m_auto = null;
+		List<object> m_auto = null;
 
-		public object[] AutoFillData
+		public List<object> AutoFillData
 		{
 			get { return m_auto; }
 			set

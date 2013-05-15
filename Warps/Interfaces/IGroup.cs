@@ -10,11 +10,9 @@ namespace Warps
 {	
 	public interface IGroup: IRebuild
 	{ 
-		//string Label { get; set; }
 		Sail Sail { get; set; }
-		//TreeNode WriteNode();
-		//Control Editor { get; set; }
-		//Entity[] CreateEntities();
-		//devDept.Eyeshot.Labels.Label[] EntityLabel { get; }
+
+		IRebuild FindItem(string label);
+		bool Watermark(IRebuild tag, ref List<IRebuild> rets);
 	}
 }

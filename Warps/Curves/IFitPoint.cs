@@ -14,11 +14,8 @@ namespace Warps
 		double S { get; set; }
 		Vect2 UV { get; set; }
 
-		//Equation S_Equ { get; set; }
-		//Equation U { get; set; }
-		//Equation V { get; set; }
-
 		IFitPoint Clone();
+
 		/// <summary>
 		/// Returns the value of this point
 		/// </summary>
@@ -26,26 +23,18 @@ namespace Warps
 		/// <returns>The requested parameter's value</returns>
 		double this[int i] { get; set; }
 
-		//IList<string> Script { get; set; }
-
 		/// <summary>
 		/// Gets the FitPoint's TreeNode representation or sets the FitPoint's values from a TreeNode
 		/// </summary>
 		TreeNode Node { get; set; }
-
-		//void ReadEditor(PointTypeSwitcher edit);
-		//PointTypeSwitcher WriteEditor(PointTypeSwitcher edit);
 		
 		Control WriteEditor(ref IFitEditor edit);
-
 		void ReadEditor(IFitEditor edit);
 
+		void GetParents(Sail s, List<IRebuild> parents);
 		bool Affected(List<IRebuild> connected);
-
-		bool Delete();
-
 		bool Update(Sail s);
-		
 		bool ValidFitPoint { get; set; }
+
 	}
 }

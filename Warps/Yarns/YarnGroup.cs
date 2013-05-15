@@ -47,14 +47,12 @@ namespace Warps
 		{
 			get { return m_yarnDenier; }
 			set { m_yarnDenier = value; m_yarnDenier.Label = "yarndenier"; }
-		}
-		
+		}	
 		public Equation TargetDenierEqu
 		{
 			get { return m_targetDenier; }
 			set { m_targetDenier = value; m_targetDenier.Label = "targetdpi"; }
 		}
-
 		public double AchievedDpi = 0;
 
 		//Fitting Values
@@ -969,7 +967,7 @@ namespace Warps
 
 		#endregion
 
-		#region IGroup Members
+		#region IRebuild Members
 
 		public string Label
 		{
@@ -977,67 +975,11 @@ namespace Warps
 			set { m_label = value; }
 		}
 
-		public Sail Sail
-		{
-			get { return m_sail; }
-			set { m_sail = value; }
-		}
-
 		TreeNode m_node;
-
 		public TreeNode WriteNode()
 		{
 			return WriteNode(true);
 		}
-
-		//private TreeNode WriteNode(bool bclear)
-		//{
-		//	if (m_node == null)
-		//		m_node = new System.Windows.Forms.TreeNode();
-		//	m_node.Tag = this;
-		//	m_node.Text = GetType().Name + ": " + Label;
-		//	m_node.ImageKey = GetType().Name;
-		//	m_node.SelectedImageKey = GetType().Name;
-
-		//	if (bclear)
-		//	{
-		//		m_node.Nodes.Clear();
-
-		//		//write the warp cuves
-		//		TreeNode wrps = new TreeNode("Warps");
-		//		wrps.ImageKey = "Warps";
-		//		wrps.SelectedImageKey = "Warps";
-		//		m_node.Nodes.Add(wrps);
-		//		foreach (MouldCurve wrp in m_Warps)
-		//			wrps.Nodes.Add(wrp.ToString());
-
-		//		//write the guide curve
-		//		TreeNode guide = new TreeNode("Guide: " + m_guide.Label);
-		//		guide.ImageKey = m_guide.GetType().Name;
-		//		guide.SelectedImageKey = m_guide.GetType().Name;
-		//		m_node.Nodes.Add(m_guide.ToString());
-
-		//		//write the yarns
-		//		TreeNode yarnNode = new TreeNode("Yarns: " + Count.ToString());
-		//		yarnNode.ImageKey = "Result";
-		//		yarnNode.SelectedImageKey = "Result";
-		//		m_node.Nodes.Add(yarnNode);
-		//		foreach (YarnCurve yar in this)
-		//			yarnNode.Nodes.Add(yar.ToString());
-
-	
-		//	}
-		//	return m_node;
-		//}
-
-		private string GetToolTipData()
-		{
-			return String.Format(
-				"{0}\nTargetDPI:{1}\nAchievedDPI:{2}\n#:{3}",
-				GetType().Name, TargetDpi, AchievedDpi.ToString("#0.00"), Count
-			);
-		}
-
 		private TreeNode WriteNode(bool bclear)
 		{
 			if (m_node == null)
@@ -1090,19 +1032,22 @@ namespace Warps
 			}
 			return m_node;
 		}
+		private string GetToolTipData()
+		{
+			return String.Format(
+				"{0}\nTargetDPI:{1}\nAchievedDPI:{2}\n#:{3}",
+				GetType().Name, TargetDpi, AchievedDpi.ToString("#0.00"), Count
+			);
+		}
 
-		public System.Windows.Forms.Control Editor
+		public devDept.Eyeshot.Labels.Label[] EntityLabel
 		{
 			get
 			{
-				throw new NotImplementedException();
-			}
-			set
-			{
-				throw new NotImplementedException();
+				return new devDept.Eyeshot.Labels.Label[]{ new devDept.Eyeshot.Labels.OutlinedText(m_Warps[0].GetLabelPoint3D(.66), Label,
+					new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter)};
 			}
 		}
-
 		public Entity[] CreateEntities()
 		{
 			List<Entity> yarns = new List<Entity>(Count);
@@ -1125,7 +1070,6 @@ namespace Warps
 
 			return yarns.ToArray();
 		}
-
 		public Entity[] CreateOnlyYarnEntities()
 		{
 			List<Entity> yarns = new List<Entity>(Count);
@@ -1140,42 +1084,10 @@ namespace Warps
 
 			return yarns.ToArray();
 		}
-
-		/// <summary>
-		/// converts all Vect3 to Point3D
-		/// </summary>
-		/// <param name="pts">the array to convert</param>
-		/// <returns>a new Point3D array</returns>
 		public static Point3D[] ConvertPoints(Vect3[] pts)
 		{
 			return Array.ConvertAll<Vect3, Point3D>(pts, Utilities.Vect3ToPoint3D);
 		}
-
-		public devDept.Eyeshot.Labels.Label[] EntityLabel
-		{
-			get
-			{
-				return new devDept.Eyeshot.Labels.Label[]{ new devDept.Eyeshot.Labels.OutlinedText(m_Warps[0].GetLabelPoint3D(.66), Label,
-					new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter)};
-			}
-		}
-
-		#endregion
-
-		#region IRebuild Members
-
-		//public bool Rebuild(List<IRebuild> parents)
-		//{
-		//	bool bupdate = Affected(parents);
-
-		//	if (bupdate && parents != null)
-		//		parents.Add(this);
-
-		//	if (bupdate)
-		//		LayoutYarns();
-
-		//	return bupdate;
-		//}
 
 		public bool Affected(List<IRebuild> connected)
 		{
@@ -1189,13 +1101,7 @@ namespace Warps
 				bupdate |= YarnDenierEqu == null ? false : YarnDenierEqu.Affected(connected);
 			}
 			return bupdate;
-		}
-
-		//public bool Update() { 
-		//	LayoutYarns(); 
-		//	return true; 
-		//}
-		
+		}		
 		public bool Update(Sail s)
 		{
 			bool ret = true;
@@ -1205,15 +1111,24 @@ namespace Warps
 				ret &= LayoutYarns() > 0;
 			return ret;
 		}
-
 		public bool Delete() { return false; }
-
 		public void GetConnected(List<IRebuild> connected)
 		{
 			if (Affected(connected) && connected != null)
 			{
 				connected.Add(this);
 			}
+		}
+		public void GetParents(Sail s, List<IRebuild> parents)
+		{
+			parents.Add(Guide);
+			parents.AddRange(Warps);
+
+		//	parents.Add(TargetDenierEqu);
+			TargetDenierEqu.GetParents(s, parents);
+
+		//	parents.Add(YarnDenierEqu);
+			YarnDenierEqu.GetParents(s, parents);
 		}
 
 		public bool ReadScript(Sail sail, IList<string> txt)
@@ -1269,7 +1184,6 @@ namespace Warps
 
 			return true;
 		}
-
 		public List<string> WriteScript()
 		{
 			List<string> script = new List<string>();
@@ -1290,6 +1204,28 @@ namespace Warps
 			script.Add("\tEnding: " + EndCondition.ToString());
 
 			return script;
+		}
+
+		#endregion
+
+		#region IGroup Members
+
+		public Sail Sail
+		{
+			get { return m_sail; }
+			set { m_sail = value; }
+		}
+
+		public IRebuild FindItem(string label)
+		{
+			//nothing to search for in a yarn group
+			return null;
+		}
+
+		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
+		{
+			//no IRebuilds in a yarn group either (except combs which we ignore)
+			return false;
 		}
 
 		#endregion
