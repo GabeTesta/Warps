@@ -99,7 +99,7 @@ namespace Warps.Trackers
 			//PointTypeSwitcher.SetAutofill(Sail.GetAutoFillData(Comb));
 			//PointTypeSwitcher.SetSail(Sail);
 
-			Edit.AutoFill = Sail.GetAutoFillData(Comb);
+			Edit.AutoFill = Sail.Watermark(Comb).ToList<object>();
 			Edit.ReadComb(m_temp);
 			Edit.Label = Comb.Label;
 			Edit.Refresh();

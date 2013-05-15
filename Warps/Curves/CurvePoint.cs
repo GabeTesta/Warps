@@ -264,6 +264,15 @@ namespace Warps
 			if (connected.Contains(m_curve)) return true;
 			return false;
 		}
+		public void GetParents(Sail s, List<IRebuild> parents)
+		{
+			parents.Add(Curve);
+
+			//parents.Add(m_sEqu);
+			m_sEqu.GetParents(s, parents);
+		}
+
+
 		public bool Update(Sail s) {
 
 			bool ret = true;
@@ -272,7 +281,6 @@ namespace Warps
 			//ret &= V.Evaluate(s) != Double.NaN;
 			return ret;
 		}
-		public bool Delete() { return false; }
 
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
@@ -335,6 +343,5 @@ namespace Warps
 			}
 			set { }
 		}
-
 	}
 }

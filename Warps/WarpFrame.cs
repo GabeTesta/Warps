@@ -93,7 +93,7 @@ namespace Warps
 			OpenFileDialog ofd = new OpenFileDialog();
 			ofd.Filter = "sail files (*.sail)|*.sail|cof files (*.cof)|*.cof|warp files (*.wrp)|*.wrp|All files (*.*)|*.*";
 			ofd.Multiselect = true;
-			ofd.FilterIndex = Math.Min(extension, 2);
+			ofd.FilterIndex = Math.Min(extension, 3);
 			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 				return ofd.FileNames;
 			return null;
@@ -392,7 +392,7 @@ namespace Warps
 			}
 			else if (e.Value is Equation)
 			{
-				IGroup parent = ActiveSail.GetParentGroup(e.Value);
+				IGroup parent = ActiveSail.FindGroup(e.Value);
 				if (parent != null)
 					track = new VariableGroupTracker(parent as VariableGroup);
 
@@ -564,6 +564,21 @@ namespace Warps
 		{
 			if (ActiveSail == null)
 				return;
+
+			if (Tree.SelectedTag != null)
+			{
+				IRebuild tag = Tree.SelectedTag as IRebuild;
+				List<IRebuild> rebuilds = new List<IRebuild>();
+				if (tag != null)
+					tag.GetParents(ActiveSail, rebuilds);
+				
+				StringBuilder sb = new StringBuilder();
+				foreach (IRebuild rb in rebuilds)
+					sb.AppendLine(rb.Label);
+				MessageBox.Show(sb.ToString());
+			return;
+			}
+
 
 			VariableGroup varGroup = new VariableGroup("Vars", ActiveSail);
 			varGroup.Add(new Equation("yarScale", 1.0));
