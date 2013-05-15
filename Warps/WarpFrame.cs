@@ -732,14 +732,14 @@ namespace Warps
 						{
 							//FOOT   1.0000   FT_IN  0.0000  spacing  0.0853    48 offsets on yarn #1
 							sw.WriteLine("{0}   {1}   {2}  {3}  {4}  {5}    {6} offsets on yarn #{7}"
-									, yar.Label, 1.0, "name", 0, "spacing", 0, ents[i].Vertices.Length, i);
+									, yar.Label, 1.0, "name", 0, "spacing", 0, ents[i].Vertices.Length-1, i);
 
 							for (int j = 0; j < ents[i].Vertices.Length; j++)
 							{
 								sPos = (double)j / (double)(ents[i].Vertices.Length - 1);
 								yar[i].uVal(sPos, ref uv);
 
-								sw.WriteLine("{0:#0.00000} {1:#0.00000}    {2}  {3:#0.00000} {4:#0.00000}  {5:#0.00000}  {6:#0.00000}  {7:#0.00000}  {8:#0.00000}  {9:#0.00000}",
+								sw.WriteLine(" {0:#0.00000} {1:#0.00000}    {2}  {3:#0.000000}  {4:#0.000000}  {5:#0.000000}  {6:#0.000000}  {7:#0.000000}  {8:#0.000000}  {9:#0.000000}",
 									uv[0], uv[1], j
 									, ents[i].Vertices[j].X, ents[i].Vertices[j].Y, ents[i].Vertices[j].Z
 									, 0, 0, 0
