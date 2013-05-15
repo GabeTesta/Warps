@@ -128,7 +128,7 @@ namespace Warps.Controls
 		internal void Prep(Sail sail, IRebuild group)
 		{
 			m_sail = sail;
-			AutoFillVariables = m_sail.GetAutoFillData(group);
+			AutoFillVariables = m_sail.Watermark(group).ToList<object>();
 		}
 
 		protected override void OnLayout(LayoutEventArgs e)

@@ -67,7 +67,7 @@ namespace Warps.Controls
 		{
 			VariableEditor ve = eq.WriteEditor(null);
 			ve.sail = VarGroup.Sail;
-			ve.AutoFillData = VarGroup.Sail.GetAutoFillData(eq).ToArray();
+			ve.AutoFillData = VarGroup.Sail.Watermark(VarGroup).ToList<object>();
 			m_flow.Controls.Add(ve);
 			ve.ReturnPress += ve_ReturnPress;
 		}

@@ -13,9 +13,13 @@ namespace Warps
 	{
 		SurfaceType m_type = SurfaceType.COF;
 
+		#region Members
+
 		string m_path;
 		ISurface m_mould;
 		List<IGroup> m_layout;
+
+		#endregion
 
 		public string FilePath
 		{
@@ -45,12 +49,13 @@ namespace Warps
 					m_path = path;
 					break;
 				default:
-					CreateMould(path);
-					m_layout = new List<IGroup>();//create default layout for cof file
-//#if DEBUG
-//					CreateOuterCurves();
-//					CreateInnerCurves();
-//#endif
+					m_layout = new List<IGroup>();//default empty layout
+					CreateMould(path);//read the file
+
+					//#if DEBUG
+					//					CreateOuterCurves();
+					//					CreateInnerCurves();
+					//#endif
 					m_path = path;
 					break;
 			}
@@ -94,6 +99,7 @@ namespace Warps
 				type = type.Split(':')[0];
 
 			m_mould = Utilities.CreateInstance(type, new object[] { this, path }) as ISurface;
+
 		}
 		//ISurface CreateMould(string type, string path)
 		//{
@@ -130,7 +136,7 @@ namespace Warps
 				//		return;
 				//}
 				CreateMould(ScriptTools.ReadType(line), ScriptTools.ReadPath(line));
-			
+
 				//read layout
 				m_layout = new List<IGroup>();
 				line = txt.ReadLine();
@@ -173,10 +179,10 @@ namespace Warps
 			using (StreamWriter txt = new StreamWriter(path))
 			{
 				txt.WriteLine(this.Script);
-					foreach (string s in Mould.WriteScript())
-					{
-						txt.WriteLine("\t" + s);
-					}
+				foreach (string s in Mould.WriteScript())
+				{
+					txt.WriteLine("\t" + s);
+				}
 				//txt.WriteLine("\t" + Mould.Script);
 				foreach (IGroup grp in Layout)
 					foreach (string s in grp.WriteScript())
@@ -190,106 +196,106 @@ namespace Warps
 			return Mould.ToString();
 		}
 
-		public List<MouldCurve> GetCurves(object tag)
-		{
-			bool found = false;
-			List<MouldCurve> curves = new List<MouldCurve>();
-			for (int i = 0; i < Layout.Count; i++)
-			{
-				if (Layout[i] is CurveGroup)
-				{
-					CurveGroup grp = Layout[i] as CurveGroup;
-					IEnumerable<MouldCurve> mcs = grp.GetCurves(tag);
-					curves.AddRange(mcs);
-					if (mcs.Count() != grp.Count)
-						break;
+		//public List<MouldCurve> GetCurves(object tag)
+		//{
+		//	bool found = false;
+		//	List<MouldCurve> curves = new List<MouldCurve>();
+		//	for (int i = 0; i < Layout.Count; i++)
+		//	{
+		//		if (Layout[i] is CurveGroup)
+		//		{
+		//			CurveGroup grp = Layout[i] as CurveGroup;
+		//			IEnumerable<MouldCurve> mcs = grp.GetCurves(tag);
+		//			curves.AddRange(mcs);
+		//			if (mcs.Count() != grp.Count)
+		//				break;
 
-				}
-				else if (Layout[i] is VariableGroup)
-				{
-					VariableGroup grp = Layout[i] as VariableGroup;
-					found = grp == tag as VariableGroup;
-					IEnumerable<KeyValuePair<string, Equation>> mcs = grp.GetEquations(tag);
-					if (mcs.Count() != grp.Count)
-						break;
-					if (found)
-						break;
-				}
-				else if (Layout[i] is YarnGroup)
-				{
-					YarnGroup grp = Layout[i] as YarnGroup;
-					found = grp == tag as YarnGroup;
-					if (found)
-						break;
-				}
-			}
-			return curves;
-		}
+		//		}
+		//		else if (Layout[i] is VariableGroup)
+		//		{
+		//			VariableGroup grp = Layout[i] as VariableGroup;
+		//			found = grp == tag as VariableGroup;
+		//			IEnumerable<KeyValuePair<string, Equation>> mcs = grp.GetEquations(tag);
+		//			if (mcs.Count() != grp.Count)
+		//				break;
+		//			if (found)
+		//				break;
+		//		}
+		//		else if (Layout[i] is YarnGroup)
+		//		{
+		//			YarnGroup grp = Layout[i] as YarnGroup;
+		//			found = grp == tag as YarnGroup;
+		//			if (found)
+		//				break;
+		//		}
+		//	}
+		//	return curves;
+		//}
 
-		public List<KeyValuePair<string, Equation>> GetEquations(object tag)
-		{
-			bool found = false;
-			List<KeyValuePair<string, Equation>> equations = new List<KeyValuePair<string, Equation>>();
-			for (int i = 0; i < Layout.Count; i++)
-			{
-				if (Layout[i] is VariableGroup)
-				{
-					//continue;
-					VariableGroup grp = Layout[i] as VariableGroup;
-					found = grp == tag as VariableGroup;
-					IEnumerable<KeyValuePair<string, Equation>> mcs = grp.GetEquations(tag);
-					equations.AddRange(mcs);
-					if (mcs.Count() != grp.Count)
-						break;
-					if (found)
-						break;
-				}
-				else if (Layout[i] is CurveGroup)
-				{
-					CurveGroup grp = Layout[i] as CurveGroup;
-					found = grp == tag as CurveGroup;
-					IEnumerable<MouldCurve> mcs = grp.GetCurves(tag);
-					if (mcs.Count() != grp.Count)
-						break;
-					if (found)
-						break;
-				}
-				else if (Layout[i] is YarnGroup)
-				{
-					YarnGroup grp = Layout[i] as YarnGroup;
-					found = grp == tag as YarnGroup;
-					//IEnumerable<KeyValuePair<string, Equation>> mcs = grp.GetEquations(tag);
-					//if (mcs.Count() != grp.Count)
-					//	break;
-					if (found)
-						break;
-				}
-			}
-			return equations;
-		}
+		//public List<KeyValuePair<string, Equation>> GetEquations(object tag)
+		//{
+		//	bool found = false;
+		//	List<KeyValuePair<string, Equation>> equations = new List<KeyValuePair<string, Equation>>();
+		//	for (int i = 0; i < Layout.Count; i++)
+		//	{
+		//		if (Layout[i] is VariableGroup)
+		//		{
+		//			//continue;
+		//			VariableGroup grp = Layout[i] as VariableGroup;
+		//			found = grp == tag as VariableGroup;
+		//			IEnumerable<KeyValuePair<string, Equation>> mcs = grp.GetEquations(tag);
+		//			equations.AddRange(mcs);
+		//			if (mcs.Count() != grp.Count)
+		//				break;
+		//			if (found)
+		//				break;
+		//		}
+		//		else if (Layout[i] is CurveGroup)
+		//		{
+		//			CurveGroup grp = Layout[i] as CurveGroup;
+		//			found = grp == tag as CurveGroup;
+		//			IEnumerable<MouldCurve> mcs = grp.GetCurves(tag);
+		//			if (mcs.Count() != grp.Count)
+		//				break;
+		//			if (found)
+		//				break;
+		//		}
+		//		else if (Layout[i] is YarnGroup)
+		//		{
+		//			YarnGroup grp = Layout[i] as YarnGroup;
+		//			found = grp == tag as YarnGroup;
+		//			//IEnumerable<KeyValuePair<string, Equation>> mcs = grp.GetEquations(tag);
+		//			//if (mcs.Count() != grp.Count)
+		//			//	break;
+		//			if (found)
+		//				break;
+		//		}
+		//	}
+		//	return equations;
+		//}
 
-		public List<MouldCurve> GetAllCurves()
-		{
-			List<MouldCurve> curves = new List<MouldCurve>();
-			for (int i = 0; i < Layout.Count; i++)
-			{
-				if (Layout[i] is CurveGroup)
-				{
-					CurveGroup grp = Layout[i] as CurveGroup;
-					if (grp == null)
-						continue;
-					curves.AddRange(grp.GetAllCurves());
-				}
-			}
-			return curves;
-		}
+		//public List<MouldCurve> GetAllCurves()
+		//{
+		//	List<MouldCurve> curves = new List<MouldCurve>();
+		//	for (int i = 0; i < Layout.Count; i++)
+		//	{
+		//		if (Layout[i] is CurveGroup)
+		//		{
+		//			CurveGroup grp = Layout[i] as CurveGroup;
+		//			if (grp == null)
+		//				continue;
+		//			curves.AddRange(grp.GetAllCurves());
+		//		}
+		//	}
+		//	return curves;
+		//}
 
-		public MouldCurve FindCurve(string name, object tag)
-		{
-			List<MouldCurve> curves = GetCurves(tag);
+		//public MouldCurve FindCurve(string name, object tag)
+		//{
+		//	List<MouldCurve> curves = GetCurves(tag);
 
-			return curves.Find(curve => curve.Label == name);
-		}
+		//	return curves.Find(curve => curve.Label == name);
+		//}
 
 		public List<IRebuild> Rebuild(IRebuild tag)
 		{
@@ -308,7 +314,6 @@ namespace Warps
 				WriteNode();
 			return updated;
 		}
-
 		public List<IRebuild> GetConnected(IRebuild tag)
 		{
 			List<IRebuild> connected = null;
@@ -358,38 +363,6 @@ namespace Warps
 		//	return m_node;
 		//}
 
-		public MouldCurve FindCurve(string curve)
-		{
-			for (int i = Layout.Count - 1; i >= 0; i--)
-			{
-				if (Layout[i] is CurveGroup)
-				{
-					MouldCurve cur = (Layout[i] as CurveGroup).Find((MouldCurve m) => { return m.Label.ToLower() == curve.ToLower(); });
-					if (cur != null)
-						return cur;
-				}
-			}
-			return null;
-		}
-
-		public IGroup FindGroup(MouldCurve mouldCurve)
-		{
-			for (int i = Layout.Count - 1; i >= 0; i--)
-			{
-				if (Layout[i] is CurveGroup)
-				{
-					if ((Layout[i] as CurveGroup).Contains(mouldCurve))
-						return Layout[i];
-				}
-			}
-			return null;
-		}
-
-		public IGroup FindGroup(string label)
-		{
-			return Layout.Find(g => label == g.Label);
-		}
-
 		internal void Add(IGroup grp)
 		{
 			if (grp == null)
@@ -411,56 +384,56 @@ namespace Warps
 
 		}
 
-		internal List<object> GetAutoFillData(object tag)
-		{
-			List<object> autoComplete = new List<object>();
-			List<MouldCurve> curves = GetCurves(tag);
-			curves.ForEach(cur => { autoComplete.Add(cur); });
-			List<KeyValuePair<string, Equation>> availableEqs = GetEquations(tag);
-			availableEqs.ForEach(eq => { autoComplete.Add(eq.Value.Label); });
-			return autoComplete;
-		}
+		//internal List<object> GetAutoFillData(object tag)
+		//{
+		//	List<object> autoComplete = new List<object>();
+		//	List<MouldCurve> curves = GetCurves(tag);
+		//	curves.ForEach(cur => { autoComplete.Add(cur); });
+		//	List<KeyValuePair<string, Equation>> availableEqs = GetEquations(tag);
+		//	availableEqs.ForEach(eq => { autoComplete.Add(eq.Value.Label); });
+		//	return autoComplete;
+		//}
 
-		internal IGroup GetParentGroup(object tag, out MouldCurve refCurve)
-		{
-			refCurve = null;
-			for (int i = Layout.Count - 1; i >= 0; i--)
-			{
-				if (Layout[i] is CurveGroup)
-				{
-					if ((Layout[i] as CurveGroup).ContainsObject(tag, out refCurve))
-						return Layout[i];
+		//internal IGroup GetParentGroup(object tag, out MouldCurve refCurve)
+		//{
+		//	refCurve = null;
+		//	for (int i = Layout.Count - 1; i >= 0; i--)
+		//	{
+		//		if (Layout[i] is CurveGroup)
+		//		{
+		//			if ((Layout[i] as CurveGroup).ContainsObject(tag, out refCurve))
+		//				return Layout[i];
 
-				}
-				else if (Layout[i] is VariableGroup)
-				{
-					if ((Layout[i] as VariableGroup).ContainsKey(tag.ToString()))
-						return Layout[i];
-				}
-			}
-			return null;
-		}
+		//		}
+		//		else if (Layout[i] is VariableGroup)
+		//		{
+		//			if ((Layout[i] as VariableGroup).ContainsKey(tag.ToString()))
+		//				return Layout[i];
+		//		}
+		//	}
+		//	return null;
+		//}
 
-		internal IGroup GetParentGroup(object tag)
-		{
-			for (int i = Layout.Count - 1; i >= 0; i--)
-			{
-				if (Layout[i] is CurveGroup)
-				{
-					MouldCurve tmp = null;
-					if ((Layout[i] as CurveGroup).ContainsObject(tag, out tmp))
-					{
-						return Layout[i];
-					}
-				}
-				else if (Layout[i] is VariableGroup)
-				{
-					if ((Layout[i] as VariableGroup).ContainsKey(tag.ToString()))
-						return Layout[i];
-				}
-			}
-			return null;
-		}
+		//internal IGroup GetParentGroup(object tag)
+		//{
+		//	for (int i = Layout.Count - 1; i >= 0; i--)
+		//	{
+		//		if (Layout[i] is CurveGroup)
+		//		{
+		//			MouldCurve tmp = null;
+		//			if ((Layout[i] as CurveGroup).ContainsObject(tag, out tmp))
+		//			{
+		//				return Layout[i];
+		//			}
+		//		}
+		//		else if (Layout[i] is VariableGroup)
+		//		{
+		//			if ((Layout[i] as VariableGroup).ContainsKey(tag.ToString()))
+		//				return Layout[i];
+		//		}
+		//	}
+		//	return null;
+		//}
 
 		#region Default Geometry Shit
 
@@ -518,7 +491,7 @@ namespace Warps
 			outer.Add(new MouldCurve("Foot", this, ft));
 
 			Add(outer);
-			
+
 			return outer;
 			//LinearPath[] paths = new LinearPath[4];
 			//Entity[] es;
@@ -650,6 +623,7 @@ namespace Warps
 			}
 			return rets;
 		}
+
 		#endregion
 
 		internal void Remove(IRebuild tag)
@@ -666,9 +640,134 @@ namespace Warps
 			}
 		}
 
+		#region Watermark
+
+		/// <summary>
+		/// Searches the layout for the specified item.
+		/// </summary>
+		/// <param name="lbl">the item to find, must be unique name</param>
+		/// <returns>the cooresponding IRebuild object, null if failed</returns>
 		public IRebuild FindItem(string lbl)
 		{
+			if (lbl == null || lbl.Length == 0)
+				return null;
+			IRebuild item = null;
+			//loop through groups in reverse
+			for (int i = Layout.Count - 1; i >= 0; i--)
+			{
+				//check group label
+				if (Layout[i].Label.Equals(lbl))
+					return Layout[i];//return if match
+
+				//search group for item
+				item = Layout[i].FindItem(lbl);
+				if (item != null)
+					return item;//return if match
+			}
+			//check mould items (if any)
+			if (Mould != null && Mould.Groups != null)
+				for (int i = 0; i < Mould.Groups.Count; i++)
+				{
+					//check group label
+					if (Mould.Groups[i].Label.Equals(lbl))
+						return Mould.Groups[i];//return if match
+
+					//search group for item
+					item = Mould.Groups[i].FindItem(lbl);
+					if (item != null)
+						return item;//return if match
+				}
+			return null;//null on failure
+		}
+		public MouldCurve FindCurve(string curve)
+		{
+			return FindItem(curve) as MouldCurve;
+
+			//for (int i = Layout.Count - 1; i >= 0; i--)
+			//{
+			//	if (Layout[i] is CurveGroup)
+			//	{
+			//		MouldCurve cur = (Layout[i] as CurveGroup).Find((MouldCurve m) => { return m.Label.ToLower() == curve.ToLower(); });
+			//		if (cur != null)
+			//			return cur;
+			//	}
+			//}
+			//return null;
+		}
+		public Equation FindEquation(string variable)
+		{
+			return FindItem(variable) as Equation;
+		}
+		public IGroup FindGroup(string group)
+		{
+			return FindItem(group) as IGroup;
+		}
+
+		/// <summary>
+		/// Finds the parent group of the specified tag
+		/// </summary>
+		/// <param name="tag">the item to find the parent of</param>
+		/// <returns>the containing IGroup, null if not found</returns>
+		public IGroup FindGroup(IRebuild tag)
+		{
+			if (tag == null)
+				return null;
+			List<IRebuild> rets = new List<IRebuild>();
+			for (int i = Layout.Count - 1; i >= 0; i--)
+			{
+				if (Layout[i].Watermark(tag, ref rets))
+					return Layout[i];
+			}
 			return null;
 		}
+
+		/// <summary>
+		/// Returns all IRebuild items that are above the tag
+		/// </summary>
+		/// <param name="tag">the item being used as a watermark, can be null</param>
+		/// <returns>a List of IRebuild items</returns>
+		public List<IRebuild> Watermark(IRebuild tag)
+		{
+			List<IRebuild> rets = new List<IRebuild>();
+
+			//watermark mould first (if any)
+			if (Mould != null && Mould.Groups != null)
+				for (int i = 0; i < Mould.Groups.Count; i++)
+				{
+					if (Mould.Groups[i].Watermark(tag, ref rets))
+						break;//break on finding tag
+				}
+
+			//watermark layout
+			for (int i = 0; i < Layout.Count; i++)
+			{
+				if (Layout[i].Watermark(tag, ref rets))
+					break;//break on finding tag
+			}
+
+			return rets;
+		}
+		public List<Equation> WatermarkEqs(IRebuild tag)
+		{
+			List<Equation> eqs = new List<Equation>();
+			foreach (IRebuild rb in Watermark(tag))
+			{
+				if (rb is Equation)
+					eqs.Add(rb as Equation);
+			}
+			return eqs;
+		}
+		public List<MouldCurve> WatermarkCur(IRebuild tag)
+		{
+			List<MouldCurve> eqs = new List<MouldCurve>();
+			foreach (IRebuild rb in Watermark(tag))
+			{
+				if (rb is MouldCurve)
+					eqs.Add(rb as MouldCurve);
+			}
+			return eqs;
+		}
+		
+		#endregion
 	}
 }

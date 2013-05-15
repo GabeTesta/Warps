@@ -20,17 +20,20 @@ namespace Warps
 
 		#region Cof
 
+		string m_cofPath;
 		public string Label
 		{
 			get { return m_cofPath == null ? "" : Path.GetFileNameWithoutExtension(m_cofPath); }
 		}
-
 		public string CofPath
 		{
 			get { return m_cofPath; }
 		}
 
-		string m_cofPath;
+		public List<IGroup> Groups
+		{
+			get { return m_moucurves; }
+		}		
 
 		public void ReadCofFile(Sail sail, string cofPath)
 		{
@@ -136,7 +139,7 @@ namespace Warps
 		}
 
 		#endregion
-		
+
 		#endregion
 
 		#region Coefficients
@@ -577,6 +580,5 @@ namespace Warps
 		//	mesh.Selectable = false;
 		//	return mesh;
 		//}
-
 	}
 }

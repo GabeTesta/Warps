@@ -300,20 +300,19 @@ namespace Warps
 			return Evaluate(labelToEvaluate, sail, out result, false);
 		}
 
-		public static bool Evaluate(Equation labelToEvaluate, Sail sail, out double result, bool showBox)
+		public static bool Evaluate(Equation equation, Sail sail, out double result, bool showBox)
 		{
-			if (labelToEvaluate == null)
+			if (equation == null)
 			{
 				result = 0;
 				return false;
 			}
 			bool worked = false;
 
-			Expression ex = new Expression(labelToEvaluate.EquationText, EvaluateOptions.IgnoreCase);
+			Expression ex = new Expression(equation.EquationText, EvaluateOptions.IgnoreCase);
 
-			List<KeyValuePair<string, Equation>> availableEqs = sail.GetEquations(labelToEvaluate);
-
-			availableEqs.ForEach(eq => ex.Parameters[eq.Key] = eq.Value.Result);
+			List<Equation> avails = sail.WatermarkEqs(equation);
+			avails.ForEach(eq => ex.Parameters[eq.Label] = eq.Result);
 			//Set up a custom delegate so NCalc will ask you for a parameter's value
 			//   when it first comes across a variable
 
@@ -326,13 +325,13 @@ namespace Warps
 			try
 			{
 				result = (double)ex.Evaluate();
-				labelToEvaluate.SetResult(result);
+				equation.SetResult(result);
 				worked = true;
 			}
 			catch (Exception exx)
 			{
-				worked = double.TryParse(labelToEvaluate.EquationText, out result);
-				labelToEvaluate.SetResult(result);
+				worked = double.TryParse(equation.EquationText, out result);
+				equation.SetResult(result);
 				Warps.Logger.logger.Instance.LogErrorException(exx);
 			}
 			finally
@@ -356,13 +355,13 @@ namespace Warps
 
 			Expression ex = null;
 
-			List<KeyValuePair<string, Equation>> availableEqs = sail.GetEquations(Equ);
+			List<Equation> availableEqs = sail.WatermarkEqs(Equ);
 
 			availableEqs.ForEach(eq =>
 			{
-				if (Equ.EquationText.Contains(eq.Key))
+				if (Equ.EquationText.Contains(eq.Label))
 				{
-					ex = new Expression(eq.Value.EquationText, EvaluateOptions.IgnoreCase);
+					ex = new Expression(eq.EquationText, EvaluateOptions.IgnoreCase);
 					ex.EvaluateParameter += delegate(string name, ParameterArgs args)
 					{
 						if (name.ToLower().Contains("length"))
@@ -380,7 +379,7 @@ namespace Warps
 						result = double.NaN;
 					}
 
-					ex.Parameters[eq.Key] = eq.Value.Result;
+					ex.Parameters[eq.Label] = eq.Result;
 				}
 			});
 

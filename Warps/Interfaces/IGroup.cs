@@ -12,7 +12,7 @@ namespace Warps
 	{ 
 		Sail Sail { get; set; }
 
-		//IRebuild FindItem(string label);
-		//bool Watermark(IRebuild item);
+		IRebuild FindItem(string label);
+		bool Watermark(IRebuild tag, ref List<IRebuild> rets);
 	}
 }

@@ -392,7 +392,7 @@ namespace Warps
 			}
 			else if (e.Value is Equation)
 			{
-				IGroup parent = ActiveSail.GetParentGroup(e.Value);
+				IGroup parent = ActiveSail.FindGroup(e.Value);
 				if (parent != null)
 					track = new VariableGroupTracker(parent as VariableGroup);
 
