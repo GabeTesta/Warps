@@ -349,64 +349,6 @@ namespace Warps
 
 		private static double EvaluateToDouble(string entry, string function, Sail sail)
 		{
-			List<MouldCurve> ret = new List<MouldCurve>();
-
-			double result = 0;
-
-			Expression ex = null;
-
-			List<Equation> availableEqs = sail.WatermarkEqs(Equ);
-
-			availableEqs.ForEach(eq =>
-			{
-				if (Equ.EquationText.Contains(eq.Label))
-				{
-					ex = new Expression(eq.EquationText, EvaluateOptions.IgnoreCase);
-					ex.EvaluateParameter += delegate(string name, ParameterArgs args)
-					{
-						if (name.ToLower().Contains("length"))
-						{
-							args.Result = EvaluateToDouble(name, sail, ref ret);
-						}
-					};
-					try
-					{
-						result = (double)ex.Evaluate();
-					}
-					catch
-					{
-						System.Windows.Forms.MessageBox.Show("Error parsing equation");
-						result = double.NaN;
-					}
-
-					ex.Parameters[eq.Label] = eq.Result;
-				}
-			});
-
-			ex = new Expression(Equ.EquationText, EvaluateOptions.IgnoreCase);
-			ex.EvaluateParameter += delegate(string name, ParameterArgs args)
-			{
-				if (name.ToLower().Contains("length"))
-				{
-					args.Result = EvaluateToDouble(name, sail, ref ret);
-				}
-			};
-
-			try
-			{
-				result = (double)ex.Evaluate();
-			}
-			catch
-			{
-				//System.Windows.Forms.MessageBox.Show("Error parsing equation");
-				result = double.NaN;
-			}
-
-			return ret;
-		}
-
-		private static double EvaluateToDouble(string entry, Sail sail)
-		{
 			if (sail == null)
 				return Double.NaN;
 
@@ -428,6 +370,30 @@ namespace Warps
 
 			return ret;
 		}
+
+		//private static double EvaluateToDouble(string entry, Sail sail)
+		//{
+		//	if (sail == null)
+		//		return Double.NaN;
+
+		//	string oldEntry = entry;
+
+		//	entry = entry.ToLower();
+
+		//	double ret = 0;
+
+		//	for (int i = 0; i < KeyWords.Count; i++)
+		//	{
+		//		if (function.Contains(KeyWords[i]))
+		//		{
+		//			entry = entry.Replace("[", "");
+		//			string curveName = entry.Replace("]", "");
+		//			ret = EvaluteKeyWordOnCurve(KeyWords[i], curveName, sail);
+		//		}
+		//	}
+
+		//	return ret;
+		//}
 
 		//private static double EvaluateToDouble(string entry, Sail sail, ref List<MouldCurve> curves)
 		//{
