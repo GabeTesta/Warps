@@ -22,8 +22,7 @@ namespace Warps
 			m_group = group;
 			Label = group.Label;
 			Count = group.Count;
-			List<MouldCurve> curves = group.GetAllCurves().ToList();
-			curves.ForEach(c => { m_list.Items.Add(c); });
+			group.ForEach(c => { m_list.Items.Add(c); });
 		}
 
 		CurveGroup m_group = null;
