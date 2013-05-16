@@ -30,6 +30,7 @@ namespace Warps
 				result = 0;
 				return false;
 			}
+
 			bool worked = false;
 
 			Expression ex = new Expression(equation.EquationText, EvaluateOptions.IgnoreCase);
@@ -39,10 +40,9 @@ namespace Warps
 			//Set up a custom delegate so NCalc will ask you for a parameter's value
 			//   when it first comes across a variable
 
-			ex.EvaluateFunction += delegate(string name, FunctionArgs args)
+			ex.EvaluateFunction += delegate(string FunctionName, FunctionArgs args)
 			{
-				if (name.ToLower() == "length")
-					args.Result = EvaluateToDouble(args.Parameters[0].ParsedExpression.ToString(), "length", sail);
+				args.Result = EvaluateToDouble(args.Parameters[0].ParsedExpression.ToString(), FunctionName.ToLower(), sail);
 			};
 
 			try
