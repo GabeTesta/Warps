@@ -149,9 +149,13 @@ namespace Warps.Trackers
 
 		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			//for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
-			//	if (Tree.ContextMenuStrip.Items[i].Text == "Paste")
-			//		Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsVariableType();
+			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
+			{
+				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
+					Tree.TreeContextMenu.Items[i].Enabled = false;
+				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add") || Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
+					Tree.TreeContextMenu.Items[i].Enabled = EditMode;
+			}
 			Tree.TreeContextMenu.Show();
 		}
 
@@ -262,7 +266,7 @@ namespace Warps.Trackers
 		public void OnAdd(object sender, EventArgs e) { }
 		public void OnDelete(object sender, EventArgs e)
 		{
-			if (EditMode)
+			if (!EditMode)
 				return;
 
 			View.Remove(Comb);
@@ -446,7 +450,7 @@ namespace Warps.Trackers
 		//}
 		public void OnPaste(object sender, EventArgs e)
 		{
-			//throw new NotImplementedException();
+			//Guide Comb Trackers shouldn't do anything with pasted data
 		}
 
 		public void OnBuild(object sender, EventArgs e)

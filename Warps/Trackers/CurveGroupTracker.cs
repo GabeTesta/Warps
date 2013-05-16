@@ -306,8 +306,10 @@ namespace Warps
 
 		public void OnPaste(object sender, EventArgs e)
 		{
-			if (Utilities.GetClipboardObjType() != typeof(CurveGroup) 
-				|| Utilities.GetClipboardObjType() != typeof(MouldCurve))
+			//mouldcurves and guidecombs should be pasted into here
+
+			if (Utilities.GetClipboardObjType() != typeof(MouldCurve)
+				&& Utilities.GetClipboardObjType() != typeof(GuideComb))
 				return;
 
 			Type type = Utilities.GetClipboardObjType();

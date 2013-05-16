@@ -73,8 +73,15 @@ namespace Warps
 		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
+			{
 				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
-					Tree.TreeContextMenu.Items[i].Enabled = Utilities.GetClipboardObjType() == typeof(Equation);
+					Tree.TreeContextMenu.Items[i].Enabled = false;
+				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add"))
+					Tree.TreeContextMenu.Items[i].Enabled = false;
+				if(Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
+					Tree.TreeContextMenu.Items[i].Enabled = EditMode;
+					
+			}
 			Tree.TreeContextMenu.Show();
 		}
 
@@ -142,21 +149,7 @@ namespace Warps
 
 		public void OnPaste(object sender, EventArgs e)
 		{
-			if (Utilities.GetClipboardObjType() != typeof(Equation))
-				return;
 
-			Type type = Utilities.GetClipboardObjType();
-			if (type == null)
-				return;
-
-			List<string> result = (List<string>)Utilities.DeSerialize(Clipboard.GetData(type.Name).ToString());
-
-			ScriptTools.ModifyScriptToShowCopied(ref result);
-
-			Equation group = (Equation)Tree.SelectedTag;
-
-			if (group == null)
-				return;
 		}
 
 		public bool IsTracking(object obj)

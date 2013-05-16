@@ -506,6 +506,12 @@ namespace Warps
 		}
 		internal void ClearTracker()
 		{
+			if (m_Tracker == null)
+			{
+				EditorPanel = null;
+				return;
+			}
+
 			if (m_Tracker != null)
 				m_Tracker.OnCancel(null, null);//clear any existing tracker
 

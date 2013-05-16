@@ -282,7 +282,6 @@ namespace Warps.Yarns
 
 		public void OnPaste(object sender, EventArgs e)
 		{
-			Type type = Utilities.GetClipboardObjType();
 
 		}
 

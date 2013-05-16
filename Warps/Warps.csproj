@@ -179,6 +179,7 @@
     <Compile Include="Equations\EquationEditorForm.designer.cs">
       <DependentUpon>EquationEditorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Equations\EquationEvaluator.cs" />
     <Compile Include="Equations\VariableGroup.cs" />
     <Compile Include="Surfaces\CofMould.cs" />
     <Compile Include="Surfaces\ComboMould.cs" />

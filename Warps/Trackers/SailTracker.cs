@@ -143,6 +143,8 @@ namespace Warps
 
 		public void OnPaste(object sender, EventArgs e)
 		{
+			//any Igroup should be pasteable into here
+
 			Type type = Utilities.GetClipboardObjType();
 			if (type == null || type.IsSubclassOf(typeof(IGroup)))
 				return;

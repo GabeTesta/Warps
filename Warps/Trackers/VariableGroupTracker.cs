@@ -97,7 +97,7 @@ namespace Warps
 		{
 			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
 				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
-					Tree.TreeContextMenu.Items[i].Enabled = ClipboardContainsVariableType();
+					Tree.TreeContextMenu.Items[i].Enabled = Utilities.GetClipboardObjType() == typeof(Equation);
 			Tree.TreeContextMenu.Show();
 		}
 
@@ -235,7 +235,9 @@ namespace Warps
 
 		public void OnPaste(object sender, EventArgs e)
 		{
-			if (!ClipboardContainsVariableType())
+			//Equations should be able to be pasted into this group
+
+			if (Utilities.GetClipboardObjType() != typeof(Equation))
 				return;
 
 			Type type = Utilities.GetClipboardObjType();
@@ -263,11 +265,6 @@ namespace Warps
 		public bool IsTracking(object obj)
 		{
 			return obj == m_group;
-		}
-
-		private bool ClipboardContainsVariableType()
-		{
-			return Clipboard.ContainsData(typeof(Equation).Name);
 		}
 
 		internal void HighlightEquation(Equation equation)

@@ -97,21 +97,15 @@ namespace Warps
 		{
 			for (int i = 0; i < result.Count; i++)
 			{
-				if (result[i].Contains("CurveGroup:") || result[i].Contains("MouldCurve:") || result[i].Contains("Label:") || result[i].Contains("GuideComb:"))
+				if (result[i].Contains("CurveGroup:") 
+				|| result[i].Contains("MouldCurve:") 
+				|| result[i].Contains("Label:") 
+				|| result[i].Contains("GuideComb:")
+				|| result[i].Contains("VariableGroup:"))
 					result[i] = String.Format("{0}:{1}", result[i].Split(new char[] { ':' })[0], result[i].Split(new char[] { ':' })[1] + "_Copy");
-				
-				//else if (result[i].Contains("SurfaceCurve:"))
-				//{
-				//	result[i] = String.Format("{0}: {1}", result[i].Split(new char[] { ':' })[0], result[i].Split(new char[] { ':' })[1] + "_Copy");
-				//}
-				//else if (result[i].Contains("Geodesic:"))
-				//{
-				//	result[i] = String.Format("{0}: {1}", result[i].Split(new char[] { ':' })[0], result[i].Split(new char[] { ':' })[1] + "_Copy");
-				//}
-				//else if (result[i].Contains("MouldCurve:"))
-				//{
-				//	result[i] = String.Format("{0}: {1}", result[i].Split(new char[] { ':' })[0], result[i].Split(new char[] { ':' })[1] + "_Copy");
-				//}
+				else if(result[i].Contains("Equation")){
+					result[i + 1] = String.Format("{0}:{1}", result[i + 1].Split(new char[] { ':' })[0] + "_Copy", result[i + 1].Split(new char[] { ':' })[1]);
+				}
 			}
 		}
 	}

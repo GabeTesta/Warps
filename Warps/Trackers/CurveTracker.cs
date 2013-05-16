@@ -191,7 +191,6 @@ namespace Warps
 			//m_temp.FitPoints = pnts.ToArray();
 		}
 
-
 		public void OnSelect(object sender, EventArgs<IRebuild> e)
 		{
 			if (Curve != null)
@@ -352,12 +351,7 @@ namespace Warps
 
 		public void OnPaste(object sender, EventArgs e)
 		{
-			//result = null;
-			if (!Clipboard.ContainsData(typeof(MouldCurve).Name))
-				return;
-
-			List<string> result = (List<string>)Utilities.DeSerialize(Clipboard.GetData(typeof(MouldCurve).GetType().Name).ToString());
-			ScriptTools.ModifyScriptToShowCopied(ref result);
+			//the Curve tracker shouldn't do anything with pasted data
 		}
 
 		//public bool IsTracking(object obj)
@@ -443,7 +437,9 @@ namespace Warps
 			{
 				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
 					Tree.TreeContextMenu.Items[i].Enabled = Utilities.GetClipboardObjType() == typeof(MouldCurve);
-				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add") || Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
+				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add"))
+					Tree.TreeContextMenu.Items[i].Enabled = false;
+				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
 					Tree.TreeContextMenu.Items[i].Enabled = EditMode;
 			}
 			Tree.TreeContextMenu.Show();
