@@ -42,10 +42,7 @@ namespace Warps
 
 		#region ITracker Members
 
-		public void OnCancel(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnCancel(object sender, EventArgs e) { }
 
 		public void OnBuild(object sender, EventArgs e)
 		{
@@ -110,7 +107,7 @@ namespace Warps
 			nS = script.IndexOf(' ', nS);
 			fits[1] = ReadFitPoint(script, ++nS);
 
-			if( Curve == null )
+			if (Curve == null)
 				Curve = new MouldCurve(script.Substring(7, 5), m_sail, fits);
 			else
 			{
@@ -121,7 +118,7 @@ namespace Warps
 
 		IFitPoint ReadFitPoint(string script, int nType)
 		{
-			int nE, nS = nType+5;
+			int nE, nS = nType + 5;
 			double u, v;
 			string curve;
 			MouldCurve cur;
@@ -159,62 +156,35 @@ namespace Warps
 		}
 
 
-		public void OnCancel()
-		{
-			throw new NotImplementedException();
-		}
+		public void OnCancel() { }
 
-		public void OnSelect(object sender, EventArgs<IRebuild> e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnAdd(object sender, EventArgs e) { }
 
-		public void OnClick(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnDelete(object sender, EventArgs e) { }
 
-		public void OnDown(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnSelect(object sender, EventArgs<IRebuild> e) { }
 
-		public void OnMove(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnClick(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
-		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnDown(object sender, System.Windows.Forms.MouseEventArgs e) { }
+
+		public void OnMove(object sender, System.Windows.Forms.MouseEventArgs e) { }
+
+		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
 		public bool IsTracking(object obj)
 		{
 			return obj == m_curve;
 		}
 
-		public void OnEditor(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnEditor(object sender, EventArgs e) { }
 
-		public void OnPreview(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnPreview(object sender, EventArgs e) { }
 
+		//public void OnCopy(object sender, EventArgs e) { }
 
-		public void OnCopy(object sender, EventArgs e)
-		{
-			//throw new NotImplementedException();
-		}
+		public void OnPaste(object sender, EventArgs e) { }
 
-		public void OnPaste(object sender, EventArgs e)
-		{
-			//throw new NotImplementedException();
-		}
-	
 		#endregion
 
 	}

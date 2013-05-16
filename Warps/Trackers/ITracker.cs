@@ -26,9 +26,13 @@ namespace Warps
 		void OnMove(object sender, MouseEventArgs e);
 		void OnUp(object sender, MouseEventArgs e);
 
-		void OnCopy(object sender, EventArgs e);
+		//void OnCopy(object sender, EventArgs e); MOVED TO TREE
 
 		void OnPaste(object sender, EventArgs e);
+
+		void OnDelete(object sender, EventArgs e);
+
+		void OnAdd(object sender, EventArgs e);
 
 		/// <summary>
 		/// test to see if tracker is already tracking what you want

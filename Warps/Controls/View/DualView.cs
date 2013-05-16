@@ -310,6 +310,11 @@ namespace Warps
 
 		public EventHandler<EventArgs<IRebuild>> SelectionChanged;
 
+		public void VisibilityToggled(object sender, EventArgs<IRebuild> args)
+		{
+			ToggleLayer(args.Value);
+		}
+
 		void DualView_SelectionChanged(object sender, EventArgs e)
 		{
 			int underMouse = ActiveView.GetEntityUnderMouseCursor(mousePnt);
@@ -908,7 +913,7 @@ namespace Warps
 
 			if (e == null)
 				return;
-
+			
 			this[0].Layers.TurnOff(e.LayerIndex);// = !this[0].Layers[e.LayerIndex].Visible;
 			this[1].Layers.TurnOff(e.LayerIndex);// = !this[1].Layers[e.LayerIndex].Visible;
 

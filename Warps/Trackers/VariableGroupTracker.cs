@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
+using Warps.Logger;
 
 namespace Warps
 {
@@ -20,46 +21,29 @@ namespace Warps
 
 			m_edit = new VariableGroupEditor(m_group);
 		}
-			
+
 		public void Track(WarpFrame frame)
 		{
 			m_frame = frame;
 
-			if (m_frame != null )
+			if (m_frame != null)
 			{
-				//m_frame.okButton.Click += OnBuild;
-				//m_frame.cancelButton.Click += OnCancel;
-				//m_frame.previewButton.Click += OnPreview;
-
 				m_frame.EditorPanel = Edit;
 				EditMode = m_frame.EditMode;
-				AddContextMenu();
-				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v
-
-				//View.DeSelectAll();
-				//if (m_group != null)
-				//{
-				//	foreach (KeyValuePair<string, Equation> eq in m_group)
-				//	{
-				//		List<MouldCurve> referencedCurves = EquationEvaluator.ExtractCurves(eq.Value.EquationText, m_frame.ActiveSail);
-				//		foreach (MouldCurve curve in referencedCurves)
-				//		{
-				//			View.Select(curve);
-				//		}
-				//	}
-				//}
-				//View.Refresh();
+				if (Tree != null)
+				{
+					Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
+					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
+					Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+				}
 			}
 		}
 		public void Cancel()
 		{
-			//m_frame.okButton.Click -= OnBuild;
-			//m_frame.cancelButton.Click -= OnCancel;
-			//m_frame.previewButton.Click -= OnPreview;
-
 			m_frame.EditorPanel = null;
 
-			RemoveContextMenu();
+			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
+			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
 			Tree.KeyUp -= Tree_KeyUp;
 
 			if (m_eqEditor != null)
@@ -70,10 +54,9 @@ namespace Warps
 			}
 		}
 
-
 		void m_eqEditor_OnVariableDeleted(object sender, Equation DeleteMe)
 		{
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
 		}
 
 		void m_eqEditor_OnVariableAdded(object sender, Equation addedEq)
@@ -101,94 +84,39 @@ namespace Warps
 			// the modifier key CTRL is pressed by the time it gets here
 			switch (e.KeyCode)
 			{
-				case Keys.C:
-					OnCopy(Tree.SelectedTag, new EventArgs());
-					break;
+				//case Keys.C:
+				//	OnCopy(Tree.SelectedTag, new EventArgs());
+				//	break;
 				case Keys.V:
 					OnPaste(Tree.SelectedTag, new EventArgs());
 					break;
 			}
 		}
 
-
-		ContextMenuStrip m_context = new ContextMenuStrip();
 		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
-				if (Tree.ContextMenuStrip.Items[i].Text == "Paste Group")
-					Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsVariableType();
-			Tree.ContextMenuStrip.Show();
+			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
+				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
+					Tree.TreeContextMenu.Items[i].Enabled = ClipboardContainsVariableType();
+			Tree.TreeContextMenu.Show();
 		}
 
-		private void AddContextMenu()
+		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
-			if (Tree != null)
+			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
+
+			if (e.ClickedItem.Text == "Paste")
 			{
-				Tree.ContextMenuStrip = new ContextMenuStrip();
-				Tree.ContextMenuStrip.Items.Add("Add Variable", new Bitmap(Warps.Properties.Resources.glyphicons_190_circle_plus), OnAddVariableItemClick);
-				Tree.ContextMenuStrip.Items.Add("Delete", new Bitmap(Warps.Properties.Resources.glyphicons_192_circle_remove), OnRemoveVariableGroupItemClick);
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Copy Variable Group", new Bitmap(Warps.Properties.Resources.copy), OnCopy);
-				Tree.ContextMenuStrip.Items.Add("Paste", new Bitmap(Warps.Properties.Resources.paste), OnPaste);
-				Tree.ContextMenuStrip.Items[Tree.ContextMenuStrip.Items.Count - 1].Enabled = ClipboardContainsVariableType();
-
-				Tree.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
+				OnPaste(sender, new EventArgs());
 			}
-		}
-		private void RemoveContextMenu()
-		{
-			if (Tree.ContextMenu != null)
+			else if (e.ClickedItem.Text == "Delete")
 			{
-				Tree.ContextMenuStrip.Opening -= ContextMenuStrip_Opening;
-				Tree.ContextMenuStrip.Items.Clear();
+				OnDelete(sender, new EventArgs());
 			}
-			Tree.ContextMenuStrip = null;
-		}
-		void OnVisibleToggleClick(object sender, EventArgs e)
-		{
-			//if (Tree.SelectedTag is IGroup)
-			//{
-			//	View.ToggleLayer((IGroup)Tree.SelectedTag);
-			//}
-			//if (curveTracker == null)
-			//	return;
-
-			//curveTracker
-			//curveTracker = new CurveTracker(m_frame, new SurfaceCurve("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
-
-		}
-		void OnShowOnlyClick(object sender, EventArgs e)
-		{
-			//View.ShowOnly((IGroup)Tree.SelectedTag);
-			//curveTracker = new CurveTracker(m_frame, new SurfaceCurve("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
-
-		}
-
-		void OnAddVariableItemClick(object sender, EventArgs e)
-		{
-			m_eqEditor.Show();
-			//m_frame.Rebuild()
-			//m_curveTracker = new CurveTracker(m_frame, new SurfaceCurve("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
-
-		}
-
-		void OnAddGirthItemClick(object sender, EventArgs e)
-		{
-			//m_curveTracker = new CurveTracker(m_frame, new Geodesic("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
-		}
-		void OnRemoveVariableGroupItemClick(object sender, EventArgs e)
-		{
-			// HERE WE DELETE
-
-			// Get clicked item (Curve)
-
-			// List<IRebuild> ret = m_frame.Rebuild(Curve)
-			// ret is invalid shit
-			// call invalidate(ret)-> color themselves SHOW THEY ARE BROKEN
-			// View entity keep previous state, color invalid byEntity, when fixed, byLayer
-			//
-			m_frame.Delete(m_group);
-
+			else if (e.ClickedItem.Text == "Add")
+			{
+				OnAdd(sender, new EventArgs());
+			}
 		}
 
 		DualView View
@@ -228,11 +156,30 @@ namespace Warps
 			//m_temp.FitPoints = pnts.ToArray();
 		}
 
+		public void OnAdd(object sender, EventArgs e)
+		{
+			m_eqEditor.Show();
+		}
+
+		public void OnDelete(object sender, EventArgs e)
+		{
+			// HERE WE DELETE
+
+			// Get clicked item (Curve)
+
+			// List<IRebuild> ret = m_frame.Rebuild(Curve)
+			// ret is invalid shit
+			// call invalidate(ret)-> color themselves SHOW THEY ARE BROKEN
+			// View entity keep previous state, color invalid byEntity, when fixed, byLayer
+			//
+			m_frame.Delete(m_group);
+
+		}
+
 		public void OnCancel(object sender, EventArgs e)
 		{
 			Cancel();
 		}
-
 
 		public void OnBuild(object sender, EventArgs e)
 		{
@@ -259,50 +206,32 @@ namespace Warps
 			m_frame.Rebuild(m_group);
 		}
 
-		public void OnSelect(object sender, EventArgs<IRebuild> e)
-		{
+		public void OnSelect(object sender, EventArgs<IRebuild> e) { }
 
-		}
+		public void OnClick(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
-		public void OnClick(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
+		public void OnDown(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
-		}
+		public void OnMove(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
-		public void OnDown(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
+		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
-		}
+		public void OnPreview(object sender, EventArgs e) { }
 
-		public void OnMove(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
+		//public void OnCopy(object sender, EventArgs e)
+		//{
+			//IGroup group = Tree.SelectedTag as IGroup;
 
-		}
+			//if (group == null)
+			//	return;
+			////Lets say its my data format
+			//Clipboard.Clear();
+			////Set data to clipboard
+			//Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
+			////Get data from clipboard
+			//m_frame.Status = String.Format("{0}:{1} Copied", group.GetType().Name, group.Label);
 
-		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-
-		}
-
-		public void OnPreview(object sender, EventArgs e)
-		{
-
-		}
-
-		public void OnCopy(object sender, EventArgs e)
-		{
-			IGroup group = Tree.SelectedTag as IGroup;
-
-			if (group == null)
-				return;
-			//Lets say its my data format
-			Clipboard.Clear();
-			//Set data to clipboard
-			Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
-			//Get data from clipboard
-			m_frame.Status = String.Format("{0}:{1} Copied", group.GetType().Name, group.Label);
-
-		}
+		//}
 
 		public void OnPaste(object sender, EventArgs e)
 		{

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Warps.Logger;
 
 namespace Warps
 {
@@ -22,6 +23,9 @@ namespace Warps
 			SorTree.ShowNodeToolTips = true;
 			SeqTree.AfterSelect += Tree_AfterSelect;
 			SorTree.AfterSelect += Tree_AfterSelect;
+
+			BuildContextMenu();
+
 			imageList = new ImageList();
 
 			imageList.Images.Add("empty", Warps.Properties.Resources.empty);
@@ -49,6 +53,44 @@ namespace Warps
 
 		}
 
+		private void BuildContextMenu()
+		{
+			TreeContextMenu = new ContextMenuStrip();
+
+			TreeContextMenu.Items.Add("Add");
+			TreeContextMenu.Items.Add("Delete");
+			TreeContextMenu.Items.Add(new ToolStripSeparator());
+			TreeContextMenu.Items.Add("Copy", null, OnCopy);
+			TreeContextMenu.Items.Add("Paste");
+			TreeContextMenu.Items.Add(new ToolStripSeparator());
+			TreeContextMenu.Items.Add("Visible", null, OnVisibleToggleClick);
+
+			SeqTree.ContextMenuStrip = TreeContextMenu;
+			//SorTree.ContextMenuStrip = TreeContextMenu;
+		}
+
+		void OnVisibleToggleClick(object sender, EventArgs e)
+		{
+			if (VisibilityToggle != null)
+				VisibilityToggle(sender, new EventArgs<IRebuild>(SelectedTag as IRebuild));
+		}
+
+		void OnCopy(object sender, EventArgs e)
+		{
+			IRebuild group = SelectedTag as IRebuild;
+			if (group == null)
+			{
+				logger.Instance.Log("{0}:{1} failed to copy", SelectedTag.GetType().Name, SelectedTag.ToString());
+				return;
+			}
+			//Lets say its my data format
+			Clipboard.Clear();
+			//Set data to clipboard
+			Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
+
+			logger.Instance.Log("{0}:{1} copied to clipboard", group.GetType().Name, group.Label);
+		}
+
 		public void AttachTracker(ITracker tracker)
 		{
 			AfterSelect += tracker.OnSelect;
@@ -63,22 +105,6 @@ namespace Warps
 			//SorTree.AfterSelect -= tracker.OnSelect;
 		}
 
-		//bool m_editMode = false;
-
-		///// <summary>
-		///// if true, we want to color the current node that is being editted with a different color than blue
-		///// </summary>
-		//public bool EditMode
-		//{
-		//	get { return m_editMode; }
-		//	set
-		//	{
-		//		m_editMode = value;
-		//		if (m_seqtree.SelectedNode != null)
-		//			m_seqtree.SelectedNode.BackColor = value ? Color.LightGreen : Color.White;
-		//	}
-		//}
-
 		void SeqTree_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
 		{
 
@@ -91,7 +117,13 @@ namespace Warps
 
 		ImageList imageList = new ImageList();
 
-		ContextMenu m_context = new ContextMenu();
+		ContextMenuStrip m_contextStrip = new ContextMenuStrip();
+
+		public ContextMenuStrip TreeContextMenu
+		{
+			get { return m_contextStrip; }
+			set { m_contextStrip = value; }
+		}
 
 		#region Trees
 
@@ -257,6 +289,8 @@ namespace Warps
 
 		public event ObjectSelected AfterSelect;
 
+		public event VisibilityToggled VisibilityToggle;
+
 		void Tree_AfterSelect(object sender, TreeViewEventArgs e, bool bypassActionType)
 		{
 			object tag = FindTag(e.Node);
@@ -298,24 +332,12 @@ namespace Warps
 				SaveNode(text, tn);
 		}
 
-		private void m_treeContext_Opening(object sender, CancelEventArgs e)
-		{
-			if (SelectedTag == null)
-				return;
-			this.ContextMenuStrip.Show(MousePosition);
-		}
-
-		private void CreateGeoGroupContext()
-		{
-			m_treeContext = new ContextMenuStrip();
-
-		}
-
-		private void CreateCurveGroupContext()
-		{
-
-
-		}
+		//private void m_treeContext_Opening(object sender, CancelEventArgs e)
+		//{
+		//	if (SelectedTag == null)
+		//		return;
+		//	this.ContextMenuStrip.Show(MousePosition);
+		//}
 
 		#endregion
 
@@ -354,7 +376,12 @@ namespace Warps
 		private void m_seqtree_KeyUp(object sender, KeyEventArgs e)
 		{
 			if (ModifierKeys == Keys.Control)
-				base.OnKeyUp(e);
+			{
+				if (e.KeyCode == Keys.C)
+					OnCopy(sender, new EventArgs());
+				else
+					base.OnKeyUp(e);
+			}
 			else
 				HighLightNodeBeginningWith(e.KeyCode);
 

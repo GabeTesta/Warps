@@ -10,6 +10,7 @@ using devDept.Geometry;
 using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
+using Warps.Logger;
 
 namespace Warps.Trackers
 {
@@ -27,20 +28,19 @@ namespace Warps.Trackers
 				return;
 
 			m_frame = frame;
-			//m_frame.okButton.Click += OnBuild;
-			//m_frame.cancelButton.Click += OnCancel;
-			//m_frame.previewButton.Click += OnPreview;
 
 			m_frame.EditorPanel = Edit;
 			EditMode = frame.EditMode;
 
-			CreateTreePopup();
-			Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v
-			Tree.ContextMenuStrip.Opening += TreePopup_Opening;
+			if (Tree != null)
+			{
+				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
+				Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
+				Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+			}
 
 			View.AttachTracker(this);
-			//if (Curve == null && EditMode)
-			//	View.StartSelect();
+
 			if (Comb != null)
 				SelectCurve(Comb);
 		}
@@ -95,21 +95,11 @@ namespace Warps.Trackers
 					ee.ColorMethod = colorMethodType.byEntity;
 				}
 
-			//PointTypeSwitcher.SetCurves(mc);
-			//PointTypeSwitcher.SetAutofill(Sail.GetAutoFillData(Comb));
-			//PointTypeSwitcher.SetSail(Sail);
-
 			Edit.AutoFill = Sail.Watermark(Comb).ToList<object>();
 			Edit.ReadComb(m_temp);
 			Edit.Label = Comb.Label;
 			Edit.Refresh();
 
-			//if( EditMode ) View.StopSelect();
-			//Edit.Label = Comb.Label;
-			//Edit.Length = m_temp.Length;
-			////Edit.FitPoints = m_temp.FitPoints;
-			//Edit.CombPnts = m_temp.CombPnts;
-			//Edit.Refresh();
 			if (Tree.SelectedTag != Comb) Tree.SelectedTag = Comb;
 			//if (View.SelectedTag != Curve) 
 			View.Select(Comb);
@@ -138,11 +128,6 @@ namespace Warps.Trackers
 					if (Comb != null)
 						SelectCurve(Comb);
 				}
-				//if (Tree != null)
-				//	Tree.EditMode = value;
-
-				//if (value == false)
-				//	Tree.DeSelect(Comb);
 			}
 		}
 
@@ -153,80 +138,51 @@ namespace Warps.Trackers
 			// the modifier key CTRL is pressed by the time it gets here
 			switch (e.KeyCode)
 			{
-				case Keys.C:
-					OnCopy(Tree.SelectedTag, new EventArgs());
-					break;
+				//case Keys.C:
+				//	OnCopy(Tree.SelectedTag, new EventArgs());
+				//	break;
 				case Keys.V:
 					OnPaste(Tree.SelectedTag, new EventArgs());
 					break;
 			}
 		}
 
-		private void CreateTreePopup()
+		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			if (Tree != null)
-			{
-				Tree.ContextMenuStrip = new ContextMenuStrip();
-
-				Tree.ContextMenuStrip.Items.Add("Show Only", new Bitmap(Warps.Properties.Resources.showonly), OnShowOnlyClick);
-				Tree.ContextMenuStrip.Items.Add("Visible", new Bitmap(Warps.Properties.Resources.SmallEye), OnVisibleToggleClick);
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Copy Curve", new Bitmap(Warps.Properties.Resources.copy), OnCopy);
-				Tree.ContextMenuStrip.Items.Add("Paste Curve", new Bitmap(Warps.Properties.Resources.paste), OnPaste);
-				Tree.ContextMenuStrip.Items[Tree.ContextMenuStrip.Items.Count - 1].Enabled = ClipboardContainsComb();
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Delete", new Bitmap(Warps.Properties.Resources.glyphicons_192_circle_remove), DeleteClick);
-
-				Tree.ContextMenuStrip.Opening += TreePopup_Opening;
-			}
-
+			//for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
+			//	if (Tree.ContextMenuStrip.Items[i].Text == "Paste")
+			//		Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsVariableType();
+			Tree.TreeContextMenu.Show();
 		}
 
-
-		void DeleteClick(object sender, EventArgs e)
+		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
-			if (EditMode)
-				return;
+			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
 
-			View.Remove(Comb);
-			CurveGroup g = Comb.Group as CurveGroup;
-			if (g != null)
+			//if (e.ClickedItem.Text == "Copy")
+			//{
+			//	OnCopy(sender, new EventArgs());
+			//}
+			if (e.ClickedItem.Text == "Paste")
 			{
-				g.Remove(Comb);
-				m_frame.Rebuild(g);
+				OnPaste(sender, new EventArgs());
 			}
-			m_frame.Delete(Comb);
-			if (g != null)
-				Tree.SelectedTag = g;
-		}
-
-		private void DeleteTreePopup()
-		{
-			if (Tree.ContextMenu != null)
+			else if (e.ClickedItem.Text == "Delete")
 			{
-				Tree.ContextMenuStrip.Opening -= TreePopup_Opening;
-				Tree.ContextMenuStrip.Items.Clear();
-				Tree.ContextMenuStrip = null;
+				OnDelete(sender, new EventArgs());
+			}
+			else if (e.ClickedItem.Text == "Add")
+			{
+				OnAdd(sender, new EventArgs());
 			}
 		}
+
 		void TreePopup_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
 			for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
-				if (Tree.ContextMenuStrip.Items[i].Text == "Paste Curve")
-					Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsComb();
+				if (Tree.ContextMenuStrip.Items[i].Text == "Paste")
+					Tree.ContextMenuStrip.Items[i].Enabled = Utilities.GetClipboardObjType() == typeof(GuideComb);
 			Tree.ContextMenuStrip.Show();
-			//Tree.ContextMenuStrip.Items["Paste Curve"].Enabled = ClipboardContainsCurve();
-		}
-
-		void OnVisibleToggleClick(object sender, EventArgs e)
-		{
-			View.ToggleLayer(m_guide);
-
-		}
-		void OnShowOnlyClick(object sender, EventArgs e)
-		{
-			View.ShowOnly(m_guide);
-
 		}
 
 		void UpdateViewCurve(bool bEditor)
@@ -274,6 +230,7 @@ namespace Warps.Trackers
 				//Edit.Enabled = bEditor;//restore previous edit state
 			}
 		}
+
 		public void Cancel()
 		{
 			//m_frame.okButton.Click -= OnBuild;
@@ -282,8 +239,9 @@ namespace Warps.Trackers
 
 			m_frame.EditorPanel = null;
 
-			DeleteTreePopup();
-			Tree.KeyUp -= Tree_KeyUp; // handle ctrl-c ctrl-v
+			Tree.KeyUp -= Tree_KeyUp;
+			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
+			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
 
 			View.DetachTracker(this);
 			if (m_temp != null)
@@ -292,27 +250,33 @@ namespace Warps.Trackers
 			//View.StopSelect();
 			View.Refresh();
 		}
+
 		void ReadEditor()
 		{
-			//List<IFitPoint> pnts = new List<IFitPoint>();
-			//for (int i = 0; i < Edit.Count; i++)
-			//{
-			//	object fit = null;
-			//	if (Edit[i] != null)
-			//		fit = Utilities.CreateInstance(Edit[i].FitType.Name);
-			//	if (fit != null && fit is IFitPoint)
-			//	{
-			//		pnts.Add(fit as IFitPoint);
-			//		pnts.Last().ReadEditor(Edit[i]);
-			//	}
-			//}
-			//m_temp.FitPoints = pnts.ToArray();
 			Edit.WriteComb(m_temp);
-			//m_temp.CombPnts = Edit.CombPnts;
 			m_temp.FitComb(Edit.CombPnts);
 		}
 
 		#endregion
+
+		public void OnAdd(object sender, EventArgs e) { }
+		public void OnDelete(object sender, EventArgs e)
+		{
+			if (EditMode)
+				return;
+
+			View.Remove(Comb);
+			CurveGroup g = Comb.Group as CurveGroup;
+			if (g != null)
+			{
+				g.Remove(Comb);
+				m_frame.Rebuild(g);
+			}
+			m_frame.Delete(Comb);
+			if (g != null)
+				Tree.SelectedTag = g;
+		}
+
 		public void OnSelect(object sender, EventArgs<IRebuild> e)
 		{
 			//throw new NotImplementedException();
@@ -332,21 +296,12 @@ namespace Warps.Trackers
 				{
 					//get mouse point in uv, find closest curve point, add fit point there.
 					System.Drawing.Point mpt = new System.Drawing.Point(e.X, View.ActiveView.Height - e.Y);
-					//mpt = View.ActiveView.PointToScreen(mpt);
-					//Point3D target = View.ActiveView.ScreenToWorld(mpt);
+
 					int i;
-					//if ( target != null && m_temp.InsertPoint(new Vect3(target.ToArray()), out i))
+
 					if (m_temp.InsertPoint(mpt, View.ActiveView.WorldToScreen, out i))
-					{
 						UpdateViewCurve(true);
-						//Vect3 xyz = new Vect3();
-						//m_temp.xVal(m_temp.FitPoints[i].UV, ref xyz);
-						//Point3D target = View.ActiveView.ScreenToWorld(mpt);
-						//LinearPath p = new LinearPath(target, new Point3D(xyz.ToArray()));
-						//p.Color = Color.HotPink;
-						//p.ColorMethod = colorMethodType.byEntity;
-						//View.Add(p);
-					}
+					
 				}
 
 			}
@@ -475,20 +430,20 @@ namespace Warps.Trackers
 			}
 		}
 
-		public void OnCopy(object sender, EventArgs e)
-		{
-			GuideComb group = Tree.SelectedTag as GuideComb;
+		//public void OnCopy(object sender, EventArgs e)
+		//{
+		//	GuideComb group = Tree.SelectedTag as GuideComb;
 
-			if (group == null)
-				return;
-			//Lets say its my data format
-			Clipboard.Clear();
-			//Set data to clipboard
-			Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
-			//Get data from clipboard
-			m_frame.Status = String.Format("{0}:{1} Copied", group.GetType().Name, group.Label);
+		//	if (group == null)
+		//		return;
+		//	//Lets say its my data format
+		//	Clipboard.Clear();
+		//	//Set data to clipboard
+		//	Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
+		//	//Get data from clipboard
+		//	m_frame.Status = String.Format("{0}:{1} Copied", group.GetType().Name, group.Label);
 
-		}
+		//}
 		public void OnPaste(object sender, EventArgs e)
 		{
 			//throw new NotImplementedException();
@@ -520,19 +475,9 @@ namespace Warps.Trackers
 		{
 			if (m_temp == null || !EditMode)
 				return;
-			//if (e.Value >= 0)
-			//{
-			//	m_temp[e.Value].ReadEditor(Edit[e.Value]);
-			//	m_temp[e.Value].WriteEditor(Edit[e.Value]);
-			//}
-			//else
+
 			ReadEditor();
 			UpdateViewCurve(true);
-		}
-
-		bool ClipboardContainsComb()
-		{
-			return Clipboard.ContainsData(typeof(GuideComb).Name);
 		}
 	}
 }

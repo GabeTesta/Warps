@@ -10,6 +10,7 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
+using Warps.Logger;
 
 namespace Warps
 {
@@ -34,8 +35,12 @@ namespace Warps
 				//m_frame.cancelButton.Click += OnCancel;
 				//m_frame.previewButton.Click += OnPreview;
 
-				AddContextMenu();
-				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v
+				if (Tree != null)
+				{
+					Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
+					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
+					Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+				}
 
 				View.DeSelectAllLayers();
 				View.SelectLayer(m_group);
@@ -54,9 +59,9 @@ namespace Warps
 
 			View.Refresh();
 
-			RemoveContextMenu();
-
-			Tree.KeyUp -= Tree_KeyUp;
+			Tree.KeyUp -= Tree_KeyUp; // handle ctrl-c ctrl-v	
+			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
+			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
 
 			if (m_curveTracker != null)
 			{
@@ -98,9 +103,9 @@ namespace Warps
 			// the modifier key CTRL is pressed by the time it gets here
 			switch (e.KeyCode)
 			{
-				case Keys.C:
-					OnCopy(Tree.SelectedTag, new EventArgs());
-					break;
+				//case Keys.C:
+				//	OnCopy(Tree.SelectedTag, new EventArgs());
+				//	break;
 				case Keys.V:
 					OnPaste(Tree.SelectedTag, new EventArgs());
 					break;
@@ -109,114 +114,42 @@ namespace Warps
 
 		#region TreePopup
 
-		ContextMenuStrip m_context = new ContextMenuStrip();
-
-		private void AddContextMenu()
-		{
-			if (Tree != null)
-			{
-				Tree.ContextMenuStrip = new ContextMenuStrip();
-				Tree.ContextMenuStrip.Items.Add("Add Curve", new Bitmap(Warps.Properties.Resources.glyphicons_190_circle_plus), OnAddCurveItemClick);
-				Tree.ContextMenuStrip.Items.Add("Add Guide Comb", new Bitmap(Warps.Properties.Resources.glyphicons_190_circle_plus), OnAddGuideCombClick);
-				Tree.ContextMenuStrip.Items.Add("Delete", new Bitmap(Warps.Properties.Resources.glyphicons_192_circle_remove), OnRemoveCurveItemClick);
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Copy Group", new Bitmap(Warps.Properties.Resources.copy), OnCopy);
-				Tree.ContextMenuStrip.Items.Add("Paste Curve", new Bitmap(Warps.Properties.Resources.paste), OnPaste);
-				Tree.ContextMenuStrip.Items[Tree.ContextMenuStrip.Items.Count - 1].Enabled = ClipboardContainsCurveType();
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Show Only", new Bitmap(Warps.Properties.Resources.showonly), OnShowOnlyClick);
-				Tree.ContextMenuStrip.Items.Add("Visible", new Bitmap(Warps.Properties.Resources.SmallEye), OnVisibleToggleClick);
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Color", new Bitmap(Warps.Properties.Resources.showonly), EditColorClick);
-
-				Tree.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
-			}
-
-		}
-		private void RemoveContextMenu()
-		{
-			if (Tree.ContextMenu != null)
-			{
-				Tree.ContextMenuStrip.Opening -= ContextMenuStrip_Opening;
-				Tree.ContextMenuStrip.Items.Clear();
-			}
-			Tree.ContextMenuStrip = null;
-		}
 		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
+			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
 			{
-				if (Tree.ContextMenuStrip.Items[i].Text == "Paste Curve")
-					Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsCurveType();
-				if (Tree.ContextMenuStrip.Items[i].Text.ToLower().Contains("add") || Tree.ContextMenuStrip.Items[i].Text.ToLower().Contains("delete"))
-					Tree.ContextMenuStrip.Items[i].Enabled = EditMode;
+				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
+					Tree.TreeContextMenu.Items[i].Enabled = (Utilities.GetClipboardObjType() == typeof(CurveGroup) || Utilities.GetClipboardObjType() == typeof(MouldCurve));
+				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add") || Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
+					Tree.TreeContextMenu.Items[i].Enabled = EditMode;
 			}
 
-			Tree.ContextMenuStrip.Show();
+			Tree.TreeContextMenu.Show();
 		}
 
-		void EditColorClick(object sender, EventArgs e)
+		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
-			if (Tree.SelectedTag is IGroup)
+			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
+
+			//if (e.ClickedItem.Text == "Copy")
+			//{
+			//	OnCopy(sender, new EventArgs());
+			//}
+			if (e.ClickedItem.Text == "Paste")
 			{
-				Layer l = View.GetLayer((Tree.SelectedTag as IGroup));
-				if (l == null)
-					return;
-
-				ColorWheelForm cwf = new ColorWheelForm(l);
-
-				cwf.Show(m_frame);
+				OnPaste(sender, new EventArgs());
+			}
+			else if (e.ClickedItem.Text == "Delete")
+			{
+				OnDelete(sender, new EventArgs());
+			}
+			else if (e.ClickedItem.Text == "Add")
+			{
+				OnAdd(sender, new EventArgs());
 			}
 		}
 
-		void OnVisibleToggleClick(object sender, EventArgs e)
-		{
-			View.ToggleLayer(m_group);
-		}
-		void OnShowOnlyClick(object sender, EventArgs e)
-		{
-			View.ShowOnly(m_group);
-		}
-
-		void OnAddCurveItemClick(object sender, EventArgs e)
-		{
-			//m_frame.Rebuild()
-			m_curveTracker = new CurveTracker(new MouldCurve("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
-			m_curveTracker.Track(m_frame);
-		}
-
-		void OnAddGuideCombClick(object sender, EventArgs e)
-		{
-			m_curveTracker = new CurveTracker(new GuideComb("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }, new Vect2[] { new Vect2(0, 1), new Vect2(1, 1) }));
-			m_curveTracker.Track(m_frame);
-		}
-
-		void OnAddGirthItemClick(object sender, EventArgs e)
-		{
-			m_curveTracker = new CurveTracker(new MouldCurve("", m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
-			m_curveTracker.Track(m_frame);
-		}
-		void OnRemoveCurveItemClick(object sender, EventArgs e)
-		{
-			// HERE WE DELETE
-
-			// Get clicked item (Curve)
-
-			// List<IRebuild> ret = m_frame.Rebuild(Curve)
-			// ret is invalid shit
-			// call invalidate(ret)-> color themselves SHOW THEY ARE BROKEN
-			// View entity keep previous state, color invalid byEntity, when fixed, byLayer
-			
-			for (int i = 0; i < m_group.Count; i++)
-				View.Remove(m_group[i]);
-			
-			m_group.Clear();
-
-			m_frame.Rebuild(m_group);
-			m_frame.Delete(m_group);
-			//m_frame.Rebuild(null);
-
-		}
+		
 
 		#endregion
 
@@ -236,6 +169,63 @@ namespace Warps
 		TabTree Tree
 		{
 			get { return m_frame != null ? m_frame.Tree : null; }
+		}
+		Sail sail
+		{
+			get { return m_frame != null ? m_frame.ActiveSail : null; }
+		}
+
+		public void OnAdd(object sender, EventArgs e)
+		{
+			if (sail == null)
+				return;
+
+			List<Type> useThese = new List<Type>();
+
+			useThese.Add(typeof(MouldCurve));
+			useThese.Add(typeof(GuideComb));
+
+			AddGroup dlg = new AddGroup(useThese);
+			dlg.Name = "enter name";
+			if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			{
+				IRebuild cur = dlg.CreateIRebuild();
+				if (cur.GetType().Name == "GuideComb")
+				{
+					m_curveTracker = new CurveTracker(new GuideComb(dlg.Label, m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }, new Vect2[] { new Vect2(0, 1), new Vect2(1, 1) }));
+					m_curveTracker.Track(m_frame);
+				}
+				else
+				{
+					m_curveTracker = new CurveTracker(new MouldCurve(dlg.Label, m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
+					m_curveTracker.Track(m_frame);
+				}
+
+			}
+			//here we need to ask if we want a GuideComb or a normal curve
+
+		}
+
+		public void OnDelete(object sender, EventArgs e)
+		{
+			// HERE WE DELETE
+
+			// Get clicked item (Curve)
+
+			// List<IRebuild> ret = m_frame.Rebuild(Curve)
+			// ret is invalid shit
+			// call invalidate(ret)-> color themselves SHOW THEY ARE BROKEN
+			// View entity keep previous state, color invalid byEntity, when fixed, byLayer
+
+			for (int i = 0; i < m_group.Count; i++)
+				View.Remove(m_group[i]);
+
+			m_group.Clear();
+
+			m_frame.Rebuild(m_group);
+			m_frame.Delete(m_group);
+			//m_frame.Rebuild(null);
+
 		}
 
 		public void OnCancel(object sender, EventArgs e)
@@ -303,23 +293,24 @@ namespace Warps
 			//throw new NotImplementedException();
 		}
 
-		public void OnCopy(object sender, EventArgs e)
-		{
-			//Lets say its my data format
-			Clipboard.Clear();
-			//Set data to clipboard
-			Clipboard.SetData(m_group.GetType().Name, Utilities.Serialize(m_group.WriteScript()));
-			//Get data from clipboard
-			m_frame.Status = String.Format("{0}:{1} Copied", m_group.GetType().Name, m_group.Label);
-			m_frame.ClearTracker();//clear tracker so user can select sail and paste it
-		}
+		//public void OnCopy(object sender, EventArgs e)
+		//{
+		//	//Lets say its my data format
+		//	Clipboard.Clear();
+		//	//Set data to clipboard
+		//	Clipboard.SetData(m_group.GetType().Name, Utilities.Serialize(m_group.WriteScript()));
+		//	//Get data from clipboard
+		//	m_frame.Status = String.Format("{0}:{1} Copied", m_group.GetType().Name, m_group.Label);
+		//	m_frame.ClearTracker();//clear tracker so user can select sail and paste it
+		//}
 
 		public void OnPaste(object sender, EventArgs e)
 		{
-			if (!ClipboardContainsCurveType())
+			if (Utilities.GetClipboardObjType() != typeof(CurveGroup) 
+				|| Utilities.GetClipboardObjType() != typeof(MouldCurve))
 				return;
 
-			Type type = GetClipboardObjType();
+			Type type = Utilities.GetClipboardObjType();
 			if (type == null)
 				return;
 
@@ -353,96 +344,11 @@ namespace Warps
 			}
 			catch (Exception ex) { Warps.Logger.logger.Instance.LogErrorException(ex); return; }
 			m_frame.Rebuild(group);
-
-			//switch (type.Name)
-			//{
-			//	case "CurveGroup":
-			//		{
-
-			//		}
-			//		break;
-			//	case "MouldCurve":
-			//		{
-			//			try
-			//			{
-			//				object cur = Utilities.CreateInstance(result[0].Split(new char[] { ':' })[0].Trim());
-			//				if (cur != null && cur is MouldCurve)
-			//				{
-			//					(cur as MouldCurve).Sail = group.Sail;
-			//					(cur as MouldCurve).ReadScript(group.Sail, result);
-			//					(group as CurveGroup).Add(cur as MouldCurve);
-			//					SetFrameStatus(String.Format("{0}:{1} Pasted into {2}:{3} From Clipboard", cur.GetType().Name, (cur as MouldCurve).Label, group.GetType().Name, group.Label));
-			//				}
-
-			//			}
-			//			catch (Exception ex) { Warps.Logger.logger.Instance.LogErrorException(ex); return; }
-			//			m_frame.Rebuild(group);
-			//		}
-			//		break;
-			//	case "SurfaceCurve":
-			//		{
-			//			try
-			//			{
-			//				object cur = Utilities.CreateInstance(result[0].Split(new char[] { ':' })[0].Trim());
-			//				if (cur != null && cur is MouldCurve)
-			//				{
-			//					(cur as MouldCurve).Sail = group.Sail;
-			//					(cur as MouldCurve).ReadScript(group.Sail, result);
-			//					(group as CurveGroup).Add(cur as MouldCurve);
-			//					SetFrameStatus(String.Format("{0}:{1} Pasted into {2}:{3} From Clipboard", Utilities.GetTypeStringForClipboard(cur), (cur as MouldCurve).Label, Utilities.GetTypeStringForClipboard(group), group.Label));
-
-			//				}
-
-			//			}
-			//			catch (Exception ex) { Warps.Logger.logger.Instance.LogErrorException(ex); return; }
-			//			m_frame.Rebuild(group);
-			//		}
-			//		break;
-			//	case "Geodesic":
-			//		{
-			//			try
-			//			{
-			//				object cur = Utilities.CreateInstance(result[0].Split(new char[] { ':' })[0].Trim());
-			//				if (cur != null && cur is MouldCurve)
-			//				{
-			//					(cur as MouldCurve).Sail = group.Sail;
-			//					(cur as MouldCurve).ReadScript(group.Sail, result);
-			//					(group as CurveGroup).Add(cur as MouldCurve);
-			//					SetFrameStatus(String.Format("{0}:{1} Pasted into {2}:{3} From Clipboard", Utilities.GetTypeStringForClipboard(cur), (cur as MouldCurve).Label, Utilities.GetTypeStringForClipboard(group), group.Label));
-
-			//				}
-
-			//			}
-			//			catch (Exception ex) { Warps.Logger.logger.Instance.LogErrorException(ex); return; }
-			//			m_frame.Rebuild(group);
-			//		}
-			//		break;
-			//}
 		}
 
 		public bool IsTracking(object obj)
 		{
 			return obj == m_group;
-		}
-
-		private bool ClipboardContainsCurveType()
-		{
-			return Clipboard.ContainsData(typeof(CurveGroup).Name)
-				|| Clipboard.ContainsData(typeof(MouldCurve).Name)
-				|| Clipboard.ContainsData(typeof(GuideComb).Name);
-		}
-
-		Type GetClipboardObjType()
-		{
-			if (Clipboard.ContainsData(typeof(CurveGroup).Name))
-				return typeof(CurveGroup);
-			else if (Clipboard.ContainsData(typeof(MouldCurve).Name))
-				return typeof(MouldCurve);
-			else if (Clipboard.ContainsData(typeof(GuideComb).Name))
-				return typeof(GuideComb);
-
-			return null;
-
 		}
 	}
 }

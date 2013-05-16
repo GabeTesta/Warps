@@ -10,6 +10,7 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
+using Warps.Logger;
 
 namespace Warps.Yarns
 {
@@ -30,11 +31,14 @@ namespace Warps.Yarns
 				m_frame.EditorPanel = Edit;
 				EditMode = m_frame.EditMode;
 
-				AddContextMenu();
-				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
+				if (Tree != null)
+				{
+					Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
+					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
+					Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+				}
+				
 			}
-
-
 
 			if (View != null)
 			{
@@ -104,9 +108,6 @@ namespace Warps.Yarns
 			// the modifier key CTRL is pressed by the time it gets here
 			switch (e.KeyCode)
 			{
-				case Keys.C:
-					OnCopy(Tree.SelectedTag, new EventArgs());
-					break;
 				case Keys.V:
 					OnPaste(Tree.SelectedTag, new EventArgs());
 					break;
@@ -115,32 +116,37 @@ namespace Warps.Yarns
 
 		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			//for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
-			//	if (Tree.ContextMenuStrip.Items[i].Text == "Paste Group")
-			//		Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsCurveType();
-			Tree.ContextMenuStrip.Show();
-		}
-
-		ContextMenuStrip m_context = new ContextMenuStrip();
-
-		private void AddContextMenu()
-		{
-			if (Tree != null)
+			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
 			{
-				Tree.ContextMenuStrip = new ContextMenuStrip();
-
-				Tree.ContextMenuStrip.Items.Add("Show Only", new Bitmap(Warps.Properties.Resources.showonly), OnShowOnlyClick);
-				Tree.ContextMenuStrip.Items.Add("Visible", new Bitmap(Warps.Properties.Resources.SmallEye), OnVisibleToggleClick);
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Color", new Bitmap(Warps.Properties.Resources.showonly), EditColorClick);
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Delete", new Bitmap(Warps.Properties.Resources.glyphicons_191_circle_minus), DeleteClick);
-
-				Tree.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
-
+				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
+					Tree.TreeContextMenu.Items[i].Enabled = Utilities.GetClipboardObjType() == typeof(YarnGroup);
+				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add"))
+					Tree.TreeContextMenu.Items[i].Enabled = false; //can't add anything to yarns
+				if(Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
+					Tree.TreeContextMenu.Items[i].Enabled = EditMode; 
 			}
 
+			Tree.TreeContextMenu.Show();
 		}
+
+		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
+			
+			if (e.ClickedItem.Text == "Paste")
+			{
+				OnPaste(sender, new EventArgs());
+			}
+			else if (e.ClickedItem.Text == "Delete")
+			{
+				OnDelete(sender, new EventArgs());
+			}
+			else if (e.ClickedItem.Text == "Add")
+			{
+				OnAdd(sender, new EventArgs());
+			}
+		}
+
 		void EditColorClick(object sender, EventArgs e)
 		{
 			if (Tree.SelectedTag is IGroup)
@@ -155,17 +161,9 @@ namespace Warps.Yarns
 			}
 		}
 
-		void OnVisibleToggleClick(object sender, EventArgs e)
+		public void OnDelete(object sender, EventArgs e)
 		{
-			View.ToggleLayer(m_group);
-		}
-		void OnShowOnlyClick(object sender, EventArgs e)
-		{
-			View.ShowOnly(m_group);
-		}
-		void DeleteClick(object sender, EventArgs e)
-		{
-			if (EditMode)
+			if (!EditMode)
 				return;
 
 			View.Remove(yarGroup);
@@ -178,40 +176,27 @@ namespace Warps.Yarns
 			//if (yarGroup != null)
 			//	Tree.SelectedTag = yarGroup;
 		}
-		private void RemoveContextMenu()
-		{
-			if (Tree.ContextMenu != null)
-			{
-				Tree.ContextMenuStrip.Opening -= ContextMenuStrip_Opening;
-				Tree.ContextMenuStrip.Items.Clear();
-			}
-			Tree.ContextMenuStrip = null;
-		}
+
+		public void OnAdd(object sender, EventArgs e) { }
 
 		public void OnCancel(object sender, EventArgs e)
 		{
-			
 			Cancel();
-			//throw new NotImplementedException();
 		}
 
 		private void Cancel()
 		{
-			
 			m_frame.EditorPanel = null;
 
-			RemoveContextMenu();
-			Tree.KeyUp -= Tree_KeyUp; // handle ctrl-c ctrl-v
+			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
+			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
+			Tree.KeyUp -= Tree_KeyUp;
+
 			Tree.DetachTracker(this);
-			//if (Tree != null)
-			//	Tree.AfterSelect += OnSelect;
+
 			if(View!=null)
 				View.DetachTracker(this);
-			//if (m_temp != null)
-			//	View.Remove(m_temp);
-			//View.DeSelect(Comb);
-			////View.StopSelect();
-			//View.Refresh();
+
 		}
 
 		public void OnBuild(object sender, EventArgs e)
@@ -295,16 +280,6 @@ namespace Warps.Yarns
 			//throw new NotImplementedException();
 		}
 
-		public void OnCopy(object sender, EventArgs e)
-		{
-			//Lets say its my data format
-			Clipboard.Clear();
-			//Set data to clipboard
-			Clipboard.SetData(yarGroup.GetType().Name, Utilities.Serialize(yarGroup.WriteScript()));
-			//Get data from clipboard
-			m_frame.Status = String.Format("{0}:{1} Copied", yarGroup.GetType().Name, yarGroup.Label);
-		}
-
 		public void OnPaste(object sender, EventArgs e)
 		{
 			Type type = Utilities.GetClipboardObjType();
@@ -316,8 +291,5 @@ namespace Warps.Yarns
 			if (m_frame != null)
 				m_frame.Status = status;
 		}
-
-		
-
 	}
 }

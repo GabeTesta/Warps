@@ -628,14 +628,9 @@ namespace Warps
 
 		internal void Remove(IRebuild tag)
 		{
-			if (tag is CurveGroup)
+			if (tag is IGroup)
 			{
 				IGroup g = FindGroup(tag.Label);
-				Layout.Remove(g);
-			}
-			else if (tag is MouldCurve)
-			{
-				IGroup g = FindGroup(tag as MouldCurve);
 				Layout.Remove(g);
 			}
 		}
@@ -767,7 +762,7 @@ namespace Warps
 			}
 			return eqs;
 		}
-		
+
 		#endregion
 	}
 }

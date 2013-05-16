@@ -20,6 +20,9 @@ using System.Threading;
 namespace Warps
 {
 	public delegate void ObjectSelected(object sender, EventArgs<IRebuild> e);
+
+	public delegate void VisibilityToggled(object sender, EventArgs<IRebuild> e);
+
 	public delegate void WriteStatus(string status);
 
 	public partial class WarpFrame : Form
@@ -50,6 +53,8 @@ namespace Warps
 			m_tree.AfterSelect += m_tree_AfterSelect;
 			View.SelectionChanged += m_tree_AfterSelect;
 			cancelButton.Click += cancelButton_Click;
+
+			Tree.VisibilityToggle += View.VisibilityToggled;
 
 			m_horizsplit.SplitterDistance = m_horizsplit.ClientRectangle.Width - 250;
 

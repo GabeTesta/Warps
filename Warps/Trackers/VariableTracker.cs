@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
+using Warps.Logger;
 
 namespace Warps
 {
-	public class VariableTracker: ITracker
+	public class VariableTracker : ITracker
 	{
 		public VariableTracker(Equation equ)
 		{
 			m_equ = equ;
 		}
+
 		public void Track(WarpFrame frame)
 		{
 			m_frame = frame;
@@ -22,25 +24,17 @@ namespace Warps
 			if (m_frame != null)
 			{
 				m_frame.EditorPanel = null;//no editor
-				//m_frame.okButton.Click += OnBuild;
-				//m_frame.cancelButton.Click += OnCancel;
-				//m_frame.previewButton.Click += OnPreview;
 
-				AddContextMenu();
-				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v
+				if (Tree != null)
+				{
+					Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
+					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
+					Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+				}
 
-				//View.DeSelectAll();
-				//if (m_equ != null)
-				//{
-				//	List<MouldCurve> referencedCurves = EquationEvaluator.ExtractCurves(m_equ.EquationText, m_frame.ActiveSail);
-				//	foreach (MouldCurve curve in referencedCurves)
-				//	{
-				//		View.Select(curve);
-				//	}
-				//}
-				//View.Refresh();
 			}
 		}
+
 		bool m_editMode = false;
 
 		public bool EditMode
@@ -68,9 +62,9 @@ namespace Warps
 			// the modifier key CTRL is pressed by the time it gets here
 			switch (e.KeyCode)
 			{
-				case Keys.C:
-					OnCopy(Tree.SelectedTag, new EventArgs());
-					break;
+				//case Keys.C:
+				//	OnCopy(Tree.SelectedTag, new EventArgs());
+				//	break;
 				case Keys.V:
 					OnPaste(Tree.SelectedTag, new EventArgs());
 					break;
@@ -78,128 +72,77 @@ namespace Warps
 		}
 		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
-				if (Tree.ContextMenuStrip.Items[i].Text == "Paste Variable")
-					Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsVariableType();
-			Tree.ContextMenuStrip.Show();
+			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
+				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
+					Tree.TreeContextMenu.Items[i].Enabled = Utilities.GetClipboardObjType() == typeof(Equation);
+			Tree.TreeContextMenu.Show();
 		}
 
-		ContextMenuStrip m_context = new ContextMenuStrip();
-
-		private void RemoveContextMenu()
+		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
-			if (Tree.ContextMenu != null)
-			{
-				Tree.ContextMenuStrip.Opening -= ContextMenuStrip_Opening;
-				Tree.ContextMenuStrip.Items.Clear();
-			}
-			Tree.ContextMenuStrip = null;
-		}
+			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
 
-		private void AddContextMenu()
-		{
-			if (Tree != null)
-			{
-				Tree.ContextMenuStrip = new ContextMenuStrip();
-				//Tree.ContextMenuStrip.Items.Add("Add Variable", new Bitmap(Warps.Properties.Resources.glyphicons_190_circle_plus), OnAddVariableItemClick);
-				Tree.ContextMenuStrip.Items.Add("Delete", new Bitmap(Warps.Properties.Resources.glyphicons_192_circle_remove), OnRemoveVariableItemClick);
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Copy Variable", new Bitmap(Warps.Properties.Resources.copy), OnCopy);
-				Tree.ContextMenuStrip.Items.Add("Paste Variable", new Bitmap(Warps.Properties.Resources.paste), OnPaste);
-				Tree.ContextMenuStrip.Items[Tree.ContextMenuStrip.Items.Count - 1].Enabled = ClipboardContainsVariableType();
-
-				Tree.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
-			}
-		}
-
-		void OnRemoveVariableItemClick(object sender, EventArgs e)
-		{
-			//View.Remove(m_equ);
-			//Equation g = m_equ as Equation;
-			//if (g != null)
+			//if (e.ClickedItem.Text == "Copy")
 			//{
-			//	g.Remove(Curve);
-			//	m_frame.Rebuild(g);
+			//	OnCopy(sender, new EventArgs());
 			//}
-			//m_frame.Delete(Curve);
-			//if (g != null)
-			//	Tree.SelectedTag = g;
-
+			if (e.ClickedItem.Text == "Paste")
+			{
+				OnPaste(sender, new EventArgs());
+			}
+			else if (e.ClickedItem.Text == "Delete")
+			{
+				OnDelete(sender, new EventArgs());
+			}
+			else if (e.ClickedItem.Text == "Add")
+			{
+				OnAdd(sender, new EventArgs());
+			}
 		}
+
+		public void OnAdd(object sender, EventArgs e) { }
+
+		public void OnDelete(object sender, EventArgs e) { }
 
 		public void OnCancel(object sender, EventArgs e)
 		{
-			//foreach (MouldCurve curve in m_equ.ExtractReferencedCurves())
-			//	View.DeSelect(curve);
-
-			//View.Refresh();
-
-			RemoveContextMenu();
-			//m_frame.okButton.Click -= OnBuild;
-			////m_frame.cancelButton.Click -= OnCancel;
-			//m_frame.previewButton.Click -= OnPreview;
+			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
+			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
 			Tree.KeyUp -= Tree_KeyUp;
-		//	if (m_eqEditor != null)
-		//	{
-		//		m_eqEditor.OnVariableDeleted -= m_eqEditor_OnVariableDeleted;
-		//		m_eqEditor.OnVariableAdded -= m_eqEditor_OnVariableAdded;
-		//		m_eqEditor = null;
-		//	}
 		}
 
-		public void OnBuild(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnBuild(object sender, EventArgs e) { }
 
-		public void OnSelect(object sender, EventArgs<IRebuild> e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnSelect(object sender, EventArgs<IRebuild> e) { }
 
-		public void OnClick(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnClick(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
-		public void OnDown(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnDown(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
-		public void OnMove(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnMove(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
-		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
-		public void OnPreview(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public void OnPreview(object sender, EventArgs e) { }
 
-		public void OnCopy(object sender, EventArgs e)
-		{
-			Equation equ = Tree.SelectedTag as Equation;
+		//public void OnCopy(object sender, EventArgs e)
+		//{
+		//	Equation equ = Tree.SelectedTag as Equation;
 
-			if (equ == null)
-				return;
-			//Lets say its my data format
-			Clipboard.Clear();
-			//Set data to clipboard
-			Clipboard.SetData(equ.GetType().Name, Utilities.Serialize(equ.WriteScript()));
-			//Get data from clipboard
-			m_frame.Status = String.Format("{0}:{1} Copied", equ.GetType().Name, equ.Label);
+		//	if (equ == null)
+		//		return;
+		//	//Lets say its my data format
+		//	Clipboard.Clear();
+		//	//Set data to clipboard
+		//	Clipboard.SetData(equ.GetType().Name, Utilities.Serialize(equ.WriteScript()));
+		//	//Get data from clipboard
+		//	m_frame.Status = String.Format("{0}:{1} Copied", equ.GetType().Name, equ.Label);
 
-		}
+		//}
 
 		public void OnPaste(object sender, EventArgs e)
 		{
-			if (!ClipboardContainsVariableType())
+			if (Utilities.GetClipboardObjType() != typeof(Equation))
 				return;
 
 			Type type = Utilities.GetClipboardObjType();
@@ -219,11 +162,6 @@ namespace Warps
 		public bool IsTracking(object obj)
 		{
 			return obj == m_equ;
-		}
-
-		private bool ClipboardContainsVariableType()
-		{
-			return Clipboard.ContainsData(typeof(Equation).Name);
 		}
 
 	}

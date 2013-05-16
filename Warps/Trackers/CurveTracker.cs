@@ -10,6 +10,7 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
+using Warps.Logger;
 
 namespace Warps
 {
@@ -18,8 +19,6 @@ namespace Warps
 		public CurveTracker(MouldCurve curve)
 		{
 			m_curve = curve;
-			//m_mcEdit.ReturnPress += OnPreview;
-			//m_edit = new CurveEditor(Curve);
 		}
 
 		public void Track(WarpFrame frame)
@@ -28,21 +27,19 @@ namespace Warps
 				return;
 
 			m_frame = frame;
-			//m_frame.okButton.Click += OnBuild;
-			//m_frame.cancelButton.Click += OnCancel;
-			//m_frame.previewButton.Click += OnPreview;
 
 			m_frame.EditorPanel = m_edit;
 			EditMode = frame.EditMode;
-			
-			CreateTreePopup();
-			Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v
-			Tree.ContextMenuStrip.Opening += TreePopup_Opening;
+
+			if (Tree != null)
+			{
+				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
+				Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
+				Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+			}
 
 			View.AttachTracker(this);
 			
-			//if (Curve == null && EditMode)
-			//	View.StartSelect();
 			if (Curve != null)
 				SelectCurve(Curve);
 		}
@@ -54,10 +51,12 @@ namespace Warps
 
 			m_frame.EditorPanel = null;
 
-			DeleteTreePopup();
-			Tree.KeyUp -= Tree_KeyUp; // handle ctrl-c ctrl-v
+			Tree.KeyUp -= Tree_KeyUp;
+			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
+			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
 
 			View.DetachTracker(this);
+
 			if (m_temp != null)
 				View.Remove(m_temp);
 			View.DeSelect(Curve);
@@ -123,14 +122,17 @@ namespace Warps
 		Entity[][] m_tents;
 		int m_index = -1;
 
-		void DeleteClick(object sender, EventArgs e)
+		#region ITracker Members
+
+		public void OnAdd(object sender, EventArgs e) { }
+		public void OnDelete(object sender, EventArgs e)
 		{
 			if (!EditMode)
 				return;
 
 			View.Remove(Curve);
 			CurveGroup g = Curve.Group as CurveGroup;
-			if( g != null )
+			if (g != null)
 			{
 				g.Remove(Curve);
 				m_frame.Rebuild(g);
@@ -139,8 +141,6 @@ namespace Warps
 			if (g != null)
 				Tree.SelectedTag = g;
 		}
-
-		#region ITracker Members
 
 		public void OnCancel(object sender, EventArgs e)
 		{
@@ -234,24 +234,15 @@ namespace Warps
 					ee.LineWeightMethod = colorMethodType.byEntity;
 				}
 
-			//List<MouldCurve> mc = Sail.GetCurves(Curve);
-			//PointTypeSwitcher.SetCurves(mc);
-			//PointTypeSwitcher.SetAutofill(Sail.GetAutoFillData(Curve));
-			//PointTypeSwitcher.SetSail(Sail);
-
-			//if( EditMode ) View.StopSelect();
 			m_edit.AutoFill = Sail.Watermark(Curve).ToList<object>();
 			m_edit.ReadCurve(m_temp);
 			m_edit.Label = Curve.Label;
 			m_edit.Refresh();
-			//Edit.Label = Curve.Label;
-			//Edit.Length = m_temp.Length;
-			//Edit.FitPoints = m_temp.FitPoints;
-			//Edit.Refresh();
-			if (Tree.SelectedTag != Curve) Tree.SelectedTag = Curve;
-			//if (View.SelectedTag != Curve) 
+
+			if (Tree.SelectedTag != Curve) 
+				Tree.SelectedTag = Curve;
+
 			View.Select(Curve);
-			//View.SelectLayer(Curve);
 			View.Refresh();
 		}
 
@@ -341,23 +332,23 @@ namespace Warps
 			}
 		}
 
-		public void OnCopy(object sender, EventArgs e)
-		{
-			MouldCurve group = Tree.SelectedTag as MouldCurve;
-			//Lets say its my data format
-			if (group == null)
-				return;
+		//public void OnCopy(object sender, EventArgs e)
+		//{
+		//	MouldCurve group = Tree.SelectedTag as MouldCurve;
+		//	//Lets say its my data format
+		//	if (group == null)
+		//		return;
 
-			Clipboard.Clear();
+		//	Clipboard.Clear();
 
-			// Set data to clipboard
+		//	// Set data to clipboard
 
-			// typeof(MouldCurve).ToString() doesn't work here because its string is Warps.CurveGroup
-			// this is a problem for the clipboard for some reason
+		//	// typeof(MouldCurve).ToString() doesn't work here because its string is Warps.CurveGroup
+		//	// this is a problem for the clipboard for some reason
 
-			Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
-			m_frame.Status = String.Format("{0}:{1} Copied", group.GetType().Name, group.Label);
-		}
+		//	Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
+		//	m_frame.Status = String.Format("{0}:{1} Copied", group.GetType().Name, group.Label);
+		//}
 
 		public void OnPaste(object sender, EventArgs e)
 		{
@@ -415,73 +406,50 @@ namespace Warps
 			// the modifier key CTRL is pressed by the time it gets here
 			switch (e.KeyCode)
 			{
-				case Keys.C:
-					OnCopy(Tree.SelectedTag, new EventArgs());
-					break;
+				//case Keys.C:
+					//OnCopy(Tree.SelectedTag, new EventArgs());
+				//	break;
 				case Keys.V:
 					OnPaste(Tree.SelectedTag, new EventArgs());
 					break;
 			}
 		}
 
-		private void CreateTreePopup()
+		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
-			if (Tree != null)
+			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
+
+			//if (e.ClickedItem.Text == "Copy")
+			//{
+			//	OnCopy(sender, new EventArgs());
+			//}
+			if (e.ClickedItem.Text == "Paste")
 			{
-				Tree.ContextMenuStrip = new ContextMenuStrip();
-
-				Tree.ContextMenuStrip.Items.Add("Show Only", new Bitmap(Warps.Properties.Resources.showonly), OnShowOnlyClick);
-				Tree.ContextMenuStrip.Items.Add("Visible", new Bitmap(Warps.Properties.Resources.SmallEye), OnVisibleToggleClick);
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Copy Curve", new Bitmap(Warps.Properties.Resources.copy), OnCopy);
-				Tree.ContextMenuStrip.Items.Add("Paste Curve", new Bitmap(Warps.Properties.Resources.paste), OnPaste);
-				Tree.ContextMenuStrip.Items[Tree.ContextMenuStrip.Items.Count - 1].Enabled = ClipboardContainsCurve();
-				Tree.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-				Tree.ContextMenuStrip.Items.Add("Delete", new Bitmap(Warps.Properties.Resources.glyphicons_192_circle_remove), DeleteClick);
-
-				Tree.ContextMenuStrip.Opening += TreePopup_Opening;
+				OnPaste(sender, new EventArgs());
 			}
-
-		}
-		private void DeleteTreePopup()
-		{
-			if (Tree.ContextMenu != null)
+			else if (e.ClickedItem.Text == "Delete")
 			{
-				Tree.ContextMenuStrip.Opening -= TreePopup_Opening;
-				Tree.ContextMenuStrip.Items.Clear();
-				Tree.ContextMenuStrip = null;
+				OnDelete(sender, new EventArgs());
+			}
+			else if (e.ClickedItem.Text == "Add")
+			{
+				OnAdd(sender, new EventArgs());
 			}
 		}
-		void TreePopup_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+
+		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{
-			for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
+			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
 			{
-				if (Tree.ContextMenuStrip.Items[i].Text == "Paste Curve")
-					Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsCurve();
-				if (Tree.ContextMenuStrip.Items[i].Text.ToLower().Contains("add") || Tree.ContextMenuStrip.Items[i].Text.ToLower().Contains("delete"))
-					Tree.ContextMenuStrip.Items[i].Enabled = EditMode;
+				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
+					Tree.TreeContextMenu.Items[i].Enabled = Utilities.GetClipboardObjType() == typeof(MouldCurve);
+				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add") || Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
+					Tree.TreeContextMenu.Items[i].Enabled = EditMode;
 			}
-			Tree.ContextMenuStrip.Show();
-			//Tree.ContextMenuStrip.Items["Paste Curve"].Enabled = ClipboardContainsCurve();
+			Tree.TreeContextMenu.Show();
 		}
 
-		void OnVisibleToggleClick(object sender, EventArgs e)
-		{
-			View.ToggleLayer(m_curve);
-
-		}
-		void OnShowOnlyClick(object sender, EventArgs e)
-		{
-			View.ShowOnly(m_curve);
-
-		}
 
 		#endregion
-
-		bool ClipboardContainsCurve()
-		{
-			return Clipboard.ContainsData(typeof(CurveGroup).Name)
-				|| Clipboard.ContainsData(typeof(MouldCurve).Name);
-		}
 	}
 }
