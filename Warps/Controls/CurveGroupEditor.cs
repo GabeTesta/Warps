@@ -19,11 +19,13 @@ namespace Warps
 		public CurveGroupEditor(CurveGroup group)
 		{
 			InitializeComponent();
+			//m_grid.LabelEdit = true;
+			//m_grid.MultiSelect = false;
+			m_grid.View = View.Details;
 			m_group = group;
 			Label = group.Label;
 			Count = group.Count;
-			List<MouldCurve> curves = group.GetAllCurves().ToList();
-			curves.ForEach(c => { m_list.Items.Add(c); });
+			group.ForEach(c => { this[m_grid.Items.Count] = c; });
 		}
 
 		CurveGroup m_group = null;
@@ -35,60 +37,59 @@ namespace Warps
 		}
 		public int Count
 		{
-			set { m_count.Text = string.Format("Count: {0}", value); }
-			get { return m_list.Items.Count; }
+			set { m_count.Text = value.ToString("###"); }
 		}
 		public MouldCurve this[int i]
 		{
-			get { return m_list.Items[i] as MouldCurve; }
+			get { return m_grid.Items[i].Tag as MouldCurve; }
 			set
 			{
-				if (m_list.Items.Count > i)
-					m_list.Items[i] = value;
+				//add a new item if necessary
+				if (m_grid.Items.Count <= i)
+				{
+					i = m_grid.Items.Count;
+					m_grid.Items.Add(new ListViewItem(value.Label));
+				}
 				else
-					m_list.Items.Add(value);
+					m_grid.Items[i] = new ListViewItem(value.Label);
+
+				m_grid.Items[i].Name = value.Label;
+				m_grid.Items[i].Tag = value;
+				m_grid.Items[i].SubItems.Add(value.FitPoints.Length.ToString("###"));
+				m_grid.Items[i].SubItems.Add(value.Length.ToString("f4"));
+				StringBuilder segs = new StringBuilder();
+				for (int seg = 0; seg < value.FitPoints.Length - 1; seg++)
+				{
+					segs.Append(value.IsGirth(seg) ? "-" : "~");
+				}
+				m_grid.Items[i].SubItems.Add(segs.ToString());
 			}
+		}
+
+		MouldCurve SelectedCurve
+		{
+			get { return m_grid.SelectedItems.Count > 0 ? m_grid.SelectedItems[0].Tag as MouldCurve : null; }
 		}
 
 		public event ObjectSelected AfterSelect;
 
 		private void m_list_DoubleClick(object sender, EventArgs e)
 		{
-			MouldCurve mc = m_list.SelectedItem as MouldCurve;
+			MouldCurve mc = SelectedCurve;
 			if (mc != null && AfterSelect != null)
 			{
 				AfterSelect(this, new EventArgs<IRebuild>(mc));
 			}
 		}
 
-		private void m_list_KeyUp(object sender, KeyEventArgs e)
+		protected override void OnLayout(LayoutEventArgs e)
 		{
-			//if (e.KeyCode == Keys.Delete)
-			//{
-			//	if (m_list.SelectedItem != null)
-			//	{
-			//		m_list.Items.Remove(m_list.SelectedItem);	
-			//	}
-			//}
-			Count = m_list.Items.Count;
-		}
-
-		private void button1_Click(object sender, EventArgs e)
-		{
-
-		}
-
-		public bool Editable
-		{
-			get
-			{
-				return m_labelTextBox.Enabled;
-			}
-			set
-			{
-				m_labelTextBox.Enabled = value;
-				m_list.Enabled = value;
-			}
+			base.OnLayout(e);
+			//resize columm headers to spread nicely
+			m_girCol.Width = Math.Max(50,(int)((double)m_grid.Width * 0.25));
+			m_lngthCol.Width = Math.Max(50,(int)((double)m_grid.Width * 0.25));
+			m_fitsCol.Width = Math.Max(50, (int)((double)m_grid.Width * 0.20));
+			m_lblCol.Width = Math.Max(50, (int)((double)m_grid.Width * 0.30));
 		}
 	}
 }

@@ -26,7 +26,7 @@ namespace Warps
 		/// <summary>
 		/// Gets the FitPoint's TreeNode representation or sets the FitPoint's values from a TreeNode
 		/// </summary>
-		TreeNode Node { get; set; }
+		TreeNode Node { get;  }
 		
 		Control WriteEditor(ref IFitEditor edit);
 		void ReadEditor(IFitEditor edit);
@@ -34,7 +34,7 @@ namespace Warps
 		void GetParents(Sail s, List<IRebuild> parents);
 		bool Affected(List<IRebuild> connected);
 		bool Update(Sail s);
-		bool ValidFitPoint { get; set; }
+		bool ValidFitPoint { get; }
 
 	}
 }

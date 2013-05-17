@@ -43,6 +43,7 @@
 			this.m_curves.Name = "m_curves";
 			this.m_curves.Size = new System.Drawing.Size(84, 21);
 			this.m_curves.TabIndex = 1;
+			this.m_curves.Validating += new System.ComponentModel.CancelEventHandler(this.m_curves_Validating);
 			// 
 			// m_cs
 			// 

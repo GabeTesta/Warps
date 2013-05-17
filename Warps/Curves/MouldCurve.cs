@@ -52,6 +52,7 @@ namespace Warps
 				pts.Add(new FixedPoint(bin.ReadDouble(), 0, 0));
 
 			FitPoints = pts.ToArray();
+			m_bGirths = new bool[pts.Count - 1];//spline all segments
 			//read the spline
 			m_bSpline.ReadBin(bin);
 

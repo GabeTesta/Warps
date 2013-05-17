@@ -226,52 +226,52 @@ namespace Warps
 
 		#endregion
 
-		internal IEnumerable<MouldCurve> GetCurves(object tag)
-		{
-			int i = -1;
-			if (tag is MouldCurve) i = this.IndexOf(tag as MouldCurve);
-			//IAttribute atr = Attributes.Find((IAttribute atrib) => { return attribute.Label == atrib.Label; });
-			else if (tag is IFitPoint)
-			{
-				foreach (MouldCurve mc in this)
-					if (mc.FitPoints.Contains(tag))
-					{
-						i = this.IndexOf(mc);
-						break;
-					}
-			}
-			if (i >= 0)
-				return this.Take(i);
-			return this;
-		}
-		public bool ContainsObject(object tag, out MouldCurve refCurv)
-		{
-			refCurv = null;
-			if (this.Contains(tag))
-				return true;
+		//internal IEnumerable<MouldCurve> GetCurves(object tag)
+		//{
+		//	int i = -1;
+		//	if (tag is MouldCurve) i = this.IndexOf(tag as MouldCurve);
+		//	//IAttribute atr = Attributes.Find((IAttribute atrib) => { return attribute.Label == atrib.Label; });
+		//	else if (tag is IFitPoint)
+		//	{
+		//		foreach (MouldCurve mc in this)
+		//			if (mc.FitPoints.Contains(tag))
+		//			{
+		//				i = this.IndexOf(mc);
+		//				break;
+		//			}
+		//	}
+		//	if (i >= 0)
+		//		return this.Take(i);
+		//	return this;
+		//}
+		//public bool ContainsObject(object tag, out MouldCurve refCurv)
+		//{
+		//	refCurv = null;
+		//	if (this.Contains(tag))
+		//		return true;
 
-			if (tag is IFitPoint)
-			{
-				foreach (MouldCurve cur in this)
-				{
-					if (cur.Contains(tag as IFitPoint))
-					{
-						refCurv = cur;
-						return true;
-					}
-				}
-			}
+		//	if (tag is IFitPoint)
+		//	{
+		//		foreach (MouldCurve cur in this)
+		//		{
+		//			if (cur.Contains(tag as IFitPoint))
+		//			{
+		//				refCurv = cur;
+		//				return true;
+		//			}
+		//		}
+		//	}
 
-			return false;
-		}
-		internal IEnumerable<MouldCurve> GetAllCurves()
-		{
-			List<MouldCurve> ret = new List<MouldCurve>();
-			foreach (MouldCurve mc in this)
-				ret.Add(mc);
+		//	return false;
+		//}
+		//internal IEnumerable<MouldCurve> GetAllCurves()
+		//{
+		//	List<MouldCurve> ret = new List<MouldCurve>();
+		//	foreach (MouldCurve mc in this)
+		//		ret.Add(mc);
 
-			return ret;
-		}
+		//	return ret;
+		//}
 
 		#region IGroup Members
 

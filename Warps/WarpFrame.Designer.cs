@@ -141,6 +141,7 @@
 			this.editPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.editPanel.AutoScroll = true;
 			this.editPanel.Location = new System.Drawing.Point(3, 3);
 			this.editPanel.Name = "editPanel";
 			this.editPanel.Size = new System.Drawing.Size(193, 488);
@@ -195,7 +196,7 @@
             this.cancelButton});
 			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
 			this.m_toolstrip.Name = "m_toolstrip";
-			this.m_toolstrip.Size = new System.Drawing.Size(525, 25);
+			this.m_toolstrip.Size = new System.Drawing.Size(494, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
 			// 

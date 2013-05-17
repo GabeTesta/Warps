@@ -124,7 +124,7 @@ namespace Warps
 		{
 			get
 			{
-				TreeNode point = new TreeNode(ToString());
+				TreeNode point = new TreeNode(string.Format("{0:0.0000} [{1}]", S, UV.ToString("0.0000")));
 				point.ImageKey = this.GetType().Name;
 				point.SelectedImageKey = this.GetType().Name;
 				TreeNode tmp = new TreeNode(string.Format("S-Pos: {0:0.0000}", S));
@@ -145,23 +145,23 @@ namespace Warps
 
 
 			}
-			set
-			{
-				if (value != null)
-				{
-					double d;
-					foreach (TreeNode tn in value.Nodes)
-					{
-						if (tn.Text.StartsWith("S: "))
-						{
-							if (double.TryParse(tn.Text.Substring(3), out d))
-								S = d;
-						}
-						else if (tn.Text.StartsWith("UV: "))
-							UV.FromString(tn.Text.Substring(4));
-					}
-				}
-			}
+			//set
+			//{
+			//	if (value != null)
+			//	{
+			//		double d;
+			//		foreach (TreeNode tn in value.Nodes)
+			//		{
+			//			if (tn.Text.StartsWith("S: "))
+			//			{
+			//				if (double.TryParse(tn.Text.Substring(3), out d))
+			//					S = d;
+			//			}
+			//			else if (tn.Text.StartsWith("UV: "))
+			//				UV.FromString(tn.Text.Substring(4));
+			//		}
+			//	}
+			//}
 		}
 
 		public Control WriteEditor(ref IFitEditor edit)

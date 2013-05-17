@@ -80,8 +80,8 @@ namespace Warps
 				{
 					View.EditMode = value;
 					View.DeSelectAllLayers();
-					if (Curve != null)
-						SelectCurve(Curve);
+					//if (Curve != null)
+					//	SelectCurve(Curve);
 				}
 				//if (Tree != null)
 				//	Tree.EditMode = value;
@@ -363,6 +363,7 @@ namespace Warps
 		{
 			m_temp.ReFit();
 			List<Entity> verts = m_temp.CreateEntities(true).ToList();
+			if( verts != null && verts[0] != null && verts[1] != null )
 			foreach (Entity[] ents in m_tents)
 			{
 				for (int i = 0; i < 2; i++)

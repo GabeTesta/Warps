@@ -91,7 +91,7 @@ namespace Warps.Controls
 			}
 			//Label = c.Label;
 			Length = c.Length;
-
+			SuspendLayout();
 			if (m_edits == null || c.FitPoints.Length != m_edits.Length)
 			{
 				Panel.Clear();
@@ -135,6 +135,7 @@ namespace Warps.Controls
 				}
 			}
 			//force the layout of the panel controls
+			ResumeLayout(true);
 			PerformLayout();
 			m_panel.Invalidate();//invalidate the panel for next redraw
 		}
@@ -162,10 +163,9 @@ namespace Warps.Controls
 		protected override void OnLayout(LayoutEventArgs e)
 		{
 			base.OnLayout(e);
-
 			if (m_edits == null)
 				return;
-			
+			m_panel.SuspendLayout();
 			// distribute the point editors and checkboxes down the panel
 			int top = 0, CHK = 0;
 			Control ptBox = null;
@@ -174,8 +174,6 @@ namespace Warps.Controls
 				ptBox = m_edits[i] as Control;
 				if (ptBox.ContextMenuStrip != m_Popup)
 					ptBox.ContextMenuStrip = m_Popup;
-				m_combos[i].Top = top;
-				ptBox.Top = top;
 
 				m_combos[i].Height = ptBox.Height = 21;
 				if (m_combos[i].ContextMenuStrip != m_Popup)
@@ -191,15 +189,20 @@ namespace Warps.Controls
 				if (CHK == 0)//initialize checkbox offset
 					CHK = m_girths[i].Right;
 
-				m_combos[i].Left = CHK;
-				ptBox.Left = m_combos[i].Right;
-				ptBox.Width = m_panel.Width - ptBox.Left - 5;
+				m_combos[i].Location = new Point(CHK, top);
+				//m_combos[i].Top = top;
+				//m_combos[i].Left = CHK;
+				ptBox.Location = new Point(m_combos[i].Right, top);
+				//ptBox.Top = top;
+				//ptBox.Left = m_combos[i].Right;
+				ptBox.Width = m_panel.Width - ptBox.Left - 17;//offset for vscroll bar so hscroll doesnt show
 
 				top = ptBox.Bottom;
 			}
-			m_panel.Height = top;
-			this.Height = m_panel.Bottom;
-			Invalidate();//redraw the panel
+			m_panel.ResumeLayout(false);
+			//m_panel.Height = top;
+			//this.Height = m_panel.Bottom;
+			//Invalidate();//redraw the panel
 		}
 
 		void box_SelectionChangeCommitted(object sender, EventArgs e)
@@ -304,7 +307,7 @@ namespace Warps.Controls
 			int nFit = GetIndexUnderMouse();
 			if (nFit >= 0)
 			{
-				//(m_edits[nFit] as Control).BackColor = Color.IndianRed;
+			//	(m_edits[nFit] as Control).BackColor = Color.IndianRed;
 			}
 		}
 
