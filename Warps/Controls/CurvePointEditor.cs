@@ -137,5 +137,23 @@ namespace Warps
 
 		}
 
+		private void m_curves_Validating(object sender, CancelEventArgs e)
+		{
+			if (m_curves.SelectedItem != null)
+				return;//valid selection already
+
+			//search curve list for specified curve
+			foreach( Object o in m_curves.Items )
+				if (o.ToString() == m_curves.Text)
+				{
+					m_curves.SelectedItem = o;
+					return;
+				}
+
+			//prompt user on fail
+			MessageBox.Show("Please select a valid curve");
+			m_curves.Focus();
+		}
+
 	}
 }

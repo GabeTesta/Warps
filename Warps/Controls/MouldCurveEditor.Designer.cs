@@ -66,6 +66,7 @@
 			this.m_panel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.m_panel.AutoScroll = true;
 			this.m_panel.Location = new System.Drawing.Point(3, 29);
 			this.m_panel.Name = "m_panel";
 			this.m_panel.Size = new System.Drawing.Size(244, 405);
@@ -79,27 +80,30 @@
             this.m_insert,
             this.m_delete});
 			this.m_Popup.Name = "m_Popup";
-			this.m_Popup.Size = new System.Drawing.Size(153, 92);
+			this.m_Popup.Size = new System.Drawing.Size(108, 70);
 			this.m_Popup.Opened += new System.EventHandler(this.m_Popup_Opened);
 			// 
 			// m_add
 			// 
+			this.m_add.Enabled = false;
 			this.m_add.Name = "m_add";
-			this.m_add.Size = new System.Drawing.Size(152, 22);
+			this.m_add.Size = new System.Drawing.Size(107, 22);
 			this.m_add.Text = "Add";
 			this.m_add.Click += new System.EventHandler(this.m_add_Click);
 			// 
 			// m_insert
 			// 
+			this.m_insert.Enabled = false;
 			this.m_insert.Name = "m_insert";
-			this.m_insert.Size = new System.Drawing.Size(152, 22);
+			this.m_insert.Size = new System.Drawing.Size(107, 22);
 			this.m_insert.Text = "Insert";
 			this.m_insert.Click += new System.EventHandler(this.m_insert_Click);
 			// 
 			// m_delete
 			// 
+			this.m_delete.Enabled = false;
 			this.m_delete.Name = "m_delete";
-			this.m_delete.Size = new System.Drawing.Size(152, 22);
+			this.m_delete.Size = new System.Drawing.Size(107, 22);
 			this.m_delete.Text = "Delete";
 			this.m_delete.Click += new System.EventHandler(this.m_delete_Click);
 			// 
@@ -107,6 +111,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScroll = true;
 			this.Controls.Add(this.m_panel);
 			this.Controls.Add(this.m_label);
 			this.Controls.Add(this.m_length);

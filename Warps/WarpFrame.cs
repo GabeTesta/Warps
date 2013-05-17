@@ -357,7 +357,7 @@ namespace Warps
 		//entry point for trackers
 		public void m_tree_AfterSelect(object sender, EventArgs<IRebuild> e)
 		{
-			if (m_Tracker != null && m_Tracker.EditMode)
+			if ( (sender == Tree || sender == View) && m_Tracker != null && m_Tracker.EditMode)
 				return; //dont do anything if we are already edit-tracking
 
 			Status = "";
@@ -433,7 +433,7 @@ namespace Warps
 				PostTracker(tracker);
 			}
 
-			cancelButton.Enabled = EditMode;
+			//cancelButton.Enabled = EditMode;
 
 			//okButton.Enabled = EditMode;
 			//previewButton.Enabled = EditMode;
@@ -455,7 +455,10 @@ namespace Warps
 			//	}
 			//}
 		}
-
+		void cancelButton_Click(object sender, EventArgs e)
+		{
+			ClearTracker();
+		}
 		private void PostTracker(ITracker tracker)
 		{
 			if (EditMode)
@@ -552,10 +555,7 @@ namespace Warps
 		{
 			if (sender is Button) (sender as Button).BackColor = Color.White;
 		}
-		void cancelButton_Click(object sender, EventArgs e)
-		{
-			ClearTracker();
-		}
+
 		#endregion
 
 		#endregion

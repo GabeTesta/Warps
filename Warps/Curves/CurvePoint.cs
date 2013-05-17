@@ -154,7 +154,7 @@ namespace Warps
 		{
 			get
 			{
-				TreeNode point = new TreeNode(ToString());
+				TreeNode point = new TreeNode(string.Format("{0:0.0000} [{1}]", S, UV.ToString("0.0000")));
 				point.ImageKey = this.GetType().Name;
 				point.SelectedImageKey = this.GetType().Name;
 				TreeNode tmp = new TreeNode(string.Format(string.Format("S-Cur: {0:0.0000}", CurrentS), CurrentS));
@@ -174,7 +174,6 @@ namespace Warps
 
 				return point;
 			}
-			set { }
 		}
 
 		//#region PointTypeSwitcher

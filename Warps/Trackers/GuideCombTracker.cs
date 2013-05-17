@@ -448,7 +448,7 @@ namespace Warps.Trackers
 				int i = 0;
 				foreach (Vect2 v in m_edit.CombPnts)
 				{
-					if (BLAS.is_equal(v.u, x, .01))
+					if (BLAS.is_equal(v.u, x, .02))
 					{
 						m_index = i;
 						break;
@@ -467,8 +467,14 @@ namespace Warps.Trackers
 				double x = plot.PhysicalXAxis1Cache.PhysicalToWorld(e.Location, true);
 				double y = plot.PhysicalYAxis1Cache.PhysicalToWorld(e.Location, true);
 
-				m_temp.CombPnts[m_index].u = x;
-				m_temp.CombPnts[m_index].v = y;
+				//enforce endpoints
+				if (m_index == 0)
+					x = 0;
+				if (m_index == m_temp.CombPnts.Length - 1)
+					x = 1;
+
+				m_temp.CombPnts[m_index].u = Utilities.LimitRange(0, x, 1);//unit-length
+				m_temp.CombPnts[m_index].v = Utilities.LimitRange(0, y, 1);//unit-length
 
 				m_temp.FitComb(null);
 				UpdateViewCurve(true);

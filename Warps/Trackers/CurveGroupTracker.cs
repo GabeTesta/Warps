@@ -29,7 +29,7 @@ namespace Warps
 			{
 				m_frame.EditorPanel = Edit;
 				EditMode = m_frame.EditMode;
-
+				m_edit.AfterSelect += m_frame.m_tree_AfterSelect;
 				//m_frame.okButton.Click += OnBuild;
 				//m_frame.cancelButton.Click += OnCancel;
 				//m_frame.previewButton.Click += OnPreview;
