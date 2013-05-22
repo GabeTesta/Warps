@@ -140,6 +140,17 @@ namespace Warps
 			get { return m_sortree; }
 		}
 
+		public Sail Sail
+		{
+			get
+			{
+				if (SeqTree.Nodes.Count > 0)
+					return SeqTree.Nodes[0].Tag as Sail;
+				return null;
+
+			}
+		}
+
 		#endregion
 
 		#region ExpandToDepth
@@ -446,6 +457,470 @@ namespace Warps
 			SorTree.Nodes.Clear();
 			SeqTree.Refresh();
 			SorTree.Refresh();
+		}
+
+		private void m_seqtree_DragEnter(object sender, DragEventArgs e)
+		{
+			e.Effect = DragDropEffects.Move;
+		}
+
+		private void m_seqtree_DragOver(object sender, DragEventArgs e)
+		{
+			//TreeNode dragged = (TreeNode)e.Data.GetData(typeof(TreeNode));
+			Point pos = SeqTree.PointToClient(new Point(e.X, e.Y));
+			//var hit = SeqTree.HitTest(pos);
+			//TreeNode node = hit.Node;
+			//if (node != null)
+			//{
+				//bool canDrop = AllowReorder(dragged, node);
+				
+			//	e.Effect = canDrop ? DragDropEffects.Move : DragDropEffects.None;
+			//}
+			
+			SeqTree.SelectedNode = SeqTree.GetNodeAt(pos);
+		}
+
+		private void m_seqtree_DragDrop(object sender, DragEventArgs e)
+		{
+			// Retrieve the client coordinates of the drop location.
+			Point targetPoint = SeqTree.PointToClient(new Point(e.X, e.Y));
+
+			// Retrieve the node at the drop location.
+			TreeNode targetNode = SeqTree.GetNodeAt(targetPoint);
+
+			// Retrieve the node that was dragged.
+			TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+
+			// Confirm that the node at the drop location is not  
+			// the dragged node or a descendant of the dragged node. 
+			//if (!draggedNode.Equals(targetNode) && !ContainsNode(draggedNode, targetNode) && AllowReorder(draggedNode, targetNode))
+			if (!draggedNode.Equals(targetNode))
+			{
+				// If it is a move operation, remove the node from its current  
+				// location and add it to the node at the drop location. 
+				if (e.Effect == DragDropEffects.Move)
+				{
+					IRebuild drg = draggedNode.Tag as IRebuild;
+					IRebuild trgt = targetNode.Tag as IRebuild;
+
+					if(trgt == null)
+						return;
+
+					if (CheckWaterMarkIndex(draggedItemParents, trgt)) // make sure this is allowable first
+					{
+						if (trgt is IGroup)
+						{
+							//if we put a group into a new group, we just reorder
+							if (drg is IGroup)
+							{
+								int newIndex = Sail.Layout.IndexOf(trgt as IGroup);
+								Sail.Layout.Remove(drg as IGroup);
+								Sail.Layout.Insert(newIndex, drg as IGroup);
+
+								draggedNode.Remove();
+								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
+								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
+								SeqTree.Refresh();
+
+							}
+							//if we drag a mouldcurve into a new group, then it goes to the bottom
+							else if (drg is MouldCurve && trgt is CurveGroup)
+							{
+								//first find the index of the dragged mouldcurves parent
+								//so we can remove the curve from it
+								TreeNode curve = FindNode(drg as MouldCurve);
+								IGroup curParent = curve.Parent.Tag as IGroup;
+								if (curParent == null)
+									return;
+
+								//remove
+								int newIndex = Sail.Layout.IndexOf(curParent);
+								(Sail.Layout[newIndex] as CurveGroup).Remove(drg as MouldCurve);
+
+								//insert into new one
+								newIndex = Sail.Layout.IndexOf(trgt as IGroup);
+								(Sail.Layout[newIndex] as CurveGroup).Add(drg as MouldCurve);
+
+								draggedNode.Remove();
+
+								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
+								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
+								SeqTree.Refresh();
+							}
+							else if (drg is Equation && drg is VariableGroup)
+							{
+								//first find the index of the dragged mouldcurves parent
+								//so we can remove the curve from it
+								TreeNode curve = FindNode(drg as Equation);
+								IGroup curParent = curve.Parent.Tag as IGroup;
+								if (curParent == null)
+									return;
+
+								//remove
+								int newIndex = Sail.Layout.IndexOf(curParent);
+								(Sail.Layout[newIndex] as VariableGroup).Remove((drg as Equation).Label);
+
+								//insert into new one
+								newIndex = Sail.Layout.IndexOf(trgt as IGroup);
+								(Sail.Layout[newIndex] as VariableGroup).Add(drg as Equation);
+
+								draggedNode.Remove();
+
+								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
+								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
+								SeqTree.Refresh();
+							}
+
+							Sail.Rebuild(null);
+						}
+
+						else if (trgt is MouldCurve)
+						{
+							//if we drag a mouldcurve onto another mouldcurve
+							// then we insert that mouldcurve into the new IGroup containing the target
+							// and place the drg there
+							// this should work across CurveGroups
+							if (drg is MouldCurve)
+							{
+								//first find the index of the dragged mouldcurves parent
+								//so we can remove the curve from it
+								TreeNode curveD = FindNode(drg as MouldCurve);
+								IGroup curParentD = curveD.Parent.Tag as IGroup;
+								if (curParentD == null)
+									return;
+
+								//Second find the index of the target mouldcurves parent
+								//so we can add the curve to it
+								TreeNode curveT = FindNode(trgt as MouldCurve);
+								IGroup curParentT = curveT.Parent.Tag as IGroup;
+								if (curParentT == null)
+									return;
+
+								//remove
+								int newIndex = Sail.Layout.IndexOf(curParentD);
+								(Sail.Layout[newIndex] as CurveGroup).Remove(drg as MouldCurve);
+
+								//insert into new one
+								newIndex = Sail.Layout.IndexOf(curParentT);
+								int insertIndex = (Sail.Layout[newIndex] as CurveGroup).IndexOf(trgt as MouldCurve);
+								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as MouldCurve);
+
+								draggedNode.Remove();
+
+								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
+								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
+								SeqTree.Refresh();
+							}
+							else if (drg is GuideComb)
+							{
+								//first find the index of the dragged mouldcurves parent
+								//so we can remove the curve from it
+								TreeNode curveD = FindNode(drg as GuideComb);
+								IGroup curParentD = curveD.Parent.Tag as IGroup;
+								if (curParentD == null)
+									return;
+
+								//Second find the index of the target mouldcurves parent
+								//so we can add the curve to it
+								TreeNode curveT = FindNode(trgt as MouldCurve);
+								IGroup curParentT = curveT.Parent.Tag as IGroup;
+								if (curParentT == null)
+									return;
+
+								//remove
+								int newIndex = Sail.Layout.IndexOf(curParentD);
+								(Sail.Layout[newIndex] as CurveGroup).Remove(drg as GuideComb);
+
+								//insert into new one
+								newIndex = Sail.Layout.IndexOf(curParentT);
+								int insertIndex = (Sail.Layout[newIndex] as CurveGroup).IndexOf(trgt as MouldCurve);
+								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as GuideComb);
+
+								draggedNode.Remove();
+
+								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
+								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
+								SeqTree.Refresh();
+							}
+						}
+						else if (trgt is GuideComb)
+						{
+							//if we drag a mouldcurve onto another mouldcurve
+							// then we insert that mouldcurve into the new IGroup containing the target
+							// and place the drg there
+							// this should work across CurveGroups
+							if (drg is MouldCurve)
+							{
+								//first find the index of the dragged mouldcurves parent
+								//so we can remove the curve from it
+								TreeNode curveD = FindNode(drg as MouldCurve);
+								IGroup curParentD = curveD.Parent.Tag as IGroup;
+								if (curParentD == null)
+									return;
+
+								//Second find the index of the target mouldcurves parent
+								//so we can add the curve to it
+								TreeNode curveT = FindNode(trgt as GuideComb);
+								IGroup curParentT = curveT.Parent.Tag as IGroup;
+								if (curParentT == null)
+									return;
+
+								//remove
+								int newIndex = Sail.Layout.IndexOf(curParentD);
+								(Sail.Layout[newIndex] as CurveGroup).Remove(drg as MouldCurve);
+
+								//insert into new one
+								newIndex = Sail.Layout.IndexOf(curParentT);
+								int insertIndex = (Sail.Layout[newIndex] as CurveGroup).IndexOf(trgt as GuideComb);
+								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as MouldCurve);
+
+								draggedNode.Remove();
+
+								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
+								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
+								SeqTree.Refresh();
+							}
+							else if (drg is GuideComb)
+							{
+								//first find the index of the dragged mouldcurves parent
+								//so we can remove the curve from it
+								TreeNode curveD = FindNode(drg as GuideComb);
+								IGroup curParentD = curveD.Parent.Tag as IGroup;
+								if (curParentD == null)
+									return;
+
+								//Second find the index of the target mouldcurves parent
+								//so we can add the curve to it
+								TreeNode curveT = FindNode(trgt as GuideComb);
+								IGroup curParentT = curveT.Parent.Tag as IGroup;
+								if (curParentT == null)
+									return;
+
+								//remove
+								int newIndex = Sail.Layout.IndexOf(curParentD);
+								(Sail.Layout[newIndex] as CurveGroup).Remove(drg as GuideComb);
+
+								//insert into new one
+								newIndex = Sail.Layout.IndexOf(curParentT);
+								int insertIndex = (Sail.Layout[newIndex] as CurveGroup).IndexOf(trgt as GuideComb);
+								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as GuideComb);
+
+								draggedNode.Remove();
+
+								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
+								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
+								SeqTree.Refresh();
+							}
+						}
+						else if (trgt is Equation)
+						{
+							//if we drag a Equation onto another Equation
+							// then we insert that Equation into the new IGroup containing the target
+							// and place the drg there
+							// this should work across VariableGroups
+							if (drg is Equation)
+							{
+
+							}
+						}
+					}
+					
+				}
+
+			}
+
+			if (draggedItemParents != null)
+				ColorParents(draggedNode.Tag as IRebuild, draggedItemParents, Color.White);
+			
+
+			draggedItemParents = null;
+		}
+
+		/// <summary>
+		/// this function is going to check whether the target position index is larger 
+		/// than the largest parent index in the tree. 
+		/// </summary>
+		/// <param name="parents">dragged item parents</param>
+		/// <param name="trgt">target IRebuild</param>
+		/// <returns>true if index is beneath dependents, false otherwise</returns>
+		private bool CheckWaterMarkIndex(List<IRebuild> parents, IRebuild trgt)
+		{
+			TreeNode target = FindNode(trgt);
+			int tarDepth = 0;
+			TheIndexOf(trgt, null, ref tarDepth);
+
+			foreach (IRebuild irb in parents)
+			{
+				TreeNode parent = FindNode(irb);
+				int parDepth = 0;
+				TheIndexOf(irb, null, ref parDepth);
+				if (tarDepth < parDepth)
+					return false;//if the target depth
+				// is less than the parent depth, then don't allow
+			}
+
+			return true;
+		}
+
+		void TheIndexOfFromTree(TreeNode node, TreeNodeCollection nodes, ref int count)
+		{
+			if (nodes == null)
+				nodes = SeqTree.Nodes;
+
+			foreach (TreeNode tn in nodes)
+			{
+				count++;
+				if (tn.Tag == node.Tag)
+					return;
+				
+				if(tn.Nodes.Count > 0)
+					TheIndexOfFromTree(node, tn.Nodes, ref count);
+			}
+			return;
+		}
+
+		void TheIndexOf(IRebuild node, List<IGroup> nodes, ref int count)
+		{
+			if (nodes == null)
+				nodes = Sail.Layout;
+
+			foreach (IGroup tn in nodes)
+			{
+				count++;
+				if (tn == node)
+					return;
+				if (tn is CurveGroup)
+				{
+					if ((tn as CurveGroup).Count > 0 && node is MouldCurve)
+					{
+						foreach (MouldCurve cur in (tn as CurveGroup))
+						{
+							count++;
+							if(cur == node)
+								return;
+						}
+					}
+					else if ((tn as CurveGroup).Count > 0 && node is GuideComb)
+					{
+						foreach (MouldCurve cur in (tn as CurveGroup))
+						{
+							count++;
+							if ((cur as GuideComb) == node)
+								return;
+						}
+					}
+
+					count += (tn as CurveGroup).Count;
+				}
+				else if (tn is VariableGroup)
+				{
+					if ((tn as VariableGroup).Count > 0 && node is Equation)
+					{
+						foreach (KeyValuePair<string, Equation> eqs in (tn as VariableGroup))
+						{
+							count++;
+							if (eqs.Key == (node as Equation).Label)
+								return;
+						}
+					}
+					else
+						count += (tn as VariableGroup).Count;
+				}
+			}
+			return;
+		}
+		//int TheIndexOf(TreeNode tn)
+		//{
+		//	if (null != tn.Parent)
+		//		return tn.Index  + TheIndexOf(tn.Parent);
+		//	return tn.Index;
+		//}
+		List<IRebuild> draggedItemParents = null;
+
+		private void m_seqtree_ItemDrag(object sender, ItemDragEventArgs e)
+		{
+			if (Sail == null)
+				return;
+
+			TreeNode dragged = e.Item as TreeNode;
+
+			if (dragged.Tag is IRebuild)
+			{
+				IRebuild grp = dragged.Tag as IRebuild;
+				draggedItemParents = new List<IRebuild>();
+				grp.GetParents(Sail, draggedItemParents);
+				ColorParents(grp, draggedItemParents, Color.Lime);
+				DoDragDrop(e.Item, DragDropEffects.Move);
+			}
+
+			DoDragDrop(e.Item, DragDropEffects.None);
+		}
+
+		private void ColorParents(IRebuild drg, List<IRebuild> parents, Color color)
+		{
+			if (drg == null)
+				return;
+
+			parents.ForEach(irb =>
+			{
+				TreeNode found = FindNode(irb);
+
+				if (drg is IGroup)
+				{
+					while (found.Parent.Tag != Sail)
+						found = found.Parent;
+				}
+				else if (drg is MouldCurve || drg is Equation)
+				{
+					while (!(found.Parent.Tag is IGroup))
+						found = found.Parent;
+				}
+
+				found.BackColor = color;
+			});
+		}
+
+		// Determine whether one node is a parent  
+		// or ancestor of a second node. 
+		private bool ContainsNode(TreeNode node1, TreeNode node2)
+		{
+			// Check the parent node of the second node. 
+			if (node2.Parent == null) return false;
+			if (node2.Parent.Equals(node1)) return true;
+
+			// If the parent node is not null or equal to the first node,  
+			// call the ContainsNode method recursively using the parent of  
+			// the second node. 
+			return ContainsNode(node1, node2.Parent);
+		}
+
+		/// <summary>
+		/// Compare the dragged item with the hit node and see if dropping is allowed
+		/// </summary>
+		/// <param name="dragged">dragged treenode</param>
+		/// <param name="hit">currently over treenode</param>
+		/// <returns>true is allow, false otherwise</returns>
+		private bool AllowReorder(TreeNode dragged, TreeNode hit)
+		{
+			if (dragged == null || hit == null)
+				return false;
+
+			IRebuild drag = dragged.Tag as IRebuild;
+			IRebuild node = hit.Tag as IRebuild;
+
+			if (drag is Equation && node is Equation)
+				return true; //this is for reordering
+
+			if (drag is MouldCurve && node is MouldCurve)
+				return true; //this is for reordering
+
+			if (drag is IGroup && node is IGroup)
+				return true; // reorder the two groups
+
+			else if (drag is MouldCurve && node is CurveGroup)
+				return true; // put curve into new curvegroup
+
+			return false;
 		}
 	}
 }

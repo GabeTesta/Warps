@@ -174,6 +174,12 @@ namespace Warps
 		{
 			foreach (MouldCurve mc in this)
 				mc.GetParents(s, parents);
+
+			//curves inside a curvegroup are allowed to be dependent on other
+			//curves in the same curvegroup
+			for (int i = 0; i < parents.Count; i++)
+				if (this.Contains(parents[i] as MouldCurve))
+					parents.Remove(parents[i]);
 		}
 
 		public bool ReadScript(Sail sail, IList<string> txt)

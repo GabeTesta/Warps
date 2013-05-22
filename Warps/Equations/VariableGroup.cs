@@ -116,6 +116,12 @@ namespace Warps
 		{
 			foreach (KeyValuePair<string, Equation> entry in this)
 				entry.Value.GetParents(s, parents);
+
+			//Equations inside a VariableGroup are allowed to be dependent on other
+			//Equations in the same VariableGroup
+			for (int i = 0; i < parents.Count; i++)
+				if (this.ContainsKey((parents[i] as Equation).Label))
+					parents.Remove(parents[i]);
 		}
 		public bool Affected(List<IRebuild> connected)
 		{

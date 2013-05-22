@@ -28,6 +28,8 @@ namespace Warps
 				this[i].Rendered.EnvironmentMapping = false;
 				this[i].Rendered.PlanarReflections = false;
 
+				//this[i].AnimateCamera = true;
+
 				this[i].PlanarShadowOpacity = 0;
 				this[i].Units = unitSystemType.Meters;
 

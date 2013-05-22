@@ -216,7 +216,6 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new TreeNode(string.Format("{0}", Label));
-
 			m_node.ImageKey = "Equation";
 			m_node.SelectedImageKey = "Equation";
 			m_node.Tag = this;

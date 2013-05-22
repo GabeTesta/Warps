@@ -547,6 +547,7 @@ namespace Warps
 			if (FitPoints != null)
 				foreach (IFitPoint fp in FitPoints)
 					fp.GetParents(s, parents);
+					
 		}
 
 

@@ -62,6 +62,7 @@
 			// 
 			// m_seqtree
 			// 
+			this.m_seqtree.AllowDrop = true;
 			this.m_seqtree.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.m_seqtree.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.m_seqtree.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -70,6 +71,10 @@
 			this.m_seqtree.Name = "m_seqtree";
 			this.m_seqtree.Size = new System.Drawing.Size(227, 361);
 			this.m_seqtree.TabIndex = 0;
+			this.m_seqtree.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.m_seqtree_ItemDrag);
+			this.m_seqtree.DragDrop += new System.Windows.Forms.DragEventHandler(this.m_seqtree_DragDrop);
+			this.m_seqtree.DragEnter += new System.Windows.Forms.DragEventHandler(this.m_seqtree_DragEnter);
+			this.m_seqtree.DragOver += new System.Windows.Forms.DragEventHandler(this.m_seqtree_DragOver);
 			this.m_seqtree.KeyDown += new System.Windows.Forms.KeyEventHandler(this.m_seqtree_KeyDown);
 			this.m_seqtree.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.m_seqtree_KeyPress);
 			this.m_seqtree.KeyUp += new System.Windows.Forms.KeyEventHandler(this.m_seqtree_KeyUp);
