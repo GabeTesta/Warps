@@ -487,7 +487,8 @@ namespace Warps
 
 			// Retrieve the node at the drop location.
 			TreeNode targetNode = SeqTree.GetNodeAt(targetPoint);
-
+			if (targetNode == null)
+				return;
 			// Retrieve the node that was dragged.
 			TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
 
@@ -508,10 +509,7 @@ namespace Warps
 
 					if (trgt is IGroup)
 					{
-						//if we drag a non-Igroup IRebuild into it's respective container that has a 
-						//parent in it, we should allow it but place the item at the bottom of the group.
-
-						
+				
 						//if we put a group into a new group, we just reorder
 						if (drg is IGroup)
 						{
@@ -528,6 +526,8 @@ namespace Warps
 						//if we drag a mouldcurve into a new group, then it goes to the bottom
 						else if (drg is MouldCurve && trgt is CurveGroup)
 						{
+							//if we drag a non-Igroup IRebuild into it's respective container that has a 
+							//parent in it, we should allow it but place the item at the bottom of the group.
 							IRebuild aboveMe = null;
 							if (!CheckWaterMarkIndex(draggedItemParents, trgt, ref aboveMe))// make sure this is allowable first
 							{
@@ -555,6 +555,7 @@ namespace Warps
 							newIndex = Sail.Layout.IndexOf(trgt as IGroup);
 							(Sail.Layout[newIndex] as CurveGroup).Add(drg as MouldCurve);
 
+							//need this guy or tree will not refresh.  Weird .Net bug
 							draggedNode.Remove();
 
 						}
@@ -587,6 +588,7 @@ namespace Warps
 							newIndex = Sail.Layout.IndexOf(trgt as IGroup);
 							(Sail.Layout[newIndex] as VariableGroup).Add(drg as Equation);
 
+							//need this guy or tree will not refresh.  Weird .Net bug
 							draggedNode.Remove();
 						}
 
@@ -626,6 +628,7 @@ namespace Warps
 							int insertIndex = (Sail.Layout[newIndex] as CurveGroup).IndexOf(trgt as MouldCurve);
 							(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as MouldCurve);
 
+							//need this guy or tree will not refresh.  Weird .Net bug
 							draggedNode.Remove();
 						}
 						else if (drg is GuideComb)
@@ -653,6 +656,7 @@ namespace Warps
 							int insertIndex = (Sail.Layout[newIndex] as CurveGroup).IndexOf(trgt as MouldCurve);
 							(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as GuideComb);
 
+							//need this guy or tree will not refresh.  Weird .Net bug
 							draggedNode.Remove();
 						}
 					}
@@ -690,7 +694,7 @@ namespace Warps
 							int insertIndex = (Sail.Layout[newIndex] as CurveGroup).IndexOf(trgt as GuideComb);
 							(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as MouldCurve);
 
-
+							//need this guy or tree will not refresh.  Weird .Net bug
 							draggedNode.Remove();
 
 						}
@@ -719,6 +723,7 @@ namespace Warps
 							int insertIndex = (Sail.Layout[newIndex] as CurveGroup).IndexOf(trgt as GuideComb);
 							(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as GuideComb);
 
+							//need this guy or tree will not refresh.  Weird .Net bug
 							draggedNode.Remove();
 						}
 					}
@@ -756,6 +761,7 @@ namespace Warps
 							int insertIndex = (Sail.Layout[newIndex] as VariableGroup).IndexOf(trgt as Equation);
 							(Sail.Layout[newIndex] as VariableGroup).Insert(insertIndex, drg as Equation);
 
+							//need this guy or tree will not refresh.  Weird .Net bug
 							draggedNode.Remove();
 
 						}
