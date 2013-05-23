@@ -210,6 +210,9 @@ namespace Warps
 		private void UpdateViews(IRebuild item)
 		{
 			View.Remove(item);
+
+			Tree.BeginUpdate();
+
 			if (item is IGroup)
 			{
 				View.Add(item as IGroup);
@@ -225,6 +228,7 @@ namespace Warps
 				(item as Equation).WriteNode();
 			}
 			Tree.Revalidate(item);
+			Tree.EndUpdate();
 		}
 
 		public int Delete(IRebuild tag)

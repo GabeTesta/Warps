@@ -73,9 +73,11 @@ namespace Warps
 			m_node.SelectedImageKey = GetType().Name;
 			if (m_node.Nodes.Count != this.Count || bclear)
 			{
+				m_node.BeginEdit();
 				m_node.Nodes.Clear();
 				foreach (MouldCurve c in this)
 					m_node.Nodes.Add(c.WriteNode());
+				m_node.EndEdit(false);
 			}
 			return m_node;
 		}
@@ -177,9 +179,13 @@ namespace Warps
 
 			//curves inside a curvegroup are allowed to be dependent on other
 			//curves in the same curvegroup
+			List<IRebuild> removeMe = new List<IRebuild>();
 			for (int i = 0; i < parents.Count; i++)
+			{
 				if (this.Contains(parents[i] as MouldCurve))
-					parents.Remove(parents[i]);
+					removeMe.Add(parents[i]);
+			}
+			removeMe.ForEach(irb => parents.Remove(irb));
 		}
 
 		public bool ReadScript(Sail sail, IList<string> txt)

@@ -119,9 +119,13 @@ namespace Warps
 
 			//Equations inside a VariableGroup are allowed to be dependent on other
 			//Equations in the same VariableGroup
+			List<IRebuild> removeMe = new List<IRebuild>();
 			for (int i = 0; i < parents.Count; i++)
+			{
 				if (this.ContainsKey((parents[i] as Equation).Label))
-					parents.Remove(parents[i]);
+					removeMe.Add(parents[i]);
+			}
+			removeMe.ForEach(irb => parents.Remove(irb));
 		}
 		public bool Affected(List<IRebuild> connected)
 		{
@@ -255,5 +259,32 @@ namespace Warps
 		}
 
 		#endregion
+
+		/// <summary>
+		/// need this guy for tree reordering
+		/// </summary>
+		/// <param name="equation"></param>
+		/// <returns></returns>
+		internal int IndexOf(Equation equation)
+		{
+			for (int i = 0; i < this.Keys.Count; i++)
+				if (this.Keys.ElementAt(i) == equation.Label)
+					return i;
+
+			return -1;
+		}
+
+		/// <summary>
+		/// need this guy for tree reordering
+		/// </summary>
+		/// <param name="insertIndex"></param>
+		/// <param name="equation"></param>
+		internal void Insert(int insertIndex, Equation equation)
+		{
+			List<KeyValuePair<string, Equation>> dicList = this.ToList();
+			dicList.Insert(insertIndex, new KeyValuePair<string, Equation>(equation.Label, equation));
+			this.Clear();
+			dicList.ForEach(pair => this.Add(pair.Key, pair.Value));
+		}
 	}
 }

@@ -472,11 +472,11 @@ namespace Warps
 			//TreeNode node = hit.Node;
 			//if (node != null)
 			//{
-				//bool canDrop = AllowReorder(dragged, node);
-				
+			//bool canDrop = AllowReorder(dragged, node);
+
 			//	e.Effect = canDrop ? DragDropEffects.Move : DragDropEffects.None;
 			//}
-			
+
 			SeqTree.SelectedNode = SeqTree.GetNodeAt(pos);
 		}
 
@@ -503,7 +503,7 @@ namespace Warps
 					IRebuild drg = draggedNode.Tag as IRebuild;
 					IRebuild trgt = targetNode.Tag as IRebuild;
 
-					if(trgt == null)
+					if (trgt == null)
 						return;
 
 					if (CheckWaterMarkIndex(draggedItemParents, trgt)) // make sure this is allowable first
@@ -518,9 +518,12 @@ namespace Warps
 								Sail.Layout.Insert(newIndex, drg as IGroup);
 
 								draggedNode.Remove();
+								/*
+								
 								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
 								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
 								SeqTree.Refresh();
+								 */
 
 							}
 							//if we drag a mouldcurve into a new group, then it goes to the bottom
@@ -542,10 +545,13 @@ namespace Warps
 								(Sail.Layout[newIndex] as CurveGroup).Add(drg as MouldCurve);
 
 								draggedNode.Remove();
+								/*
+								
 
 								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
-								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
+								SeqTree.Nodes[0].Nodes[newIndex].Nodes.Add(draggedNode);
 								SeqTree.Refresh();
+								 */
 							}
 							else if (drg is Equation && drg is VariableGroup)
 							{
@@ -565,13 +571,16 @@ namespace Warps
 								(Sail.Layout[newIndex] as VariableGroup).Add(drg as Equation);
 
 								draggedNode.Remove();
+								/*
+								
 
 								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
 								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
 								SeqTree.Refresh();
+								 */
 							}
 
-							Sail.Rebuild(null);
+
 						}
 
 						else if (trgt is MouldCurve)
@@ -606,10 +615,14 @@ namespace Warps
 								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as MouldCurve);
 
 								draggedNode.Remove();
+								/*
+								
 
-								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
-								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
+								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode.Parent);
+								insertIndex = SeqTree.Nodes[0].Nodes[newIndex].Nodes.IndexOf(targetNode);
+								SeqTree.Nodes[0].Nodes[newIndex].Nodes.Insert(insertIndex, draggedNode);
 								SeqTree.Refresh();
+								 */
 							}
 							else if (drg is GuideComb)
 							{
@@ -637,10 +650,13 @@ namespace Warps
 								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as GuideComb);
 
 								draggedNode.Remove();
+								/*
+								
 
 								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
 								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
 								SeqTree.Refresh();
+								 */
 							}
 						}
 						else if (trgt is GuideComb)
@@ -674,11 +690,13 @@ namespace Warps
 								int insertIndex = (Sail.Layout[newIndex] as CurveGroup).IndexOf(trgt as GuideComb);
 								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as MouldCurve);
 
-								draggedNode.Remove();
 
+								draggedNode.Remove();
+								/*
 								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
 								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
 								SeqTree.Refresh();
+								 */
 							}
 							else if (drg is GuideComb)
 							{
@@ -706,10 +724,13 @@ namespace Warps
 								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as GuideComb);
 
 								draggedNode.Remove();
+								/*
+								
 
 								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
 								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
 								SeqTree.Refresh();
+								 */
 							}
 						}
 						else if (trgt is Equation)
@@ -720,18 +741,45 @@ namespace Warps
 							// this should work across VariableGroups
 							if (drg is Equation)
 							{
+								//first find the index of the dragged mouldcurves parent
+								//so we can remove the curve from it
+								TreeNode curveD = FindNode(drg as Equation);
+								IGroup curParentD = curveD.Parent.Tag as IGroup;
+								if (curParentD == null)
+									return;
+
+								//Second find the index of the target mouldcurves parent
+								//so we can add the curve to it
+								TreeNode curveT = FindNode(trgt as Equation);
+								IGroup curParentT = curveT.Parent.Tag as IGroup;
+								if (curParentT == null)
+									return;
+
+								//remove
+								int newIndex = Sail.Layout.IndexOf(curParentD);
+								(Sail.Layout[newIndex] as VariableGroup).Remove((drg as Equation).Label);
+
+								//insert into new one
+								newIndex = Sail.Layout.IndexOf(curParentT);
+								int insertIndex = (Sail.Layout[newIndex] as VariableGroup).IndexOf(trgt as Equation);
+								(Sail.Layout[newIndex] as VariableGroup).Insert(insertIndex, drg as Equation);
+
+								draggedNode.Remove();
 
 							}
 						}
+
+						Sail.Rebuild(null);
+						SeqTree.Refresh();
 					}
-					
+
 				}
 
 			}
 
 			if (draggedItemParents != null)
 				ColorParents(draggedNode.Tag as IRebuild, draggedItemParents, Color.White);
-			
+
 
 			draggedItemParents = null;
 		}
@@ -745,6 +793,9 @@ namespace Warps
 		/// <returns>true if index is beneath dependents, false otherwise</returns>
 		private bool CheckWaterMarkIndex(List<IRebuild> parents, IRebuild trgt)
 		{
+			if (parents.Contains(trgt))
+				return false;
+
 			TreeNode target = FindNode(trgt);
 			int tarDepth = 0;
 			TheIndexOf(trgt, null, ref tarDepth);
@@ -772,8 +823,8 @@ namespace Warps
 				count++;
 				if (tn.Tag == node.Tag)
 					return;
-				
-				if(tn.Nodes.Count > 0)
+
+				if (tn.Nodes.Count > 0)
 					TheIndexOfFromTree(node, tn.Nodes, ref count);
 			}
 			return;
@@ -796,7 +847,7 @@ namespace Warps
 						foreach (MouldCurve cur in (tn as CurveGroup))
 						{
 							count++;
-							if(cur == node)
+							if (cur == node)
 								return;
 						}
 					}
@@ -809,8 +860,8 @@ namespace Warps
 								return;
 						}
 					}
-
-					count += (tn as CurveGroup).Count;
+					else
+						count += (tn as CurveGroup).Count;
 				}
 				else if (tn is VariableGroup)
 				{
@@ -921,6 +972,16 @@ namespace Warps
 				return true; // put curve into new curvegroup
 
 			return false;
+		}
+
+		internal void BeginUpdate()
+		{
+			ActiveTree.BeginUpdate();
+		}
+
+		internal void EndUpdate()
+		{
+			ActiveTree.EndUpdate();
 		}
 	}
 }
