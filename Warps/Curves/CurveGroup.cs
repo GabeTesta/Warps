@@ -73,11 +73,11 @@ namespace Warps
 			m_node.SelectedImageKey = GetType().Name;
 			if (m_node.Nodes.Count != this.Count || bclear)
 			{
-				m_node.BeginEdit();
+				//m_node.BeginEdit();
 				m_node.Nodes.Clear();
 				foreach (MouldCurve c in this)
 					m_node.Nodes.Add(c.WriteNode());
-				m_node.EndEdit(false);
+			//	m_node.EndEdit(false);
 			}
 			return m_node;
 		}
