@@ -518,12 +518,6 @@ namespace Warps
 								Sail.Layout.Insert(newIndex, drg as IGroup);
 
 								draggedNode.Remove();
-								/*
-								
-								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
-								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
-								SeqTree.Refresh();
-								 */
 
 							}
 							//if we drag a mouldcurve into a new group, then it goes to the bottom
@@ -545,15 +539,9 @@ namespace Warps
 								(Sail.Layout[newIndex] as CurveGroup).Add(drg as MouldCurve);
 
 								draggedNode.Remove();
-								/*
-								
 
-								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
-								SeqTree.Nodes[0].Nodes[newIndex].Nodes.Add(draggedNode);
-								SeqTree.Refresh();
-								 */
 							}
-							else if (drg is Equation && drg is VariableGroup)
+							else if (drg is Equation && trgt is VariableGroup)
 							{
 								//first find the index of the dragged mouldcurves parent
 								//so we can remove the curve from it
@@ -571,13 +559,6 @@ namespace Warps
 								(Sail.Layout[newIndex] as VariableGroup).Add(drg as Equation);
 
 								draggedNode.Remove();
-								/*
-								
-
-								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
-								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
-								SeqTree.Refresh();
-								 */
 							}
 
 
@@ -615,14 +596,6 @@ namespace Warps
 								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as MouldCurve);
 
 								draggedNode.Remove();
-								/*
-								
-
-								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode.Parent);
-								insertIndex = SeqTree.Nodes[0].Nodes[newIndex].Nodes.IndexOf(targetNode);
-								SeqTree.Nodes[0].Nodes[newIndex].Nodes.Insert(insertIndex, draggedNode);
-								SeqTree.Refresh();
-								 */
 							}
 							else if (drg is GuideComb)
 							{
@@ -650,15 +623,9 @@ namespace Warps
 								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as GuideComb);
 
 								draggedNode.Remove();
-								/*
-								
-
-								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
-								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
-								SeqTree.Refresh();
-								 */
 							}
 						}
+
 						else if (trgt is GuideComb)
 						{
 							//if we drag a mouldcurve onto another mouldcurve
@@ -692,11 +659,7 @@ namespace Warps
 
 
 								draggedNode.Remove();
-								/*
-								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
-								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
-								SeqTree.Refresh();
-								 */
+
 							}
 							else if (drg is GuideComb)
 							{
@@ -724,15 +687,9 @@ namespace Warps
 								(Sail.Layout[newIndex] as CurveGroup).Insert(insertIndex, drg as GuideComb);
 
 								draggedNode.Remove();
-								/*
-								
-
-								newIndex = SeqTree.Nodes[0].Nodes.IndexOf(targetNode);
-								SeqTree.Nodes[0].Nodes.Insert(newIndex, draggedNode);
-								SeqTree.Refresh();
-								 */
 							}
 						}
+
 						else if (trgt is Equation)
 						{
 							//if we drag a Equation onto another Equation
