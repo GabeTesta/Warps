@@ -21,7 +21,7 @@ namespace Warps
 		{
 			InitializeComponent();
 			PopulateColors();
-			
+
 			for (int i = 0; i < 2; i++)
 			{
 				this[i].Unlock("EYENBS-6216-4FJGA-JUE2S-L8MPA");
@@ -110,43 +110,37 @@ namespace Warps
 
 			}
 		}
-		
+
 		/// <summary>
 		/// highlight an object in the view from mouseover
 		/// </summary>
 		/// <param name="tag"></param>
 		private void Highlight(object tag)
 		{
-			//if (EditMode)
-			//{
-				foreach (Entity e in ActiveView.Entities)
+			foreach (Entity e in ActiveView.Entities)
+			{
+				if (e.EntityData == tag)
 				{
-					if (e.EntityData == tag)
+					e.LineWeightMethod = colorMethodType.byEntity;
+					e.LineWeight = 2.0f;
+					e.ColorMethod = colorMethodType.byEntity;
+					e.Color = Color.FromArgb(255, ActiveView.Layers[e.LayerIndex].Color);
+				}
+			}
+
+
+			foreach (devDept.Eyeshot.Labels.Label e in ActiveView.Labels)
+			{
+				if (e is OutlinedText)
+				{
+					if ((e as OutlinedText).Text.Contains(tag.ToString()))
 					{
-						e.LineWeightMethod = colorMethodType.byEntity;
-						e.LineWeight = 2.0f;
-						e.ColorMethod = colorMethodType.byEntity;
-						e.Color = Color.FromArgb(255, ActiveView.Layers[e.LayerIndex].Color);
-					//	break;
+						e.Visible = true;
 					}
 				}
-
-
-				foreach (devDept.Eyeshot.Labels.Label e in ActiveView.Labels)
-				{
-					if (e is OutlinedText)
-					{
-						if ((e as OutlinedText).Text.Contains(tag.ToString()))
-						{
-							e.Visible = true;
-
-							//break;
-						}
-					}
-				}
-
-			//}
+			}
 		}
+
 		private void UnHighLight(object tag)
 		{
 			int entIndex = -1;
@@ -157,7 +151,6 @@ namespace Warps
 					e.LineWeightMethod = colorMethodType.byLayer;
 					e.ColorMethod = colorMethodType.byLayer;
 					entIndex = ActiveView.Entities.IndexOf(e);
-					//break;
 				}
 			}
 
@@ -168,8 +161,6 @@ namespace Warps
 					if ((e as OutlinedText).Text.Contains(tag.ToString()))
 					{
 						e.Visible = ActiveView.Entities[entIndex].Selected;
-
-						//break;
 					}
 				}
 			}
@@ -221,7 +212,7 @@ namespace Warps
 					{
 						e.Selected = true;
 						SelectLayer(e.LayerIndex);
-						break;
+						//break;
 					}
 				}
 				foreach (devDept.Eyeshot.Labels.Label e in this[i].Labels)
@@ -231,7 +222,7 @@ namespace Warps
 						if ((e as OutlinedText).Text.Contains(tag.ToString()))
 						{
 							e.Visible = true;
-							break;
+							//break;
 						}
 					}
 				}
@@ -370,7 +361,101 @@ namespace Warps
 		internal void SetActionMode(actionType actionType)
 		{
 			ActiveView.ActionMode = actionType;
-			//this[1].ActionMode = actionType;
+		}
+
+
+
+		/// <summary>
+		/// allows trackers to setup the view for actions.
+		/// I could have done this with an enum but it seemed like more 
+		/// work to manage
+		/// </summary>
+		/// <param name="type">tracker type: "warps", "guides", etc</param>
+		internal void SetTrackerSelectionMode(string type)
+		{
+			if (type == null)
+			{
+				RestoreVisState();
+				Refresh();
+				return;
+			}
+
+			switch (type.ToLower())
+			{
+				case "warps":
+
+					//hide everything that isn't a warp
+					RestoreVisState();
+					SaveVisState();
+
+					for (int i = 0; i < ActiveView.Entities.Count; i++)
+					{
+						if (!(ActiveView.Entities[i].EntityData is IRebuild))
+							continue;
+
+						IRebuild irb = ActiveView.Entities[i].EntityData as IRebuild;
+						if (!(irb is MouldCurve) || (irb is GuideComb))
+							ActiveView.Entities[i].Visible = false;
+					}
+					SetActionMode(devDept.Eyeshot.actionType.SelectVisibleByPick);
+					Refresh();
+					break;
+
+				case "guides":
+					//hide everything that isn't a guide
+					RestoreVisState();
+					SaveVisState();
+
+					for (int i = 0; i < ActiveView.Entities.Count; i++)
+					{
+						if (!(ActiveView.Entities[i].EntityData is IRebuild))
+							continue;
+
+						IRebuild irb = ActiveView.Entities[i].EntityData as IRebuild;
+						if (!(irb is GuideComb))
+							ActiveView.Entities[i].Visible = false;
+					}
+					SetActionMode(devDept.Eyeshot.actionType.SelectVisibleByPick);
+					Refresh();
+					break;
+
+				default:
+					RestoreVisState();
+					SetActionMode(devDept.Eyeshot.actionType.None);
+					Refresh();
+					break;
+			}
+		}
+
+		Dictionary<IRebuild, bool[]> m_visSelOld = new Dictionary<IRebuild, bool[]>();
+
+		private void SaveVisState()
+		{
+			m_visSelOld.Clear();
+			for (int i = 0; i < ActiveView.Entities.Count; i++)
+			{
+				if (!(ActiveView.Entities[i].EntityData is IRebuild))
+					continue;
+				if (!m_visSelOld.ContainsKey(ActiveView.Entities[i].EntityData as IRebuild))
+					m_visSelOld.Add(ActiveView.Entities[i].EntityData as IRebuild, new bool[]{ActiveView.Entities[i].Visible, ActiveView.Entities[i].Selected});
+			}
+		}
+
+		private void RestoreVisState()
+		{
+			if (m_visSelOld.Count > 0)
+			{
+				for (int i = 0; i < ActiveView.Entities.Count; i++)
+				{
+					if (!(ActiveView.Entities[i].EntityData is IRebuild))
+						continue;
+					if (m_visSelOld.ContainsKey(ActiveView.Entities[i].EntityData as IRebuild))
+					{
+						ActiveView.Entities[i].Visible = m_visSelOld[ActiveView.Entities[i].EntityData as IRebuild][0];
+						ActiveView.Entities[i].Selected = m_visSelOld[ActiveView.Entities[i].EntityData as IRebuild][1];
+					}
+				}
+			}
 		}
 
 		#region Add Functions (Layers & Entities)
@@ -562,11 +647,11 @@ namespace Warps
 			//string path = Colors.IniPath;//store existing path for cancel
 			//Colors.IniPath = null;//prompt user for new save location
 			string path = null;
-			if( !Colors.HasIniFile )
+			if (!Colors.HasIniFile)
 				path = System.IO.Path.Combine(Utilities.ExeDir, "colors.txt");
 			Colors.WriteIniFile(path);
 			//if (!Colors.WriteIniFile(null))
-				//Colors.IniPath = path;//retore previous path
+			//Colors.IniPath = path;//retore previous path
 		}
 
 		private void saveColorsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -915,7 +1000,7 @@ namespace Warps
 
 			if (e == null)
 				return;
-			
+
 			this[0].Layers.TurnOff(e.LayerIndex);// = !this[0].Layers[e.LayerIndex].Visible;
 			this[1].Layers.TurnOff(e.LayerIndex);// = !this[1].Layers[e.LayerIndex].Visible;
 

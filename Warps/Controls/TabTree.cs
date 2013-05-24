@@ -967,5 +967,10 @@ namespace Warps
 		{
 			ActiveTree.EndUpdate();
 		}
+
+		private void m_seqtree_MouseDown(object sender, MouseEventArgs e)
+		{
+
+		}
 	}
 }

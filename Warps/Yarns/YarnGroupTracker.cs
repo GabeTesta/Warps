@@ -42,7 +42,8 @@ namespace Warps.Yarns
 
 			if (View != null)
 			{
-				View.DeSelectAll();
+				//View.DeSelectAll();
+				//View.SelectLayer(m_group);
 				View.AttachTracker(this);
 				Edit.View = View;
 			}
@@ -187,7 +188,7 @@ namespace Warps.Yarns
 		private void Cancel()
 		{
 			m_frame.EditorPanel = null;
-
+			View.SetActionMode(devDept.Eyeshot.actionType.None);
 			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
 			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
 			Tree.KeyUp -= Tree_KeyUp;

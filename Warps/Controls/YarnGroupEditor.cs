@@ -184,7 +184,7 @@ namespace Warps.Controls
 			selectGuideButt.BackColor = m_selectingGuide ? Color.Green : Color.White;
 
 
-			View.SetActionMode(m_selectingWarp ? devDept.Eyeshot.actionType.SelectVisibleByPick : devDept.Eyeshot.actionType.None);
+			View.SetTrackerSelectionMode(m_selectingWarp ? "warps" : null);
 		}
 
 		private void selectGuideButt_Click(object sender, EventArgs e)
@@ -197,7 +197,7 @@ namespace Warps.Controls
 
 			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
 
-			View.SetActionMode(m_selectingGuide ? devDept.Eyeshot.actionType.SelectVisibleByPick : devDept.Eyeshot.actionType.None);
+			View.SetTrackerSelectionMode(m_selectingGuide ? "guides" : null);
 		}
 
 		public Equation YarnDenierEqu
