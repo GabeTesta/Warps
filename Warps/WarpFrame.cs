@@ -120,6 +120,7 @@ namespace Warps
 			m_tree.Add(s.WriteNode());
 
 			AddSailtoView(s);
+
 			Tree.ExpandToDepth(0);
 
 			//EquationEditor.Instance.SetSail(s);
@@ -136,7 +137,10 @@ namespace Warps
 			nlayer = View.AddLayer("Gauss", Color.Beige, false);
 			s.Mould.CreateEntities(new double[,] { { -.2, 1.2 }, { -.2, 1.2 } }, true).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
 
-			s.Layout.ForEach(group => View.Add(group));
+			//add the groups attached to the sail file if any
+			s.Mould.Groups.ForEach(group => UpdateViews(group));
+
+			s.Layout.ForEach(group => UpdateViews(group));
 
 			View.ZoomFit(true);
 		}

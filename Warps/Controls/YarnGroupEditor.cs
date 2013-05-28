@@ -287,7 +287,8 @@ namespace Warps.Controls
 			{
 				List<MouldCurve> ret = new List<MouldCurve>();
 				ret.AddRange(SelectedWarps);
-				ret.Add(Guide);
+				if(Guide!=null)
+					ret.Add(Guide);
 				return ret;
 			}
 		}

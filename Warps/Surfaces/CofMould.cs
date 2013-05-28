@@ -51,6 +51,7 @@ namespace Warps
 
 					ReadBinCurves(bin, sail);
 				}
+
 		}
 
 		void ReadMFCCofFile(string cofPath)
