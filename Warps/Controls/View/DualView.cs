@@ -57,13 +57,15 @@ namespace Warps
 
 				//set user defined colors
 				this[i].Background.TopColor = Colors["Background", this[i].Background.TopColor];
+				this[i].Background.BottomColor = Colors["Backgrad", this[i].Background.BottomColor];
+				
 				this[i].Grid.MajorLineColor = Colors["GridLines"];
 				this[i].SelectionColor = Colors["Selection", this[i].SelectionColor];
 				//enable parallel processing for entity regen
 				this[i].Entities.Parallel = true;
 
 				//turn down reflections
-				this[i].DefaultMaterial.Shininess = 0.1f;
+				//this[i].DefaultMaterial.Shininess = 0.001f;
 				this[i].DefaultMaterial.Environment = 0f;
 				this[i].DefaultMaterial.Specular = Color.Gray;
 				//this[i].PlanarShadowOpacity = 1.0;
@@ -74,7 +76,9 @@ namespace Warps
 				this[i].Groups.Add(new List<int>());
 
 			}
-
+			//this[0].ProgressBar.CancellingText = "CANCELELEELS";
+			//this[0].ProgressBar.HideCancelButton = false;
+			//this[0].ProgressBar.Visible = true;
 			CreateContextMenu();
 			splitContainer1.SplitterDistance = (int)((splitContainer1.ClientRectangle.Width - splitContainer1.SplitterWidth) / 2.0);
 		}
@@ -121,8 +125,11 @@ namespace Warps
 				{
 					if (e.EntityData == tag)
 					{
-						e.LineWeightMethod = colorMethodType.byEntity;
-						e.LineWeight = 2.0f;
+						if (!(e is PointCloud))
+						{
+							e.LineWeightMethod = colorMethodType.byEntity;
+							e.LineWeight = 2.0f;
+						}
 						e.ColorMethod = colorMethodType.byEntity;
 						e.Color = Color.FromArgb(255, ActiveView.Layers[e.LayerIndex].Color);
 					//	break;
@@ -152,8 +159,11 @@ namespace Warps
 			{
 				if (e.EntityData == tag)
 				{
-					e.LineWeightMethod = colorMethodType.byLayer;
-					e.ColorMethod = colorMethodType.byLayer;
+					if (!(e is PointCloud))
+					{
+						e.LineWeightMethod = colorMethodType.byLayer;
+						e.ColorMethod = colorMethodType.byLayer;
+					}
 					entIndex = ActiveView.Entities.IndexOf(e);
 					//break;
 				}
@@ -392,22 +402,13 @@ namespace Warps
 			return n1 == n2 ? n1 : -1;
 		}
 
+
 		/// <summary>
 		/// Add a single entity
 		/// </summary>
 		/// <param name="e">the entity to add</param>
 		/// <returns>the 2 entity clones actually used in the view</returns>
 		public Entity[] Add(Entity e)
-		{
-			return Add(e, null);
-		}
-		/// <summary>
-		/// Add a single entity
-		/// </summary>
-		/// <param name="e">the entity</param>
-		/// <param name="label">optional label, null if none</param>
-		/// <returns>the 2 entity clones actually used in the view</returns>
-		public Entity[] Add(Entity e, devDept.Eyeshot.Labels.Label[] labels)
 		{
 			Entity[] ents = new Entity[2];
 			m_viewleft.Entities.Add(ents[0] = (Entity)e.Clone());
@@ -423,6 +424,13 @@ namespace Warps
 					baseColor = this[0].Layers[e.LayerIndex].Color;
 				e.Color = Color.FromArgb(50, baseColor);
 			}
+			//AddLabels(labels);
+
+			return ents;
+		}
+
+		private void AddLabels(devDept.Eyeshot.Labels.Label[] labels)
+		{
 			if (labels != null)
 			{
 				foreach (devDept.Eyeshot.Labels.Label label in labels)
@@ -432,8 +440,6 @@ namespace Warps
 					m_viewright.Labels.Add(label);
 				}
 			}
-
-			return ents;
 		}
 		public Entity[][] AddRange(IEnumerable<Entity> e)
 		{
@@ -441,7 +447,7 @@ namespace Warps
 			int i = 0;
 			foreach (Entity ent in e)
 			{
-				ents[i++] = Add(ent, null);
+				ents[i++] = Add(ent);
 			}
 			return ents;
 		}
@@ -451,8 +457,9 @@ namespace Warps
 			int i = 0;
 			foreach (Entity ent in e)
 			{
-				ents[i++] = Add(ent, label);
+				ents[i++] = Add(ent);
 			}
+			AddLabels(label);
 			return ents;
 		}
 		public void ZoomFit()
@@ -490,8 +497,9 @@ namespace Warps
 			{
 				if (groupEntities[i].LayerIndex == 0)
 					groupEntities[i].LayerIndex = layerIndex;
-				Add(groupEntities[i], groupLabels);
+				Add(groupEntities[i]);
 			}
+			AddLabels(groupLabels);
 		}
 		//public void Add(IGroup g)
 		//{
@@ -1109,6 +1117,8 @@ namespace Warps
 			{
 				if (e.ValueT.Contains("Background"))
 					this[i].Background.TopColor = e.ValueP;
+				if (e.ValueT.Contains("Backgrad"))
+					this[i].Background.BottomColor = e.ValueP;
 				if (e.ValueT.Contains("GridLines"))
 					this[i].Grid.MajorLineColor = e.ValueP;
 				if (e.ValueT.Contains("Selection"))

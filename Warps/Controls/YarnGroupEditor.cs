@@ -63,7 +63,7 @@ namespace Warps.Controls
 
 		public double AchievedDPI
 		{
-			set { m_achievedDPI.Text = value.ToString("#0.00"); }
+			set { m_achievedDPI.Text = value.ToString("n"); }
 		}
 
 		public int AchievedYarnCount
@@ -95,17 +95,21 @@ namespace Warps.Controls
 			AchievedDPI = YarGroup.AchievedDpi;
 			AchievedYarnCount = YarGroup.Count;
 
-			populateDensityCurveLocationBox();
+			populateDensityCurveLocationBox(YarGroup.DensityPos);
 		}
 		public YarnGroup.Ending Ending
 		{
 			get { return (YarnGroup.Ending)m_endingList.SelectedValue; }
 			set { m_endingList.Text = value.ToString(); }
 		}
-		private void populateDensityCurveLocationBox()
+		private void populateDensityCurveLocationBox(List<double> spos)
 		{
-			List<double> spos = m_group.DensityPos;
-			m_densityLocTextBox.Text = string.Join(",", spos);
+			if (spos == null)
+				m_densityLocTextBox.Text = "";
+			List<string> sdens = new List<string>(spos.Count);
+			spos.ForEach(s => sdens.Add(s.ToString("0.000")));
+			m_densityLocTextBox.Text = string.Join("; ", sdens);
+			//m_densityLocTextBox.Text = string.Join(", ", spos);
 		}
 
 		public void populateWarpBox()
@@ -143,11 +147,6 @@ namespace Warps.Controls
 			m_guideListView.Items.Add(guide.Label, guide.Label, "GuideComb");
 
 			m_guideListView.Refresh();
-		}
-
-		private void YarnGroupEditor_Load(object sender, EventArgs e)
-		{
-
 		}
 
 		public void Done()
@@ -248,7 +247,7 @@ namespace Warps.Controls
 			get
 			{
 				List<double> ret = new List<double>();
-				string[] split = m_densityLocTextBox.Text.Split(new char[] { ',' });
+				string[] split = m_densityLocTextBox.Text.Split(new char[] { ';' });
 				double outie = -1;
 
 				foreach (string s in split)
@@ -258,6 +257,10 @@ namespace Warps.Controls
 				}
 
 				return ret;
+			}
+			set
+			{
+				populateDensityCurveLocationBox(value);
 			}
 		}
 
@@ -280,5 +283,6 @@ namespace Warps.Controls
 				m_guideListView.Refresh();
 			}
 		}
+
 	}
 }

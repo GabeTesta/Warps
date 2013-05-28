@@ -90,7 +90,7 @@ namespace Warps
 			}
 		}
 
-		public Vect2 UV
+		public virtual Vect2 UV
 		{
 			get
 			{
@@ -204,7 +204,7 @@ namespace Warps
 		//} 
 		//#endregion
 
-		public Control WriteEditor(ref IFitEditor edit)
+		public virtual Control WriteEditor(ref IFitEditor edit)
 		{
 			if (edit == null || !(edit is CurvePointEditor))
 				edit = new CurvePointEditor();
@@ -216,7 +216,7 @@ namespace Warps
 			return cdit;
 		}
 
-		public void ReadEditor(IFitEditor edit)
+		public virtual void ReadEditor(IFitEditor edit)
 		{
 			if (edit == null )
 			throw new ArgumentNullException();

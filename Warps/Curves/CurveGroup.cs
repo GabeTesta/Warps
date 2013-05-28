@@ -23,6 +23,7 @@ namespace Warps
 		{
 			m_sail = sail;
 			m_label = Utilities.ReadCString(bin);
+
 			int iC = bin.ReadInt32();
 			for (int nC = 0; nC < iC; nC++)
 				Add(new MouldCurve(bin, sail));

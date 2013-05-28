@@ -162,6 +162,7 @@
     <Compile Include="Controls\YarnGroupEditor.Designer.cs">
       <DependentUpon>YarnGroupEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Curves\AnglePoint.cs" />
     <Compile Include="Curves\CurveGroup.cs" />
     <Compile Include="Controls\CurveGroupEditor.cs">
       <SubType>UserControl</SubType>
@@ -180,6 +181,8 @@
       <DependentUpon>EquationEditorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Equations\VariableGroup.cs" />
+    <Compile Include="Panels\Panel.cs" />
+    <Compile Include="Panels\PanelGroup.cs" />
     <Compile Include="Surfaces\CofMould.cs" />
     <Compile Include="Surfaces\ComboMould.cs" />
     <Compile Include="Surfaces\RBFMould.cs" />
