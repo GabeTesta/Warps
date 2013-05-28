@@ -642,6 +642,11 @@ namespace Warps
 
 		#region Forms
 
+		private string GetToolTipData()
+		{
+			return GetType().Name + "\n#:" + FitPoints.Length + (Locked ? "\nLocked" : "");
+		}
+
 		System.Windows.Forms.TreeNode m_node = null;
 
 		public virtual TreeNode WriteNode()
@@ -651,8 +656,7 @@ namespace Warps
 			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
 			m_node.Text = string.Format("{0} [{1:0.000}]", Label, Length);
 			m_node.Tag = this;
-			m_node.ToolTipText = GetType().Name
-				+ "\n#:" + FitPoints.Length;
+			m_node.ToolTipText = GetToolTipData();
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
 			m_node.Nodes.Clear();

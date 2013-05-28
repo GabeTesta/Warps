@@ -85,6 +85,8 @@ namespace Warps
 		}
 		private string GetToolTipData()
 		{
+			if(Locked)
+				return String.Format("{0}\n#:{1}\n{2}", GetType().Name, Count, "Locked");
 			return String.Format("{0}\n#:{1}", GetType().Name, Count);
 		}
 
