@@ -138,7 +138,8 @@ namespace Warps
 			s.Mould.CreateEntities(new double[,] { { -.2, 1.2 }, { -.2, 1.2 } }, true).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
 
 			//add the groups attached to the sail file if any
-			s.Mould.Groups.ForEach(group => UpdateViews(group));
+			if (s.Mould.Groups != null)
+				s.Mould.Groups.ForEach(group => UpdateViews(group));
 
 			s.Layout.ForEach(group => UpdateViews(group));
 
@@ -370,7 +371,7 @@ namespace Warps
 		//entry point for trackers
 		public void m_tree_AfterSelect(object sender, EventArgs<IRebuild> e)
 		{
-			if ( (sender == Tree || sender == View) && m_Tracker != null && m_Tracker.EditMode)
+			if ((sender == Tree || sender == View) && m_Tracker != null && m_Tracker.EditMode)
 				return; //dont do anything if we are already edit-tracking
 
 			Status = "";
@@ -590,12 +591,12 @@ namespace Warps
 				List<IRebuild> rebuilds = new List<IRebuild>();
 				if (tag != null)
 					tag.GetParents(ActiveSail, rebuilds);
-				
+
 				StringBuilder sb = new StringBuilder();
 				foreach (IRebuild rb in rebuilds)
 					sb.AppendLine(rb.Label);
 				MessageBox.Show(sb.ToString());
-			return;
+				return;
 			}
 
 
@@ -727,7 +728,7 @@ namespace Warps
 			dlg.InitialDirectory = Utilities.ExeDir;
 			if (dlg.ShowDialog() == DialogResult.OK)
 				Save3dlFile(dlg.FileName);
-			
+
 		}
 
 		void Save3dlFile(string fullfilename)
@@ -751,7 +752,7 @@ namespace Warps
 						{
 							//FOOT   1.0000   FT_IN  0.0000  spacing  0.0853    48 offsets on yarn #1
 							sw.WriteLine("{0}   {1}   {2}  {3}  {4}  {5}    {6} offsets on yarn #{7}"
-									, yar.Label, 1.0, "name", 0, "spacing", 0, ents[i].Vertices.Length-1, i);
+									, yar.Label, 1.0, "name", 0, "spacing", 0, ents[i].Vertices.Length - 1, i);
 
 							for (int j = 0; j < ents[i].Vertices.Length; j++)
 							{
@@ -813,7 +814,7 @@ namespace Warps
 				logger.Instance.Log("saving done");
 			});
 			tw.Start();
-			
+
 		}
 	}
 }

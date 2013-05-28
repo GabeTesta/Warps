@@ -69,7 +69,10 @@ namespace Warps
 		{
 			get { return m_editMode; }
 			set 
-			{ 
+			{
+				if (m_curve.Locked && value)
+					return;
+
 				m_editMode = value;
 				//if (Edit != null)
 				//	Edit.Enabled = value;

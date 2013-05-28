@@ -357,7 +357,7 @@ namespace Warps
 			TreeNode tn = FindNode(item);
 			if (tn != null)
 			{
-				tn.ForeColor = Color.White;
+				//tn.ForeColor = Color.White;
 				tn.BackColor = Color.Firebrick;
 				tn.EnsureVisible();
 			}
@@ -368,7 +368,7 @@ namespace Warps
 			TreeNode tn = FindNode(item);
 			if (tn != null)
 			{
-				tn.ForeColor = Color.Black;
+				//tn.ForeColor = Color.Black;
 				tn.BackColor = Color.White;
 			}
 		}
@@ -507,7 +507,7 @@ namespace Warps
 					if (trgt == null)
 						return;
 
-					if (!drg.Draggable || !trgt.Draggable)
+					if (drg.Locked || trgt.Locked)
 						return;
 
 					if (trgt is IGroup)

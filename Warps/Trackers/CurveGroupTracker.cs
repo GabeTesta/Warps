@@ -77,6 +77,9 @@ namespace Warps
 			get { return m_editMode; }
 			set
 			{
+				if (m_group.Locked && value)
+					return;
+
 				Edit.Enabled = value;
 
 				m_editMode = value;

@@ -42,7 +42,7 @@ namespace Warps
 		public MouldCurve(System.IO.BinaryReader bin, Sail sail)
 		{
 			m_sail = sail;
-			m_draggable = false;
+			m_locked = true;
 			//read label
 			m_label = Utilities.ReadCString(bin);
 
@@ -551,9 +551,9 @@ namespace Warps
 					
 		}
 
-		bool m_draggable = true;
+		bool m_locked = false;
 
-		public bool Draggable { get { return m_draggable; } set { m_draggable = value; } }
+		public bool Locked { get { return m_locked; } set { m_locked = value; } }
 
 		public virtual bool ReadScript(Sail sail, IList<string> txt)
 		{
@@ -648,6 +648,7 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
+			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
 			m_node.Text = string.Format("{0} [{1:0.000}]", Label, Length);
 			m_node.Tag = this;
 			m_node.ToolTipText = GetType().Name
@@ -655,9 +656,15 @@ namespace Warps
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
 			m_node.Nodes.Clear();
-			if( FitPoints != null )
+			if (FitPoints != null)
+			{
 				foreach (IFitPoint fp in FitPoints)
-					m_node.Nodes.Add(fp.Node);
+				{
+					TreeNode n = fp.Node;
+					n.ForeColor = m_node.ForeColor;
+					m_node.Nodes.Add(n);
+				}
+			}
 			return m_node;
 		}
 

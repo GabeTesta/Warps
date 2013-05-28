@@ -23,7 +23,7 @@ namespace Warps
 		{
 			m_sail = sail;
 			m_label = Utilities.ReadCString(bin);
-			m_draggable = false;
+			m_locked = true;
 			int iC = bin.ReadInt32();
 			for (int nC = 0; nC < iC; nC++)
 				Add(new MouldCurve(bin, sail));
@@ -66,6 +66,7 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
+			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
 			m_node.Tag = this;
 			//m_node.Text = GetType().Name + ": " + Label;
 			m_node.ToolTipText = GetToolTipData();
@@ -237,9 +238,9 @@ namespace Warps
 			return script;
 		}
 
-		bool m_draggable = true;
+		bool m_locked = false;
 
-		public bool Draggable { get { return m_draggable; } set { m_draggable = value; } }
+		public bool Locked { get { return m_locked; } set { m_locked = value; } }
 
 		#endregion
 

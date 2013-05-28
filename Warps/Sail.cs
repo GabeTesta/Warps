@@ -714,6 +714,14 @@ namespace Warps
 				if (Layout[i].Watermark(tag, ref rets))
 					return Layout[i];
 			}
+			if (Mould != null && Mould.Groups != null)
+				for (int i = 0; i < Mould.Groups.Count; i++)
+				{
+					//check group label
+					if (Mould.Groups[i].Watermark(tag, ref rets))
+						return Mould.Groups[i];//return if match
+				}
+
 			return null;
 		}
 
