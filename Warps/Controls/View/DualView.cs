@@ -119,10 +119,11 @@ namespace Warps
 		{
 			foreach (Entity e in ActiveView.Entities)
 			{
-				if (e.EntityData == tag)
+				if (e.EntityData == tag && !e.Selected)
 				{
 					e.LineWeightMethod = colorMethodType.byEntity;
 					e.LineWeight = 2.0f;
+
 					e.ColorMethod = colorMethodType.byEntity;
 					e.Color = Color.FromArgb(255, ActiveView.Layers[e.LayerIndex].Color);
 				}
@@ -135,7 +136,8 @@ namespace Warps
 				{
 					if ((e as OutlinedText).Text.Contains(tag.ToString()))
 					{
-						e.Visible = true;
+						if (!e.Selected)
+							e.Visible = true;
 					}
 				}
 			}
@@ -146,7 +148,7 @@ namespace Warps
 			int entIndex = -1;
 			foreach (Entity e in ActiveView.Entities)
 			{
-				if (e.EntityData == tag)
+				if (e.EntityData == tag && !e.Selected)
 				{
 					e.LineWeightMethod = colorMethodType.byLayer;
 					e.ColorMethod = colorMethodType.byLayer;
@@ -154,6 +156,8 @@ namespace Warps
 				}
 			}
 
+			if (entIndex == -1)
+				return;
 			foreach (devDept.Eyeshot.Labels.Label e in ActiveView.Labels)
 			{
 				if (e is OutlinedText)
@@ -230,6 +234,27 @@ namespace Warps
 
 		}
 
+		public void SelectEntity(object tag)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				foreach (Entity e in this[i].Entities)
+				{
+					if (e.EntityData == tag)
+						e.Selected = true;
+				}
+
+				foreach (devDept.Eyeshot.Labels.Label e in this[i].Labels)
+				{
+					if (e is OutlinedText)
+					{
+						if ((e as OutlinedText).Text.Contains(tag.ToString()))
+							e.Visible = true;
+					}
+				}
+			}
+		}
+
 		public void DeSelectAll()
 		{
 			for (int i = 0; i < 2; i++)
@@ -247,6 +272,10 @@ namespace Warps
 					if (e.EntityData == tag)
 						e.Selected = false;
 		}
+
+		/// <summary>
+		/// this method uses FirstOrDefault right now.  That's not a very good solution
+		/// </summary>
 		public object SelectedTag
 		{
 			get
@@ -437,7 +466,7 @@ namespace Warps
 				if (!(ActiveView.Entities[i].EntityData is IRebuild))
 					continue;
 				if (!m_visSelOld.ContainsKey(ActiveView.Entities[i].EntityData as IRebuild))
-					m_visSelOld.Add(ActiveView.Entities[i].EntityData as IRebuild, new bool[]{ActiveView.Entities[i].Visible, ActiveView.Entities[i].Selected});
+					m_visSelOld.Add(ActiveView.Entities[i].EntityData as IRebuild, new bool[] { ActiveView.Entities[i].Visible, ActiveView.Entities[i].Selected });
 			}
 		}
 

@@ -42,6 +42,7 @@ namespace Warps
 		public MouldCurve(System.IO.BinaryReader bin, Sail sail)
 		{
 			m_sail = sail;
+			m_draggable = false;
 			//read label
 			m_label = Utilities.ReadCString(bin);
 
@@ -550,6 +551,9 @@ namespace Warps
 					
 		}
 
+		bool m_draggable = true;
+
+		public bool Draggable { get { return m_draggable; } set { m_draggable = value; } }
 
 		public virtual bool ReadScript(Sail sail, IList<string> txt)
 		{

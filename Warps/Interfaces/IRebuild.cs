@@ -15,6 +15,8 @@ namespace Warps
 		List<string> WriteScript();
 		bool ReadScript(Sail sail, IList<string> txt);
 
+		bool Draggable { get; set; }
+
 		TreeNode WriteNode();
 		Entity[] CreateEntities();
 		devDept.Eyeshot.Labels.Label[] EntityLabel { get; }

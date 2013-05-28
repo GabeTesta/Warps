@@ -23,6 +23,7 @@ namespace Warps
 		{
 			m_sail = sail;
 			m_label = Utilities.ReadCString(bin);
+			m_draggable = false;
 			int iC = bin.ReadInt32();
 			for (int nC = 0; nC < iC; nC++)
 				Add(new MouldCurve(bin, sail));
@@ -235,6 +236,10 @@ namespace Warps
 			}
 			return script;
 		}
+
+		bool m_draggable = true;
+
+		public bool Draggable { get { return m_draggable; } set { m_draggable = value; } }
 
 		#endregion
 

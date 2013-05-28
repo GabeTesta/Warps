@@ -42,8 +42,6 @@ namespace Warps.Yarns
 
 			if (View != null)
 			{
-				//View.DeSelectAll();
-				//View.SelectLayer(m_group);
 				View.AttachTracker(this);
 				Edit.View = View;
 			}
@@ -66,7 +64,7 @@ namespace Warps.Yarns
 			View.EditMode = state;
 			m_edit.Enabled = state;
 			View.DeSelectAllLayers();
-			View.SelectLayer(m_group);
+			//View.SelectLayer(m_group);
 			foreach (MouldCurve curve in m_group.Warps)
 				View.Select(curve);
 
@@ -244,10 +242,16 @@ namespace Warps.Yarns
 			else if (selected is MouldCurve)
 			{
 				if (Edit.AddRemoveWarp(selected as MouldCurve))
-					View.Select(selected as MouldCurve);	
+					View.SelectEntity(selected as MouldCurve);	
 				else
 					View.DeSelect(selected as MouldCurve);	
 			}
+
+			View.DeSelectAll();
+
+			foreach (MouldCurve cur in Edit.Curves)
+				View.SelectEntity(cur);
+
 
 			View.Refresh();
 		}

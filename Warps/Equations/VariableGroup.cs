@@ -66,6 +66,10 @@ namespace Warps
 			}
 		}
 
+		bool m_draggable = true;
+
+		public bool Draggable { get { return m_draggable; } set { m_draggable = value; } }
+
 		TreeNode m_node;
 		public TreeNode WriteNode()
 		{

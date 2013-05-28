@@ -188,6 +188,11 @@ namespace Warps
 
 			return bupdate;
 		}
+
+		bool m_draggable = true;
+
+		public bool Draggable { get { return m_draggable; } set { m_draggable = value; } }
+
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
 			if (txt.Count != 2)

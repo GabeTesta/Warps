@@ -39,7 +39,7 @@ namespace Warps.Controls
 			yarnDenierEQB.Prep(m_sail, YarGroup);
 			yarnDenierEQB.Text = YarGroup.YarnDenierEqu != null ? YarGroup.YarnDenierEqu.EquationText : "0";
 			targetDPIEQB.Text = YarGroup.TargetDenierEqu != null ? YarGroup.TargetDenierEqu.EquationText : "0";
-			
+
 			fillEditorWithData();
 		}
 
@@ -49,8 +49,8 @@ namespace Warps.Controls
 		public Sail sail
 		{
 			get { return m_sail; }
-			set 
-			{ 
+			set
+			{
 				m_sail = value;
 			}
 		}
@@ -177,7 +177,7 @@ namespace Warps.Controls
 		private void button1_Click(object sender, EventArgs e)
 		{
 			m_selectingWarp = !m_selectingWarp;
-			
+
 			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
 
 			m_selectingGuide = false;
@@ -216,7 +216,7 @@ namespace Warps.Controls
 			}
 		}
 
-		public GuideComb Guide 
+		public GuideComb Guide
 		{
 			get
 			{
@@ -227,7 +227,7 @@ namespace Warps.Controls
 			}
 		}
 
-		public List<MouldCurve> SelectedWarps 
+		public List<MouldCurve> SelectedWarps
 		{
 			get
 			{
@@ -236,7 +236,7 @@ namespace Warps.Controls
 				{
 					for (int i = 0; i < m_warpListView.Items.Count; i++)
 						ret.Add(YarGroup.Sail.FindCurve(m_warpListView.Items[i].Name));
-					
+
 				}
 
 				return ret;
@@ -278,6 +278,17 @@ namespace Warps.Controls
 				foreach (var v in m_guideListView.SelectedIndices)
 					m_guideListView.Items.RemoveAt(Convert.ToInt32(v));
 				m_guideListView.Refresh();
+			}
+		}
+
+		public List<MouldCurve> Curves
+		{
+			get
+			{
+				List<MouldCurve> ret = new List<MouldCurve>();
+				ret.AddRange(SelectedWarps);
+				ret.Add(Guide);
+				return ret;
 			}
 		}
 	}

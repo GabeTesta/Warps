@@ -507,6 +507,9 @@ namespace Warps
 					if (trgt == null)
 						return;
 
+					if (!drg.Draggable || !trgt.Draggable)
+						return;
+
 					if (trgt is IGroup)
 					{
 				
@@ -966,11 +969,6 @@ namespace Warps
 		internal void EndUpdate()
 		{
 			ActiveTree.EndUpdate();
-		}
-
-		private void m_seqtree_MouseDown(object sender, MouseEventArgs e)
-		{
-
 		}
 	}
 }
