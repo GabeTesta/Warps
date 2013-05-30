@@ -248,6 +248,16 @@ namespace Warps
 			return this[label];
 		}
 
+		public IRebuild FindItem(IRebuild item)
+		{
+			if (!(item is Equation))
+				return null;
+
+			if (this.ContainsKey((item as Equation).Label))
+				return this[(item as Equation).Label];
+			return null;
+		}
+
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
 		{
 			if (tag is Equation)

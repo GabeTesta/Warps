@@ -505,19 +505,26 @@ namespace Warps
 					IRebuild trgt = targetNode.Tag as IRebuild;
 
 					if (trgt == null)
-						return;
+						goto finish;
 
 					if (drg.Locked || trgt.Locked)
-						return;
+						goto finish;
+
+					IRebuild aboveMe = null;
+					IRebuild belowMe = null;
+
+					bool ToTop = true;
 
 					if (trgt is IGroup)
 					{
-				
+
 						//if we put a group into a new group, we just reorder
 						if (drg is IGroup)
 						{
-							if (!CheckWaterMarkIndex(draggedItemParents, trgt))// make sure this is allowable first
-								return;
+							if (!CheckWaterMarkIndexParents(draggedItemParents, trgt))// make sure this is allowable first
+								goto finish;
+							else if (!CheckWaterMarkIndexChildren(draggedItemChildren, trgt))
+								goto finish;
 
 							int newIndex = Sail.Layout.IndexOf(trgt as IGroup);
 							Sail.Layout.Remove(drg as IGroup);
@@ -531,8 +538,8 @@ namespace Warps
 						{
 							//if we drag a non-Igroup IRebuild into it's respective container that has a 
 							//parent in it, we should allow it but place the item at the bottom of the group.
-							IRebuild aboveMe = null;
-							if (!CheckWaterMarkIndex(draggedItemParents, trgt, ref aboveMe))// make sure this is allowable first
+							//aboveMe = null;
+							if (!CheckWaterMarkIndexParents(draggedItemParents, trgt, ref aboveMe))// make sure this is allowable first
 							{
 								//here we check if the parent that is preventing you from reordering belongs
 								// to the target group.  If it does, the place the dragged node at the bottom and allow
@@ -540,7 +547,17 @@ namespace Warps
 								{
 									TreeNode aboveMeParent = FindNode(aboveMe).Parent;
 									if ((aboveMeParent.Tag as CurveGroup) != trgt)
-										return;
+										goto finish;
+								}
+							}
+							else if (!CheckWaterMarkIndexChildren(draggedItemChildren, trgt, ref belowMe))
+							{
+								if (belowMe is MouldCurve)
+								{
+									TreeNode belowMeParent = FindNode(belowMe).Parent;
+									if ((belowMeParent.Tag as CurveGroup) != trgt)
+										goto finish;
+									ToTop = false;
 								}
 							}
 							//first find the index of the dragged mouldcurves parent
@@ -548,7 +565,7 @@ namespace Warps
 							TreeNode curve = FindNode(drg as MouldCurve);
 							IGroup curParent = curve.Parent.Tag as IGroup;
 							if (curParent == null)
-								return;
+								goto finish;
 
 							//remove
 							int newIndex = Sail.Layout.IndexOf(curParent);
@@ -556,7 +573,10 @@ namespace Warps
 
 							//insert into new one
 							newIndex = Sail.Layout.IndexOf(trgt as IGroup);
-							(Sail.Layout[newIndex] as CurveGroup).Add(drg as MouldCurve);
+							if(ToTop)
+								(Sail.Layout[newIndex] as CurveGroup).Add(drg as MouldCurve);
+							else
+								(Sail.Layout[newIndex] as CurveGroup).Insert(0, drg as MouldCurve);
 
 							//need this guy or tree will not refresh.  Weird .Net bug
 							draggedNode.Remove();
@@ -564,8 +584,8 @@ namespace Warps
 						}
 						else if (drg is Equation && trgt is VariableGroup)
 						{
-							IRebuild aboveMe = null;
-							if (!CheckWaterMarkIndex(draggedItemParents, trgt, ref aboveMe))// make sure this is allowable first
+							
+							if (!CheckWaterMarkIndexParents(draggedItemParents, trgt, ref aboveMe))// make sure this is allowable first
 							{
 								//here we check if the parent that is preventing you from reordering belongs
 								// to the target group.  If it does, the place the dragged node at the bottom and allow
@@ -573,7 +593,17 @@ namespace Warps
 								{
 									TreeNode aboveMeParent = FindNode(aboveMe).Parent;
 									if ((aboveMeParent.Tag as VariableGroup) != trgt)
-										return;
+										goto finish;
+								}
+							}
+							else if (!CheckWaterMarkIndexChildren(draggedItemChildren, trgt, ref belowMe))
+							{
+								if (belowMe is Equation)
+								{
+									TreeNode belowMeParent = FindNode(belowMe).Parent;
+									if ((belowMeParent.Tag as VariableGroup) != trgt)
+										goto finish;
+									ToTop = false;
 								}
 							}
 							//first find the index of the dragged mouldcurves parent
@@ -581,7 +611,7 @@ namespace Warps
 							TreeNode curve = FindNode(drg as Equation);
 							IGroup curParent = curve.Parent.Tag as IGroup;
 							if (curParent == null)
-								return;
+								goto finish;
 
 							//remove
 							int newIndex = Sail.Layout.IndexOf(curParent);
@@ -589,7 +619,10 @@ namespace Warps
 
 							//insert into new one
 							newIndex = Sail.Layout.IndexOf(trgt as IGroup);
-							(Sail.Layout[newIndex] as VariableGroup).Add(drg as Equation);
+							if(ToTop)
+								(Sail.Layout[newIndex] as VariableGroup).Add(drg as Equation);
+							else
+								(Sail.Layout[newIndex] as VariableGroup).Insert(0,drg as Equation);
 
 							//need this guy or tree will not refresh.  Weird .Net bug
 							draggedNode.Remove();
@@ -600,8 +633,10 @@ namespace Warps
 
 					else if (trgt is MouldCurve)
 					{
-						if (!CheckWaterMarkIndex(draggedItemParents, trgt))// make sure this is allowable first
-							return;
+						if (!CheckWaterMarkIndexParents(draggedItemParents, trgt))// make sure this is allowable first
+							goto finish;
+						else if (!CheckWaterMarkIndexChildren(draggedItemChildren, trgt))
+							goto finish;
 						//if we drag a mouldcurve onto another mouldcurve
 						// then we insert that mouldcurve into the new IGroup containing the target
 						// and place the drg there
@@ -613,14 +648,14 @@ namespace Warps
 							TreeNode curveD = FindNode(drg as MouldCurve);
 							IGroup curParentD = curveD.Parent.Tag as IGroup;
 							if (curParentD == null)
-								return;
+								goto finish;
 
 							//Second find the index of the target mouldcurves parent
 							//so we can add the curve to it
 							TreeNode curveT = FindNode(trgt as MouldCurve);
 							IGroup curParentT = curveT.Parent.Tag as IGroup;
 							if (curParentT == null)
-								return;
+								goto finish;
 
 							//remove
 							int newIndex = Sail.Layout.IndexOf(curParentD);
@@ -641,14 +676,14 @@ namespace Warps
 							TreeNode curveD = FindNode(drg as GuideComb);
 							IGroup curParentD = curveD.Parent.Tag as IGroup;
 							if (curParentD == null)
-								return;
+								goto finish;
 
 							//Second find the index of the target mouldcurves parent
 							//so we can add the curve to it
 							TreeNode curveT = FindNode(trgt as MouldCurve);
 							IGroup curParentT = curveT.Parent.Tag as IGroup;
 							if (curParentT == null)
-								return;
+								goto finish;
 
 							//remove
 							int newIndex = Sail.Layout.IndexOf(curParentD);
@@ -666,8 +701,10 @@ namespace Warps
 
 					else if (trgt is GuideComb)
 					{
-						if (!CheckWaterMarkIndex(draggedItemParents, trgt))// make sure this is allowable first
-							return;
+						if (!CheckWaterMarkIndexParents(draggedItemParents, trgt))// make sure this is allowable first
+							goto finish;
+						else if (!CheckWaterMarkIndexChildren(draggedItemChildren, trgt))
+							goto finish;
 						//if we drag a mouldcurve onto another mouldcurve
 						// then we insert that mouldcurve into the new IGroup containing the target
 						// and place the drg there
@@ -679,14 +716,14 @@ namespace Warps
 							TreeNode curveD = FindNode(drg as MouldCurve);
 							IGroup curParentD = curveD.Parent.Tag as IGroup;
 							if (curParentD == null)
-								return;
+								goto finish;
 
 							//Second find the index of the target mouldcurves parent
 							//so we can add the curve to it
 							TreeNode curveT = FindNode(trgt as GuideComb);
 							IGroup curParentT = curveT.Parent.Tag as IGroup;
 							if (curParentT == null)
-								return;
+								goto finish;
 
 							//remove
 							int newIndex = Sail.Layout.IndexOf(curParentD);
@@ -708,14 +745,14 @@ namespace Warps
 							TreeNode curveD = FindNode(drg as GuideComb);
 							IGroup curParentD = curveD.Parent.Tag as IGroup;
 							if (curParentD == null)
-								return;
+								goto finish;
 
 							//Second find the index of the target mouldcurves parent
 							//so we can add the curve to it
 							TreeNode curveT = FindNode(trgt as GuideComb);
 							IGroup curParentT = curveT.Parent.Tag as IGroup;
 							if (curParentT == null)
-								return;
+								goto finish;
 
 							//remove
 							int newIndex = Sail.Layout.IndexOf(curParentD);
@@ -733,8 +770,10 @@ namespace Warps
 
 					else if (trgt is Equation)
 					{
-						if (!CheckWaterMarkIndex(draggedItemParents, trgt))// make sure this is allowable first
-							return;
+						if (!CheckWaterMarkIndexParents(draggedItemParents, trgt))// make sure this is allowable first
+							goto finish;
+						else if (!CheckWaterMarkIndexChildren(draggedItemChildren, trgt))
+							goto finish;
 						//if we drag a Equation onto another Equation
 						// then we insert that Equation into the new IGroup containing the target
 						// and place the drg there
@@ -776,11 +815,18 @@ namespace Warps
 
 			}
 
-			if (draggedItemParents != null)
-				ColorParents(draggedNode.Tag as IRebuild, draggedItemParents, Color.White);
+			finish:
 
+			if (draggedItemParents != null)
+				ColorCollection(draggedNode.Tag as IRebuild, draggedItemParents, Color.White);
+
+			if (draggedItemChildren != null)
+				ColorCollection(draggedNode.Tag as IRebuild, draggedItemChildren, Color.White);
+
+			//draggedNode.BackColor = Color.White;
 
 			draggedItemParents = null;
+			draggedItemChildren = null;
 		}
 
 		/// <summary>
@@ -790,8 +836,8 @@ namespace Warps
 		/// <param name="parents">dragged item parents</param>
 		/// <param name="trgt">target IRebuild</param>
 		/// <param name="aboveMe">the parent that is higher than the target if there is one</param>
-		/// <returns>true if index is beneath dependents, false otherwise</returns>
-		private bool CheckWaterMarkIndex(List<IRebuild> parents, IRebuild trgt, ref IRebuild aboveMe)
+		/// <returns>true if index is above dependents, false otherwise</returns>
+		private bool CheckWaterMarkIndexParents(List<IRebuild> parents, IRebuild trgt, ref IRebuild aboveMe)
 		{
 			if (parents.Contains(trgt))
 				return false;
@@ -816,10 +862,56 @@ namespace Warps
 			return true;
 		}
 
-		private bool CheckWaterMarkIndex(List<IRebuild> parents, IRebuild trgt)
+		private bool CheckWaterMarkIndexParents(List<IRebuild> parents, IRebuild trgt)
 		{
 			IRebuild throwAway = null;
-			return CheckWaterMarkIndex(parents, trgt, ref throwAway);
+			return CheckWaterMarkIndexParents(parents, trgt, ref throwAway);
+		}
+
+		private bool CheckWaterMarkIndexChildren(List<IRebuild> children, IRebuild trgt)
+		{
+			IRebuild throwAway = null;
+			return CheckWaterMarkIndexChildren(children, trgt, ref throwAway);
+		}
+		/// <summary>
+		/// this function is going to check whether the target position index is smaller 
+		/// than the smallest child index in the tree. 
+		/// </summary>
+		/// <param name="parents">dragged item parents</param>
+		/// <param name="trgt">target IRebuild</param>
+		/// <param name="aboveMe">the child that is lower than the target if there is one</param>
+		/// <returns>true if index is beneath dependents, false otherwise</returns>
+		private bool CheckWaterMarkIndexChildren(List<IRebuild> children, IRebuild trgt, ref IRebuild belowMe)
+		{
+			if (children.Contains(trgt))
+				return false;
+
+			TreeNode target = FindNode(trgt);
+			int tarDepth = 0;
+			TheIndexOf(trgt, null, ref tarDepth);
+
+			foreach (IRebuild irb in children)
+			{
+				//if((irb is IGroup)
+				TreeNode child = FindNode(irb);
+				int childDepth = 0;
+				TheIndexOf(irb, null, ref childDepth);
+				if (trgt is IGroup) // if the target is a group that contains a child, return false because we want to insert
+					if ((trgt as IGroup).FindItem(irb) != null)
+					{
+						belowMe = irb;
+						return false;
+					}
+
+				if (tarDepth > childDepth)
+				{
+					belowMe = irb;
+					return false;//if the target depth
+				}
+				// is more than the child depth, then don't allow
+			}
+
+			return true;
 		}
 
 		void TheIndexOf(IRebuild node, List<IGroup> nodes, ref int count)
@@ -874,6 +966,7 @@ namespace Warps
 		}
 
 		List<IRebuild> draggedItemParents = null;
+		List<IRebuild> draggedItemChildren = null;
 
 		private void m_seqtree_ItemDrag(object sender, ItemDragEventArgs e)
 		{
@@ -887,14 +980,32 @@ namespace Warps
 				IRebuild grp = dragged.Tag as IRebuild;
 				draggedItemParents = new List<IRebuild>();
 				grp.GetParents(Sail, draggedItemParents);
-				ColorParents(grp, draggedItemParents, Color.Lime);
+
+				draggedItemChildren = Sail.GetConnected(grp);
+
+				draggedItemChildren.Remove(grp);
+
+				List<IRebuild> removeMe = new List<IRebuild>();
+
+				draggedItemChildren.ForEach(irb =>
+				{
+					if ((grp is IGroup))
+						if ((grp as IGroup).FindItem(irb) != null)
+							removeMe.Add(irb);
+
+				});
+
+				removeMe.ForEach(irb => draggedItemChildren.Remove(irb));
+
+				ColorCollection(grp, draggedItemParents, Color.Lime);
+				ColorCollection(grp, draggedItemChildren, Color.Yellow);
 				DoDragDrop(e.Item, DragDropEffects.Move);
 			}
 
 			DoDragDrop(e.Item, DragDropEffects.None);
 		}
 
-		private void ColorParents(IRebuild drg, List<IRebuild> parents, Color color)
+		private void ColorCollection(IRebuild drg, List<IRebuild> parents, Color color)
 		{
 			if (drg == null)
 				return;
@@ -906,17 +1017,30 @@ namespace Warps
 				if (drg is IGroup)
 				{
 					while (found.Parent.Tag != Sail)
+					{
 						found = found.Parent;
+						if (found.Parent == null)
+							break;
+					}
 				}
 				else if (drg is MouldCurve || drg is Equation)
 				{
-					while (!(found.Parent.Tag is IGroup))
-						found = found.Parent;
+					if (!(found.Tag is IGroup))
+					{
+						while (!(found.Parent.Tag is IGroup))
+						{
+							found = found.Parent;
+							if (found.Parent == null)
+								break;
+						}
+					}
 				}
 
-				found.BackColor = color;
+				//if (found.Tag as IRebuild != drg)
+					found.BackColor = color;
 			});
 		}
+
 
 		//// Determine whether one node is a parent  
 		//// or ancestor of a second node. 

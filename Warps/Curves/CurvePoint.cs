@@ -233,6 +233,11 @@ namespace Warps
 
 		public bool Affected(List<IRebuild> connected)
 		{
+			if (connected == null) 
+				return false;
+			if (connected.Contains(m_curve)) 
+				return true;
+
 			if (connected != null)
 			{
 				bool bupdate = false;
@@ -259,8 +264,7 @@ namespace Warps
 				});
 				return bupdate;
 			}
-			if (connected == null) return false;
-			if (connected.Contains(m_curve)) return true;
+			
 			return false;
 		}
 		public void GetParents(Sail s, List<IRebuild> parents)

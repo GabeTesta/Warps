@@ -308,6 +308,14 @@ namespace Warps
 			return this[label];
 		}
 
+		public IRebuild FindItem(IRebuild item)
+		{
+			if (!(item is MouldCurve))
+				return null;
+
+			return this.Find(cur => (item as MouldCurve) == cur);
+		}
+
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
 		{
 			int i = -1;

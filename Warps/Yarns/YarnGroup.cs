@@ -1231,6 +1231,11 @@ namespace Warps
 			return null;
 		}
 
+		public IRebuild FindItem(IRebuild item)
+		{
+			return null;
+		}
+
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
 		{
 			//no IRebuilds in a yarn group either (except combs which we ignore)
