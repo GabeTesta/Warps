@@ -1005,12 +1005,12 @@ namespace Warps
 			DoDragDrop(e.Item, DragDropEffects.None);
 		}
 
-		private void ColorCollection(IRebuild drg, List<IRebuild> parents, Color color)
+		private void ColorCollection(IRebuild drg, List<IRebuild> items, Color color)
 		{
 			if (drg == null)
 				return;
 
-			parents.ForEach(irb =>
+			items.ForEach(irb =>
 			{
 				TreeNode found = FindNode(irb);
 
@@ -1027,7 +1027,8 @@ namespace Warps
 				{
 					if (!(found.Tag is IGroup))
 					{
-						while (!(found.Parent.Tag is IGroup))
+						found.BackColor = color;
+						while (!(found.Tag is IGroup))
 						{
 							found = found.Parent;
 							if (found.Parent == null)
@@ -1037,7 +1038,7 @@ namespace Warps
 				}
 
 				//if (found.Tag as IRebuild != drg)
-					found.BackColor = color;
+				found.BackColor = color;
 			});
 		}
 
