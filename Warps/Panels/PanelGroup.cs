@@ -194,6 +194,14 @@ namespace Warps.Panels
 			if (s[0] == null || s[1] == null || e[0] == null || e[1] == null)
 				return null;
 
+
+			//if (s[0].UV.Distance(e[1].UV) < s[0].UV.Distance(e[0].UV))//seams face opposing directions
+			//{
+			//	CurvePoint swap = e[1];
+			//	e[1] = e[0];
+			//	e[0] = swap;
+			//}
+
 			List<SeamSegment>[] ends = new List<SeamSegment>[2];
 			for (int nEnd = 0; nEnd < 2; nEnd++)
 			{

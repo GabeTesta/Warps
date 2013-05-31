@@ -300,6 +300,12 @@ namespace Warps
 			//	s = m_sails[0];
 			//else
 			//	return;
+			SaveFile();
+			//	m_tree.SaveScriptFile(sfd.FileName);
+		}
+
+		private void SaveFile()
+		{
 			SaveFileDialog sfd = new SaveFileDialog();
 			sfd.DefaultExt = ".wrp";
 			sfd.AddExtension = true;
@@ -310,7 +316,6 @@ namespace Warps
 #endif
 				ActiveSail.WriteScriptFile(sfd.FileName);
 			}
-			//	m_tree.SaveScriptFile(sfd.FileName);
 		}
 
 		#endregion
@@ -578,6 +583,18 @@ namespace Warps
 				MessageBox.Show(sb.ToString());
 				return;
 			}
+			CurveGroup fills = new CurveGroup("Fills", ActiveSail);
+			ActiveSail.Add(fills);
+			Warps.Panels.PanelGroup mids = new Panels.PanelGroup("MidPan", ActiveSail);
+			mids.Bounds.Add(ActiveSail.FindCurve("L-spl"));
+			mids.Bounds.Add(ActiveSail.FindCurve("Leech"));
+			mids.Bounds.Add(ActiveSail.FindCurve("M-spl"));//ensure curves are ordered correctly
+			mids.Bounds.Add(ActiveSail.FindCurve("Luff"));
+
+			MouldCurve guide = fills.Add(new MouldCurve("Up", ActiveSail, new IFitPoint[] { new FixedPoint(0.5, 0), new SlidePoint(ActiveSail.FindCurve("Head"), 0.5) }));
+
+			mids.Guides.Add(guide);
+			ActiveSail.Add(mids);
 
 			//IGroup outer = ActiveSail.CreateOuterCurves();
 			Warps.Panels.PanelGroup pans = new Panels.PanelGroup("TackPan", ActiveSail);
@@ -586,42 +603,42 @@ namespace Warps
 			pans.Bounds.Add(ActiveSail.FindCurve("L-spl"));
 			pans.Bounds.Add(ActiveSail.FindCurve("1-spl"));
 
-			Vect2 end =  new Vect2(), sPos = new Vect2();
+			Vect2 end = new Vect2(), sPos = new Vect2();
 			Vect3 xyz = new Vect3();
 			CurveTools.CrossPoint(pans.Bounds[2], pans.Bounds[3], ref end, ref xyz, ref sPos, 10);
 
-			CurveGroup fills = new CurveGroup("Fills", ActiveSail);
-			fills.Add(new MouldCurve("Tack", ActiveSail, new Vect2(0, 0), end));
-			fills.Add(new MouldCurve("Clew", ActiveSail, new Vect2(1, 0), end));
+			MouldCurve tac = fills.Add(new MouldCurve("Tack", ActiveSail, new Vect2(0, 0), end));
+			MouldCurve clw = fills.Add(new MouldCurve("Clew", ActiveSail, new Vect2(1, 0), end));
 
-			ActiveSail.Add(fills);
+			//ActiveSail.Add(fills);
 
-			pans.Guides.Add(fills[0]);
+			pans.Guides.Add(tac);
 			ActiveSail.Add(pans);
 
 			if (false)
 			{
+
 				Warps.Panels.PanelGroup clew = new Panels.PanelGroup("ClewPan", ActiveSail);
 				clew.Bounds.Add(ActiveSail.FindCurve("Foot"));//ensure curves are ordered correctly
 				clew.Bounds.Add(ActiveSail.FindCurve("Leech"));
 				clew.Bounds.Add(ActiveSail.FindCurve("L-spl"));
 				clew.Bounds.Add(ActiveSail.FindCurve("1-spl"));
-				clew.Guides.Add(fills[1]);
+				clew.Guides.Add(clw);
 
 				ActiveSail.Add(clew);
 
-				Warps.Panels.PanelGroup mids = new Panels.PanelGroup("MidPan", ActiveSail);
-				mids.Bounds.Add(ActiveSail.FindCurve("L-spl"));
-				mids.Bounds.Add(ActiveSail.FindCurve("Leech"));
-				mids.Bounds.Add(ActiveSail.FindCurve("M-spl"));//ensure curves are ordered correctly
-				mids.Bounds.Add(ActiveSail.FindCurve("Luff"));
+				//Warps.Panels.PanelGroup mids = new Panels.PanelGroup("MidPan", ActiveSail);
+				//mids.Bounds.Add(ActiveSail.FindCurve("L-spl"));
+				//mids.Bounds.Add(ActiveSail.FindCurve("Leech"));
+				//mids.Bounds.Add(ActiveSail.FindCurve("M-spl"));//ensure curves are ordered correctly
+				//mids.Bounds.Add(ActiveSail.FindCurve("Luff"));
 
-				fills.Add(new MouldCurve("Up", ActiveSail, new IFitPoint[] { new FixedPoint(end), new SlidePoint(mids.Bounds[2], 0.5) }));
+				//fills.Add(new MouldCurve("Up", ActiveSail, new IFitPoint[] { new FixedPoint(end), new SlidePoint(mids.Bounds[2], 0.5) }));
 
 
-				mids.Guides.Add(fills[2]);
+				//mids.Guides.Add(fills[2]);
 
-				ActiveSail.Add(mids);
+				//ActiveSail.Add(mids);
 
 
 				Warps.Panels.PanelGroup tops = new Panels.PanelGroup("TopPan", ActiveSail);
@@ -648,7 +665,7 @@ namespace Warps
 			UpdateViews(fills);
 			UpdateViews(pans);
 		//	UpdateViews(clew);
-		//	UpdateViews(mids);
+			UpdateViews(mids);
 		//	UpdateViews(tops);
 			View.Refresh();
 			return;
@@ -868,6 +885,26 @@ namespace Warps
 			});
 			tw.Start();
 			
+		}
+
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+		{
+			switch (keyData)
+			{
+				case Keys.S | Keys.Control://save existing file
+					SaveFile();
+					break;
+				case Keys.L | Keys.Control://load a new file
+					OpenFile(3);
+					break;
+				case Keys.N | Keys.Control://create a new project from a .sail/.cof
+					OpenFile(1);
+					break;
+				case Keys.P | Keys.Control://write 3dl file on print
+					printToolStripButton_Click(null, null);
+					break;
+			}
+			return base.ProcessCmdKey(ref msg, keyData);
 		}
 	}
 }

@@ -66,7 +66,7 @@ namespace Warps
 			}
 			sSubs.Add(sLimits[1]);
 			if (sSubs.Count < 5)
-				return;	//use viewpoints instead
+				GetViewFits(ref sSubs, parent);
 
 			FitPoints = new IFitPoint[sSubs.Count];
 			nS = 0;
@@ -77,6 +77,31 @@ namespace Warps
 			m_bGirths = new bool[FitPoints.Length - 1];//no girth segments
 			ReFit();
 
+		}
+
+		private void GetViewFits(ref List<double> sSubs, MouldCurve parent)
+		{
+			if (sSubs[0] > sSubs.Last())
+				sSubs.Reverse();
+
+			double[] sPos;
+			parent.CreateEntities(false, Math.PI / 180.0, out sPos);
+			int nS, nE;
+			for (nE = nS = 1; nE < sPos.Length; nE++)
+			{
+				if (sPos[nE - 1] < sSubs[0] && sSubs[0] < sPos[nE])
+					nS = nE;
+				if (sPos[nE - 1] < sSubs.Last() && sSubs.Last() < sPos[nE])
+					break;
+			}
+			double sS = sSubs[0], sE = sSubs.Last();
+			sSubs.Clear();
+			sSubs.Add(sS);
+			for (; nS < nE; nS++)
+			{
+				sSubs.Add(sPos[nS]);
+			}
+			sSubs.Add(sE);
 		}
 		public MouldCurve(string label, Sail sail, IFitPoint[] fits)
 		{
