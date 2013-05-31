@@ -30,6 +30,8 @@ namespace Warps
 			m_targetDenier = targetDPI;
 		}
 
+
+
 		#region Members
 
 		//IGroup
@@ -969,6 +971,10 @@ namespace Warps
 
 		#region IRebuild Members
 
+		bool m_locked = false;
+
+		public bool Locked { get { return m_locked; } set { m_locked = value; } }
+
 		public string Label
 		{
 			get { return m_label; }
@@ -1121,8 +1127,11 @@ namespace Warps
 		}
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			parents.Add(Guide);
-			parents.AddRange(Warps);
+			if(Guide!=null)
+				parents.Add(Guide);
+
+			if(Warps.Count > 0)
+				parents.AddRange(Warps);
 
 		//	parents.Add(TargetDenierEqu);
 			TargetDenierEqu.GetParents(s, parents);
@@ -1219,6 +1228,11 @@ namespace Warps
 		public IRebuild FindItem(string label)
 		{
 			//nothing to search for in a yarn group
+			return null;
+		}
+
+		public IRebuild FindItem(IRebuild item)
+		{
 			return null;
 		}
 

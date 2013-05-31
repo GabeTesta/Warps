@@ -21,12 +21,14 @@ namespace Warps
 		{
 			InitializeComponent();
 			PopulateColors();
-			
+
 			for (int i = 0; i < 2; i++)
 			{
 				this[i].Unlock("EYENBS-6216-4FJGA-JUE2S-L8MPA");
 				this[i].Rendered.EnvironmentMapping = false;
 				this[i].Rendered.PlanarReflections = false;
+
+				//this[i].AnimateCamera = true;
 
 				this[i].PlanarShadowOpacity = 0;
 				this[i].Units = unitSystemType.Meters;
@@ -112,16 +114,16 @@ namespace Warps
 
 			}
 		}
-		
+
 		/// <summary>
 		/// highlight an object in the view from mouseover
 		/// </summary>
 		/// <param name="tag"></param>
 		private void Highlight(object tag)
 		{
-			//if (EditMode)
-			//{
-				foreach (Entity e in ActiveView.Entities)
+			foreach (Entity e in ActiveView.Entities)
+			{
+				if (e.EntityData == tag && !e.Selected)
 				{
 					if (e.EntityData == tag)
 					{
@@ -135,39 +137,8 @@ namespace Warps
 					//	break;
 					}
 				}
-
-
-				foreach (devDept.Eyeshot.Labels.Label e in ActiveView.Labels)
-				{
-					if (e is OutlinedText)
-					{
-						if ((e as OutlinedText).Text.Contains(tag.ToString()))
-						{
-							e.Visible = true;
-
-							//break;
-						}
-					}
-				}
-
-			//}
-		}
-		private void UnHighLight(object tag)
-		{
-			int entIndex = -1;
-			foreach (Entity e in ActiveView.Entities)
-			{
-				if (e.EntityData == tag)
-				{
-					if (!(e is PointCloud))
-					{
-						e.LineWeightMethod = colorMethodType.byLayer;
-						e.ColorMethod = colorMethodType.byLayer;
-					}
-					entIndex = ActiveView.Entities.IndexOf(e);
-					//break;
-				}
 			}
+
 
 			foreach (devDept.Eyeshot.Labels.Label e in ActiveView.Labels)
 			{
@@ -175,9 +146,38 @@ namespace Warps
 				{
 					if ((e as OutlinedText).Text.Contains(tag.ToString()))
 					{
-						e.Visible = ActiveView.Entities[entIndex].Selected;
+						if (!e.Selected)
+							e.Visible = true;
+					}
+				}
+			}
+		}
 
-						//break;
+		private void UnHighLight(object tag)
+		{
+			int entIndex = -1;
+			foreach (Entity e in ActiveView.Entities)
+			{
+				if (e.EntityData == tag && !e.Selected)
+				{
+					if (!(e is PointCloud))
+					{
+						e.LineWeightMethod = colorMethodType.byLayer;
+						e.ColorMethod = colorMethodType.byLayer;
+					}
+					entIndex = ActiveView.Entities.IndexOf(e);
+				}
+			}
+
+			if (entIndex == -1)
+				return;
+			foreach (devDept.Eyeshot.Labels.Label e in ActiveView.Labels)
+			{
+				if (e is OutlinedText)
+				{
+					if ((e as OutlinedText).Text.Contains(tag.ToString()))
+					{
+						e.Visible = ActiveView.Entities[entIndex].Selected;
 					}
 				}
 			}
@@ -229,7 +229,7 @@ namespace Warps
 					{
 						e.Selected = true;
 						SelectLayer(e.LayerIndex);
-						break;
+						//break;
 					}
 				}
 				foreach (devDept.Eyeshot.Labels.Label e in this[i].Labels)
@@ -239,12 +239,33 @@ namespace Warps
 						if ((e as OutlinedText).Text.Contains(tag.ToString()))
 						{
 							e.Visible = true;
-							break;
+							//break;
 						}
 					}
 				}
 			}
 
+		}
+
+		public void SelectEntity(object tag)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				foreach (Entity e in this[i].Entities)
+				{
+					if (e.EntityData == tag)
+						e.Selected = true;
+				}
+
+				foreach (devDept.Eyeshot.Labels.Label e in this[i].Labels)
+				{
+					if (e is OutlinedText)
+					{
+						if ((e as OutlinedText).Text.Contains(tag.ToString()))
+							e.Visible = true;
+					}
+				}
+			}
 		}
 
 		public void DeSelectAll()
@@ -264,6 +285,10 @@ namespace Warps
 					if (e.EntityData == tag)
 						e.Selected = false;
 		}
+
+		/// <summary>
+		/// this method uses FirstOrDefault right now.  That's not a very good solution
+		/// </summary>
 		public object SelectedTag
 		{
 			get
@@ -320,6 +345,11 @@ namespace Warps
 
 		public EventHandler<EventArgs<IRebuild>> SelectionChanged;
 
+		public void VisibilityToggled(object sender, EventArgs<IRebuild> args)
+		{
+			ToggleLayer(args.Value);
+		}
+
 		void DualView_SelectionChanged(object sender, EventArgs e)
 		{
 			int underMouse = ActiveView.GetEntityUnderMouseCursor(mousePnt);
@@ -373,7 +403,101 @@ namespace Warps
 		internal void SetActionMode(actionType actionType)
 		{
 			ActiveView.ActionMode = actionType;
-			//this[1].ActionMode = actionType;
+		}
+
+
+
+		/// <summary>
+		/// allows trackers to setup the view for actions.
+		/// I could have done this with an enum but it seemed like more 
+		/// work to manage
+		/// </summary>
+		/// <param name="type">tracker type: "warps", "guides", etc</param>
+		internal void SetTrackerSelectionMode(string type)
+		{
+			if (type == null)
+			{
+				RestoreVisState();
+				Refresh();
+				return;
+			}
+
+			switch (type.ToLower())
+			{
+				case "warps":
+
+					//hide everything that isn't a warp
+					RestoreVisState();
+					SaveVisState();
+
+					for (int i = 0; i < ActiveView.Entities.Count; i++)
+					{
+						if (!(ActiveView.Entities[i].EntityData is IRebuild))
+							continue;
+
+						IRebuild irb = ActiveView.Entities[i].EntityData as IRebuild;
+						if (!(irb is MouldCurve) || (irb is GuideComb))
+							ActiveView.Entities[i].Visible = false;
+					}
+					SetActionMode(devDept.Eyeshot.actionType.SelectVisibleByPick);
+					Refresh();
+					break;
+
+				case "guides":
+					//hide everything that isn't a guide
+					RestoreVisState();
+					SaveVisState();
+
+					for (int i = 0; i < ActiveView.Entities.Count; i++)
+					{
+						if (!(ActiveView.Entities[i].EntityData is IRebuild))
+							continue;
+
+						IRebuild irb = ActiveView.Entities[i].EntityData as IRebuild;
+						if (!(irb is GuideComb))
+							ActiveView.Entities[i].Visible = false;
+					}
+					SetActionMode(devDept.Eyeshot.actionType.SelectVisibleByPick);
+					Refresh();
+					break;
+
+				default:
+					RestoreVisState();
+					SetActionMode(devDept.Eyeshot.actionType.None);
+					Refresh();
+					break;
+			}
+		}
+
+		Dictionary<IRebuild, bool[]> m_visSelOld = new Dictionary<IRebuild, bool[]>();
+
+		private void SaveVisState()
+		{
+			m_visSelOld.Clear();
+			for (int i = 0; i < ActiveView.Entities.Count; i++)
+			{
+				if (!(ActiveView.Entities[i].EntityData is IRebuild))
+					continue;
+				if (!m_visSelOld.ContainsKey(ActiveView.Entities[i].EntityData as IRebuild))
+					m_visSelOld.Add(ActiveView.Entities[i].EntityData as IRebuild, new bool[] { ActiveView.Entities[i].Visible, ActiveView.Entities[i].Selected });
+			}
+		}
+
+		private void RestoreVisState()
+		{
+			if (m_visSelOld.Count > 0)
+			{
+				for (int i = 0; i < ActiveView.Entities.Count; i++)
+				{
+					if (!(ActiveView.Entities[i].EntityData is IRebuild))
+						continue;
+					if (m_visSelOld.ContainsKey(ActiveView.Entities[i].EntityData as IRebuild))
+					{
+						ActiveView.Entities[i].Visible = m_visSelOld[ActiveView.Entities[i].EntityData as IRebuild][0];
+						ActiveView.Entities[i].Selected = m_visSelOld[ActiveView.Entities[i].EntityData as IRebuild][1];
+					}
+				}
+			}
 		}
 
 		#region Add Functions (Layers & Entities)
@@ -563,11 +687,11 @@ namespace Warps
 			//string path = Colors.IniPath;//store existing path for cancel
 			//Colors.IniPath = null;//prompt user for new save location
 			string path = null;
-			if( !Colors.HasIniFile )
+			if (!Colors.HasIniFile)
 				path = System.IO.Path.Combine(Utilities.ExeDir, "colors.txt");
 			Colors.WriteIniFile(path);
 			//if (!Colors.WriteIniFile(null))
-				//Colors.IniPath = path;//retore previous path
+			//Colors.IniPath = path;//retore previous path
 		}
 
 		private void saveColorsToolStripMenuItem_Click(object sender, EventArgs e)

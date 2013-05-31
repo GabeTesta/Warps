@@ -23,7 +23,7 @@ namespace Warps
 		{
 			m_sail = sail;
 			m_label = Utilities.ReadCString(bin);
-
+			m_locked = true;
 			int iC = bin.ReadInt32();
 			for (int nC = 0; nC < iC; nC++)
 				Add(new MouldCurve(bin, sail));
@@ -66,6 +66,7 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
+			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
 			m_node.Tag = this;
 			//m_node.Text = GetType().Name + ": " + Label;
 			m_node.ToolTipText = GetToolTipData();
@@ -74,14 +75,18 @@ namespace Warps
 			m_node.SelectedImageKey = GetType().Name;
 			if (m_node.Nodes.Count != this.Count || bclear)
 			{
+				//m_node.BeginEdit();
 				m_node.Nodes.Clear();
 				foreach (MouldCurve c in this)
 					m_node.Nodes.Add(c.WriteNode());
+			//	m_node.EndEdit(false);
 			}
 			return m_node;
 		}
 		private string GetToolTipData()
 		{
+			if(Locked)
+				return String.Format("{0}\n#:{1}\n{2}", GetType().Name, Count, "Locked");
 			return String.Format("{0}\n#:{1}", GetType().Name, Count);
 		}
 
@@ -175,6 +180,16 @@ namespace Warps
 		{
 			foreach (MouldCurve mc in this)
 				mc.GetParents(s, parents);
+
+			//curves inside a curvegroup are allowed to be dependent on other
+			//curves in the same curvegroup
+			List<IRebuild> removeMe = new List<IRebuild>();
+			for (int i = 0; i < parents.Count; i++)
+			{
+				if (this.Contains(parents[i] as MouldCurve))
+					removeMe.Add(parents[i]);
+			}
+			removeMe.ForEach(irb => parents.Remove(irb));
 		}
 
 		public bool ReadScript(Sail sail, IList<string> txt)
@@ -224,6 +239,10 @@ namespace Warps
 			}
 			return script;
 		}
+
+		bool m_locked = false;
+
+		public bool Locked { get { return m_locked; } set { m_locked = value; } }
 
 		#endregion
 
@@ -287,6 +306,14 @@ namespace Warps
 		{
 			//search by label
 			return this[label];
+		}
+
+		public IRebuild FindItem(IRebuild item)
+		{
+			if (!(item is MouldCurve))
+				return null;
+
+			return this.Find(cur => (item as MouldCurve) == cur);
 		}
 
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)

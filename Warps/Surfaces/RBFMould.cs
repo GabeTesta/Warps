@@ -28,7 +28,7 @@ namespace Warps
 		}
 		public RBFMould(ISurface cof)
 		{
-			m_label = "RBF" + cof.Label;
+			m_label = "RBF " + cof.Label;
 			Fit(cof);
 		}
 
@@ -41,7 +41,7 @@ namespace Warps
 		public void ReadCofFile(Sail sail, string cofpath)
 		{
 			CofMould cof = new CofMould(sail, cofpath);
-			m_label = "RBF" + cof.Label;
+			m_label = "RBF " + cof.Label;
 			m_path = cof.CofPath;
 			Fit(cof);
 			m_Groups = cof.Groups;
@@ -226,14 +226,14 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Text = ScriptTools.Label(GetType().Name, Label);
+			m_node.Text = Label;
 			m_node.Tag = this;
 			m_node.ToolTipText = GetType().Name;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;
 			m_node.Nodes.Clear();
-			if( m_path != null && m_path.Length > 0 )
-				m_node.Nodes.Add("Path: " + m_path);
+			//if( m_path != null && m_path.Length > 0 )
+			//	m_node.Nodes.Add("Path: " + m_path);
 			m_node.Nodes.Add("Fit Error: " + m_error);
 			return m_node;
 		}

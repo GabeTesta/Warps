@@ -20,6 +20,9 @@ using System.Threading;
 namespace Warps
 {
 	public delegate void ObjectSelected(object sender, EventArgs<IRebuild> e);
+
+	public delegate void VisibilityToggled(object sender, EventArgs<IRebuild> e);
+
 	public delegate void WriteStatus(string status);
 
 	public partial class WarpFrame : Form
@@ -33,6 +36,7 @@ namespace Warps
 #endif
 			//set background color from existing icon
 			//ButtonUnSelected = m_modCurve.BackColor;
+			Text = "Warps " + Version;
 
 			SetStyle(ControlStyles.OptimizedDoubleBuffer |
 				    ControlStyles.AllPaintingInWmPaint, true);
@@ -51,10 +55,13 @@ namespace Warps
 			View.SelectionChanged += m_tree_AfterSelect;
 			cancelButton.Click += cancelButton_Click;
 
+			Tree.VisibilityToggle += View.VisibilityToggled;
+
 			m_horizsplit.SplitterDistance = m_horizsplit.ClientRectangle.Width - 250;
 
 		}
 
+		public string Version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
 		public string Status
 		{
 			get { return m_statusText.Text; }
@@ -108,19 +115,15 @@ namespace Warps
 			s.ReadFile(path);
 
 			m_sail = s;
-			//if (s.Layout == null || s.Layout.Count == 0)
-			//	CreateOuterCurves(s);
-			//else
 
 			m_tree.Add(s.WriteNode());
 
 			AddSailtoView(s);
+
 			Tree.ExpandToDepth(0);
 
-			//EquationEditor.Instance.SetSail(s);
-
-			//s.Rebuild(null);
 			Status = String.Format("{0} Loaded Successfully", path);
+			Text = "Warps " + Version + " - " + path; // display the version number in the title bar
 		}
 
 		private void AddSailtoView(Sail s)
@@ -128,12 +131,17 @@ namespace Warps
 			int nlayer = View.AddLayer("Mould", Color.Beige, true);
 			s.Mould.CreateEntities(null, false).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
 
-			nlayer = View.AddLayer("Gauss", Color.Beige, false);
-			s.Mould.CreateEntities(new double[,] { { -.2, 1.2 }, { -.2, 1.2 } }, true).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
+			nlayer = View.AddLayer("Gauss", Color.Black, false);
+			s.Mould.CreateEntities(null, true).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
 
-			s.Layout.ForEach(group => View.Add(group));
+			nlayer = View.AddLayer("Extension", Color.BurlyWood, false);
+			s.Mould.CreateEntities(new double[,] { { -.2, 1.2 }, { -.2, 1.2 } }, false).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
 
-			View.ZoomFit(true);
+			//add the groups attached to the sail file if any
+			if (s.Mould.Groups != null)
+				s.Mould.Groups.ForEach(group => UpdateViews(group));
+
+			s.Layout.ForEach(group => UpdateViews(group));
 		}
 
 		#endregion
@@ -205,6 +213,9 @@ namespace Warps
 		private void UpdateViews(IRebuild item)
 		{
 			View.Remove(item);
+
+			Tree.BeginUpdate();
+
 			if (item is IGroup)
 			{
 				View.Add(item as IGroup);
@@ -220,6 +231,7 @@ namespace Warps
 				(item as Equation).WriteNode();
 			}
 			Tree.Revalidate(item);
+			Tree.EndUpdate();
 		}
 
 		public int Delete(IRebuild tag)
@@ -362,7 +374,7 @@ namespace Warps
 		//entry point for trackers
 		public void m_tree_AfterSelect(object sender, EventArgs<IRebuild> e)
 		{
-			if ( (sender == Tree || sender == View) && m_Tracker != null && m_Tracker.EditMode)
+			if ((sender == Tree || sender == View) && m_Tracker != null && m_Tracker.EditMode)
 				return; //dont do anything if we are already edit-tracking
 
 			Status = "";
@@ -509,6 +521,12 @@ namespace Warps
 		}
 		internal void ClearTracker()
 		{
+			if (m_Tracker == null)
+			{
+				EditorPanel = null;
+				return;
+			}
+
 			if (m_Tracker != null)
 				m_Tracker.OnCancel(null, null);//clear any existing tracker
 
@@ -576,7 +594,7 @@ namespace Warps
 				List<IRebuild> rebuilds = new List<IRebuild>();
 				if (tag != null)
 					tag.GetParents(ActiveSail, rebuilds);
-				
+
 				StringBuilder sb = new StringBuilder();
 				foreach (IRebuild rb in rebuilds)
 					sb.AppendLine(rb.Label);
@@ -798,7 +816,7 @@ namespace Warps
 			dlg.InitialDirectory = Utilities.ExeDir;
 			if (dlg.ShowDialog() == DialogResult.OK)
 				Save3dlFile(dlg.FileName);
-			
+
 		}
 
 		void Save3dlFile(string fullfilename)
@@ -822,7 +840,7 @@ namespace Warps
 						{
 							//FOOT   1.0000   FT_IN  0.0000  spacing  0.0853    48 offsets on yarn #1
 							sw.WriteLine("{0}   {1}   {2}  {3}  {4}  {5}    {6} offsets on yarn #{7}"
-									, yar.Label, 1.0, "name", 0, "spacing", 0, ents[i].Vertices.Length-1, i);
+									, yar.Label, 1.0, "name", 0, "spacing", 0, ents[i].Vertices.Length - 1, i);
 
 							for (int j = 0; j < ents[i].Vertices.Length; j++)
 							{
@@ -884,7 +902,7 @@ namespace Warps
 				logger.Instance.Log("saving done");
 			});
 			tw.Start();
-			
+
 		}
 
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)

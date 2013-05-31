@@ -11,7 +11,7 @@ namespace Warps
 {
 	public class Sail
 	{
-		SurfaceType m_type = SurfaceType.COF;
+		SurfaceType m_type = SurfaceType.COMBO;
 
 		#region Members
 
@@ -99,6 +99,7 @@ namespace Warps
 				type = type.Split(':')[0];
 
 			m_mould = Utilities.CreateInstance(type, new object[] { this, path }) as ISurface;
+
 
 		}
 		//ISurface CreateMould(string type, string path)
@@ -628,14 +629,9 @@ namespace Warps
 
 		internal void Remove(IRebuild tag)
 		{
-			if (tag is CurveGroup)
+			if (tag is IGroup)
 			{
 				IGroup g = FindGroup(tag.Label);
-				Layout.Remove(g);
-			}
-			else if (tag is MouldCurve)
-			{
-				IGroup g = FindGroup(tag as MouldCurve);
 				Layout.Remove(g);
 			}
 		}
@@ -718,6 +714,14 @@ namespace Warps
 				if (Layout[i].Watermark(tag, ref rets))
 					return Layout[i];
 			}
+			if (Mould != null && Mould.Groups != null)
+				for (int i = 0; i < Mould.Groups.Count; i++)
+				{
+					//check group label
+					if (Mould.Groups[i].Watermark(tag, ref rets))
+						return Mould.Groups[i];//return if match
+				}
+
 			return null;
 		}
 
@@ -767,7 +771,7 @@ namespace Warps
 			}
 			return eqs;
 		}
-		
+
 		#endregion
 	}
 }

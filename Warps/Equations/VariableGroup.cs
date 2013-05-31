@@ -66,6 +66,10 @@ namespace Warps
 			}
 		}
 
+		bool m_locked = false;
+
+		public bool Locked { get { return m_locked; } set { m_locked = value; } }
+
 		TreeNode m_node;
 		public TreeNode WriteNode()
 		{
@@ -116,6 +120,16 @@ namespace Warps
 		{
 			foreach (KeyValuePair<string, Equation> entry in this)
 				entry.Value.GetParents(s, parents);
+
+			//Equations inside a VariableGroup are allowed to be dependent on other
+			//Equations in the same VariableGroup
+			List<IRebuild> removeMe = new List<IRebuild>();
+			for (int i = 0; i < parents.Count; i++)
+			{
+				if (this.ContainsKey((parents[i] as Equation).Label))
+					removeMe.Add(parents[i]);
+			}
+			removeMe.ForEach(irb => parents.Remove(irb));
 		}
 		public bool Affected(List<IRebuild> connected)
 		{
@@ -234,6 +248,16 @@ namespace Warps
 			return this[label];
 		}
 
+		public IRebuild FindItem(IRebuild item)
+		{
+			if (!(item is Equation))
+				return null;
+
+			if (this.ContainsKey((item as Equation).Label))
+				return this[(item as Equation).Label];
+			return null;
+		}
+
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
 		{
 			if (tag is Equation)
@@ -249,5 +273,32 @@ namespace Warps
 		}
 
 		#endregion
+
+		/// <summary>
+		/// need this guy for tree reordering
+		/// </summary>
+		/// <param name="equation"></param>
+		/// <returns></returns>
+		internal int IndexOf(Equation equation)
+		{
+			for (int i = 0; i < this.Keys.Count; i++)
+				if (this.Keys.ElementAt(i) == equation.Label)
+					return i;
+
+			return -1;
+		}
+
+		/// <summary>
+		/// need this guy for tree reordering
+		/// </summary>
+		/// <param name="insertIndex"></param>
+		/// <param name="equation"></param>
+		internal void Insert(int insertIndex, Equation equation)
+		{
+			List<KeyValuePair<string, Equation>> dicList = this.ToList();
+			dicList.Insert(insertIndex, new KeyValuePair<string, Equation>(equation.Label, equation));
+			this.Clear();
+			dicList.ForEach(pair => this.Add(pair.Key, pair.Value));
+		}
 	}
 }

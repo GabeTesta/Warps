@@ -39,7 +39,7 @@ namespace Warps.Controls
 			yarnDenierEQB.Prep(m_sail, YarGroup);
 			yarnDenierEQB.Text = YarGroup.YarnDenierEqu != null ? YarGroup.YarnDenierEqu.EquationText : "0";
 			targetDPIEQB.Text = YarGroup.TargetDenierEqu != null ? YarGroup.TargetDenierEqu.EquationText : "0";
-			
+
 			fillEditorWithData();
 		}
 
@@ -49,8 +49,8 @@ namespace Warps.Controls
 		public Sail sail
 		{
 			get { return m_sail; }
-			set 
-			{ 
+			set
+			{
 				m_sail = value;
 			}
 		}
@@ -176,14 +176,14 @@ namespace Warps.Controls
 		private void button1_Click(object sender, EventArgs e)
 		{
 			m_selectingWarp = !m_selectingWarp;
-			
+
 			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
 
 			m_selectingGuide = false;
 			selectGuideButt.BackColor = m_selectingGuide ? Color.Green : Color.White;
 
 
-			View.SetActionMode(m_selectingWarp ? devDept.Eyeshot.actionType.SelectVisibleByPick : devDept.Eyeshot.actionType.None);
+			View.SetTrackerSelectionMode(m_selectingWarp ? "warps" : null);
 		}
 
 		private void selectGuideButt_Click(object sender, EventArgs e)
@@ -196,7 +196,7 @@ namespace Warps.Controls
 
 			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
 
-			View.SetActionMode(m_selectingGuide ? devDept.Eyeshot.actionType.SelectVisibleByPick : devDept.Eyeshot.actionType.None);
+			View.SetTrackerSelectionMode(m_selectingGuide ? "guides" : null);
 		}
 
 		public Equation YarnDenierEqu
@@ -215,7 +215,7 @@ namespace Warps.Controls
 			}
 		}
 
-		public GuideComb Guide 
+		public GuideComb Guide
 		{
 			get
 			{
@@ -226,7 +226,7 @@ namespace Warps.Controls
 			}
 		}
 
-		public List<MouldCurve> SelectedWarps 
+		public List<MouldCurve> SelectedWarps
 		{
 			get
 			{
@@ -235,7 +235,7 @@ namespace Warps.Controls
 				{
 					for (int i = 0; i < m_warpListView.Items.Count; i++)
 						ret.Add(YarGroup.Sail.FindCurve(m_warpListView.Items[i].Name));
-					
+
 				}
 
 				return ret;
@@ -284,5 +284,16 @@ namespace Warps.Controls
 			}
 		}
 
+		public List<MouldCurve> Curves
+		{
+			get
+			{
+				List<MouldCurve> ret = new List<MouldCurve>();
+				ret.AddRange(SelectedWarps);
+				if(Guide!=null)
+					ret.Add(Guide);
+				return ret;
+			}
+		}
 	}
 }

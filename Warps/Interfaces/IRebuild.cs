@@ -15,6 +15,12 @@ namespace Warps
 		List<string> WriteScript();
 		bool ReadScript(Sail sail, IList<string> txt);
 
+		/// <summary>
+		/// if an IRebuild is locked, it cannot be editted/deleted/added to etc.
+		/// it is always in it's same state and can't be modified
+		/// </summary>
+		bool Locked { get; set; }
+
 		TreeNode WriteNode();
 		Entity[] CreateEntities();
 		devDept.Eyeshot.Labels.Label[] EntityLabel { get; }

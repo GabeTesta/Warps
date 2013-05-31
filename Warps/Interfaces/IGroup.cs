@@ -13,6 +13,10 @@ namespace Warps
 		Sail Sail { get; set; }
 
 		IRebuild FindItem(string label);
+		IRebuild FindItem(IRebuild obj);
+
+		int Count { get; }
+
 		bool Watermark(IRebuild tag, ref List<IRebuild> rets);
 	}
 }
