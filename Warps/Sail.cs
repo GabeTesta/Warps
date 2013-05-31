@@ -11,7 +11,7 @@ namespace Warps
 {
 	public class Sail
 	{
-		SurfaceType m_type = SurfaceType.COF;
+		SurfaceType m_type = SurfaceType.COMBO;
 
 		#region Members
 

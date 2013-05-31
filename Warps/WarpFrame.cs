@@ -36,6 +36,7 @@ namespace Warps
 #endif
 			//set background color from existing icon
 			//ButtonUnSelected = m_modCurve.BackColor;
+			Text = "Warps " + Version;
 
 			SetStyle(ControlStyles.OptimizedDoubleBuffer |
 				    ControlStyles.AllPaintingInWmPaint, true);
@@ -60,6 +61,7 @@ namespace Warps
 
 		}
 
+		public string Version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
 		public string Status
 		{
 			get { return m_statusText.Text; }
@@ -113,9 +115,6 @@ namespace Warps
 			s.ReadFile(path);
 
 			m_sail = s;
-			//if (s.Layout == null || s.Layout.Count == 0)
-			//	CreateOuterCurves(s);
-			//else
 
 			m_tree.Add(s.WriteNode());
 
@@ -123,10 +122,8 @@ namespace Warps
 
 			Tree.ExpandToDepth(0);
 
-			//EquationEditor.Instance.SetSail(s);
-
-			//s.Rebuild(null);
 			Status = String.Format("{0} Loaded Successfully", path);
+			Text = "Warps " + Version + " - " + path; // display the version number in the title bar
 		}
 
 		private void AddSailtoView(Sail s)
@@ -134,16 +131,17 @@ namespace Warps
 			int nlayer = View.AddLayer("Mould", Color.Beige, true);
 			s.Mould.CreateEntities(null, false).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
 
-			nlayer = View.AddLayer("Gauss", Color.Beige, false);
-			s.Mould.CreateEntities(new double[,] { { -.2, 1.2 }, { -.2, 1.2 } }, true).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
+			nlayer = View.AddLayer("Gauss", Color.Black, false);
+			s.Mould.CreateEntities(null, true).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
+
+			nlayer = View.AddLayer("Extension", Color.BurlyWood, false);
+			s.Mould.CreateEntities(new double[,] { { -.2, 1.2 }, { -.2, 1.2 } }, false).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
 
 			//add the groups attached to the sail file if any
 			if (s.Mould.Groups != null)
 				s.Mould.Groups.ForEach(group => UpdateViews(group));
 
 			s.Layout.ForEach(group => UpdateViews(group));
-
-			View.ZoomFit(true);
 		}
 
 		#endregion
