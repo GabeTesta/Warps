@@ -23,11 +23,19 @@ namespace Warps
 			//m_grid.MultiSelect = false;
 			m_grid.View = View.Details;
 			m_group = group;
-			Label = group.Label;
-			Count = group.Count;
-			group.ForEach(c => { this[m_grid.Items.Count] = c; });
+			ReadGroup(group);
 		}
 
+		public void ReadGroup(CurveGroup g)
+		{
+			Label = g.Label;
+			Count = g.Count;
+			m_grid.Items.Clear();
+			g.ForEach(c => { this[m_grid.Items.Count] = c; });
+			//if ( m_grid.Items.Count > 0)
+			//	m_grid.RedrawItems(0, m_grid.Items.Count, false);
+
+		}
 		CurveGroup m_group = null;
 
 		public string Label
@@ -66,7 +74,7 @@ namespace Warps
 			}
 		}
 
-		MouldCurve SelectedCurve
+		public MouldCurve SelectedCurve
 		{
 			get { return m_grid.SelectedItems.Count > 0 ? m_grid.SelectedItems[0].Tag as MouldCurve : null; }
 		}
@@ -90,6 +98,12 @@ namespace Warps
 			m_lngthCol.Width = Math.Max(50,(int)((double)m_grid.Width * 0.25));
 			m_fitsCol.Width = Math.Max(50, (int)((double)m_grid.Width * 0.20));
 			m_lblCol.Width = Math.Max(50, (int)((double)m_grid.Width * 0.30));
+		}
+
+		private void m_popup_Opening(object sender, CancelEventArgs e)
+		{
+			addCur.Enabled = Enabled;
+			delCur.Enabled = Enabled && SelectedCurve != null;
 		}
 	}
 }

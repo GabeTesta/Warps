@@ -33,6 +33,9 @@ namespace Warps.Panels
 			}
 		}
 
+		bool m_locked = false;
+		public bool Locked { get { return m_locked; } set { m_locked = value; } }
+
 		public List<string> WriteScript()
 		{
 			throw new NotImplementedException();
@@ -154,6 +157,7 @@ namespace Warps.Panels
 		}
 
 		#endregion
+
 	}
 	public class SeamSegment
 	{

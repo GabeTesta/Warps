@@ -142,6 +142,7 @@ namespace Warps
 				s.Mould.Groups.ForEach(group => UpdateViews(group));
 
 			s.Layout.ForEach(group => UpdateViews(group));
+			View.ZoomFit(true);
 		}
 
 		#endregion
@@ -905,6 +906,7 @@ namespace Warps
 
 		}
 
+		//handles program-scope shortcut keys
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
 		{
 			switch (keyData)
@@ -912,6 +914,7 @@ namespace Warps
 				case Keys.S | Keys.Control://save existing file
 					SaveFile();
 					break;
+				case Keys.O | Keys.Control://load a new file
 				case Keys.L | Keys.Control://load a new file
 					OpenFile(3);
 					break;
@@ -920,6 +923,9 @@ namespace Warps
 					break;
 				case Keys.P | Keys.Control://write 3dl file on print
 					printToolStripButton_Click(null, null);
+					break;
+				case Keys.F1:
+					helpToolStripButton_Click(null, null);
 					break;
 			}
 			return base.ProcessCmdKey(ref msg, keyData);

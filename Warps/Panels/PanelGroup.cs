@@ -297,6 +297,14 @@ namespace Warps.Panels
 			return null;
 		}
 
+		public IRebuild FindItem(IRebuild item)
+		{
+			if (!(item is Panel))
+				return null;
+
+			return this.Find(pan => (item as Panel) == pan);
+		}
+
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
 		{
 			int i = -1;
@@ -326,6 +334,9 @@ namespace Warps.Panels
 				m_label = value;
 			}
 		}
+
+		bool m_locked = false;
+		public bool Locked { get { return m_locked; } set { m_locked = value; } }
 
 		public List<string> WriteScript()
 		{

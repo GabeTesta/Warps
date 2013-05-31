@@ -1071,17 +1071,17 @@ namespace Warps
 		{
 			Entity e;
 
-			if (p is IMouldCurve)
-			{
-				e = ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == p);
+			//if (p is IMouldCurve) //same as default else case
+			//{
+			//	e = ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == p);
 
-				if (e == null)
-					return;
+			//	if (e == null)
+			//		return;
 
-				this[0].Layers[e.LayerIndex].Visible = !this[0].Layers[e.LayerIndex].Visible;
-				this[1].Layers[e.LayerIndex].Visible = !this[1].Layers[e.LayerIndex].Visible;
-			}
-			else if (p is CurveGroup)
+			//	this[0].Layers[e.LayerIndex].Visible = !this[0].Layers[e.LayerIndex].Visible;
+			//	this[1].Layers[e.LayerIndex].Visible = !this[1].Layers[e.LayerIndex].Visible;
+			//}
+			if (p is CurveGroup)
 			{
 				foreach (IRebuild ir in (p as CurveGroup))
 				{
@@ -1157,14 +1157,14 @@ namespace Warps
 
 		int opacityLevel = 25;
 
-		internal void SelectLayer(IRebuild curve)
+		internal void SelectLayer(IGroup grp)
 		{
-			Entity e = ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == curve);
+			Layer l = GetLayer(grp);
 
-			if (e == null)
+			if (l == null)
 				return;
 
-			SelectLayer(e.LayerIndex);
+			SelectLayer(ActiveView.Layers.IndexOf(l));
 		}
 
 		internal void DeSelectAllLayers()
@@ -1184,6 +1184,7 @@ namespace Warps
 					m_viewleft.Layers[i].Color = Color.FromArgb(EditMode ? 50 : 255, ActiveView.Layers[i].Color);
 					m_viewright.Layers[i].Color = Color.FromArgb(EditMode ? 50 : 255, ActiveView.Layers[i].Color);
 				}
+			
 			//ActiveView.Layers[i].Color = Color.FromArgb(EditMode ? 50 : 255, ActiveView.Layers[i].Color);
 
 		}
