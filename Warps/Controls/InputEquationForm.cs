@@ -40,8 +40,8 @@ namespace Warps.Controls
 				{
 					if (var is MouldCurve)
 						CurveListBox.Items.Add(var);
-					else if (var is string)
-						EquationListBox.Items.Add(var);
+					else if (var is Equation)
+						EquationListBox.Items.Add((var as Equation).Label);
 					//else if (var is Equation)
 					//	EquationListBox.Items.Add((var as Equation).Label);
 				});

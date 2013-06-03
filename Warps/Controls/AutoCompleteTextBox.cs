@@ -24,7 +24,7 @@ namespace Warps.Controls
 			_listBox.DrawMode = DrawMode.OwnerDrawFixed;
 			_listBox.DrawItem += _listBox_DrawItem;
 
-			_images.Images.Add("String", Warps.Properties.Resources.equation);
+			_images.Images.Add("Equation", Warps.Properties.Resources.equation);
 			_images.Images.Add("MouldCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
 		}
 

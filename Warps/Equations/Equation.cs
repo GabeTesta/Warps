@@ -210,7 +210,7 @@ namespace Warps
 		{
 			List<string> script = new List<string>();
 			script.Add(depth + GetType().Name);
-			script.Add(depth + "\t" + ToString());
+			script.Add(depth + "\t" + ToScriptString());
 			return script;
 		}
 		public List<string> WriteScript()
@@ -240,6 +240,11 @@ namespace Warps
 		}
 
 		public override string ToString()
+		{
+			return string.Format("{0}", Label);
+		}
+
+		public string ToScriptString()
 		{
 			return string.Format("{0}:{1}", Label, EquationText);
 		}

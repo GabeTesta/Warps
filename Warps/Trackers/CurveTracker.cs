@@ -236,7 +236,7 @@ namespace Warps
 					ee.LineWeightMethod = colorMethodType.byEntity;
 				}
 
-			m_edit.AutoFill = Sail.Watermark(Curve).ToList<object>();
+			m_edit.AutoFill = Sail.Watermark(Curve, Tree.SelectedTag as IGroup).ToList<object>();
 			m_edit.ReadCurve(m_temp);
 			m_edit.Label = Curve.Label;
 			m_edit.Refresh();

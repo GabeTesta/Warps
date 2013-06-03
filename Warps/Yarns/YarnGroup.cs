@@ -30,8 +30,6 @@ namespace Warps
 			m_targetDenier = targetDPI;
 		}
 
-
-
 		#region Members
 
 		//IGroup
@@ -1050,8 +1048,9 @@ namespace Warps
 		{
 			get
 			{
-				return new devDept.Eyeshot.Labels.Label[]{ new devDept.Eyeshot.Labels.OutlinedText(m_Warps[0].GetLabelPoint3D(.66), Label,
-					new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter)};
+				return null;
+				//return new devDept.Eyeshot.Labels.Label[]{ new devDept.Eyeshot.Labels.OutlinedText(m_Warps[0].GetLabelPoint3D(.66), Label,
+				//	new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter)};
 			}
 		}
 		public Entity[] CreateEntities()
@@ -1102,7 +1101,17 @@ namespace Warps
 			{
 				bupdate |= connected.Contains(m_guide);
 				foreach (MouldCurve warp in m_Warps)
+				{
 					bupdate |= connected.Contains(warp);
+					foreach (IRebuild irb in connected)
+					{
+						if (irb is IGroup)
+						{
+							bupdate |= (irb as IGroup).FindItem(warp) != null;
+							bupdate |= (irb as IGroup).FindItem(m_guide) != null;
+						}
+					}
+				}
 				bupdate |= TargetDenierEqu == null ? false : TargetDenierEqu.Affected(connected);
 				bupdate |= YarnDenierEqu == null ? false : YarnDenierEqu.Affected(connected);
 			}

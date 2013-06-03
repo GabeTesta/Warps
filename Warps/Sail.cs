@@ -751,6 +751,47 @@ namespace Warps
 
 			return rets;
 		}
+
+		/// <summary>
+		/// Returns all IRebuild items that are above the tag
+		/// </summary>
+		/// <param name="tag">the item being used as a watermark, can be null</param>
+		/// <param name="Parent">the IGroup the item belongs too (REQUIRED IF YOU ARE ADDING A CURVE)</param>
+		/// <returns></returns>
+		public List<IRebuild> Watermark(IRebuild tag, IGroup Parent)
+		{
+			List<IRebuild> rets = new List<IRebuild>();
+
+			//watermark mould first (if any)
+			if (Mould != null && Mould.Groups != null)
+				for (int i = 0; i < Mould.Groups.Count; i++)
+				{
+					if (Mould.Groups[i].Watermark(tag, ref rets))
+						break;//break on finding tag
+				}
+
+			int index = -1;
+
+			if (Parent != null)
+				index = Layout.IndexOf(Parent); // if the Parent is not null, then don't allow the watermark to go below this group.
+
+			//watermark layout
+			for (int i = 0; i < Layout.Count; i++)
+			{
+				if (index > -1)
+				{
+					if (i <= index)
+						if (Layout[i].Watermark(tag, ref rets))
+							break;//break on finding tag
+
+				}
+				else if (Layout[i].Watermark(tag, ref rets))
+					break;//break on finding tag
+
+			}
+
+			return rets;
+		}
 		public List<Equation> WatermarkEqs(IRebuild tag)
 		{
 			List<Equation> eqs = new List<Equation>();
