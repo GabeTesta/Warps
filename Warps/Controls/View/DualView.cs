@@ -59,8 +59,11 @@ namespace Warps
 
 				//set user defined colors
 				this[i].Background.TopColor = Colors["Background", this[i].Background.TopColor];
+<<<<<<< HEAD
 				this[i].Background.Style = backgroundStyleType.Solid;
 
+=======
+>>>>>>> origin/Dev-Dave
 				this[i].Background.BottomColor = Colors["Backgrad", this[i].Background.BottomColor];
 				
 				this[i].Grid.MajorLineColor = Colors["GridLines"];
