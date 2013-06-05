@@ -158,7 +158,8 @@ namespace Warps
 
 		public void OnAdd(object sender, EventArgs e)
 		{
-			m_eqEditor.Show();
+			if( m_eqEditor!= null)
+				m_eqEditor.Show();
 		}
 
 		public void OnDelete(object sender, EventArgs e)

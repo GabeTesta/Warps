@@ -20,6 +20,8 @@ namespace Warps
 		{
 			m_group = group;
 			m_edit = new CurveGroupEditor(m_group);
+			m_edit.addCur.Click += OnAdd;
+			m_edit.delCur.Click += delCur_Click;
 		}
 
 		public void Track(WarpFrame frame)
@@ -31,6 +33,7 @@ namespace Warps
 				m_frame.EditorPanel = Edit;
 				EditMode = m_frame.EditMode;
 				m_edit.AfterSelect += m_frame.m_tree_AfterSelect;
+
 				//m_frame.okButton.Click += OnBuild;
 				//m_frame.cancelButton.Click += OnCancel;
 				//m_frame.previewButton.Click += OnPreview;
@@ -42,15 +45,32 @@ namespace Warps
 					Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
 				}
 
-				View.DeSelectAllLayers();
-				View.SelectLayer(m_group);
-				foreach (MouldCurve curve in m_group)
-					View.Select(curve);
-
-				View.Refresh();
+				ReselectView();
 			}
-
 		}
+
+		private void ReselectView()
+		{
+			View.DeSelectAllLayers();
+			View.SelectLayer(m_group);
+			foreach (MouldCurve curve in m_group)
+				View.Select(curve);
+			View.Refresh();
+		}
+
+		void delCur_Click(object sender, EventArgs e)
+		{
+			if (!EditMode || Edit == null || Edit.SelectedCurve == null)
+				return;
+			MouldCurve cur = Edit.SelectedCurve;
+			if (MessageBox.Show(string.Format("Are you sure you want to delete [{0}]", cur.Label), "Delete Curve?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+				return;
+
+			View.Remove(cur);
+			m_group.Remove(cur);
+			m_frame.Delete(cur);
+		}
+
 		public void Cancel()
 		{
 			View.DeSelectAllLayers();
@@ -86,17 +106,8 @@ namespace Warps
 				if (View != null)
 				{
 					View.EditMode = value;
-					View.DeSelectAllLayers();
-					View.SelectLayer(m_group);
-					foreach (MouldCurve curve in m_group)
-						View.Select(curve);
-					View.Refresh();
+					ReselectView();
 				}
-				//if (Tree != null)
-				//	Tree.EditMode = value;
-				//if (value == false)
-				//	Tree.DeSelect(m_group);
-
 			}
 		}
 
@@ -189,6 +200,7 @@ namespace Warps
 			useThese.Add(typeof(GuideComb));
 
 			AddGroup dlg = new AddGroup(useThese);
+			dlg.Text = "Add Curve";
 			dlg.Name = "enter name";
 			if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 			{
@@ -203,10 +215,7 @@ namespace Warps
 					m_curveTracker = new CurveTracker(new MouldCurve(dlg.Label, m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
 					m_curveTracker.Track(m_frame);
 				}
-
 			}
-			//here we need to ask if we want a GuideComb or a normal curve
-
 		}
 
 		public void OnDelete(object sender, EventArgs e)
@@ -256,11 +265,13 @@ namespace Warps
 
 				//passing a null sender will skip the rebuild call
 				m_curveTracker.OnBuild(null, e);//create the curve from the fitpoints
-
 				m_group.Add(m_curveTracker.Curve);//add it to the group
 				m_frame.Rebuild(m_group);//rebuild the objects and update the views
 				m_curveTracker.Cancel();//destory the temporary curve tracker
+				Edit.ReadGroup(m_group);//refresh the editor
 				m_frame.EditorPanel = Edit;//restore the curve group editor that was displaced by the curve editor
+				Edit.Refresh();
+				ReselectView();
 			}
 
 		}
@@ -293,7 +304,8 @@ namespace Warps
 		public void OnPreview(object sender, EventArgs e)
 		{
 
-			//throw new NotImplementedException();
+			if (m_curveTracker != null)
+				m_curveTracker.OnPreview(sender, e);
 		}
 
 		//public void OnCopy(object sender, EventArgs e)

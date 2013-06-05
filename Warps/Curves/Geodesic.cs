@@ -469,6 +469,7 @@ namespace Warps
 			}
 		}
 
+
 		//public override bool InsertPoint(System.Drawing.PointF mouse, Transformer WorldToScreen, out int nIndex)
 		//{
 		//	nIndex = -1;

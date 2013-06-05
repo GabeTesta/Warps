@@ -520,7 +520,7 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Text = string.Format("{0}: {1}", GetType().Name, CofPath);
+			m_node.Text = CofPath;
 			m_node.Tag = this;
 			m_node.ToolTipText = GetType().Name;
 			m_node.ImageKey = GetType().Name;

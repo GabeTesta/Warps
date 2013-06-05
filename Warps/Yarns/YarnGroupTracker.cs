@@ -213,8 +213,10 @@ namespace Warps.Yarns
 			yarGroup.EndCondition = Edit.Ending;
 			if (sender != null)
 				m_frame.Rebuild(yarGroup);//returns false if AutoBuild is off
+
 			Edit.AchievedDPI = yarGroup.AchievedDpi;
 			Edit.AchievedYarnCount = yarGroup.Count;
+			Edit.sPos = yarGroup.DensityPos;
 			View.Refresh(); 
 		}
 

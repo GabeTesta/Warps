@@ -33,7 +33,7 @@ namespace Warps
 		{
 			m_mould = new CofMould(sail, cofpath);
 			m_extension = new RBFMould(m_mould);
-			m_label = "Combo" + Mould.Label;
+			m_label = "Combo " + Mould.Label;
 		}
 
 		public List<IGroup> Groups
@@ -131,7 +131,8 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Text = ScriptTools.Label(GetType().Name, Label);
+			//m_node.Text = ScriptTools.Label(GetType().Name, Label);
+			m_node.Text = Label;
 			m_node.Tag = this;
 			m_node.ImageKey = GetType().Name;
 			m_node.SelectedImageKey = GetType().Name;

@@ -249,7 +249,7 @@ namespace Warps
 				return -1;
 
 			int nNwt;
-			int MAXNWT = 100;
+			int MAXNWT = 50;
 			for (nNwt = 0; nNwt < MAXNWT; nNwt++)
 			{
 				//spread yarns, no target count

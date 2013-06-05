@@ -83,7 +83,6 @@ namespace Warps
 			k = detII / detI;
 		}
 
-
 		public static bool xClosest(ISurface s, ref Vect2 uv, ref Vect3 xyzTarget, ref double dist, double tol)
 		{
 			Vect3 x = new Vect3(xyzTarget);
@@ -146,7 +145,6 @@ namespace Warps
 			//s = s0;
 			return false;
 		}
-
 
 		//public static Mesh GetMesh(ISurface s, int rows, int cols, bool bGauss)
 		//{
@@ -247,6 +245,8 @@ namespace Warps
 		/// <returns>the grid of points for meshing</returns>
 		static public PointRGB[] GetMeshGaussianPoints(ISurface s, int ROWS, int COLS, double[,] uvLim)
 		{
+			if (uvLim == null)
+				uvLim = new double[,] { { 0, 1 }, { 0, 1 } };
 			Vect2 uv = new Vect2();
 			Vect3 xyz = new Vect3();
 			List<Vect3> xyzs = new List<Vect3>(ROWS * COLS);

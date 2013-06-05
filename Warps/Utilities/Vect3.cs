@@ -286,6 +286,16 @@ namespace Warps
 				a.y * dot * (1 - cos) + v.y * cos + (v.x * a.z - v.z * a.x) * sin,
 				a.z * dot * (1 - cos) + v.z * cos + (v.y * a.x - v.x * a.y) * sin);
 		}
+
+		/// <summary>
+		/// Calculate the angle between two vectors
+		/// </summary>
+		/// <param name="B">the vector to determine the angle between</param>
+		/// <returns>The angle between this and B in radians</returns>
+		public double AngleTo(Vect3 B)
+		{
+			return Math.Acos(this.Dot(B) / (Magnitude * B.Magnitude));
+		}
 		#endregion
 
 		#region ToString
