@@ -59,12 +59,10 @@ namespace Warps
 
 				//set user defined colors
 				this[i].Background.TopColor = Colors["Background", this[i].Background.TopColor];
-<<<<<<< HEAD
 				this[i].Background.Style = backgroundStyleType.Solid;
-=======
+
 				this[i].Background.BottomColor = Colors["Backgrad", this[i].Background.BottomColor];
 				
->>>>>>> origin/Dev-Dave
 				this[i].Grid.MajorLineColor = Colors["GridLines"];
 				this[i].SelectionColor = Colors["Selection", this[i].SelectionColor];
 				//enable parallel processing for entity regen
