@@ -29,6 +29,7 @@ namespace Warps
 	{
 		public WarpFrame()
 		{
+
 			InitializeComponent();
 #if DEBUG
 			logger.Instance.CreateLogLocal("Warps");

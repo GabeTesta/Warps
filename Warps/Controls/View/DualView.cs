@@ -59,6 +59,7 @@ namespace Warps
 
 				//set user defined colors
 				this[i].Background.TopColor = Colors["Background", this[i].Background.TopColor];
+				this[i].Background.Style = backgroundStyleType.Solid;
 				this[i].Grid.MajorLineColor = Colors["GridLines"];
 				this[i].SelectionColor = Colors["Selection", this[i].SelectionColor];
 				//enable parallel processing for entity regen
@@ -72,6 +73,7 @@ namespace Warps
 
 				this[i].SelectionChanged += DualView_SelectionChanged;
 				this[i].MouseMove += DualView_MouseMove;
+
 
 				this[i].Groups.Add(new List<int>());
 
