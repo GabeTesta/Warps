@@ -319,6 +319,8 @@ namespace Warps
 
 		private void SaveFile()
 		{
+			if (ActiveSail == null)
+				return;
 			SaveFileDialog sfd = new SaveFileDialog();
 			sfd.DefaultExt = ".wrp";
 			sfd.AddExtension = true;
@@ -537,6 +539,11 @@ namespace Warps
 
 			m_Tracker = null;
 			EditorPanel = null;
+			View.EditMode = false;//force all items to be opaque
+			View.DeSelectAll();
+			View.DeSelectAllLayers();
+			View.EditMode = EditMode;
+			View.Refresh();
 		}
 
 		public Control EditorPanel
@@ -927,6 +934,10 @@ namespace Warps
 				case Keys.F1:
 					helpToolStripButton_Click(null, null);
 					break;
+				case Keys.E | Keys.Control://toggle edit
+					EditMode = !EditMode;
+					break;
+	
 			}
 			return base.ProcessCmdKey(ref msg, keyData);
 		}

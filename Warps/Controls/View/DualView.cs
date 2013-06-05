@@ -859,7 +859,7 @@ namespace Warps
 		private void m_viewleft_KeyUp(object sender, KeyEventArgs e)
 		{
 			var view = sender as SingleViewportLayout;
-			if (view == null)
+			if (view == null || ModifierKeys == Keys.Control)
 				return;
 			switch (e.KeyCode)
 			{
@@ -1157,16 +1157,6 @@ namespace Warps
 
 		int opacityLevel = 25;
 
-		internal void SelectLayer(IGroup grp)
-		{
-			Layer l = GetLayer(grp);
-
-			if (l == null)
-				return;
-
-			SelectLayer(ActiveView.Layers.IndexOf(l));
-		}
-
 		internal void DeSelectAllLayers()
 		{
 			for (int i = 0; i < ActiveView.Layers.Count; i++)
@@ -1176,13 +1166,22 @@ namespace Warps
 			}
 		}
 
+		internal void SelectLayer(IGroup grp)
+		{
+			Layer l = GetLayer(grp);
+
+			if (l == null)
+				return;
+
+			SelectLayer(ActiveView.Layers.IndexOf(l));
+		}
 		internal void SelectLayer(int p)
 		{
 			for (int i = 0; i < ActiveView.Layers.Count; i++)
 				if (i != p)
 				{
-					m_viewleft.Layers[i].Color = Color.FromArgb(EditMode ? 50 : 255, ActiveView.Layers[i].Color);
-					m_viewright.Layers[i].Color = Color.FromArgb(EditMode ? 50 : 255, ActiveView.Layers[i].Color);
+					m_viewleft.Layers[i].Color = Color.FromArgb(EditMode ? opacityLevel : 255, ActiveView.Layers[i].Color);
+					m_viewright.Layers[i].Color = Color.FromArgb(EditMode ? opacityLevel : 255, ActiveView.Layers[i].Color);
 				}
 			
 			//ActiveView.Layers[i].Color = Color.FromArgb(EditMode ? 50 : 255, ActiveView.Layers[i].Color);
