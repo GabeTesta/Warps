@@ -321,15 +321,7 @@ namespace Warps
 			int i = -1;
 			if (tag is MouldCurve) 
 				i = this.IndexOf(tag as MouldCurve);
-			//else if (tag is IFitPoint)
-			//{
-			//	foreach (MouldCurve mc in this)
-			//		if (mc.FitPoints.Contains(tag as IFitPoint))
-			//		{
-			//			i = this.IndexOf(mc);
-			//			break;
-			//		}
-			//}
+
 			if (i >= 0)
 				rets.AddRange(this.Take(i));
 			else

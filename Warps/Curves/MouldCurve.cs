@@ -19,12 +19,89 @@ namespace Warps
 		static bool EXTENDENTITY = false;
 		public MouldCurve()
 		{ }
+		public MouldCurve(string label, Sail sail, Vect2 uv1, Vect2 uv2)
+			: this(label, sail, new IFitPoint[] { new FixedPoint(uv1), new FixedPoint(uv2) }) { }
 
 		public MouldCurve(MouldCurve curve)
 		{
 			m_sail = curve.Sail;
 			m_label = curve.Label;
 			Fit(curve);
+		}
+		/// <summary>
+		/// Construct a subcurve of a given
+		/// </summary>
+		/// <param name="parent">the parent curve to copy</param>
+		/// <param name="sLimits">the subcurve spos end limits</param>
+		public MouldCurve(string label, MouldCurve parent, Vect2 sLimits)
+		{
+			m_sail = parent.Sail;
+			m_label = label;
+			if (sLimits[0] > sLimits[1])//swap if reversed
+			{
+				sLimits[0] += sLimits[1];
+				sLimits[1] = sLimits[0] - sLimits[1];
+				sLimits[0] -= sLimits[1];
+			}
+			//find starting defpoints
+			int nStart = -1, nStop = -1, nS;
+			for (nS = 0; nS < parent.m_sSplines.Length; nS++)
+			{
+				if (nStart == -1 && parent.m_sSplines[nS] > sLimits[0])
+					nStart = nS;
+				if (nStop == -1 && parent.m_sSplines[nS] > sLimits[1])
+					nStop = nS;
+				if (nStop != -1 && nStart != -1)
+					break;//stop when both are found
+			}
+			if (nStart == -1 || nStop == -1)
+				return;
+
+			//get all internally used fitpoints inside the slimits
+			List<double> sSubs = new List<double>(nStop-nStart+2);
+			sSubs.Add(sLimits[0]);
+			for( nS = nStart; nS < nStop; nS++ )
+			{
+				sSubs.Add(parent.m_sSplines[nS]);
+			}
+			sSubs.Add(sLimits[1]);
+			if (sSubs.Count < 5)
+				GetViewFits(ref sSubs, parent);
+
+			FitPoints = new IFitPoint[sSubs.Count];
+			nS = 0;
+			foreach (double s in sSubs)
+			{
+				FitPoints[nS++] = new CurvePoint(parent, s);
+			}
+			m_bGirths = new bool[FitPoints.Length - 1];//no girth segments
+			ReFit();
+
+		}
+
+		private void GetViewFits(ref List<double> sSubs, MouldCurve parent)
+		{
+			if (sSubs[0] > sSubs.Last())
+				sSubs.Reverse();
+
+			double[] sPos;
+			parent.CreateEntities(false, Math.PI / 180.0, out sPos);
+			int nS, nE;
+			for (nE = nS = 1; nE < sPos.Length; nE++)
+			{
+				if (sPos[nE - 1] < sSubs[0] && sSubs[0] < sPos[nE])
+					nS = nE;
+				if (sPos[nE - 1] < sSubs.Last() && sSubs.Last() < sPos[nE])
+					break;
+			}
+			double sS = sSubs[0], sE = sSubs.Last();
+			sSubs.Clear();
+			sSubs.Add(sS);
+			for (; nS < nE; nS++)
+			{
+				sSubs.Add(sPos[nS]);
+			}
+			sSubs.Add(sE);
 		}
 		public MouldCurve(string label, Sail sail, IFitPoint[] fits)
 		{
@@ -48,23 +125,27 @@ namespace Warps
 
 			//read fit point positions
 			int nPos = bin.ReadInt32();
-			List<FixedPoint> pts = new List<FixedPoint>(nPos);
+			m_sSplines = new double[nPos];
 			for (int nP = 0; nP < nPos; nP++)
-				pts.Add(new FixedPoint(bin.ReadDouble(), 0, 0));
+				m_sSplines[nP] = bin.ReadDouble();	
+				//pts.Add(new FixedPoint(bin.ReadDouble(), 0, 0));
 
-			FitPoints = pts.ToArray();
-			m_bGirths = new bool[pts.Count - 1];//spline all segments
 			//read the spline
 			m_bSpline.ReadBin(bin);
 
 			//set the fixedpoints uv coords from the positions and spline
 			double[] uv = new double[2];
+			m_uSplines = new Vect2[nPos];
+			List<FixedPoint> pts = new List<FixedPoint>(nPos);
 			for (int nP = 0; nP < nPos; nP++)
 			{
-				Spline.BsVal(this[nP][0], ref uv);
-				this[nP][1] = uv[0];
-				this[nP][2] = uv[1];
+				Spline.BsVal(m_sSplines[nP], ref uv);
+					pts.Add(new FixedPoint(m_sSplines[nP], uv[0], uv[1]));
+				m_uSplines[nP] = new Vect2(uv);
 			}
+			//store the fitpoints for refitting
+			FitPoints = pts.ToArray();
+			m_bGirths = new bool[pts.Count - 1];//spline all segments
 		}
 		
 		#region Members
@@ -201,6 +282,10 @@ namespace Warps
 		{
 			Fit(FitPoints);
 		}
+		public void Fit(MouldCurve clone)
+		{
+			Fit(clone.FitPoints.ToArray(), clone.m_bGirths.ToArray());
+		}
 		public void Fit(Vect2 uStart, Vect2 uEnd)
 		{
 			Fit(new IFitPoint[] { new FixedPoint(uStart), new FixedPoint(uEnd) });
@@ -270,8 +355,12 @@ namespace Warps
 		public void ReSpline(double[] sFits, double[][] uFits)
 		{
 			Spline.Fit(sFits, uFits);//fit spline
+			//store arrays for debugging
+			m_sSplines = sFits.Clone() as double[];
+
 		}
 
+		double[] m_sSplines;
 		Vect2[] m_uSplines;
 		/// <summary>
 		/// Debugging array, returns the most recently splined uv points
@@ -1146,9 +1235,5 @@ namespace Warps
 			return FitPoints.Contains(p);
 		}
 
-		internal void Fit(MouldCurve clone)
-		{
-			Fit(clone.FitPoints.ToArray(), clone.m_bGirths.ToArray());
-		}
 	}
 }

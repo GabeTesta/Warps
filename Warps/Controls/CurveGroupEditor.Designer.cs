@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.m_count = new System.Windows.Forms.Label();
 			this.m_labelTextBox = new System.Windows.Forms.TextBox();
 			this.m_grid = new System.Windows.Forms.ListView();
@@ -35,6 +36,10 @@
 			this.m_fitsCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.m_lngthCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.m_girCol = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.m_popup = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.addCur = new System.Windows.Forms.ToolStripMenuItem();
+			this.delCur = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_popup.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// m_count
@@ -104,15 +109,38 @@
 			this.m_girCol.Text = "Girths";
 			this.m_girCol.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
+			// m_popup
+			// 
+			this.m_popup.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.addCur,
+            this.delCur});
+			this.m_popup.Name = "m_popup";
+			this.m_popup.Size = new System.Drawing.Size(153, 70);
+			this.m_popup.Opening += new System.ComponentModel.CancelEventHandler(this.m_popup_Opening);
+			// 
+			// addCur
+			// 
+			this.addCur.Name = "addCur";
+			this.addCur.Size = new System.Drawing.Size(152, 22);
+			this.addCur.Text = "Add Curve";
+			// 
+			// delCur
+			// 
+			this.delCur.Name = "delCur";
+			this.delCur.Size = new System.Drawing.Size(152, 22);
+			this.delCur.Text = "Delete Curve";
+			// 
 			// CurveGroupEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ContextMenuStrip = this.m_popup;
 			this.Controls.Add(this.m_grid);
 			this.Controls.Add(this.m_labelTextBox);
 			this.Controls.Add(this.m_count);
 			this.Name = "CurveGroupEditor";
 			this.Size = new System.Drawing.Size(250, 300);
+			this.m_popup.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -127,5 +155,8 @@
 		private System.Windows.Forms.ColumnHeader m_fitsCol;
 		private System.Windows.Forms.ColumnHeader m_lngthCol;
 		private System.Windows.Forms.ColumnHeader m_girCol;
+		private System.Windows.Forms.ContextMenuStrip m_popup;
+		internal System.Windows.Forms.ToolStripMenuItem addCur;
+		internal System.Windows.Forms.ToolStripMenuItem delCur;
 	}
 }

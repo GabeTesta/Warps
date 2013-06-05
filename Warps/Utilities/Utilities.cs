@@ -51,6 +51,19 @@ namespace Warps
 			return val;
 		}
 
+		/// <summary>
+		/// test if  a value is between two others
+		/// </summary>
+		/// <param name="a">one limit</param>
+		/// <param name="val">the value</param>
+		/// <param name="b">the other limit</param>
+		/// <returns>true if inside(inclusive), false otherwise</returns>
+		public static bool IsBetween(double a, double val, double b)
+		{
+			return a > b ? (b <= val && val <= a) : (a <= val && val <= b);
+		}
+
+
 		public static void DoubleToPoint3D(ref Point3D pnt, double[] xyz)
 		{
 			pnt.X = xyz[0];
@@ -300,7 +313,7 @@ namespace Warps
 		public static string ReadCString(System.IO.BinaryReader bin)
 		{
 			uint len = bin.ReadUInt32();
-			return new string(bin.ReadChars((int)len));
+			return new string(bin.ReadChars((int)len)).Trim();
 		}
 	}
 
