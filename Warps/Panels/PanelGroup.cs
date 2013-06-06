@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using devDept.Eyeshot.Entities;
 
-namespace Warps.Panels
+namespace Warps
 {
 	public class PanelGroup : List<Panel>, IGroup
 	{
-		public PanelGroup(string label, Sail s) : this(label, s, new Equation("panelwidth",1.0), ClothOrientations.FILLS) { }
+		public PanelGroup() : this("", null, new Equation("", 1.0), ClothOrientations.FILLS) { }
+		public PanelGroup(string label, Sail s) : this(label, s, new Equation("panelwidth", 1.0), ClothOrientations.FILLS) { }
 		public PanelGroup(string label, Sail s, Equation width, ClothOrientations alignment)
 		{
 			Label = label;
@@ -28,6 +29,12 @@ namespace Warps.Panels
 				Bounds = boundaryCurves;
 			if (guides != null)
 				Guides = guides;
+
+			if (Guides == null || Bounds == null)
+				return -1;
+			else if (Guides.Count == 0 || Bounds.Count == 0)
+				return -1;
+
 			//if (width.Result > 0)
 			//m_Width = width;
 			ClothAlignment = align;
@@ -38,10 +45,10 @@ namespace Warps.Panels
 			Vect3[] xCorners = new Vect3[Bounds.Count];//xyz corner points
 			Vect2[] uCorners = new Vect2[Bounds.Count];//uv corner points
 			sCorners = new Vect2[Bounds.Count];//s pos of each corner for each curve 0:start, 1:end
-			if(Bounds.Count >0)	sCorners[0] = new Vect2();//initialize starting scorner
+			if (Bounds.Count > 0) sCorners[0] = new Vect2();//initialize starting scorner
 			for (int nB = 0; nB < Bounds.Count; nB++)
 			{
-				int nF = nB == Bounds.Count-1 ? 0 : nB + 1;//forward boundaries index
+				int nF = nB == Bounds.Count - 1 ? 0 : nB + 1;//forward boundaries index
 				uCorners[nB] = new Vect2();
 				xCorners[nB] = new Vect3();
 				if (!CurveTools.CrossPoint(Bounds[nB], Bounds[nF], ref uCorners[nB], ref xCorners[nB], ref sCor, 20))
@@ -74,7 +81,7 @@ namespace Warps.Panels
 							foreach (GuideCross cross in xGuides[nG])
 								if (BLAS.is_equal(cross.sPos, sCor[0]))
 									bdupe = true;
-							if ( !bdupe )//dont add duplicate ins
+							if (!bdupe)//dont add duplicate ins
 								xGuides[nG].Add(new GuideCross(sCor[0], uv, xyz, Bounds[nB], sCor[1]));//store all intersections
 						}
 					}
@@ -131,7 +138,7 @@ namespace Warps.Panels
 						double s = start.sPos + ds;
 						if (!Utilities.IsBetween(xGuides[0][0].sPos, s, xGuides[0][1].sPos))
 						{
-							atSeam = true; 
+							atSeam = true;
 							break;
 						}
 
@@ -146,7 +153,7 @@ namespace Warps.Panels
 						{
 							xyz.Set(xyzGuide);//initialize guess
 							s = start.sPos + ds;
-							if (!CurveTools.AnglePoint(Bounds[nB], ref s, ref uv, ref xyz, dxnGuide, Math.PI/2.0, true))
+							if (!CurveTools.AnglePoint(Bounds[nB], ref s, ref uv, ref xyz, dxnGuide, Math.PI / 2.0, true))
 								continue; //no intersection with this boundary curve
 
 							//AnglePoint endpt = new AnglePoint(Bounds[nB], Math.PI / 2.0);
@@ -161,7 +168,7 @@ namespace Warps.Panels
 							throw new Exception(string.Format("Panel Group [{0}] failed to set angle points for panel [{1}]", Label, Count));
 
 						//fit the girth seam
-						seams[1] = new MouldCurve(Label + (Count+1).ToString("000"), Sail, ends.ToArray());
+						seams[1] = new MouldCurve(Label + (Count + 1).ToString("000"), Sail, ends.ToArray());
 						Add(new Panel(seams, MakeEndSegments(seams)));
 						//set seam as next starting seam
 						seams[0] = seams[1];
@@ -396,7 +403,7 @@ namespace Warps.Panels
 
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
 		}
 
 		public bool Affected(List<IRebuild> connected)
@@ -404,8 +411,8 @@ namespace Warps.Panels
 			bool bupdate = connected == null;
 			if (!bupdate)
 			{
-			foreach (MouldCurve warp in Guides)
-					bupdate |= connected.Contains(warp);				
+				foreach (MouldCurve warp in Guides)
+					bupdate |= connected.Contains(warp);
 				foreach (MouldCurve warp in Bounds)
 					bupdate |= connected.Contains(warp);
 				//bupdate |= TargetDenierEqu == null ? false : TargetDenierEqu.Affected(connected);

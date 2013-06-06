@@ -1042,50 +1042,6 @@ namespace Warps
 			});
 		}
 
-
-		//// Determine whether one node is a parent  
-		//// or ancestor of a second node. 
-		//private bool ContainsNode(TreeNode node1, TreeNode node2)
-		//{
-		//	// Check the parent node of the second node. 
-		//	if (node2.Parent == null) return false;
-		//	if (node2.Parent.Equals(node1)) return true;
-
-		//	// If the parent node is not null or equal to the first node,  
-		//	// call the ContainsNode method recursively using the parent of  
-		//	// the second node. 
-		//	return ContainsNode(node1, node2.Parent);
-		//}
-
-		///// <summary>
-		///// Compare the dragged item with the hit node and see if dropping is allowed
-		///// </summary>
-		///// <param name="dragged">dragged treenode</param>
-		///// <param name="hit">currently over treenode</param>
-		///// <returns>true is allow, false otherwise</returns>
-		//private bool AllowReorder(TreeNode dragged, TreeNode hit)
-		//{
-		//	if (dragged == null || hit == null)
-		//		return false;
-
-		//	IRebuild drag = dragged.Tag as IRebuild;
-		//	IRebuild node = hit.Tag as IRebuild;
-
-		//	if (drag is Equation && node is Equation)
-		//		return true; //this is for reordering
-
-		//	if (drag is MouldCurve && node is MouldCurve)
-		//		return true; //this is for reordering
-
-		//	if (drag is IGroup && node is IGroup)
-		//		return true; // reorder the two groups
-
-		//	else if (drag is MouldCurve && node is CurveGroup)
-		//		return true; // put curve into new curvegroup
-
-		//	return false;
-		//}
-
 		internal void BeginUpdate()
 		{
 			ActiveTree.BeginUpdate();

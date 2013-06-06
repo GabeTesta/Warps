@@ -12,7 +12,7 @@ using devDept.Eyeshot.Entities;
 using Warps.Controls;
 using Warps.Logger;
 
-namespace Warps.Panels
+namespace Warps
 {
 	class PanelGroupTracker: ITracker
 	{
