@@ -10,14 +10,14 @@ namespace Warps.Panels
 {
 	public class PanelGroup : List<Panel>, IGroup
 	{
-		public PanelGroup(string label, Sail s) : this(label, s, 1.0, ClothOrientations.FILLS) { }
-		public PanelGroup(string label, Sail s, double width, ClothOrientations alignment)
+		public PanelGroup(string label, Sail s) : this(label, s, new Equation("panelwidth",1.0), ClothOrientations.FILLS) { }
+		public PanelGroup(string label, Sail s, Equation width, ClothOrientations alignment)
 		{
 			Label = label;
 			Sail = s;
 			Bounds = new List<MouldCurve>();
 			Guides = new List<MouldCurve>();
-			Width = width;
+			PanelWidth = width;
 			ClothAlignment = alignment;
 		}
 
@@ -28,8 +28,8 @@ namespace Warps.Panels
 				Bounds = boundaryCurves;
 			if (guides != null)
 				Guides = guides;
-			if (width > 0)
-				m_Width = width;
+			//if (width.Result > 0)
+			//m_Width = width;
 			ClothAlignment = align;
 			Clear();
 
@@ -234,7 +234,7 @@ namespace Warps.Panels
 		Sail m_sail;
 		string m_label;
 
-		double m_Width;
+		Equation m_Width;
 		List<MouldCurve> m_bounds;
 		List<MouldCurve> m_guides;
 		ClothOrientations m_clothAlignment = ClothOrientations.FILLS;
@@ -243,9 +243,16 @@ namespace Warps.Panels
 
 		public double Width
 		{
-			get { return m_Width; }
-			set { m_Width = value; }
+			get { return m_Width.Result; }
+			//set { m_Width = value; }
 		}
+
+		public Equation PanelWidth
+		{
+			get { return m_Width; }
+			set { m_Width = value; m_Width.Label = "PanelWidth"; }
+		}
+
 		public List<MouldCurve> Bounds
 		{
 			get { return m_bounds; }
@@ -409,7 +416,11 @@ namespace Warps.Panels
 
 		public bool Update(Sail s)
 		{
-			return (LayoutPanels(null, null, ClothAlignment, Width) > 0);
+			bool ret = true;
+			ret &= !double.IsNaN(PanelWidth.Evaluate(s));
+			if (ret)
+				ret &= (LayoutPanels(null, null, ClothAlignment, Width) > 0);
+			return ret;
 		}
 
 		public bool Delete()

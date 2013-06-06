@@ -15,7 +15,9 @@ namespace Warps.Panels
 			m_seams = seams.Clone() as MouldCurve[];
 			m_sends = ends.Clone() as List<SeamSegment>[];
 		}
+
 		MouldCurve[] m_seams;//primary seams, should be 2 
+
 		List<SeamSegment>[] m_sends = new List<SeamSegment>[2];//end seams, can be poly-lines of mouldcurves
 
 		#region IRebuild Members

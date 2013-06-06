@@ -124,6 +124,12 @@
     <Compile Include="Controls\MouldCurveEditor.Designer.cs">
       <DependentUpon>MouldCurveEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PanelGroupEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PanelGroupEditor.Designer.cs">
+      <DependentUpon>PanelGroupEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\VariableEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -184,6 +190,7 @@
     <Compile Include="Equations\VariableGroup.cs" />
     <Compile Include="Panels\Panel.cs" />
     <Compile Include="Panels\PanelGroup.cs" />
+    <Compile Include="Panels\PanelGroupTracker.cs" />
     <Compile Include="Surfaces\CofMould.cs" />
     <Compile Include="Surfaces\ComboMould.cs" />
     <Compile Include="Surfaces\RBFMould.cs" />
@@ -274,6 +281,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\MouldCurveEditor.resx">
       <DependentUpon>MouldCurveEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PanelGroupEditor.resx">
+      <DependentUpon>PanelGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\VariableEditor.resx">
       <DependentUpon>VariableEditor.cs</DependentUpon>

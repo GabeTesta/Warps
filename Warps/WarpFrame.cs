@@ -14,6 +14,7 @@ using devDept.Eyeshot.Entities;
 using Warps.Controls;
 using Warps.Logger;
 using Warps.Yarns;
+using Warps.Panels;
 using Warps.Trackers;
 using System.Threading;
 
@@ -407,6 +408,10 @@ namespace Warps
 
 					case "YarnGroup":
 						track = new YarnGroupTracker(e.Value as YarnGroup);
+						break;
+
+					case "PanelGroup":
+						track = new PanelGroupTracker(e.Value as PanelGroup);
 						break;
 				}
 
