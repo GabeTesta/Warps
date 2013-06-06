@@ -429,6 +429,8 @@
     <Content Include="icon.ico" />
     <Content Include="Resources\curvept.PNG" />
     <Content Include="Resources\fixedpt.PNG" />
+    <None Include="Resources\panel.png" />
+    <None Include="Resources\panelGroup.png" />
     <Content Include="Resources\slidept.PNG" />
     <None Include="Resources\Warps.png" />
     <None Include="Resources\GuideComb.png" />

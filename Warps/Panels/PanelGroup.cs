@@ -367,11 +367,20 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new TreeNode(Label);
+			m_node.Text = Label;
+			m_node.ImageKey = GetType().Name;
+			m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = GetToolTipData();
 			m_node.Tag = this;
 			m_node.Nodes.Clear();
 			foreach (Panel p in this)
 				m_node.Nodes.Add(p.WriteNode());
 			return m_node;
+		}
+
+		private string GetToolTipData()
+		{
+			return GetType().Name;
 		}
 
 		public Entity[] CreateEntities()
@@ -403,7 +412,15 @@ namespace Warps
 
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			//throw new NotImplementedException();
+			if (Guides != null)
+				parents.AddRange(Guides);
+
+			if (Bounds.Count > 0)
+				parents.AddRange(Bounds);
+
+			//	parents.Add(TargetDenierEqu);
+			PanelWidth.GetParents(s, parents);
+
 		}
 
 		public bool Affected(List<IRebuild> connected)

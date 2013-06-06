@@ -56,12 +56,21 @@ namespace Warps
 			else
 				m_node.Nodes.Clear();
 			m_node.Tag = this;
+			m_node.Text = Label;
+			m_node.ImageKey = GetType().Name;
+			m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = GetToolTipData();
 			if (m_seams != null && m_seams.Length > 1 && m_seams[0] != null && m_seams[1] != null)
 			{
 				m_node.Nodes.Add(m_seams[0].Label);
 				m_node.Nodes.Add(m_seams[1].Label);
 			}
 			return m_node;
+		}
+
+		private string GetToolTipData()
+		{
+			return GetType().Name;
 		}
 
 		public devDept.Eyeshot.Entities.Entity[] CreateEntities()

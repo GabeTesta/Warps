@@ -24,12 +24,12 @@ namespace Warps.Controls
 			m_warpListView.LargeImageList = imageList;
 			m_warpListView.StateImageList = imageList;
 
-			ImageList imgList2 = new ImageList();
-			imgList2.Images.Add("GuideComb", Warps.Properties.Resources.GuideComb);
+			//ImageList imgList2 = new ImageList();
+			//imgList2.Images.Add("GuideComb", Warps.Properties.Resources.GuideComb);
 
-			m_guideListView.SmallImageList = imgList2;
-			m_guideListView.LargeImageList = imgList2;
-			m_guideListView.StateImageList = imgList2;
+			m_guideListView.SmallImageList = imageList;
+			m_guideListView.LargeImageList = imageList;
+			m_guideListView.StateImageList = imageList;
 
 			PanGroup = group;
 			sail = PanGroup.Sail;
@@ -135,15 +135,21 @@ namespace Warps.Controls
 			set { m_orientationList.Text = value.ToString(); }
 		}
 
+		public string GroupLabel
+		{
+			get { return m_labelTextBox.Text; }
+			set { m_labelTextBox.Text = value; }
+		}
+
 		public void fillEditorWithData()
 		{
-			m_labelTextBox.Text = PanGroup.Label;
+			GroupLabel = PanGroup.Label;
 			populateWarpBox();
 			if (PanGroup.Guides != null)
 			{
 				PanGroup.Guides.ForEach(guide =>
 				{
-					m_guideListView.Items.Add(guide.Label, guide.Label, "GuideComb");
+					m_guideListView.Items.Add(guide.Label, guide.Label, guide.GetType().Name);
 				});
 			}
 
@@ -163,8 +169,8 @@ namespace Warps.Controls
 			//availableCurves.ForEach(cur => m_warpSelectionCheckbox.Items.Add(cur, m_group.Warps.Contains(cur)));
 		}
 
-		bool m_selectingWarp = false;
-		bool m_selectingGuide = false;
+		public bool m_selectingWarp = false;
+		public bool m_selectingGuide = false;
 
 		public bool AddRemoveWarp(MouldCurve curve)
 		{
@@ -185,7 +191,7 @@ namespace Warps.Controls
 			}
 		}
 
-		public bool AddRemoveGuide(GuideComb guide)
+		public bool AddRemoveGuide(MouldCurve guide)
 		{
 			if (!m_selectingGuide)
 				return false;
@@ -226,7 +232,7 @@ namespace Warps.Controls
 
 			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
 
-			View.SetTrackerSelectionMode(m_selectingGuide ? "guides" : null);
+			View.SetTrackerSelectionMode(m_selectingGuide ? "warps" : null);
 		}
 
 		public void Done()

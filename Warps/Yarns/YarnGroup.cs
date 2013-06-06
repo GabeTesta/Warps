@@ -1130,10 +1130,9 @@ namespace Warps
 		public void GetConnected(List<IRebuild> connected)
 		{
 			if (Affected(connected) && connected != null)
-			{
 				connected.Add(this);
-			}
 		}
+
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
 			if(Guide!=null)
@@ -1142,10 +1141,8 @@ namespace Warps
 			if(Warps.Count > 0)
 				parents.AddRange(Warps);
 
-		//	parents.Add(TargetDenierEqu);
 			TargetDenierEqu.GetParents(s, parents);
 
-		//	parents.Add(YarnDenierEqu);
 			YarnDenierEqu.GetParents(s, parents);
 		}
 

@@ -35,6 +35,18 @@ namespace Warps
 			get { return m_layout; }
 			set { m_layout = value; }
 		}
+
+		public List<IGroup> FullLayout
+		{
+			get
+			{
+				List<IGroup> full = new List<IGroup>();
+				if (Mould.Groups != null)
+					full.AddRange(Mould.Groups);
+				full.AddRange(Layout);
+				return full;
+			}
+		}
 		public string Script
 		{
 			get { return string.Format("{0} [{1}]", Mould.ToString(), FilePath); }

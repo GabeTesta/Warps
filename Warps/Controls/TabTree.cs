@@ -42,6 +42,8 @@ namespace Warps
 			imageList.Images.Add("YarnGroup", Warps.Properties.Resources.YarnGroup);
 			imageList.Images.Add("GuideComb", Warps.Properties.Resources.GuideComb);
 			imageList.Images.Add("Warps", Warps.Properties.Resources.Warps);
+			imageList.Images.Add("PanelGroup", Warps.Properties.Resources.panelGroup);
+			imageList.Images.Add("Panel", Warps.Properties.Resources.panel);
 
 			SeqTree.ImageList = imageList;
 			SorTree.ImageList = imageList;
@@ -484,13 +486,14 @@ namespace Warps
 		{
 			// Retrieve the client coordinates of the drop location.
 			Point targetPoint = SeqTree.PointToClient(new Point(e.X, e.Y));
+			
+			// Retrieve the node that was dragged.
+			TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
 
 			// Retrieve the node at the drop location.
 			TreeNode targetNode = SeqTree.GetNodeAt(targetPoint);
 			if (targetNode == null)
-				return;
-			// Retrieve the node that was dragged.
-			TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
+				goto finish;
 
 			// Confirm that the node at the drop location is not  
 			// the dragged node or a descendant of the dragged node. 
@@ -917,7 +920,7 @@ namespace Warps
 		void TheIndexOf(IRebuild node, List<IGroup> nodes, ref int count)
 		{
 			if (nodes == null)
-				nodes = Sail.Layout;
+				nodes = Sail.FullLayout;
 
 			foreach (IGroup tn in nodes)
 			{
@@ -1013,32 +1016,34 @@ namespace Warps
 			items.ForEach(irb =>
 			{
 				TreeNode found = FindNode(irb);
-
-				if (drg is IGroup)
+				if (found != null)
 				{
-					while (found.Parent.Tag != Sail)
+					if (drg is IGroup)
 					{
-						found = found.Parent;
-						if (found.Parent == null)
-							break;
-					}
-				}
-				else if (drg is MouldCurve || drg is Equation)
-				{
-					if (!(found.Tag is IGroup))
-					{
-						found.BackColor = color;
-						while (!(found.Tag is IGroup))
+						while (found.Parent.Tag != Sail)
 						{
 							found = found.Parent;
 							if (found.Parent == null)
 								break;
 						}
 					}
-				}
+					else if (drg is MouldCurve || drg is Equation)
+					{
+						if (!(found.Tag is IGroup))
+						{
+							found.BackColor = color;
+							while (!(found.Tag is IGroup))
+							{
+								found = found.Parent;
+								if (found.Parent == null)
+									break;
+							}
+						}
+					}
 
-				//if (found.Tag as IRebuild != drg)
-				found.BackColor = color;
+					//if (found.Tag as IRebuild != drg)
+					found.BackColor = color;
+				}
 			});
 		}
 

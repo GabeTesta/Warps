@@ -159,14 +159,14 @@ namespace Warps
 				return;
 			//object selected = 
 
-			if (selected is GuideComb)
+			if (Edit.m_selectingGuide)
 			{
-				if (Edit.AddRemoveGuide(selected as GuideComb))
-					View.SelectEntity(selected as GuideComb);
+				if (Edit.AddRemoveGuide(selected as MouldCurve))
+					View.SelectEntity(selected as MouldCurve);
 				else
-					View.DeSelect(selected as GuideComb);
+					View.DeSelect(selected as MouldCurve);
 			}
-			else if (selected is MouldCurve)
+			else if (Edit.m_selectingWarp)
 			{
 				if (Edit.AddRemoveWarp(selected as MouldCurve))
 					View.SelectEntity(selected as MouldCurve);
@@ -233,12 +233,14 @@ namespace Warps
 			if (!EditMode)
 				return;
 
+			
 			Edit.Done();
 			OnPreview(sender, null);
+			panGroup.Label = Edit.GroupLabel;
 			panGroup.Bounds = Edit.SelectedBounds;
 			panGroup.PanelWidth = Edit.PanelWidth;
 			panGroup.Guides = Edit.Guides;
-			panGroup.ClothAlignment= Edit.Orientation;
+			panGroup.ClothAlignment = Edit.Orientation;
 			if (sender != null)
 				m_frame.Rebuild(panGroup);//returns false if AutoBuild is off
 
