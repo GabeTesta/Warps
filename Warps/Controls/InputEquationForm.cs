@@ -70,12 +70,14 @@ namespace Warps.Controls
 
 		private void EquationListBox_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			autoCompleteTextBox1.Text += EquationListBox.SelectedItem.ToString();
+			if(EquationListBox.SelectedItem!=null)
+				autoCompleteTextBox1.Text += EquationListBox.SelectedItem.ToString();
 		}
 
 		private void CurveListBox_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			autoCompleteTextBox1.Text += CurveListBox.SelectedItem.ToString();
+			if (CurveListBox.SelectedItem != null)
+				autoCompleteTextBox1.Text += CurveListBox.SelectedItem.ToString();
 		}
 	}
 }

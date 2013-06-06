@@ -432,8 +432,7 @@ namespace Warps
 					bupdate |= connected.Contains(warp);
 				foreach (MouldCurve warp in Bounds)
 					bupdate |= connected.Contains(warp);
-				//bupdate |= TargetDenierEqu == null ? false : TargetDenierEqu.Affected(connected);
-				//bupdate |= YarnDenierEqu == null ? false : YarnDenierEqu.Affected(connected);
+				bupdate |= PanelWidth == null ? false : PanelWidth.Affected(connected);
 			}
 			return bupdate;
 		}
