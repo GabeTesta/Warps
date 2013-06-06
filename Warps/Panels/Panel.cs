@@ -12,6 +12,7 @@ namespace Warps
 	{
 		public Panel(MouldCurve[] seams, List<SeamSegment>[] ends)
 		{
+			Locked = true;
 			m_seams = seams.Clone() as MouldCurve[];
 			m_sends = ends.Clone() as List<SeamSegment>[];
 		}
@@ -55,6 +56,7 @@ namespace Warps
 				m_node = new TreeNode(Label);
 			else
 				m_node.Nodes.Clear();
+			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
 			m_node.Tag = this;
 			m_node.Text = Label;
 			m_node.ImageKey = GetType().Name;
