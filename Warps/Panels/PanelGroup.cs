@@ -354,12 +354,64 @@ namespace Warps
 
 		public List<string> WriteScript()
 		{
-			throw new NotImplementedException();
+			List<string> script = new List<string>();
+			script.Add(GetType().Name + ": " + Label);
+			//script.Add("\tTargetDPI: ");
+			script.Add("\t" + m_Width.ToScriptString());
+			script.Add("\tGuides: ");
+			foreach (MouldCurve w in m_guides)
+				script.Add("\t\t" + w.Label);
+			script.Add("\tBounds: ");
+			foreach (MouldCurve w in m_bounds)
+				script.Add("\t\t" + w.Label);
+
+			script.Add("\tClothAlignment: " + ClothAlignment.ToString());
+
+			return script;
 		}
 
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
-			throw new NotImplementedException();
+			if (txt == null || txt.Count == 0)
+				return false;
+			string[] splits = txt[0].Split(':');
+			Label = "";
+			if (splits.Length > 0)//extract label
+				Label = splits[1];
+			if (splits.Length > 1)//incase label contains ":"
+				for (int i = 2; i < splits.Length; i++)
+					Label += ":" + splits[i];
+			Label = Label.Trim();
+
+			for (int nLine = 1; nLine < txt.Count; )
+			{
+				IList<string> lines = ScriptTools.Block(ref nLine, txt);
+				splits = lines[0].Split(':');
+				if (splits.Length > 0)
+				{
+					if (splits[0].ToLower().Contains("bounds"))
+					{
+						for (int i = 1; i < lines.Count; i++)
+							m_bounds.Add(sail.FindCurve(lines[i].Trim()));
+
+					}
+					else if (splits[0].ToLower().Contains("guides"))
+					{
+						for (int i = 1; i < lines.Count; i++)
+							m_guides.Add(sail.FindCurve(lines[i].Trim()));
+
+					}
+					else if (splits[0].ToLower().Contains("clothalignment"))
+						ClothAlignment = (ClothOrientations)Enum.Parse(typeof(ClothOrientations), splits[1].Trim());
+					else if (splits[0].ToLower().Contains("panelwidth"))
+						m_Width = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
+
+				}
+			}
+
+			Update(sail);
+
+			return true;
 		}
 
 		TreeNode m_node;

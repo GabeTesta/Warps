@@ -306,8 +306,8 @@ namespace Warps
 			//script.Add(string.Format("{0}: [{1}]", GetType().Name, UV.ToString("0.0000")));
 			script.Add(GetType().Name);
 
-			script.Add("\t" + U.ToString());
-			script.Add("\t" + V.ToString());
+			script.Add("\t" + U.ToScriptString());
+			script.Add("\t" + V.ToScriptString());
 
 			return script;
 		}

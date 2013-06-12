@@ -328,7 +328,7 @@ namespace Warps
 			//script.Add(string.Format("{0}: [{1}]", GetType().Name, UV.ToString("0.0000")));
 			script.Add(GetType().Name);
 			script.Add("\tCurve: " + m_curve.Label);
-			script.Add("\t" + S_Equ.ToString());
+			script.Add("\t" + S_Equ.ToScriptString());
 			return script;
 		}
 
