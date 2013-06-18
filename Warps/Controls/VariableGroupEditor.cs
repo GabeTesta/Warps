@@ -67,7 +67,7 @@ namespace Warps.Controls
 		{
 			VariableEditor ve = eq.WriteEditor(null);
 			ve.sail = VarGroup.Sail;
-			ve.AutoFillData = VarGroup.Sail.Watermark(VarGroup).ToList<object>();
+			ve.AutoFillData = VarGroup.Sail.Watermark(eq).ToList<object>();
 			m_flow.Controls.Add(ve);
 			ve.ReturnPress += ve_ReturnPress;
 		}
@@ -92,7 +92,7 @@ namespace Warps.Controls
 					(m_flow.Controls[i] as VariableEditor).FocusEditBox();
 		}
 
-		public bool Editable
+		public bool EditMode
 		{
 			get
 			{
@@ -100,7 +100,9 @@ namespace Warps.Controls
 			}
 			set
 			{
-				this.Enabled = value;		
+				this.Enabled = value;
+				for (int i = 0; i < Count; i++)
+					this[i].EditMode = value;
 			}
 		}
 

@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Warps.Yarns;
-using NPlot;
 
 namespace Warps.Controls
 {
@@ -80,6 +79,12 @@ namespace Warps.Controls
 		}
 
 		List<Vect2> m_guideCombVals = new List<Vect2>();
+
+		public string GroupLabel
+		{
+			get { return m_labelTextBox.Text; }
+			set { m_labelTextBox.Text = value; }
+		}
 
 		public void fillEditorWithData()
 		{

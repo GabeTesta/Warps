@@ -142,11 +142,17 @@
   <data name="YarnGroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\YarnGroup.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="panel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\panel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="dragger" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\dragger.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="glyphicons_192_circle_remove" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_192_circle_remove.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Warps" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Warps.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="CurveControlPointsIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\CurveControlPointsIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -154,14 +160,23 @@
   <data name="SmallEye" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\SmallEye.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="curvept" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Curves\curvept.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="glyphicons_196_circle_exclamation_mark" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_196_circle_exclamation_mark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="glyphicons_223_chevron-right" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_223_chevron-right.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="fixedpt" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Curves\fixedpt.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="glyphicons_191_circle_minus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_191_circle_minus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="slidept" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Curves\slidept.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="empty" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\empty.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -205,16 +220,7 @@
   <data name="curvepath" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\curvepath.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Warps" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Warps.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="curvept" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Curves\curvept.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="fixedpt" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Curves\fixedpt.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="slidept" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Curves\slidept.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="panelGroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\panelGroup.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

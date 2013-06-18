@@ -75,6 +75,7 @@ namespace Warps
 				this[i].SelectionChanged += DualView_SelectionChanged;
 				this[i].MouseMove += DualView_MouseMove;
 
+
 				this[i].Groups.Add(new List<int>());
 
 			}

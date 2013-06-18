@@ -267,6 +267,8 @@ namespace Warps
 						return true;
 					rets.Add(this[nEq]);
 				}
+			else if (this == tag)
+				return true;
 			else
 				rets.AddRange(this.Values);
 			return false;

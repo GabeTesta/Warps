@@ -6,16 +6,19 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using devDept.Eyeshot.Entities;
 
-namespace Warps.Panels
+namespace Warps
 {
 	public class Panel : IRebuild
 	{
 		public Panel(MouldCurve[] seams, List<SeamSegment>[] ends)
 		{
+			Locked = true;
 			m_seams = seams.Clone() as MouldCurve[];
 			m_sends = ends.Clone() as List<SeamSegment>[];
 		}
+
 		MouldCurve[] m_seams;//primary seams, should be 2 
+
 		List<SeamSegment>[] m_sends = new List<SeamSegment>[2];//end seams, can be poly-lines of mouldcurves
 
 		#region IRebuild Members
@@ -53,13 +56,23 @@ namespace Warps.Panels
 				m_node = new TreeNode(Label);
 			else
 				m_node.Nodes.Clear();
+			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
 			m_node.Tag = this;
+			m_node.Text = Label;
+			m_node.ImageKey = GetType().Name;
+			m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = GetToolTipData();
 			if (m_seams != null && m_seams.Length > 1 && m_seams[0] != null && m_seams[1] != null)
 			{
 				m_node.Nodes.Add(m_seams[0].Label);
 				m_node.Nodes.Add(m_seams[1].Label);
 			}
 			return m_node;
+		}
+
+		private string GetToolTipData()
+		{
+			return GetType().Name;
 		}
 
 		public devDept.Eyeshot.Entities.Entity[] CreateEntities()

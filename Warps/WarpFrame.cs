@@ -29,6 +29,7 @@ namespace Warps
 	{
 		public WarpFrame()
 		{
+
 			InitializeComponent();
 #if DEBUG
 			logger.Instance.CreateLogLocal("Warps");
@@ -407,6 +408,10 @@ namespace Warps
 					case "YarnGroup":
 						track = new YarnGroupTracker(e.Value as YarnGroup);
 						break;
+
+					case "PanelGroup":
+						track = new PanelGroupTracker(e.Value as PanelGroup);
+						break;
 				}
 
 			}
@@ -611,7 +616,7 @@ namespace Warps
 			}
 			CurveGroup fills = new CurveGroup("Fills", ActiveSail);
 			ActiveSail.Add(fills);
-			Warps.Panels.PanelGroup mids = new Panels.PanelGroup("MidPan", ActiveSail);
+			PanelGroup mids = new PanelGroup("MidPan", ActiveSail);
 			mids.Bounds.Add(ActiveSail.FindCurve("L-spl"));
 			mids.Bounds.Add(ActiveSail.FindCurve("Leech"));
 			mids.Bounds.Add(ActiveSail.FindCurve("M-spl"));//ensure curves are ordered correctly
@@ -623,7 +628,7 @@ namespace Warps
 			ActiveSail.Add(mids);
 
 			//IGroup outer = ActiveSail.CreateOuterCurves();
-			Warps.Panels.PanelGroup pans = new Panels.PanelGroup("TackPan", ActiveSail);
+			PanelGroup pans = new PanelGroup("TackPan", ActiveSail);
 			pans.Bounds.Add(ActiveSail.FindCurve("Foot"));//ensure curves are ordered correctly
 			pans.Bounds.Add(ActiveSail.FindCurve("Luff"));
 			pans.Bounds.Add(ActiveSail.FindCurve("L-spl"));
@@ -644,7 +649,7 @@ namespace Warps
 			if (false)
 			{
 
-				Warps.Panels.PanelGroup clew = new Panels.PanelGroup("ClewPan", ActiveSail);
+				Warps.PanelGroup clew = new PanelGroup("ClewPan", ActiveSail);
 				clew.Bounds.Add(ActiveSail.FindCurve("Foot"));//ensure curves are ordered correctly
 				clew.Bounds.Add(ActiveSail.FindCurve("Leech"));
 				clew.Bounds.Add(ActiveSail.FindCurve("L-spl"));
@@ -667,7 +672,7 @@ namespace Warps
 				//ActiveSail.Add(mids);
 
 
-				Warps.Panels.PanelGroup tops = new Panels.PanelGroup("TopPan", ActiveSail);
+				PanelGroup tops = new PanelGroup("TopPan", ActiveSail);
 				tops.Bounds.Add(ActiveSail.FindCurve("M-spl"));//ensure curves are ordered correctly
 				tops.Bounds.Add(ActiveSail.FindCurve("Leech"));
 				tops.Bounds.Add(ActiveSail.FindCurve("Head"));//ensure curves are ordered correctly

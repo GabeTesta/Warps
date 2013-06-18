@@ -6,18 +6,19 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using devDept.Eyeshot.Entities;
 
-namespace Warps.Panels
+namespace Warps
 {
 	public class PanelGroup : List<Panel>, IGroup
 	{
-		public PanelGroup(string label, Sail s) : this(label, s, 1.0, ClothOrientations.FILLS) { }
-		public PanelGroup(string label, Sail s, double width, ClothOrientations alignment)
+		public PanelGroup() : this("", null, new Equation("", 1.0), ClothOrientations.FILLS) { }
+		public PanelGroup(string label, Sail s) : this(label, s, new Equation("panelwidth", 1.0), ClothOrientations.FILLS) { }
+		public PanelGroup(string label, Sail s, Equation width, ClothOrientations alignment)
 		{
 			Label = label;
 			Sail = s;
 			Bounds = new List<MouldCurve>();
 			Guides = new List<MouldCurve>();
-			Width = width;
+			PanelWidth = width;
 			ClothAlignment = alignment;
 		}
 
@@ -28,8 +29,14 @@ namespace Warps.Panels
 				Bounds = boundaryCurves;
 			if (guides != null)
 				Guides = guides;
-			if (width > 0)
-				m_Width = width;
+
+			if (Guides == null || Bounds == null)
+				return -1;
+			else if (Guides.Count == 0 || Bounds.Count == 0)
+				return -1;
+
+			//if (width.Result > 0)
+			//m_Width = width;
 			ClothAlignment = align;
 			Clear();
 
@@ -38,10 +45,10 @@ namespace Warps.Panels
 			Vect3[] xCorners = new Vect3[Bounds.Count];//xyz corner points
 			Vect2[] uCorners = new Vect2[Bounds.Count];//uv corner points
 			sCorners = new Vect2[Bounds.Count];//s pos of each corner for each curve 0:start, 1:end
-			if(Bounds.Count >0)	sCorners[0] = new Vect2();//initialize starting scorner
+			if (Bounds.Count > 0) sCorners[0] = new Vect2();//initialize starting scorner
 			for (int nB = 0; nB < Bounds.Count; nB++)
 			{
-				int nF = nB == Bounds.Count-1 ? 0 : nB + 1;//forward boundaries index
+				int nF = nB == Bounds.Count - 1 ? 0 : nB + 1;//forward boundaries index
 				uCorners[nB] = new Vect2();
 				xCorners[nB] = new Vect3();
 				if (!CurveTools.CrossPoint(Bounds[nB], Bounds[nF], ref uCorners[nB], ref xCorners[nB], ref sCor, 20))
@@ -74,7 +81,7 @@ namespace Warps.Panels
 							foreach (GuideCross cross in xGuides[nG])
 								if (BLAS.is_equal(cross.sPos, sCor[0]))
 									bdupe = true;
-							if ( !bdupe )//dont add duplicate ins
+							if (!bdupe)//dont add duplicate ins
 								xGuides[nG].Add(new GuideCross(sCor[0], uv, xyz, Bounds[nB], sCor[1]));//store all intersections
 						}
 					}
@@ -131,7 +138,7 @@ namespace Warps.Panels
 						double s = start.sPos + ds;
 						if (!Utilities.IsBetween(xGuides[0][0].sPos, s, xGuides[0][1].sPos))
 						{
-							atSeam = true; 
+							atSeam = true;
 							break;
 						}
 
@@ -146,7 +153,7 @@ namespace Warps.Panels
 						{
 							xyz.Set(xyzGuide);//initialize guess
 							s = start.sPos + ds;
-							if (!CurveTools.AnglePoint(Bounds[nB], ref s, ref uv, ref xyz, dxnGuide, Math.PI/2.0, true))
+							if (!CurveTools.AnglePoint(Bounds[nB], ref s, ref uv, ref xyz, dxnGuide, Math.PI / 2.0, true))
 								continue; //no intersection with this boundary curve
 
 							//AnglePoint endpt = new AnglePoint(Bounds[nB], Math.PI / 2.0);
@@ -161,7 +168,7 @@ namespace Warps.Panels
 							throw new Exception(string.Format("Panel Group [{0}] failed to set angle points for panel [{1}]", Label, Count));
 
 						//fit the girth seam
-						seams[1] = new MouldCurve(Label + (Count+1).ToString("000"), Sail, ends.ToArray());
+						seams[1] = new MouldCurve(Label + (Count + 1).ToString("000"), Sail, ends.ToArray());
 						Add(new Panel(seams, MakeEndSegments(seams)));
 						//set seam as next starting seam
 						seams[0] = seams[1];
@@ -234,7 +241,7 @@ namespace Warps.Panels
 		Sail m_sail;
 		string m_label;
 
-		double m_Width;
+		Equation m_Width;
 		List<MouldCurve> m_bounds;
 		List<MouldCurve> m_guides;
 		ClothOrientations m_clothAlignment = ClothOrientations.FILLS;
@@ -243,9 +250,16 @@ namespace Warps.Panels
 
 		public double Width
 		{
-			get { return m_Width; }
-			set { m_Width = value; }
+			get { return m_Width.Result; }
+			//set { m_Width = value; }
 		}
+
+		public Equation PanelWidth
+		{
+			get { return m_Width; }
+			set { m_Width = value; m_Width.Label = "PanelWidth"; }
+		}
+
 		public List<MouldCurve> Bounds
 		{
 			get { return m_bounds; }
@@ -310,6 +324,8 @@ namespace Warps.Panels
 			int i = -1;
 			if (tag is Panel)
 				i = this.IndexOf(tag as Panel);
+			if (tag == this)
+				return true;
 
 			if (i >= 0)
 				rets.AddRange(this.Take(i));
@@ -340,12 +356,64 @@ namespace Warps.Panels
 
 		public List<string> WriteScript()
 		{
-			throw new NotImplementedException();
+			List<string> script = new List<string>();
+			script.Add(GetType().Name + ": " + Label);
+			//script.Add("\tTargetDPI: ");
+			script.Add("\t" + m_Width.ToScriptString());
+			script.Add("\tGuides: ");
+			foreach (MouldCurve w in m_guides)
+				script.Add("\t\t" + w.Label);
+			script.Add("\tBounds: ");
+			foreach (MouldCurve w in m_bounds)
+				script.Add("\t\t" + w.Label);
+
+			script.Add("\tClothAlignment: " + ClothAlignment.ToString());
+
+			return script;
 		}
 
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
-			throw new NotImplementedException();
+			if (txt == null || txt.Count == 0)
+				return false;
+			string[] splits = txt[0].Split(':');
+			Label = "";
+			if (splits.Length > 0)//extract label
+				Label = splits[1];
+			if (splits.Length > 1)//incase label contains ":"
+				for (int i = 2; i < splits.Length; i++)
+					Label += ":" + splits[i];
+			Label = Label.Trim();
+
+			for (int nLine = 1; nLine < txt.Count; )
+			{
+				IList<string> lines = ScriptTools.Block(ref nLine, txt);
+				splits = lines[0].Split(':');
+				if (splits.Length > 0)
+				{
+					if (splits[0].ToLower().Contains("bounds"))
+					{
+						for (int i = 1; i < lines.Count; i++)
+							m_bounds.Add(sail.FindCurve(lines[i].Trim()));
+
+					}
+					else if (splits[0].ToLower().Contains("guides"))
+					{
+						for (int i = 1; i < lines.Count; i++)
+							m_guides.Add(sail.FindCurve(lines[i].Trim()));
+
+					}
+					else if (splits[0].ToLower().Contains("clothalignment"))
+						ClothAlignment = (ClothOrientations)Enum.Parse(typeof(ClothOrientations), splits[1].Trim());
+					else if (splits[0].ToLower().Contains("panelwidth"))
+						m_Width = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
+
+				}
+			}
+
+			Update(sail);
+
+			return true;
 		}
 
 		TreeNode m_node;
@@ -353,11 +421,20 @@ namespace Warps.Panels
 		{
 			if (m_node == null)
 				m_node = new TreeNode(Label);
+			m_node.Text = Label;
+			m_node.ImageKey = GetType().Name;
+			m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = GetToolTipData();
 			m_node.Tag = this;
 			m_node.Nodes.Clear();
 			foreach (Panel p in this)
 				m_node.Nodes.Add(p.WriteNode());
 			return m_node;
+		}
+
+		private string GetToolTipData()
+		{
+			return GetType().Name;
 		}
 
 		public Entity[] CreateEntities()
@@ -389,7 +466,15 @@ namespace Warps.Panels
 
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			throw new NotImplementedException();
+			if (Guides != null)
+				parents.AddRange(Guides);
+
+			if (Bounds.Count > 0)
+				parents.AddRange(Bounds);
+
+			//	parents.Add(TargetDenierEqu);
+			PanelWidth.GetParents(s, parents);
+
 		}
 
 		public bool Affected(List<IRebuild> connected)
@@ -397,19 +482,22 @@ namespace Warps.Panels
 			bool bupdate = connected == null;
 			if (!bupdate)
 			{
-			foreach (MouldCurve warp in Guides)
-					bupdate |= connected.Contains(warp);				
+				foreach (MouldCurve warp in Guides)
+					bupdate |= connected.Contains(warp);
 				foreach (MouldCurve warp in Bounds)
 					bupdate |= connected.Contains(warp);
-				//bupdate |= TargetDenierEqu == null ? false : TargetDenierEqu.Affected(connected);
-				//bupdate |= YarnDenierEqu == null ? false : YarnDenierEqu.Affected(connected);
+				bupdate |= PanelWidth == null ? false : PanelWidth.Affected(connected);
 			}
 			return bupdate;
 		}
 
 		public bool Update(Sail s)
 		{
-			return (LayoutPanels(null, null, ClothAlignment, Width) > 0);
+			bool ret = true;
+			ret &= !double.IsNaN(PanelWidth.Evaluate(s));
+			if (ret)
+				ret &= (LayoutPanels(null, null, ClothAlignment, Width) > 0);
+			return ret;
 		}
 
 		public bool Delete()

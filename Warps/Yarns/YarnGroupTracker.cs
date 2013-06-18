@@ -205,6 +205,7 @@ namespace Warps.Yarns
 
 			Edit.Done();
 			OnPreview(sender, null);
+			yarGroup.Label = Edit.GroupLabel;
 			yarGroup.Warps = Edit.SelectedWarps;
 			yarGroup.YarnDenierEqu = Edit.YarnDenierEqu;
 			yarGroup.TargetDenierEqu = Edit.TargetDPIEqu;
