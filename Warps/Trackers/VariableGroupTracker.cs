@@ -158,7 +158,7 @@ namespace Warps
 
 		public void OnAdd(object sender, EventArgs e)
 		{
-			if( m_eqEditor!= null)
+			if (m_eqEditor != null)
 				m_eqEditor.Show();
 		}
 
@@ -201,20 +201,23 @@ namespace Warps
 				}
 			}
 
-			List<IRebuild> changed = CompareEqs(eqs, m_group.Values.ToList());
+			List<IRebuild> changed = CompareEqs(new List<Equation>(eqs), m_group.Values.ToList());
 			m_group.Label = Edit.Label;
 			m_group.Clear();
 			eqs.ForEach(eq => m_group.Add(eq));
-			
-			//changed.ForEach(eq => m_frame.Rebuild(eq));
-			m_frame.Rebuild(m_group);
-			m_group.Update(sail);
-			m_edit.Equations = eqs.ConvertAll(eq => new KeyValuePair<string, Equation>(eq.Label, eq)).ToArray();
-		}
 
+			changed.ForEach(eq => m_frame.Rebuild(eq));
+			//m_frame.Rebuild(m_group);
+			if (changed.Count > 0)
+			{
+				(m_group as IGroup).WriteNode();
+				m_edit.Equations = eqs.ConvertAll(eq => new KeyValuePair<string, Equation>(eq.Label, eq)).ToArray();
+			}
+		}
 		private List<IRebuild> CompareEqs(List<Equation> eqs, List<Equation> list)
 		{
 			List<IRebuild> ret = new List<IRebuild>(list);
+			List<Equation> removeMe = new List<Equation>();
 			foreach (Equation eq in eqs)
 			{
 				for (int i = 0; i < list.Count; i++)
@@ -224,11 +227,21 @@ namespace Warps
 						if (eq.EquationText == list[i].EquationText)
 						{
 							ret.Remove(list[i]);
+							removeMe.Add(eq);
 							break;
 						}
 					}
 				}
 			}
+
+			foreach (Equation rbd in removeMe)
+				eqs.Remove(rbd);
+
+			eqs.ForEach(eq=> 
+			{
+				if (ret.Find(e=> e.Label == eq.Label) == null)
+					ret.Add(eq);
+			});
 
 			return ret;
 		}
@@ -247,16 +260,16 @@ namespace Warps
 
 		//public void OnCopy(object sender, EventArgs e)
 		//{
-			//IGroup group = Tree.SelectedTag as IGroup;
+		//IGroup group = Tree.SelectedTag as IGroup;
 
-			//if (group == null)
-			//	return;
-			////Lets say its my data format
-			//Clipboard.Clear();
-			////Set data to clipboard
-			//Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
-			////Get data from clipboard
-			//m_frame.Status = String.Format("{0}:{1} Copied", group.GetType().Name, group.Label);
+		//if (group == null)
+		//	return;
+		////Lets say its my data format
+		//Clipboard.Clear();
+		////Set data to clipboard
+		//Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
+		////Get data from clipboard
+		//m_frame.Status = String.Format("{0}:{1} Copied", group.GetType().Name, group.Label);
 
 		//}
 

@@ -260,7 +260,7 @@ namespace Warps
 		//	});
 		//}
 
-		private void UpdateViews(IRebuild item)
+		public void UpdateViews(IRebuild item)
 		{
 			View.Remove(item);
 
