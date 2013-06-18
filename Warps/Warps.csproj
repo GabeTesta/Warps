@@ -162,7 +162,6 @@
     <Compile Include="Controls\YarnGroupEditor.Designer.cs">
       <DependentUpon>YarnGroupEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Curves\AnglePoint.cs" />
     <Compile Include="Curves\CurveGroup.cs" />
     <Compile Include="Controls\CurveGroupEditor.cs">
       <SubType>UserControl</SubType>
