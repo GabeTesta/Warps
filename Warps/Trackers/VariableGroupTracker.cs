@@ -201,12 +201,36 @@ namespace Warps
 				}
 			}
 
+			List<IRebuild> changed = CompareEqs(eqs, m_group.Values.ToList());
 			m_group.Label = Edit.Label;
 			m_group.Clear();
 			eqs.ForEach(eq => m_group.Add(eq));
+			
+			//changed.ForEach(eq => m_frame.Rebuild(eq));
 			m_frame.Rebuild(m_group);
-
+			m_group.Update(sail);
 			m_edit.Equations = eqs.ConvertAll(eq => new KeyValuePair<string, Equation>(eq.Label, eq)).ToArray();
+		}
+
+		private List<IRebuild> CompareEqs(List<Equation> eqs, List<Equation> list)
+		{
+			List<IRebuild> ret = new List<IRebuild>(list);
+			foreach (Equation eq in eqs)
+			{
+				for (int i = 0; i < list.Count; i++)
+				{
+					if (eq.Label == list[i].Label)
+					{
+						if (eq.EquationText == list[i].EquationText)
+						{
+							ret.Remove(list[i]);
+							break;
+						}
+					}
+				}
+			}
+
+			return ret;
 		}
 
 		public void OnSelect(object sender, EventArgs<IRebuild> e) { }

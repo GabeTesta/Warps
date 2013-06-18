@@ -41,7 +41,7 @@ namespace Warps.Controls
 				//	m_eqBox.Text = "= " + EqText;
 			}
 
-			m_resultTB.Text = result.ToString("#0.000");
+			m_resultTB.Text = result.ToString("#.###");
 		}
 		public event EventHandler<KeyEventArgs> ReturnPress;
 

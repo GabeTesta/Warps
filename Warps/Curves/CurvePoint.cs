@@ -82,14 +82,6 @@ namespace Warps
 			}
 		}
 
-		public virtual string CurrentS
-		{
-			get
-			{
-				return S_Equ.Result.ToString("0.000");
-			}
-		}
-
 		public virtual Vect2 UV
 		{
 			get
@@ -124,7 +116,7 @@ namespace Warps
 				switch (i)
 				{
 					case 0:
-						return S_Equ.Result;
+						return m_sPos;
 					case 1:
 						return UV[0];
 					case 2:
@@ -138,7 +130,7 @@ namespace Warps
 				switch (i)
 				{
 					case 0:
-						S_Equ.SetValue(value);
+						m_sPos = value;
 						break;
 					case 1:
 						//U.Value = value;
@@ -157,7 +149,7 @@ namespace Warps
 				TreeNode point = new TreeNode(string.Format("{0:0.0000} [{1}]", S, UV.ToString("0.0000")));
 				point.ImageKey = this.GetType().Name;
 				point.SelectedImageKey = this.GetType().Name;
-				TreeNode tmp = new TreeNode(string.Format(string.Format("S-Cur: {0:0.0000}", CurrentS), CurrentS));
+				TreeNode tmp = new TreeNode(string.Format("S-Cur: {0:0.0000}", S_Equ.Result));
 				tmp.ImageKey = "empty";
 				tmp.SelectedImageKey = "empty";
 				point.Nodes.Add(tmp);
@@ -336,7 +328,7 @@ namespace Warps
 
 		public override string ToString()
 		{
-			return string.Format("{0}: {1:0.0000} [{2}]", GetType().Name, CurrentS, UV.ToString("0.0000"));
+			return string.Format("{0}: {1:0.0000} [{2}]", GetType().Name, m_sPos, UV.ToString("0.0000"));
 		}
 		public bool ValidFitPoint
 		{
