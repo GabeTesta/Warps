@@ -10,6 +10,7 @@ using System.Windows.Forms;
 namespace Warps
 {
 	//[Serializable()]
+	[System.Diagnostics.DebuggerDisplay("{Label} Count={Count}", Name = "{Label}", Type = "{GetType()}")]
 	public class CurveGroup : List<MouldCurve>, IGroup
 	{
 		public CurveGroup()
@@ -331,5 +332,10 @@ namespace Warps
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return Label;
+		}
 	}
 }

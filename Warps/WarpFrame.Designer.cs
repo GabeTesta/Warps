@@ -32,34 +32,35 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WarpFrame));
 			this.m_vertsplit = new System.Windows.Forms.SplitContainer();
 			this.m_horizsplit = new System.Windows.Forms.SplitContainer();
+			this.m_tree = new Warps.TabTree();
 			this.previewButton = new System.Windows.Forms.Button();
 			this.editPanel = new System.Windows.Forms.Panel();
 			this.okButton = new System.Windows.Forms.Button();
-			this.m_toolstrip = new System.Windows.Forms.ToolStrip();
-			this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
-			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-			this.m_tree = new Warps.TabTree();
 			this.m_dualView = new Warps.DualView();
+			this.m_toolstrip = new System.Windows.Forms.ToolStrip();
 			this.newToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.openToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.saveToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.printToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
 			this.cutToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.copyToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.pasteToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.m_addCurve = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.m_autoBtn = new System.Windows.Forms.ToolStripButton();
 			this.m_buildBtn = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.m_editButton = new System.Windows.Forms.ToolStripButton();
 			this.cancelButton = new System.Windows.Forms.ToolStripButton();
+			this.m_statusStrip = new System.Windows.Forms.StatusStrip();
+			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
+			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
+			this.m_statusProgress = new System.Windows.Forms.ToolStripProgressBar();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
 			this.m_vertsplit.Panel1.SuspendLayout();
 			this.m_vertsplit.Panel2.SuspendLayout();
@@ -69,7 +70,7 @@
 			this.m_horizsplit.Panel2.SuspendLayout();
 			this.m_horizsplit.SuspendLayout();
 			this.m_toolstrip.SuspendLayout();
-			this.statusStrip1.SuspendLayout();
+			this.m_statusStrip.SuspendLayout();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
 			this.toolStripContainer1.SuspendLayout();
@@ -113,6 +114,15 @@
 			this.m_horizsplit.SplitterDistance = 205;
 			this.m_horizsplit.TabIndex = 0;
 			// 
+			// m_tree
+			// 
+			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_tree.Location = new System.Drawing.Point(0, 0);
+			this.m_tree.Name = "m_tree";
+			this.m_tree.SelectedTag = null;
+			this.m_tree.Size = new System.Drawing.Size(205, 523);
+			this.m_tree.TabIndex = 0;
+			// 
 			// previewButton
 			// 
 			this.previewButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -153,6 +163,15 @@
 			this.okButton.MouseEnter += new System.EventHandler(this.okButton_MouseEnter);
 			this.okButton.MouseLeave += new System.EventHandler(this.okButton_MouseLeave);
 			// 
+			// m_dualView
+			// 
+			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_dualView.EditMode = false;
+			this.m_dualView.Location = new System.Drawing.Point(0, 0);
+			this.m_dualView.Name = "m_dualView";
+			this.m_dualView.Size = new System.Drawing.Size(613, 523);
+			this.m_dualView.TabIndex = 0;
+			// 
 			// m_toolstrip
 			// 
 			this.m_toolstrip.Dock = System.Windows.Forms.DockStyle.None;
@@ -182,88 +201,6 @@
 			this.m_toolstrip.Size = new System.Drawing.Size(494, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
-			// 
-			// toolStripSeparator
-			// 
-			this.toolStripSeparator.Name = "toolStripSeparator";
-			this.toolStripSeparator.Size = new System.Drawing.Size(6, 25);
-			// 
-			// toolStripSeparator5
-			// 
-			this.toolStripSeparator5.Name = "toolStripSeparator5";
-			this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
-			// 
-			// toolStripSeparator4
-			// 
-			this.toolStripSeparator4.Name = "toolStripSeparator4";
-			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-			// 
-			// toolStripSeparator1
-			// 
-			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-			// 
-			// toolStripSeparator3
-			// 
-			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
-			// 
-			// statusStrip1
-			// 
-			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.m_statusText});
-			this.statusStrip1.Location = new System.Drawing.Point(0, 523);
-			this.statusStrip1.Name = "statusStrip1";
-			this.statusStrip1.Size = new System.Drawing.Size(1022, 22);
-			this.statusStrip1.TabIndex = 2;
-			this.statusStrip1.Text = "statusStrip1";
-			// 
-			// m_statusText
-			// 
-			this.m_statusText.Name = "m_statusText";
-			this.m_statusText.Size = new System.Drawing.Size(39, 17);
-			this.m_statusText.Text = "Ready";
-			// 
-			// toolStripContainer1
-			// 
-			this.toolStripContainer1.BottomToolStripPanelVisible = false;
-			// 
-			// toolStripContainer1.ContentPanel
-			// 
-			this.toolStripContainer1.ContentPanel.AutoScroll = true;
-			this.toolStripContainer1.ContentPanel.Controls.Add(this.m_vertsplit);
-			this.toolStripContainer1.ContentPanel.Controls.Add(this.statusStrip1);
-			this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(1022, 545);
-			this.toolStripContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.toolStripContainer1.LeftToolStripPanelVisible = false;
-			this.toolStripContainer1.Location = new System.Drawing.Point(0, 0);
-			this.toolStripContainer1.Name = "toolStripContainer1";
-			this.toolStripContainer1.RightToolStripPanelVisible = false;
-			this.toolStripContainer1.Size = new System.Drawing.Size(1022, 570);
-			this.toolStripContainer1.TabIndex = 3;
-			this.toolStripContainer1.Text = "toolStripContainer1";
-			// 
-			// toolStripContainer1.TopToolStripPanel
-			// 
-			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
-			// 
-			// m_tree
-			// 
-			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_tree.Location = new System.Drawing.Point(0, 0);
-			this.m_tree.Name = "m_tree";
-			this.m_tree.SelectedTag = null;
-			this.m_tree.Size = new System.Drawing.Size(205, 523);
-			this.m_tree.TabIndex = 0;
-			// 
-			// m_dualView
-			// 
-			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_dualView.EditMode = false;
-			this.m_dualView.Location = new System.Drawing.Point(0, 0);
-			this.m_dualView.Name = "m_dualView";
-			this.m_dualView.Size = new System.Drawing.Size(613, 523);
-			this.m_dualView.TabIndex = 0;
 			// 
 			// newToolStripButton
 			// 
@@ -306,6 +243,11 @@
 			this.printToolStripButton.ToolTipText = "Save to 3dl file";
 			this.printToolStripButton.Click += new System.EventHandler(this.printToolStripButton_Click);
 			// 
+			// toolStripSeparator
+			// 
+			this.toolStripSeparator.Name = "toolStripSeparator";
+			this.toolStripSeparator.Size = new System.Drawing.Size(6, 25);
+			// 
 			// cutToolStripButton
 			// 
 			this.cutToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -343,6 +285,11 @@
 			this.helpToolStripButton.Text = "He&lp";
 			this.helpToolStripButton.Click += new System.EventHandler(this.helpToolStripButton_Click);
 			// 
+			// toolStripSeparator5
+			// 
+			this.toolStripSeparator5.Name = "toolStripSeparator5";
+			this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
+			// 
 			// toolStripButton1
 			// 
 			this.toolStripButton1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
@@ -355,6 +302,11 @@
 			this.toolStripButton1.ToolTipText = "Clear project";
 			this.toolStripButton1.Click += new System.EventHandler(this.clearAll_Click);
 			// 
+			// toolStripSeparator4
+			// 
+			this.toolStripSeparator4.Name = "toolStripSeparator4";
+			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+			// 
 			// m_addCurve
 			// 
 			this.m_addCurve.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -365,6 +317,11 @@
 			this.m_addCurve.Text = "Add Group";
 			this.m_addCurve.ToolTipText = "Add group to project";
 			this.m_addCurve.Click += new System.EventHandler(this.m_addCurve_Click);
+			// 
+			// toolStripSeparator1
+			// 
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
 			// 
 			// m_autoBtn
 			// 
@@ -388,6 +345,11 @@
 			this.m_buildBtn.Text = "Build";
 			this.m_buildBtn.Click += new System.EventHandler(this.m_buildBtn_Click);
 			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+			// 
 			// m_editButton
 			// 
 			this.m_editButton.CheckOnClick = true;
@@ -410,6 +372,51 @@
 			this.cancelButton.Size = new System.Drawing.Size(47, 22);
 			this.cancelButton.Text = "Cancel";
 			// 
+			// statusStrip1
+			// 
+			this.m_statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.m_statusText,
+            this.m_statusProgress});
+			this.m_statusStrip.Location = new System.Drawing.Point(0, 523);
+			this.m_statusStrip.Name = "statusStrip1";
+			this.m_statusStrip.Size = new System.Drawing.Size(1022, 22);
+			this.m_statusStrip.TabIndex = 2;
+			this.m_statusStrip.Text = "statusStrip1";
+			// 
+			// m_statusText
+			// 
+			this.m_statusText.Name = "m_statusText";
+			this.m_statusText.Size = new System.Drawing.Size(39, 17);
+			this.m_statusText.Text = "Ready";
+			// 
+			// toolStripContainer1
+			// 
+			this.toolStripContainer1.BottomToolStripPanelVisible = false;
+			// 
+			// toolStripContainer1.ContentPanel
+			// 
+			this.toolStripContainer1.ContentPanel.AutoScroll = true;
+			this.toolStripContainer1.ContentPanel.Controls.Add(this.m_vertsplit);
+			this.toolStripContainer1.ContentPanel.Controls.Add(this.m_statusStrip);
+			this.toolStripContainer1.ContentPanel.Size = new System.Drawing.Size(1022, 545);
+			this.toolStripContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.toolStripContainer1.LeftToolStripPanelVisible = false;
+			this.toolStripContainer1.Location = new System.Drawing.Point(0, 0);
+			this.toolStripContainer1.Name = "toolStripContainer1";
+			this.toolStripContainer1.RightToolStripPanelVisible = false;
+			this.toolStripContainer1.Size = new System.Drawing.Size(1022, 570);
+			this.toolStripContainer1.TabIndex = 3;
+			this.toolStripContainer1.Text = "toolStripContainer1";
+			// 
+			// toolStripContainer1.TopToolStripPanel
+			// 
+			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
+			// 
+			// toolStripProgressBar1
+			// 
+			this.m_statusProgress.Name = "toolStripProgressBar1";
+			this.m_statusProgress.Size = new System.Drawing.Size(100, 16);
+			// 
 			// WarpFrame
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -429,8 +436,8 @@
 			this.m_horizsplit.ResumeLayout(false);
 			this.m_toolstrip.ResumeLayout(false);
 			this.m_toolstrip.PerformLayout();
-			this.statusStrip1.ResumeLayout(false);
-			this.statusStrip1.PerformLayout();
+			this.m_statusStrip.ResumeLayout(false);
+			this.m_statusStrip.PerformLayout();
 			this.toolStripContainer1.ContentPanel.ResumeLayout(false);
 			this.toolStripContainer1.ContentPanel.PerformLayout();
 			this.toolStripContainer1.TopToolStripPanel.ResumeLayout(false);
@@ -458,7 +465,7 @@
 		private System.Windows.Forms.ToolStripButton helpToolStripButton;
 		private TabTree m_tree;
         private DualView m_dualView;
-        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.StatusStrip m_statusStrip;
 	   private System.Windows.Forms.ToolStripStatusLabel m_statusText;
 	   private System.Windows.Forms.ToolStripContainer toolStripContainer1;
 	   private System.Windows.Forms.Panel editPanel;
@@ -473,6 +480,7 @@
 	   private System.Windows.Forms.ToolStripButton toolStripButton1;
 	   private System.Windows.Forms.ToolStripButton cancelButton;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+	   private System.Windows.Forms.ToolStripProgressBar m_statusProgress;
 	}
 }
 

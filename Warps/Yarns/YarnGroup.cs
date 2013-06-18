@@ -11,6 +11,7 @@ using devDept.Geometry;
 
 namespace Warps
 {
+	[System.Diagnostics.DebuggerDisplay("{Label} {m_end} Count={Count}", Name = "{Label}", Type = "{GetType()}")]
 	public class YarnGroup : List<YarnCurve>, IGroup
 	{
 		public YarnGroup() : this("", null, 0) { }
@@ -68,7 +69,6 @@ namespace Warps
 		#endregion
 
 		#region Fitting Parameters
-
 
 		public List<MouldCurve> Warps
 		{
@@ -982,57 +982,49 @@ namespace Warps
 		TreeNode m_node;
 		public TreeNode WriteNode()
 		{
-			return WriteNode(true);
-		}
-		private TreeNode WriteNode(bool bclear)
-		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Tag = this;
-			//m_node.Text = GetType().Name + ": " + Label;
 			m_node.Text = Label;
-			m_node.ImageKey = GetType().Name;
-			m_node.SelectedImageKey = GetType().Name;
+			m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
 			m_node.ToolTipText = GetToolTipData();
-			if (bclear)
+
+			m_node.Nodes.Clear();
+
+			TreeNode ec = m_node.Nodes.Add("End Condition: " + EndCondition);
+			ec.ImageKey = "EndCondition";
+			ec.SelectedImageKey = "EndCondition";
+
+			TreeNode yarnNode = m_node.Nodes.Add("Yarns: " + Count.ToString());
+			yarnNode.ImageKey =	yarnNode.SelectedImageKey = "Result";
+			for (int i = 0; i < Count; i++)
+				yarnNode.Nodes.Add(String.Format(Label + "[{0}] {1}",
+					i.ToString(Count > 99 ? "000" : Count > 9 ? "00" : "0"), //index
+					this[i].ToString()));//yarn string
+
+			if (m_guide != null)
 			{
-				m_node.Nodes.Clear();
-
-				TreeNode yarnNode = new TreeNode("Yarns: " + Count.ToString());
-				yarnNode.ImageKey = "Result";
-				yarnNode.SelectedImageKey = "Result";
-				m_node.Nodes.Add(yarnNode);
-				for (int i = 0; i < Count; i++)
-					yarnNode.Nodes.Add(String.Format(Label + "[{0}] {1} {2} {3} {4}", 
-						i.ToString(Count > 99 ? "000" : Count > 9 ? "00" : "0"), //index
-						this[i].m_p.ToString("0.0000"), //p value
-						m_Warps[0].Label, m_Warps[1].Label, //warp labels
-						this[i].m_h.ToString("f6"))); // yarn spacing
-
-				if (m_guide != null)
-				{
-					TreeNode guide = new TreeNode(m_guide.WriteNode().Text);
-					guide.ImageKey = m_guide.GetType().Name;
-					guide.SelectedImageKey = m_guide.GetType().Name;
-					m_node.Nodes.Add(guide);
-					Vect2 uv = new Vect2(); double h = 0;
-					if(m_guide.SComb != null )
+				TreeNode guide = m_node.Nodes.Add("Guide: " + m_guide.WriteNode().Text);
+				guide.ImageKey = guide.SelectedImageKey = m_guide.GetType().Name;
+				Vect2 uv = new Vect2(); double h = 0;
+				if (m_guide.SComb != null)
 					foreach (double s in m_guide.SComb)
 					{
 						m_guide.hVal(s, ref uv, ref h);
 						guide.Nodes.Add(string.Format("{0} [{1}] {2}", s.ToString("0.000"), uv.ToString("0.000"), h.ToString("0.0000")));
 					}
-				}
-				if (m_Warps != null)
-				{
-					TreeNode wrps = new TreeNode("Warps");
-					wrps.ImageKey = "Warps";
-					wrps.SelectedImageKey = "Warps";
-					m_node.Nodes.Add(wrps);
-					foreach (MouldCurve wrp in m_Warps)
-						wrps.Nodes.Add(wrp.WriteNode().Text);
-				}
+			}
 
+			if (m_Warps != null)
+			{
+				TreeNode wrps = m_node.Nodes.Add("Warps");
+				wrps.ImageKey = wrps.SelectedImageKey = "Warps";
+				TreeNode wrpnode;
+				foreach (MouldCurve wrp in m_Warps)
+				{
+					wrpnode = wrps.Nodes.Add(wrp.WriteNode().Text);
+					wrpnode.ImageKey = wrpnode.SelectedImageKey = wrp.GetType().Name;
+				}
 			}
 			return m_node;
 		}
@@ -1204,8 +1196,8 @@ namespace Warps
 			List<string> script = new List<string>();
 			script.Add(GetType().Name + ": " + Label);
 			//script.Add("\tTargetDPI: ");
-			script.Add("\t" + m_targetDenier.ToString());
-			script.Add("\t" + m_yarnDenier.ToString());
+			script.Add("\t" + m_targetDenier.ToScriptString());
+			script.Add("\t" + m_yarnDenier.ToScriptString());
 			script.Add("\tScale: " + m_Scale);
 			script.Add("\tGuide: " + m_guide.Label);
 			script.Add("\tWarps: ");
@@ -1249,5 +1241,10 @@ namespace Warps
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return Label;
+		}
 	}
 }

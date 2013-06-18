@@ -23,7 +23,7 @@ namespace Warps
 
 	public delegate void VisibilityToggled(object sender, EventArgs<IRebuild> e);
 
-	public delegate void WriteStatus(string status);
+	public delegate void UpdateUI(int nLyt, string msg);
 
 	public partial class WarpFrame : Form
 	{
@@ -37,10 +37,13 @@ namespace Warps
 #endif
 			//set background color from existing icon
 			//ButtonUnSelected = m_modCurve.BackColor;
-			Text = "Warps " + Version;
+			Title = "";
+			m_statusProgress.Visible = false;
+			m_statusProgress.Step = 1;
+			m_statusProgress.MarqueeAnimationSpeed = 1;
 
-			SetStyle(ControlStyles.OptimizedDoubleBuffer |
-				    ControlStyles.AllPaintingInWmPaint, true);
+			//SetStyle(ControlStyles.OptimizedDoubleBuffer |
+			//	    ControlStyles.AllPaintingInWmPaint, true);
 
 			EditorPanel = null;//collapse edit panel
 
@@ -59,14 +62,37 @@ namespace Warps
 			Tree.VisibilityToggle += View.VisibilityToggled;
 
 			m_horizsplit.SplitterDistance = m_horizsplit.ClientRectangle.Width - 250;
-
 		}
 
+		public string Title
+		{ set { Text = "Warps " + Version + ((value != null && value != "") ? " - " + value : ""); } } // display the version number in the title bar
 		public string Version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
 		public string Status
 		{
 			get { return m_statusText.Text; }
 			set { m_statusText.Text = value; }
+		}
+		void UpdateStatusStrip(int nLyt, string msg)
+		{
+			if (m_statusStrip.InvokeRequired)
+			{
+				m_statusStrip.Invoke(new UpdateUI(UpdateStatusStrip), new object[] { nLyt, msg });
+			}
+			else
+			{
+				m_statusText.Text = msg;
+				if (nLyt < 0)//send negative value to set max
+				{
+					m_statusProgress.ProgressBar.Maximum = -nLyt;
+					m_statusProgress.ProgressBar.Value = 0;
+					m_statusProgress.ProgressBar.Minimum = 0;
+				}
+				else
+					m_statusProgress.ProgressBar.PerformStep();
+				if( nLyt != 0 && !m_statusProgress.Visible )
+					m_statusProgress.Visible = true;
+				m_statusStrip.Refresh();
+			}
 		}
 
 		public DualView View
@@ -112,19 +138,41 @@ namespace Warps
 			Status = String.Format("Loading {0}", path);
 
 			Sail s = new Sail();
+			
+			//load the sail on a background thread for niceness
+			BackgroundWorker thread = new BackgroundWorker();
+			thread.DoWork += LoadSailAsync;
+			thread.RunWorkerCompleted += SailLoadedAsync;
+			thread.WorkerReportsProgress = true;
+			thread.WorkerSupportsCancellation = true;
+			thread.RunWorkerAsync( new object[]{s, path});
+		}
+		void LoadSailAsync(object sender, DoWorkEventArgs e)
+		{
+			object[] args = e.Argument as object[];
+			Sail s = args[0] as Sail;
+			s.updateStatus += UpdateStatusStrip;
+			string path = args[1] as string;
 
 			s.ReadFile(path);
+			e.Result = s;
+		}
+		void SailLoadedAsync(object sender, RunWorkerCompletedEventArgs e)
+		{
+			UpdateStatusStrip(0, "Generating Viewport Geometry");
+			m_sail = e.Result as Sail;
+			if (m_sail == null)
+				Status = String.Format("{0} Load Failed", m_sail.FilePath);
 
-			m_sail = s;
+			m_tree.Add(m_sail.WriteNode());
 
-			m_tree.Add(s.WriteNode());
-
-			AddSailtoView(s);
+			AddSailtoView(m_sail);
 
 			Tree.ExpandToDepth(0);
 
-			Status = String.Format("{0} Loaded Successfully", path);
-			Text = "Warps " + Version + " - " + path; // display the version number in the title bar
+			Status = String.Format("{0} Loaded Successfully", m_sail.FilePath);
+			Title = m_sail.FilePath; // display the version number in the title bar
+			m_statusProgress.Visible = false;
 		}
 
 		private void AddSailtoView(Sail s)
@@ -262,7 +310,7 @@ namespace Warps
 
 			return -1;
 		}
-
+		 
 		public bool AutoBuild
 		{
 			get { return !m_autoBtn.Checked; }

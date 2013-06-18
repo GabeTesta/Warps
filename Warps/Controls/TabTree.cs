@@ -44,6 +44,7 @@ namespace Warps
 			imageList.Images.Add("Warps", Warps.Properties.Resources.Warps);
 			imageList.Images.Add("PanelGroup", Warps.Properties.Resources.panelGroup);
 			imageList.Images.Add("Panel", Warps.Properties.Resources.panel);
+			imageList.Images.Add("EndCondition", Warps.Properties.Resources.EndCondition);
 
 			SeqTree.ImageList = imageList;
 			SorTree.ImageList = imageList;
