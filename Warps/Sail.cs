@@ -47,10 +47,6 @@ namespace Warps
 				return full;
 			}
 		}
-		public string Script
-		{
-			get { return string.Format("{0} [{1}]", Mould.ToString(), FilePath); }
-		}
 
 		public void ReadFile(string path)
 		{
@@ -135,20 +131,24 @@ namespace Warps
 		//	return Utilities.CreateInstance(type, new object[] { this, path }) as ISurface;
 		//}
 
+		public event UpdateUI updateStatus;
+
 		void ReadScriptFile(string path)
 		{
 			using (StreamReader txt = new StreamReader(path))
 			{
 				string line = txt.ReadLine();
+				int cnt = ScriptTools.ReadCount(line);
+				if (cnt >= 0)
+				{
+					if (updateStatus != null)
+						updateStatus(-cnt, path);
+				}
 				line = txt.ReadLine();
-				//string[] splits = line.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries);
-				//if (splits.Length <= 1)
-				//{
-				//	splits = WarpFrame.OpenFileDlg(1);
-				//	if (splits == null || splits.Length == 0)
-				//		return;
-				//}
+	
 				CreateMould(ScriptTools.ReadType(line), ScriptTools.ReadPath(line));
+				
+	
 
 				//read layout
 				m_layout = new List<IGroup>();
@@ -157,20 +157,6 @@ namespace Warps
 				while (line != null)
 				{
 					List<string> lines = new List<string>(ScriptTools.Block(ref line, txt));
-					//int nDepth = ScriptTools.Depth(line);
-					//string tabs = "";
-					//if( nDepth > 0 )
-					//	tabs = new string('\t', nDepth);//++nDepth?
-					//lines.Add(line);
-
-					//while ((line = txt.ReadLine()) != null)
-					//{
-					//	if (!line.StartsWith(tabs))
-					//		break;
-					//	lines.Add(line);
-					//}
-					//if (line == null)//premature EOF 
-					//	break;
 
 					object grp = null;
 					splits = lines[0].Split(':');
@@ -181,8 +167,9 @@ namespace Warps
 						(grp as IGroup).Sail = this;
 						m_layout.Add(grp as IGroup);
 
+						if (updateStatus != null)
+							updateStatus(Layout.Count, "Loading " + lines[0]);
 						(grp as IGroup).ReadScript(this, lines);
-
 					}
 				}
 			}
@@ -191,7 +178,8 @@ namespace Warps
 		{
 			using (StreamWriter txt = new StreamWriter(path))
 			{
-				txt.WriteLine(this.Script);
+				//write label, path and layout count
+				txt.WriteLine(string.Format("{0} [{1}] <{2}>", Mould.ToString(), FilePath, Layout.Count));
 				foreach (string s in Mould.WriteScript())
 				{
 					txt.WriteLine("\t" + s);
@@ -350,9 +338,7 @@ namespace Warps
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Text = m_path;
 			m_node.Tag = this;
-			m_node.ImageKey = GetType().Name;
-			m_node.SelectedImageKey = GetType().Name;
-			m_node.ToolTipText = GetType().Name;
+			m_node.ImageKey = m_node.SelectedImageKey = 	m_node.ToolTipText = GetType().Name;
 			m_node.Nodes.Clear();
 			m_node.Nodes.Add(Mould.WriteNode());
 			foreach (IGroup g in Layout)
@@ -447,6 +433,195 @@ namespace Warps
 		//	}
 		//	return null;
 		//}
+
+		internal void Remove(IRebuild tag)
+		{
+			if (tag is IGroup)
+			{
+				IGroup g = FindGroup(tag.Label);
+				Layout.Remove(g);
+			}
+		}
+
+		#region Watermark
+
+		/// <summary>
+		/// Searches the layout for the specified item.
+		/// </summary>
+		/// <param name="lbl">the item to find, must be unique name</param>
+		/// <returns>the cooresponding IRebuild object, null if failed</returns>
+		public IRebuild FindItem(string lbl)
+		{
+			if (lbl == null || lbl.Length == 0)
+				return null;
+			IRebuild item = null;
+			//loop through groups in reverse
+			for (int i = Layout.Count - 1; i >= 0; i--)
+			{
+				//check group label
+				if (Layout[i].Label.Equals(lbl))
+					return Layout[i];//return if match
+
+				//search group for item
+				item = Layout[i].FindItem(lbl);
+				if (item != null)
+					return item;//return if match
+			}
+			//check mould items (if any)
+			if (Mould != null && Mould.Groups != null)
+				for (int i = 0; i < Mould.Groups.Count; i++)
+				{
+					//check group label
+					if (Mould.Groups[i].Label.Equals(lbl))
+						return Mould.Groups[i];//return if match
+
+					//search group for item
+					item = Mould.Groups[i].FindItem(lbl);
+					if (item != null)
+						return item;//return if match
+				}
+			return null;//null on failure
+		}
+		public MouldCurve FindCurve(string curve)
+		{
+			return FindItem(curve) as MouldCurve;
+
+			//for (int i = Layout.Count - 1; i >= 0; i--)
+			//{
+			//	if (Layout[i] is CurveGroup)
+			//	{
+			//		MouldCurve cur = (Layout[i] as CurveGroup).Find((MouldCurve m) => { return m.Label.ToLower() == curve.ToLower(); });
+			//		if (cur != null)
+			//			return cur;
+			//	}
+			//}
+			//return null;
+		}
+		public Equation FindEquation(string variable)
+		{
+			return FindItem(variable) as Equation;
+		}
+		public IGroup FindGroup(string group)
+		{
+			return FindItem(group) as IGroup;
+		}
+
+		/// <summary>
+		/// Finds the parent group of the specified tag
+		/// </summary>
+		/// <param name="tag">the item to find the parent of</param>
+		/// <returns>the containing IGroup, null if not found</returns>
+		public IGroup FindGroup(IRebuild tag)
+		{
+			if (tag == null)
+				return null;
+			List<IRebuild> rets = new List<IRebuild>();
+			for (int i = Layout.Count - 1; i >= 0; i--)
+			{
+				if (Layout[i].Watermark(tag, ref rets))
+					return Layout[i];
+			}
+			if (Mould != null && Mould.Groups != null)
+				for (int i = 0; i < Mould.Groups.Count; i++)
+				{
+					//check group label
+					if (Mould.Groups[i].Watermark(tag, ref rets))
+						return Mould.Groups[i];//return if match
+				}
+
+			return null;
+		}
+
+		/// <summary>
+		/// Returns all IRebuild items that are above the tag
+		/// </summary>
+		/// <param name="tag">the item being used as a watermark, can be null</param>
+		/// <returns>a List of IRebuild items</returns>
+		public List<IRebuild> Watermark(IRebuild tag)
+		{
+			List<IRebuild> rets = new List<IRebuild>();
+
+			//watermark mould first (if any)
+			if (Mould != null && Mould.Groups != null)
+				for (int i = 0; i < Mould.Groups.Count; i++)
+				{
+					if (Mould.Groups[i].Watermark(tag, ref rets))
+						break;//break on finding tag
+				}
+
+			//watermark layout
+			for (int i = 0; i < Layout.Count; i++)
+			{
+				if (Layout[i].Watermark(tag, ref rets))
+					break;//break on finding tag
+			}
+
+			return rets;
+		}
+
+		/// <summary>
+		/// Returns all IRebuild items that are above the tag
+		/// </summary>
+		/// <param name="tag">the item being used as a watermark, can be null</param>
+		/// <param name="Parent">the IGroup the item belongs too (REQUIRED IF YOU ARE ADDING A CURVE)</param>
+		/// <returns></returns>
+		public List<IRebuild> Watermark(IRebuild tag, IGroup Parent)
+		{
+			List<IRebuild> rets = new List<IRebuild>();
+
+			//watermark mould first (if any)
+			if (Mould != null && Mould.Groups != null)
+				for (int i = 0; i < Mould.Groups.Count; i++)
+				{
+					if (Mould.Groups[i].Watermark(tag, ref rets))
+						break;//break on finding tag
+				}
+
+			int index = -1;
+
+			if (Parent != null)
+				index = Layout.IndexOf(Parent); // if the Parent is not null, then don't allow the watermark to go below this group.
+
+			//watermark layout
+			for (int i = 0; i < Layout.Count; i++)
+			{
+				if (index > -1)
+				{
+					if (i <= index)
+						if (Layout[i].Watermark(tag, ref rets))
+							break;//break on finding tag
+
+				}
+				else if (Layout[i].Watermark(tag, ref rets))
+					break;//break on finding tag
+
+			}
+
+			return rets;
+		}
+		public List<Equation> WatermarkEqs(IRebuild tag)
+		{
+			List<Equation> eqs = new List<Equation>();
+			foreach (IRebuild rb in Watermark(tag))
+			{
+				if (rb is Equation)
+					eqs.Add(rb as Equation);
+			}
+			return eqs;
+		}
+		public List<MouldCurve> WatermarkCur(IRebuild tag)
+		{
+			List<MouldCurve> eqs = new List<MouldCurve>();
+			foreach (IRebuild rb in Watermark(tag))
+			{
+				if (rb is MouldCurve)
+					eqs.Add(rb as MouldCurve);
+			}
+			return eqs;
+		}
+
+		#endregion
+
 
 		#region Default Geometry Shit
 
@@ -639,192 +814,6 @@ namespace Warps
 
 		#endregion
 
-		internal void Remove(IRebuild tag)
-		{
-			if (tag is IGroup)
-			{
-				IGroup g = FindGroup(tag.Label);
-				Layout.Remove(g);
-			}
-		}
 
-		#region Watermark
-
-		/// <summary>
-		/// Searches the layout for the specified item.
-		/// </summary>
-		/// <param name="lbl">the item to find, must be unique name</param>
-		/// <returns>the cooresponding IRebuild object, null if failed</returns>
-		public IRebuild FindItem(string lbl)
-		{
-			if (lbl == null || lbl.Length == 0)
-				return null;
-			IRebuild item = null;
-			//loop through groups in reverse
-			for (int i = Layout.Count - 1; i >= 0; i--)
-			{
-				//check group label
-				if (Layout[i].Label.Equals(lbl))
-					return Layout[i];//return if match
-
-				//search group for item
-				item = Layout[i].FindItem(lbl);
-				if (item != null)
-					return item;//return if match
-			}
-			//check mould items (if any)
-			if (Mould != null && Mould.Groups != null)
-				for (int i = 0; i < Mould.Groups.Count; i++)
-				{
-					//check group label
-					if (Mould.Groups[i].Label.Equals(lbl))
-						return Mould.Groups[i];//return if match
-
-					//search group for item
-					item = Mould.Groups[i].FindItem(lbl);
-					if (item != null)
-						return item;//return if match
-				}
-			return null;//null on failure
-		}
-		public MouldCurve FindCurve(string curve)
-		{
-			return FindItem(curve) as MouldCurve;
-
-			//for (int i = Layout.Count - 1; i >= 0; i--)
-			//{
-			//	if (Layout[i] is CurveGroup)
-			//	{
-			//		MouldCurve cur = (Layout[i] as CurveGroup).Find((MouldCurve m) => { return m.Label.ToLower() == curve.ToLower(); });
-			//		if (cur != null)
-			//			return cur;
-			//	}
-			//}
-			//return null;
-		}
-		public Equation FindEquation(string variable)
-		{
-			return FindItem(variable) as Equation;
-		}
-		public IGroup FindGroup(string group)
-		{
-			return FindItem(group) as IGroup;
-		}
-
-		/// <summary>
-		/// Finds the parent group of the specified tag
-		/// </summary>
-		/// <param name="tag">the item to find the parent of</param>
-		/// <returns>the containing IGroup, null if not found</returns>
-		public IGroup FindGroup(IRebuild tag)
-		{
-			if (tag == null)
-				return null;
-			List<IRebuild> rets = new List<IRebuild>();
-			for (int i = Layout.Count - 1; i >= 0; i--)
-			{
-				if (Layout[i].Watermark(tag, ref rets))
-					return Layout[i];
-			}
-			if (Mould != null && Mould.Groups != null)
-				for (int i = 0; i < Mould.Groups.Count; i++)
-				{
-					//check group label
-					if (Mould.Groups[i].Watermark(tag, ref rets))
-						return Mould.Groups[i];//return if match
-				}
-
-			return null;
-		}
-
-		/// <summary>
-		/// Returns all IRebuild items that are above the tag
-		/// </summary>
-		/// <param name="tag">the item being used as a watermark, can be null</param>
-		/// <returns>a List of IRebuild items</returns>
-		public List<IRebuild> Watermark(IRebuild tag)
-		{
-			List<IRebuild> rets = new List<IRebuild>();
-
-			//watermark mould first (if any)
-			if (Mould != null && Mould.Groups != null)
-				for (int i = 0; i < Mould.Groups.Count; i++)
-				{
-					if (Mould.Groups[i].Watermark(tag, ref rets))
-						break;//break on finding tag
-				}
-
-			//watermark layout
-			for (int i = 0; i < Layout.Count; i++)
-			{
-				if (Layout[i].Watermark(tag, ref rets))
-					break;//break on finding tag
-			}
-
-			return rets;
-		}
-
-		/// <summary>
-		/// Returns all IRebuild items that are above the tag
-		/// </summary>
-		/// <param name="tag">the item being used as a watermark, can be null</param>
-		/// <param name="Parent">the IGroup the item belongs too (REQUIRED IF YOU ARE ADDING A CURVE)</param>
-		/// <returns></returns>
-		public List<IRebuild> Watermark(IRebuild tag, IGroup Parent)
-		{
-			List<IRebuild> rets = new List<IRebuild>();
-
-			//watermark mould first (if any)
-			if (Mould != null && Mould.Groups != null)
-				for (int i = 0; i < Mould.Groups.Count; i++)
-				{
-					if (Mould.Groups[i].Watermark(tag, ref rets))
-						break;//break on finding tag
-				}
-
-			int index = -1;
-
-			if (Parent != null)
-				index = Layout.IndexOf(Parent); // if the Parent is not null, then don't allow the watermark to go below this group.
-
-			//watermark layout
-			for (int i = 0; i < Layout.Count; i++)
-			{
-				if (index > -1)
-				{
-					if (i <= index)
-						if (Layout[i].Watermark(tag, ref rets))
-							break;//break on finding tag
-
-				}
-				else if (Layout[i].Watermark(tag, ref rets))
-					break;//break on finding tag
-
-			}
-
-			return rets;
-		}
-		public List<Equation> WatermarkEqs(IRebuild tag)
-		{
-			List<Equation> eqs = new List<Equation>();
-			foreach (IRebuild rb in Watermark(tag))
-			{
-				if (rb is Equation)
-					eqs.Add(rb as Equation);
-			}
-			return eqs;
-		}
-		public List<MouldCurve> WatermarkCur(IRebuild tag)
-		{
-			List<MouldCurve> eqs = new List<MouldCurve>();
-			foreach (IRebuild rb in Watermark(tag))
-			{
-				if (rb is MouldCurve)
-					eqs.Add(rb as MouldCurve);
-			}
-			return eqs;
-		}
-
-		#endregion
 	}
 }

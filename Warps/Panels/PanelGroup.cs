@@ -8,6 +8,7 @@ using devDept.Eyeshot.Entities;
 
 namespace Warps
 {
+	[System.Diagnostics.DebuggerDisplay("{Label} {m_clothAlignment} Count={Count}", Name = "{Label}", Type = "{GetType()}")]
 	public class PanelGroup : List<Panel>, IGroup
 	{
 		public PanelGroup() : this("", null, new Equation("", 1.0), ClothOrientations.FILLS) { }
@@ -506,6 +507,11 @@ namespace Warps
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return Label;
+		}
 	}
 
 	struct GuideCross

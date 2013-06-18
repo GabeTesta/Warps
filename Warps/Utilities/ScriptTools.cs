@@ -29,9 +29,24 @@ namespace Warps
 			if (line == null)
 				return null;
 			int nc = line.IndexOf('[')+1;
-			if (nc == -1 || line.Length == 0)
+			int ne = line.IndexOf(']', nc);
+			if (nc == -1 || ne == -1 || line.Length == 0)
 				return null;
-			return line.Substring(nc, (line.Length-1) - nc).Trim(' ', '\t', '\n', '\r');	
+			return line.Substring(nc, ne - nc).Trim(' ', '\t', '\n', '\r');	
+		}
+
+		public static int ReadCount(string line)
+		{
+			if (line == null)
+				return -1;
+			int nc = line.IndexOf('<') + 1;
+			int ne = line.IndexOf('>', nc);
+			if (nc == -1 || ne == -1 || line.Length == 0)
+				return -1;
+			line = line.Substring(nc, ne - nc).Trim(' ', '\t', '\n', '\r');
+			if (int.TryParse(line, out nc))
+				return nc;
+			return -1;
 		}
 
 		public static string ReadLabel(string line)

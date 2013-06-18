@@ -194,7 +194,6 @@
     <Compile Include="Surfaces\ComboMould.cs" />
     <Compile Include="Surfaces\RBFMould.cs" />
     <Compile Include="Trackers\CurveGroupTracker.cs" />
-    <Compile Include="Trackers\CurveMaker.cs" />
     <Compile Include="Curves\CurvePoint.cs" />
     <Compile Include="Controls\CurvePointEditor.cs">
       <SubType>UserControl</SubType>
@@ -226,12 +225,6 @@
     <Compile Include="Trackers\ITracker.cs" />
     <Compile Include="Curves\MouldCurve.cs" />
     <Compile Include="Sail.cs" />
-    <Compile Include="Controls\CurveImportEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\CurveImportEditor.Designer.cs">
-      <DependentUpon>CurveImportEditor.cs</DependentUpon>
-    </Compile>
     <Compile Include="Trackers\SailTracker.cs" />
     <Compile Include="Trackers\VariableGroupTracker.cs" />
     <Compile Include="Trackers\VariableTracker.cs" />
@@ -304,9 +297,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\FixedPointEditor.resx">
       <DependentUpon>FixedPointEditor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CurveImportEditor.resx">
-      <DependentUpon>CurveImportEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\TabTree.resx">
       <DependentUpon>TabTree.cs</DependentUpon>
@@ -427,6 +417,7 @@
     <None Include="Curves\slidept.PNG" />
     <Content Include="icon.ico" />
     <Content Include="Resources\curvept.PNG" />
+    <None Include="Resources\EndCondition.png" />
     <Content Include="Resources\fixedpt.PNG" />
     <None Include="Resources\panel.png" />
     <None Include="Resources\panelGroup.png" />

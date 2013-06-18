@@ -168,7 +168,7 @@ namespace Warps
 
 		public override string ToString()
 		{
-			return String.Format("{0} {1} {2}", m_p.ToString("0.000"), m_Warps[0].Label, m_Warps[1].Label);
+			return String.Format("{0} {1} {2} {3}", m_p.ToString("f3"), m_Warps[0].Label, m_Warps[1].Label, m_h.ToString("f4"));
 		}
 	}
 }

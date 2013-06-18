@@ -8,7 +8,8 @@ using Warps.Controls;
 
 namespace Warps
 {
-	public class VariableGroup: Dictionary<string, Equation>, IGroup 
+	[System.Diagnostics.DebuggerDisplay("{Label} Count={Count}", Name = "{Label}", Type = "{GetType()}")]
+	public class VariableGroup : Dictionary<string, Equation>, IGroup 
 	{
 		public VariableGroup()
 		{ }
@@ -301,6 +302,11 @@ namespace Warps
 			dicList.Insert(insertIndex, new KeyValuePair<string, Equation>(equation.Label, equation));
 			this.Clear();
 			dicList.ForEach(pair => this.Add(pair.Key, pair.Value));
+		}
+
+		public override string ToString()
+		{
+			return Label;
 		}
 	}
 }
