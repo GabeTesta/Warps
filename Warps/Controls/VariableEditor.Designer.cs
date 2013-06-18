@@ -30,28 +30,19 @@
 		{
 			Warps.Equation equation1 = new Warps.Equation();
 			this.m_variableTextBox = new System.Windows.Forms.TextBox();
-			this.label1 = new System.Windows.Forms.Label();
 			this.m_selectedCheckbox = new System.Windows.Forms.CheckBox();
+			this.m_resultTB = new System.Windows.Forms.TextBox();
 			this.m_eqBox = new Warps.Controls.EquationBoxAuto();
 			this.SuspendLayout();
 			// 
 			// m_variableTextBox
 			// 
 			this.m_variableTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.m_variableTextBox.Location = new System.Drawing.Point(69, 2);
+			this.m_variableTextBox.Location = new System.Drawing.Point(25, 4);
 			this.m_variableTextBox.Name = "m_variableTextBox";
-			this.m_variableTextBox.Size = new System.Drawing.Size(82, 20);
+			this.m_variableTextBox.Size = new System.Drawing.Size(125, 20);
 			this.m_variableTextBox.TabIndex = 0;
 			this.m_variableTextBox.Text = "Variable name";
-			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(25, 4);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(38, 13);
-			this.label1.TabIndex = 3;
-			this.label1.Text = "Name:";
 			// 
 			// m_selectedCheckbox
 			// 
@@ -62,11 +53,22 @@
 			this.m_selectedCheckbox.TabIndex = 4;
 			this.m_selectedCheckbox.UseVisualStyleBackColor = true;
 			// 
+			// m_resultTB
+			// 
+			this.m_resultTB.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.m_resultTB.Enabled = false;
+			this.m_resultTB.Location = new System.Drawing.Point(156, 4);
+			this.m_resultTB.Name = "m_resultTB";
+			this.m_resultTB.Size = new System.Drawing.Size(61, 20);
+			this.m_resultTB.TabIndex = 5;
+			this.m_resultTB.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			// 
 			// m_eqBox
 			// 
 			this.m_eqBox.AutoFillVariables = null;
 			equation1.EquationText = "0.0000";
 			equation1.Label = "eq";
+			equation1.Locked = false;
 			this.m_eqBox.Equation = equation1;
 			this.m_eqBox.Location = new System.Drawing.Point(4, 23);
 			this.m_eqBox.Name = "m_eqBox";
@@ -79,10 +81,10 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.m_resultTB);
 			this.Controls.Add(this.m_selectedCheckbox);
-			this.Controls.Add(this.m_variableTextBox);
-			this.Controls.Add(this.label1);
 			this.Controls.Add(this.m_eqBox);
+			this.Controls.Add(this.m_variableTextBox);
 			this.Name = "VariableEditor";
 			this.Size = new System.Drawing.Size(220, 50);
 			this.ResumeLayout(false);
@@ -94,7 +96,7 @@
 
 		private System.Windows.Forms.TextBox m_variableTextBox;
 		private EquationBoxAuto m_eqBox;
-		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.CheckBox m_selectedCheckbox;
+		private System.Windows.Forms.TextBox m_resultTB;
 	}
 }

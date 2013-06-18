@@ -70,7 +70,7 @@ namespace Warps
 		public bool EditMode
 		{
 			get { return m_editMode; }
-			set { m_editMode = value; m_edit.Editable = value; }
+			set { m_editMode = value; m_edit.EditMode = value; }
 		}
 
 		EquationEditorForm m_eqEditor = null;
@@ -205,6 +205,8 @@ namespace Warps
 			m_group.Clear();
 			eqs.ForEach(eq => m_group.Add(eq));
 			m_frame.Rebuild(m_group);
+
+			m_edit.Equations = eqs.ConvertAll(eq => new KeyValuePair<string, Equation>(eq.Label, eq)).ToArray();
 		}
 
 		public void OnSelect(object sender, EventArgs<IRebuild> e) { }

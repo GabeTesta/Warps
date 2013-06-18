@@ -17,19 +17,32 @@ namespace Warps.Controls
 			InitializeComponent();
 		}
 
-		public VariableEditor(string label, string EqText)
+		//public VariableEditor(string label, string EqText)
+		//{
+		//	InitializeComponent();
+		//	Label = label;
+		//	if (EqText.Length > 0)
+		//	{
+		//		//if (EqText[0] == '=')
+		//			m_eqBox.Text = EqText;
+		//		//else
+		//		//	m_eqBox.Text = "= " + EqText;
+		//	}
+		//}
+		public VariableEditor(string label, string EqText, double result)
 		{
 			InitializeComponent();
 			Label = label;
 			if (EqText.Length > 0)
 			{
 				//if (EqText[0] == '=')
-					m_eqBox.Text = EqText;
+				m_eqBox.Text = EqText;
 				//else
 				//	m_eqBox.Text = "= " + EqText;
 			}
-		}
 
+			m_resultTB.Text = result.ToString();
+		}
 		public event EventHandler<KeyEventArgs> ReturnPress;
 
 		void c_ReturnPress(object sender, KeyEventArgs e)
@@ -93,6 +106,20 @@ namespace Warps.Controls
 				m_eqBox.sail = value;
 			}
 		}
+
+		public bool EditMode
+		{
+
+			get { return this.Enabled; }
+
+			set
+			{
+				this.Enabled = value;
+				m_resultTB.Enabled = false; // always false
+			}
+		}
+
+
 	}
 
 

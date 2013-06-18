@@ -324,6 +324,8 @@ namespace Warps
 			int i = -1;
 			if (tag is Panel)
 				i = this.IndexOf(tag as Panel);
+			if (tag == this)
+				return true;
 
 			if (i >= 0)
 				rets.AddRange(this.Take(i));

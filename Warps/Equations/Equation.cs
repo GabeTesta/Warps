@@ -251,7 +251,7 @@ namespace Warps
 
 		Warps.Controls.VariableEditor GetEditor()
 		{
-			Warps.Controls.VariableEditor eq = new Warps.Controls.VariableEditor(Label, EquationText);
+			Warps.Controls.VariableEditor eq = new Warps.Controls.VariableEditor(Label, EquationText, Result);
 			//eq.AutoFillData = sail.GetAutoFillData(this).ToArray();
 			//eq.sail = sail;
 			return eq;
@@ -260,10 +260,10 @@ namespace Warps
 		public Warps.Controls.VariableEditor WriteEditor(Warps.Controls.VariableEditor edit)
 		{
 			if (edit == null)
-				edit = new Warps.Controls.VariableEditor(Label, EquationText);
+				edit = new Warps.Controls.VariableEditor(Label, EquationText, Result);
 			Warps.Controls.VariableEditor ee = edit as Warps.Controls.VariableEditor;
 			if (ee == null)
-				ee = new Warps.Controls.VariableEditor(Label, EquationText);
+				ee = new Warps.Controls.VariableEditor(Label, EquationText, Result);
 			//ee.sail = sail;
 			//if(sail!=null)
 			//	ee.AutoFillData = sail.GetAutoFillData(this).ToArray();
