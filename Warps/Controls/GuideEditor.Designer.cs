@@ -83,7 +83,7 @@
 			this.m_nsPlot.ShowCoordinates = true;
 			this.m_nsPlot.Size = new System.Drawing.Size(250, 291);
 			this.m_nsPlot.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-			this.m_nsPlot.TabIndex = 5;
+			this.m_nsPlot.TabIndex = 0;
 			this.m_nsPlot.Text = "Comb";
 			this.m_nsPlot.Title = "";
 			this.m_nsPlot.TitleFont = new System.Drawing.Font("Arial", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
@@ -94,6 +94,8 @@
 			// 
 			// m_curveEditor
 			// 
+			this.m_curveEditor.AutoFill = null;
+			this.m_curveEditor.AutoScroll = true;
 			this.m_curveEditor.Dock = System.Windows.Forms.DockStyle.Top;
 			this.m_curveEditor.Label = "";
 			this.m_curveEditor.Location = new System.Drawing.Point(0, 0);

@@ -34,9 +34,9 @@ namespace Warps.Controls
 		//	get { return m_edits[i]; }
 		//}
 
-		CheckBox[] m_girths;
+		internal CheckBox[] m_girths;
 		ImageComboBox[] m_combos;
-		IFitEditor[] m_edits;
+		internal IFitEditor[] m_edits;
 		List<object> m_autoFill;
 
 		public List<object> AutoFill
@@ -103,13 +103,14 @@ namespace Warps.Controls
 			Control old = null;
 			////get the list of available curves from the sail
 			//object[] autofill =  c.Sail.GetAutoFillData(c).ToArray();
-
+			int nTab = 1;
 			//create the point controls and add them to the panel
 			for (int i = 0; i < c.FitPoints.Length; i++)
 			{
 				//create the type-speific point editor
 				old = m_edits[i] as Control;
 				ptBox = c[i].WriteEditor(ref m_edits[i]);
+				ptBox.TabIndex = nTab++;
 				if( AutoFill != null )
 					m_edits[i].AutoFillData = AutoFill;
 				//remove old control if new pointeditor
@@ -123,6 +124,8 @@ namespace Warps.Controls
 				else
 					SetCombo(m_combos[i], m_edits[i].FitType);
 				Panel.Add(m_combos[i]);
+				//skip over the dropdowns
+				m_combos[i].TabStop = false;
 				
 				//create the segment checkboxes
 				if (i < c.FitPoints.Length - 1)
@@ -132,6 +135,9 @@ namespace Warps.Controls
 					if (old != m_girths[i])
 						Panel.Remove(old);
 					Panel.Add(m_girths[i]);
+					//m_girths[i].TabIndex = nTab++;
+					//skip checks on tab
+					m_girths[i].TabStop = false;
 				}
 			}
 			//force the layout of the panel controls
@@ -159,7 +165,6 @@ namespace Warps.Controls
 
 			c.Fit(points, girths);
 		}
-
 		protected override void OnLayout(LayoutEventArgs e)
 		{
 			base.OnLayout(e);
@@ -179,6 +184,7 @@ namespace Warps.Controls
 				if (m_combos[i].ContextMenuStrip != m_Popup)
 					m_combos[i].ContextMenuStrip = m_Popup;
 
+				m_combos[i].Top = top;
 				// make a checkbox for internal segments
 				if (i < m_edits.Length - 1)
 				{
@@ -189,7 +195,7 @@ namespace Warps.Controls
 				if (CHK == 0)//initialize checkbox offset
 					CHK = m_girths[i].Right;
 
-				m_combos[i].Location = new Point(CHK, top);
+				m_combos[i].Left = CHK;
 				//m_combos[i].Top = top;
 				//m_combos[i].Left = CHK;
 				ptBox.Location = new Point(m_combos[i].Right, top);
@@ -334,6 +340,14 @@ namespace Warps.Controls
 					}
 			}
 			return nFit;
+		}
+
+		private void m_w4lBtn_Click(object sender, EventArgs e)
+		{
+			if (Warps.Curves.CurveW4L.ShowDialog(this) == DialogResult.OK)
+			{
+				//import here
+			}
 		}
 
 		//void m_panel_Paint(object sender, PaintEventArgs e)

@@ -15,5 +15,7 @@ namespace Warps
 		//event KeyEventHandler ReturnPress;
 		Type FitType { get; }
 		List<object> AutoFillData { set; }
+
+		string W4LText { get; }
 	}
 }

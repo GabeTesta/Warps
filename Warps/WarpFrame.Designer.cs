@@ -59,8 +59,8 @@
 			this.cancelButton = new System.Windows.Forms.ToolStripButton();
 			this.m_statusStrip = new System.Windows.Forms.StatusStrip();
 			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
-			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
 			this.m_statusProgress = new System.Windows.Forms.ToolStripProgressBar();
+			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
 			this.m_vertsplit.Panel1.SuspendLayout();
 			this.m_vertsplit.Panel2.SuspendLayout();
@@ -132,7 +132,7 @@
 			this.previewButton.Location = new System.Drawing.Point(3, 497);
 			this.previewButton.Name = "previewButton";
 			this.previewButton.Size = new System.Drawing.Size(75, 23);
-			this.previewButton.TabIndex = 3;
+			this.previewButton.TabIndex = 1;
 			this.previewButton.Text = "Preview";
 			this.previewButton.UseVisualStyleBackColor = false;
 			this.previewButton.MouseEnter += new System.EventHandler(this.okButton_MouseEnter);
@@ -147,7 +147,7 @@
 			this.editPanel.Location = new System.Drawing.Point(3, 3);
 			this.editPanel.Name = "editPanel";
 			this.editPanel.Size = new System.Drawing.Size(193, 488);
-			this.editPanel.TabIndex = 2;
+			this.editPanel.TabIndex = 0;
 			// 
 			// okButton
 			// 
@@ -157,7 +157,7 @@
 			this.okButton.Location = new System.Drawing.Point(119, 497);
 			this.okButton.Name = "okButton";
 			this.okButton.Size = new System.Drawing.Size(75, 23);
-			this.okButton.TabIndex = 0;
+			this.okButton.TabIndex = 2;
 			this.okButton.Text = "Apply";
 			this.okButton.UseVisualStyleBackColor = false;
 			this.okButton.MouseEnter += new System.EventHandler(this.okButton_MouseEnter);
@@ -372,13 +372,13 @@
 			this.cancelButton.Size = new System.Drawing.Size(47, 22);
 			this.cancelButton.Text = "Cancel";
 			// 
-			// statusStrip1
+			// m_statusStrip
 			// 
 			this.m_statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.m_statusText,
             this.m_statusProgress});
 			this.m_statusStrip.Location = new System.Drawing.Point(0, 523);
-			this.m_statusStrip.Name = "statusStrip1";
+			this.m_statusStrip.Name = "m_statusStrip";
 			this.m_statusStrip.Size = new System.Drawing.Size(1022, 22);
 			this.m_statusStrip.TabIndex = 2;
 			this.m_statusStrip.Text = "statusStrip1";
@@ -388,6 +388,11 @@
 			this.m_statusText.Name = "m_statusText";
 			this.m_statusText.Size = new System.Drawing.Size(39, 17);
 			this.m_statusText.Text = "Ready";
+			// 
+			// m_statusProgress
+			// 
+			this.m_statusProgress.Name = "m_statusProgress";
+			this.m_statusProgress.Size = new System.Drawing.Size(100, 16);
 			// 
 			// toolStripContainer1
 			// 
@@ -411,11 +416,6 @@
 			// toolStripContainer1.TopToolStripPanel
 			// 
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
-			// 
-			// toolStripProgressBar1
-			// 
-			this.m_statusProgress.Name = "toolStripProgressBar1";
-			this.m_statusProgress.Size = new System.Drawing.Size(100, 16);
 			// 
 			// WarpFrame
 			// 

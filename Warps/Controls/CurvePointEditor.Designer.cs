@@ -50,13 +50,14 @@
 			this.m_cs.AutoFillVariables = null;
 			equation1.EquationText = "0.0000";
 			equation1.Label = "eq";
+			equation1.Locked = false;
 			this.m_cs.Equation = equation1;
 			this.m_cs.Location = new System.Drawing.Point(0, 0);
 			this.m_cs.MaximumSize = new System.Drawing.Size(101, 24);
 			this.m_cs.Name = "m_cs";
 			this.m_cs.sail = null;
 			this.m_cs.Size = new System.Drawing.Size(89, 24);
-			this.m_cs.TabIndex = 4;
+			this.m_cs.TabIndex = 0;
 			this.m_cs.Value = 0D;
 			// 
 			// CurvePointEditor

@@ -36,6 +36,7 @@
 			this.m_add = new System.Windows.Forms.ToolStripMenuItem();
 			this.m_insert = new System.Windows.Forms.ToolStripMenuItem();
 			this.m_delete = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_w4lBtn = new System.Windows.Forms.Button();
 			this.m_Popup.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -58,7 +59,7 @@
 			this.m_length.Location = new System.Drawing.Point(156, 6);
 			this.m_length.Name = "m_length";
 			this.m_length.Size = new System.Drawing.Size(43, 13);
-			this.m_length.TabIndex = 1;
+			this.m_length.TabIndex = 2;
 			this.m_length.Text = "0.0000";
 			// 
 			// m_panel
@@ -70,7 +71,7 @@
 			this.m_panel.Location = new System.Drawing.Point(3, 29);
 			this.m_panel.Name = "m_panel";
 			this.m_panel.Size = new System.Drawing.Size(244, 405);
-			this.m_panel.TabIndex = 2;
+			this.m_panel.TabIndex = 1;
 			// 
 			// m_Popup
 			// 
@@ -107,11 +108,27 @@
 			this.m_delete.Text = "Delete";
 			this.m_delete.Click += new System.EventHandler(this.m_delete_Click);
 			// 
+			// m_w4lBtn
+			// 
+			this.m_w4lBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.m_w4lBtn.FlatAppearance.BorderSize = 0;
+			this.m_w4lBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.m_w4lBtn.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.m_w4lBtn.Location = new System.Drawing.Point(205, 1);
+			this.m_w4lBtn.Name = "m_w4lBtn";
+			this.m_w4lBtn.Size = new System.Drawing.Size(42, 22);
+			this.m_w4lBtn.TabIndex = 0;
+			this.m_w4lBtn.TabStop = false;
+			this.m_w4lBtn.Text = "W4L";
+			this.m_w4lBtn.UseVisualStyleBackColor = true;
+			this.m_w4lBtn.Click += new System.EventHandler(this.m_w4lBtn_Click);
+			// 
 			// MouldCurveEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoScroll = true;
+			this.Controls.Add(this.m_w4lBtn);
 			this.Controls.Add(this.m_panel);
 			this.Controls.Add(this.m_label);
 			this.Controls.Add(this.m_length);
@@ -132,5 +149,6 @@
 		private System.Windows.Forms.ToolStripMenuItem m_add;
 		private System.Windows.Forms.ToolStripMenuItem m_insert;
 		private System.Windows.Forms.ToolStripMenuItem m_delete;
+		private System.Windows.Forms.Button m_w4lBtn;
 	}
 }

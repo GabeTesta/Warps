@@ -46,15 +46,9 @@ namespace Warps.Controls
 			equationBox.Focus();
 		}
 
-		public void SetText(string txt)
-		{
-			//txt = "= " + txt;
-			equationBox.Text = txt;
-		}
-
 		void ief_OnVariableAdded(object sender, string eqText)
 		{
-			SetText(eqText);
+			Text = eqText;
 			toolTip1.ToolTipTitle = equationBox.Text;
 			if (EQ != null && !equationBox.IsNumber())
 				button1.BackColor = Color.Lime;
@@ -65,7 +59,7 @@ namespace Warps.Controls
 		public override string Text
 		{
 			get { return equationBox.Text; }
-			set { SetText(value); toolTip1.ToolTipTitle = value; }
+			set { base.Text = value; toolTip1.ToolTipTitle = value; }
 		}
 		public string EQ
 		{
@@ -77,8 +71,12 @@ namespace Warps.Controls
 			get { return new Equation("eq", Text); }
 			set
 			{
-				Text = value.Label;
-				equationBox.EQ = value.EquationText;
+				if (value.IsNumber())
+					equationBox.Value = value.Result;
+				else
+					equationBox.Text = value.EquationText;
+				//Text = value.Label;
+				//equationBox.EQ = value.EquationText;
 			}
 		}
 

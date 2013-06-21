@@ -50,7 +50,7 @@ namespace Warps
 
 		private double Value
 		{
-			set { m_text = value.ToString(); IsNumber(); }
+			set { m_text = value.ToString("f4"); IsNumber(); }
 		}
 
 		/// <summary>

@@ -100,7 +100,15 @@ namespace Warps
 				m_vEq.AutoFillVariables = value;
 			} 
 		}
-
+		public string W4LText
+		{
+			get
+			{
+				return String.Format("POINT [{0};{1}]",
+					u.ToString("f3"),
+					v.ToString("f3"));
+			}
+		}
 		#endregion
 
 		protected override void OnLayout(LayoutEventArgs e)

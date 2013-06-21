@@ -121,6 +121,20 @@ namespace Warps
 			} 
 		}
 
+		public string W4LText
+		{
+			get
+			{
+				string type = FitType.Name.ToString();
+				type = type.ToUpper().Substring(0, 5);
+				string lbl = Curve.Label.Length > 5 ? Curve.Label.Substring(0, 5) : Curve.Label;
+
+				return String.Format("{0,5} [{1,5};{2}]",
+					type,
+					lbl,
+					CS.Result.ToString("f3"));
+			}
+		}
 		#endregion
 
 		protected override void OnLayout(LayoutEventArgs e)

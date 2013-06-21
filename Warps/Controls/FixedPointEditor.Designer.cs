@@ -39,15 +39,14 @@
 			this.m_vEq.AutoFillVariables = null;
 			equation1.EquationText = "0.0000";
 			equation1.Label = "eq";
-			//equation1.Result = 0D;
-			//equation1.sail = null;
+			equation1.Locked = false;
 			this.m_vEq.Equation = equation1;
 			this.m_vEq.Location = new System.Drawing.Point(95, 0);
 			this.m_vEq.MaximumSize = new System.Drawing.Size(101, 24);
 			this.m_vEq.Name = "m_vEq";
 			this.m_vEq.sail = null;
 			this.m_vEq.Size = new System.Drawing.Size(89, 24);
-			this.m_vEq.TabIndex = 4;
+			this.m_vEq.TabIndex = 1;
 			this.m_vEq.Value = 0D;
 			// 
 			// m_uEq
@@ -55,15 +54,14 @@
 			this.m_uEq.AutoFillVariables = null;
 			equation2.EquationText = "0.0000";
 			equation2.Label = "eq";
-			//equation2.Result = 0D;
-			//equation2.sail = null;
+			equation2.Locked = false;
 			this.m_uEq.Equation = equation2;
 			this.m_uEq.Location = new System.Drawing.Point(0, 0);
 			this.m_uEq.MaximumSize = new System.Drawing.Size(101, 24);
 			this.m_uEq.Name = "m_uEq";
 			this.m_uEq.sail = null;
 			this.m_uEq.Size = new System.Drawing.Size(89, 24);
-			this.m_uEq.TabIndex = 3;
+			this.m_uEq.TabIndex = 0;
 			this.m_uEq.Value = 0D;
 			// 
 			// FixedPointEditor

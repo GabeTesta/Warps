@@ -147,8 +147,6 @@ namespace Warps
 				line = txt.ReadLine();
 	
 				CreateMould(ScriptTools.ReadType(line), ScriptTools.ReadPath(line));
-				
-	
 
 				//read layout
 				m_layout = new List<IGroup>();

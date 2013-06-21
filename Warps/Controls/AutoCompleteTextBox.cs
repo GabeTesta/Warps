@@ -102,16 +102,16 @@ namespace Warps.Controls
 		{
 			switch (e.KeyCode)
 			{
-				case Keys.Tab:
-					{
-						if (_listBox.Visible)
-						{
-							InsertWord(_listBox.SelectedItem.ToString());
-							ResetListBox();
-							_formerValue = Text;
-						}
-						break;
-					}
+				//case Keys.Tab:
+				//	{
+				//		if (_listBox.Visible)
+				//		{
+				//			InsertWord(_listBox.SelectedItem.ToString());
+				//			ResetListBox();
+				//			_formerValue = Text;
+				//		}
+				//		break;
+				//	}
 				case Keys.Down:
 					{
 						if ((_listBox.Visible) && (_listBox.SelectedIndex < _listBox.Items.Count - 1))
@@ -139,16 +139,16 @@ namespace Warps.Controls
 			}
 		}
 
-		protected override bool IsInputKey(Keys keyData)
-		{
-			switch (keyData)
-			{
-				case Keys.Tab:
-					return true;
-				default:
-					return base.IsInputKey(keyData);
-			}
-		}
+		//protected override bool IsInputKey(Keys keyData)
+		//{
+		//	switch (keyData)
+		//	{
+		//		case Keys.Tab:
+		//			return true;
+		//		default:
+		//			return base.IsInputKey(keyData);
+		//	}
+		//}
 
 		private void UpdateListBox()
 		{

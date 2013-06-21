@@ -175,6 +175,12 @@
     <Compile Include="Controls\CurveGroupEditor.Designer.cs">
       <DependentUpon>CurveGroupEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Curves\CurveW4L.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Curves\CurveW4L.Designer.cs">
+      <DependentUpon>CurveW4L.cs</DependentUpon>
+    </Compile>
     <Compile Include="Curves\GuideComb.cs" />
     <Compile Include="Curves\IMouldCurve.cs" />
     <Compile Include="Curves\RigLine.cs" />
@@ -306,6 +312,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\YarnGroupEditor.resx">
       <DependentUpon>YarnGroupEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Curves\CurveW4L.resx">
+      <DependentUpon>CurveW4L.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Equations\EquationEditorForm.resx">
       <DependentUpon>EquationEditorForm.cs</DependentUpon>
