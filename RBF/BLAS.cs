@@ -551,11 +551,11 @@ public static class BLAS
 		return Math.Sqrt(d);
 	}
 
-	static public bool is_equal(double a, double b)
+	static public bool IsEqual(double a, double b)
 	{
 		return Math.Abs(a - b) < 1e-7;
 	}
-	static public bool is_equal(double a, double b, double tol)
+	static public bool IsEqual(double a, double b, double tol)
 	{
 		return Math.Abs(a - b) < Math.Abs(tol);
 	}

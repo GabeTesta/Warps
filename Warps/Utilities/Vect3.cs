@@ -122,6 +122,8 @@ namespace Warps
 		readonly static double TOL = 1e-7;
 		public static bool operator ==(Vect3 a, Vect3 b)
 		{
+			if (System.Object.ReferenceEquals(a, null))
+				return System.Object.ReferenceEquals(b, null);//a and b are null, thus ==
 			return a.Equals(b);
 		}
 		public static bool operator !=(Vect3 a, Vect3 b)
@@ -136,9 +138,9 @@ namespace Warps
 				return false;
 			Vect3 b = obj as Vect3;
 			Debug.Assert(this.Length == b.Length);
-			return BLAS.is_equal(this[0], b[0], TOL)
-				&& BLAS.is_equal(this[1], b[1], TOL)
-				&& BLAS.is_equal(this[2], b[2], TOL);
+			return BLAS.IsEqual(this[0], b[0], TOL)
+				&& BLAS.IsEqual(this[1], b[1], TOL)
+				&& BLAS.IsEqual(this[2], b[2], TOL);
 		}
 		public override int GetHashCode()
 		{

@@ -11,7 +11,8 @@ namespace Warps
 {
 	public class Sail
 	{
-		SurfaceType m_type = SurfaceType.COMBO;
+
+		internal SurfaceType m_type = SurfaceType.COMBO;
 
 		#region Members
 
@@ -56,17 +57,28 @@ namespace Warps
 					ReadScriptFile(path);
 					m_path = path;
 					break;
+				case ".obj":
+					m_layout = new List<IGroup>();//default empty layout
+					ReadOBJFile(path);
+					//CreateInnerCurves();
+					break;
 				default:
 					m_layout = new List<IGroup>();//default empty layout
 					CreateMould(path);//read the file
 
 					//#if DEBUG
-					//					CreateOuterCurves();
 					//					CreateInnerCurves();
 					//#endif
 					m_path = path;
 					break;
 			}
+		}
+
+		private void ReadOBJFile(string path)
+		{
+			m_type = SurfaceType.OBJ;
+			m_path = path;
+			CreateMould(m_path);
 		}
 
 		void CreateMould(string path)
@@ -91,23 +103,29 @@ namespace Warps
 					case SurfaceType.COMBO:
 						m_mould = new ComboMould(this, path);
 						//(m_mould as ComboMould).ReadCofFile(this, path);
-						return;
+						break;
 					case SurfaceType.COF:
 						m_mould = new CofMould(this, path);
 						//(m_mould as CofMould).ReadCofFile(this, path);
-						return;
+						break;
 					case SurfaceType.RBF:
 						m_mould = new RBFMould(this, path);
 						//(m_mould as RBFMould).ReadCofFile(this, path);
-						return;
+						break;
+					case SurfaceType.OBJ:
+						m_mould = new Warps.Surfaces.RBFOBJ(path);
+						break;
 				}
 			}
+			else
+			{
+				if (type.Contains(':'))
+					type = type.Split(':')[0];
 
-			if (type.Contains(':'))
-				type = type.Split(':')[0];
-
-			m_mould = Utilities.CreateInstance(type, new object[] { this, path }) as ISurface;
-
+				m_mould = Utilities.CreateInstance(type, new object[] { this, path }) as ISurface;
+			}
+			if( m_mould != null )
+				SetBox();//create sail bounding box
 
 		}
 		//ISurface CreateMould(string type, string path)
@@ -328,7 +346,20 @@ namespace Warps
 
 			return connected;
 		}
+		public List<IRebuild> GetConnected(List<IRebuild> tags)
+		{
+			List<IRebuild> connected = null;
+			if (tags != null)
+			{
+				connected = new List<IRebuild>(tags);
+			}
+			foreach (IRebuild item in Layout)
+			{
+				item.GetConnected(connected);
+			}
 
+			return connected;
+		}
 		TreeNode m_node;
 		public TreeNode WriteNode()
 		{
@@ -620,7 +651,6 @@ namespace Warps
 
 		#endregion
 
-
 		#region Default Geometry Shit
 
 		void CreateSpokes()
@@ -676,6 +706,11 @@ namespace Warps
 			outer.Add(new MouldCurve("Head", this, hd));
 			outer.Add(new MouldCurve("Foot", this, ft));
 
+			foreach(MouldCurve mc in outer)
+			{
+				mc.Girth(0, false);
+				mc.Update(this);
+			}
 			Add(outer);
 
 			return outer;
@@ -812,6 +847,66 @@ namespace Warps
 
 		#endregion
 
+		#region Bounding Box
+				/// <summary>
+		/// Mould bounding box limits in xyz
+		/// 0: x min/max, 1: y min/max, 2: z min/max
+		/// </summary>
+		public Vect2[] m_box = new Vect2[3];
+		public void SetBox()
+		{
+			for (int i =0; i < m_box.Length; i++)
+				m_box[i] = new Vect2(1e9,-1e9);
+			Vect2 uv = new Vect2();
+			Vect3 xyz = new Vect3();
+			int nU = 10, nV = 10;
+			for (int iu = 0; iu < nU; iu++)
+			{
+				uv[0] = BLAS.interpolant(iu, nU);
+				for (int iv = 0; iv < nV; iv++)
+				{
+					uv[1] = BLAS.interpolant(iv, nV);
+					Mould.xVal(uv, ref xyz);
 
+					for (int ix = 0; ix < 3; ix++)
+					{
+						m_box[ix][0] = Math.Min(m_box[ix][0], xyz[ix]);
+						m_box[ix][1] = Math.Max(m_box[ix][1], xyz[ix]);
+					}
+				}
+			}
+		}
+		/// <summary>
+		/// X Span
+		/// </summary>
+		public double Width
+		{
+			get
+			{
+				return m_box[0][1] - m_box[0][0];
+			}
+		}
+		/// <summary>
+		/// Y Span
+		/// </summary>
+		public double Height
+		{
+			get
+			{
+				return m_box[1][1] - m_box[1][0];
+			}
+		}
+		/// <summary>
+		/// Z Span
+		/// </summary>
+		public double Depth
+		{
+			get
+			{
+				return m_box[2][1] - m_box[2][0];
+			}
+		}
+ 
+		#endregion	
 	}
 }

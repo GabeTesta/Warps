@@ -128,12 +128,14 @@ namespace RBF
           {
 			var matrixA = new DenseMatrix(A);
 			var vectorB = new DenseVector(fitz);
-			Vector<double> resultX = matrixA.LU().Solve(vectorB);
+			LU<double> decomp = matrixA.LU();
+			Vector<double> resultX = decomp.Solve(vectorB);
+#if DEBUG 
 			List<double> w2 = new List<double>(resultX.ToArray());
+#endif
 
 			int i = 0;
-
-			w2.ForEach((double weight) =>
+			foreach (double weight in resultX )
 			{
 				if (i < Centers.Length)
 					Centers[i].w = weight; // set the center's weight
@@ -141,7 +143,7 @@ namespace RBF
 					Poly[i - Centers.Length] = weight;//store the polynomial coefficients
 
 				++i;
-			});
+			}
 
                return 0;
           }

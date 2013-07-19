@@ -9,31 +9,34 @@ namespace Warps
 {
 	public class Equation: IRebuild
 	{
-		public Equation() { m_label = "empty"; m_text = "0"; Value = 0; }
-
+		public Equation() { m_label = ""; m_text = null; Value = 0; }
+		public Equation(double value)
+		{
+			m_label = "";
+			Value = value;
+		}
 		public Equation(string label, string equationText)
 		{
-			m_label = label;
-			m_text = equationText;
-			IsNumber();
+			m_label = label == null ? equationText : label;
+			EquationText = equationText;
 		}
 
 		public Equation(string label, double value)
 		{
 			m_label = label;
-			m_text = value.ToString();
-			SetValue(value);
+			//m_text = value.ToString();
+			Value = value;
 		}
 
 		string m_text = null;
 		string m_label = null;
-		double m_result = double.NaN;
+		internal double m_result = double.NaN;
 
 		System.Windows.Forms.TreeNode m_node = null;
 
 		public bool IsNumber()
 		{
-			return double.TryParse(EquationText, out m_result);
+			return m_text == null;
 		}
 
 		public string Label
@@ -41,52 +44,58 @@ namespace Warps
 			get { return m_label; }
 			set { m_label = value; }
 		}
+		public string Layer
+		{
+			get { return "EQ"; }
+		}
 
 		public string EquationText
 		{
-			get { return m_text; }
-			set { m_text = value; }
-		}
-
-		private double Value
-		{
-			set { m_text = value.ToString("f4"); IsNumber(); }
-		}
-
-		/// <summary>
-		/// Attempt to set the EquationText and Result to value (if equation uses an expression, this will return false)
-		/// </summary>
-		/// <param name="val">double to attempt to set</param>
-		/// <returns>true if equation is a number and can be set this way, false if equation is expression</returns>
-		public bool SetValue(double val)
-		{
-			if (IsNumber())
+			get { return m_text == null ? m_result.ToString("f4"): m_text; }
+			set 
 			{
-				Value = val;
-				return true;
+				m_text = value;
+				if (double.TryParse(m_text, out m_result))
+					m_text = null;//numeric text entry
 			}
-			return false;
 		}
 
-		public double Result
+		public double Value
 		{
 			get { return m_result; }
+			set { m_text = null; m_result = value; }
 		}
+
+		///// <summary>
+		///// Attempt to set the EquationText and Result to value (if equation uses an expression, this will return false)
+		///// </summary>
+		///// <param name="val">double to attempt to set</param>
+		///// <returns>true if equation is a number and can be set this way, false if equation is expression</returns>
+		//public bool SetValue(double val)
+		//{
+		//	if (IsNumber())
+		//	{
+		//		Value = val;
+		//		return true;
+		//	}
+		//	return false;
+		//}
+
 
 		public double Evaluate(Sail s)
 		{
 			if (IsNumber())
-				return Result;
+				return Value;
 
 			if (s == null) 
 				return double.NaN;
 			if (EquationEvaluator.Evaluate(this, s, out m_result))
-				return Result;
+				return Value;
 
 			return double.NaN;
 		}
 
-		public devDept.Eyeshot.Entities.Entity[] CreateEntities()
+		public List<devDept.Eyeshot.Entities.Entity> CreateEntities()
 		{
 			return null;
 		}
@@ -190,7 +199,6 @@ namespace Warps
 		}
 
 		bool m_locked = false;
-
 		public bool Locked { get { return m_locked; } set { m_locked = value; } }
 
 		public bool ReadScript(Sail sail, IList<string> txt)
@@ -220,18 +228,18 @@ namespace Warps
 		public TreeNode WriteNode()
 		{
 			if (m_node == null)
-				m_node = new TreeNode(string.Format("{0}", Label));
-			m_node.ImageKey = "Equation";
-			m_node.SelectedImageKey = "Equation";
+				m_node = new TreeNode();
+			m_node.Text = Label;
+			m_node.ImageKey = m_node.SelectedImageKey = "Equation";
 			m_node.Tag = this;
-			m_node.ToolTipText = this.ToString() + "\nResult: " + Result;
+			m_node.ToolTipText = this.ToScriptString() + "=" + Value;
 			m_node.Name = Label;
+
 			TreeNode tmp1 = new TreeNode(string.Format("Text: {0}", EquationText));
-			tmp1.ImageKey = "EquationText";
-			tmp1.SelectedImageKey = "EquationText";
-			TreeNode tmp2 = new TreeNode(string.Format("Result: {0}", Result));
-			tmp2.ImageKey = "Result";
-			tmp2.SelectedImageKey = "Result";
+			tmp1.ImageKey = tmp1.SelectedImageKey = "EquationText";
+
+			TreeNode tmp2 = new TreeNode(string.Format("Result: {0}", Value));
+			tmp2.ImageKey = tmp2.SelectedImageKey = "Result";
 			m_node.Nodes.Clear();
 			m_node.Nodes.Add(tmp1);
 			m_node.Nodes.Add(tmp2);
@@ -241,7 +249,7 @@ namespace Warps
 
 		public override string ToString()
 		{
-			return string.Format("{0}", Label);
+			return Label;
 		}
 
 		public string ToScriptString()
@@ -251,7 +259,7 @@ namespace Warps
 
 		Warps.Controls.VariableEditor GetEditor()
 		{
-			Warps.Controls.VariableEditor eq = new Warps.Controls.VariableEditor(Label, EquationText, Result);
+			Warps.Controls.VariableEditor eq = new Warps.Controls.VariableEditor(Label, this);
 			//eq.AutoFillData = sail.GetAutoFillData(this).ToArray();
 			//eq.sail = sail;
 			return eq;
@@ -260,10 +268,10 @@ namespace Warps
 		public Warps.Controls.VariableEditor WriteEditor(Warps.Controls.VariableEditor edit)
 		{
 			if (edit == null)
-				edit = new Warps.Controls.VariableEditor(Label, EquationText, Result);
+				edit = new Warps.Controls.VariableEditor(Label, this);
 			Warps.Controls.VariableEditor ee = edit as Warps.Controls.VariableEditor;
 			if (ee == null)
-				ee = new Warps.Controls.VariableEditor(Label, EquationText, Result);
+				ee = new Warps.Controls.VariableEditor(Label, this);
 			//ee.sail = sail;
 			//if(sail!=null)
 			//	ee.AutoFillData = sail.GetAutoFillData(this).ToArray();
@@ -280,9 +288,5 @@ namespace Warps
 			Evaluate(edit.sail);
 		}
 
-		internal void SetResult(double result)
-		{
-			m_result = result;
-		}
 	}
 }

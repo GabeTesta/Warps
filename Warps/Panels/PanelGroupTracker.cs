@@ -136,9 +136,14 @@ namespace Warps
 			View.EditMode = state;
 			m_edit.Enabled = state;
 			View.DeSelectAllLayers();
-
-			foreach (MouldCurve curve in m_group.Bounds)
-				View.Select(curve);
+			View.Select(m_group);
+			//foreach (MouldCurve curve in m_group.Bounds)
+			//	View.Select(curve);
+			 m_group.Bounds.ForEach(curve => View.Select(curve));
+			 m_group.Guides.ForEach(curve =>View.Select(curve));
+			// m_group.ForEach(pan =>View.Select(pan));
+			//foreach (Panel p in m_group)
+			//	View.Select(p);
 
 			View.Refresh();
 		}
@@ -233,7 +238,6 @@ namespace Warps
 			if (!EditMode)
 				return;
 
-			
 			Edit.Done();
 			OnPreview(sender, null);
 			panGroup.Label = Edit.GroupLabel;

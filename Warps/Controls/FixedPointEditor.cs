@@ -20,6 +20,7 @@ namespace Warps
 		}
 
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Vect2 UV
 		{
 			get { return new Vect2(u, v); }
@@ -29,18 +30,21 @@ namespace Warps
 				v = value.v;
 			}
 		}
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Equation U
 		{
 			get { return m_uEq.Equation; }
 			set { m_uEq.Equation = value; }
 		}
+				
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Equation V
 		{
 			get { return m_vEq.Equation; }
 			set { m_vEq.Equation = value; }
 		}
 
-		[DefaultValue(0)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		double u
 		{
 			get
@@ -52,7 +56,7 @@ namespace Warps
 				m_uEq.Text = value.ToString("0.0000");
 			}
 		}
-		[DefaultValue(0)]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		double v
 		{
 			get
@@ -70,14 +74,15 @@ namespace Warps
 
 		public IFitPoint CreatePoint()
 		{
-			object fit = Utilities.CreateInstance(FitType.Name);
-			if (fit != null && fit is FixedPoint)
-			{
-				(fit as FixedPoint).U = U;
-				(fit as FixedPoint).V = V;
-				return fit as IFitPoint;
-			}
-			return null;
+			return new FixedPoint(UV);
+			//object fit = Utilities.CreateInstance(FitType.Name);
+			//if (fit != null && fit is FixedPoint)
+			//{
+			//	(fit as FixedPoint).U = U;
+			//	(fit as FixedPoint).V = V;
+			//	return fit as IFitPoint;
+			//}
+			//return null;
 		}
 
 		//public event KeyEventHandler ReturnPress;

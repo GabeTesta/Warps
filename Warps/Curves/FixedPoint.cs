@@ -18,8 +18,8 @@ namespace Warps
 		public FixedPoint(double s, double u, double v)
 		{
 			m_s = s;
-			U = new Equation("u", u.ToString());
-			V = new Equation("v", v.ToString()); 
+			U = new Equation(u);
+			V = new Equation(v); 
 		}
 
 		public FixedPoint(Equation ueq, Equation veq)
@@ -45,11 +45,11 @@ namespace Warps
 
 		public Vect2 UV
 		{
-			get { return new Vect2(U.Result, V.Result); }
+			get { return new Vect2(U.Value, V.Value); }
 			set
 			{
-				U.SetValue(value.u);
-				V.SetValue(value.v);
+				this[1] = value.u;
+				this[2] = value.v;
 			}
 		}
 
@@ -96,9 +96,9 @@ namespace Warps
 					case 0:
 						return S;
 					case 1:
-						return U.Result;
+						return U.Value;
 					case 2:
-						return V.Result;
+						return V.Value;
 					default:
 						return 0;
 				}
@@ -111,10 +111,12 @@ namespace Warps
 						S = value;
 						break;
 					case 1:
-						U.SetValue(value);
+						if (U.IsNumber())
+							U.Value = value;
 						break;
 					case 2:
-						V.SetValue(value);
+						if (V.IsNumber())
+							V.Value = value;
 						break;
 				}
 			}

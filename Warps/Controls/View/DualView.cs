@@ -33,7 +33,7 @@ namespace Warps
 				this[i].PlanarShadowOpacity = 0;
 				this[i].Units = unitSystemType.Meters;
 
-				this[i].ProgressBar.HideCancelButton = true;
+				this[i].ProgressBar.Visible = false;
 				//this[i].ProgressBar.Style = progressBarStyleType.Circular;
 
 				//intialize the grid
@@ -54,7 +54,7 @@ namespace Warps
 				this[i].ViewCubeIcon.Visible = false;
 
 				//hide the origin ball
-				this[i].OriginSymbol.BallSize = 0;
+				this[i].OriginSymbol.Size = 0;
 				//this[i].OriginSymbol.Visible = false;
 
 				//set user defined colors
@@ -78,6 +78,16 @@ namespace Warps
 
 				this[i].Groups.Add(new List<int>());
 
+				this[i].Legends[0].Visible = false;
+				this[i].Legends[0].AlignValuesRight = true;
+				this[i].Legends[0].Title = null;
+				this[i].Legends[0].Subtitle = null;
+				this[i].Legends[0].FormatString = "{0:f3}";
+				//this[i].Legends[0].ColorTable = Legend.RedToBlue17;
+				this[i].Legends[0].ColorTable = CreateColorScale();
+				//this[i].Legends[0].Position = new System.Drawing.Point(0, -(this[i].Legends[0].TitleFont.Height * 2));
+				this[i].Legends[0].SetRange(0, 10);
+				this[i].Legends[0].ItemSize = new Size(15, (int)Math.Ceiling(this[i].Height / 33.0));
 			}
 			//this[0].ProgressBar.CancellingText = "CANCELELEELS";
 			//this[0].ProgressBar.HideCancelButton = false;
@@ -85,6 +95,43 @@ namespace Warps
 			CreateContextMenu();
 			splitContainer1.SplitterDistance = (int)((splitContainer1.ClientRectangle.Width - splitContainer1.SplitterWidth) / 2.0);
 		}
+
+		Color[] CreateColorScale()
+		{
+			int nC = 8;
+			Color[] scale = new Color[nC];
+			for (int i = 0; i < nC; i++)
+			{
+				scale[i] = ColorMath.GetScaleColor(nC-1, 0, i);
+			}
+			return scale;
+		}
+		public void SetColorScale(Mesh m)
+		{
+			ISurface s = m.EntityData as ISurface;
+			if (s == null || s.ColorValues == null)
+				return;
+		//	double max = -1e9, min = 1e9;
+		//for (int i = 0; i < s.ColorValues.Length; i++)
+		//	{
+		//		max = Math.Max(max, s.ColorValues[i]);
+		//		min = Math.Min(min, s.ColorValues[i]);
+		//	}
+			double ave, max, min, stddev = BLAS.StandardDeviation(s.ColorValues, out ave, out max, out min);	
+			Color[] scale = CreateColorScale();
+			for (int i = 0; i < 2; i++)
+			{
+				this[i].Legends[0].ColorTable = scale;
+				this[i].Legends[0].Max = ave + 2 * stddev;
+				this[i].Legends[0].Min = ave - 2 * stddev;
+				this[i].Legends[0].FormatString = max < .001 ? "{0:e4}" : max < .01 ? "{0:f5}" : max < .1 ? "{0:f4}" : max < 1 ? "{0:f3}" : "{0:f2}";
+				this[i].Legends[0].ItemSize = new Size(15, (int)Math.Floor((double)this[i].Height / (double)(scale.Length+1)));
+				this[i].Legends[0].Position = new System.Drawing.Point(0, -this[i].Legends[0].ItemSize.Height);
+
+			}
+
+		}
+
 
 		object prevMousedOverObj = null;
 		System.Drawing.Point mousePnt = System.Drawing.Point.Empty;
@@ -208,11 +255,7 @@ namespace Warps
 		{
 			get
 			{
-				if (m_viewleft.Focused)
-					return m_viewright;
-				else if (m_viewright.Focused)
-					return m_viewleft;
-				return null;
+				return OtherView(ActiveView);
 			}
 		}
 		public SingleViewportLayout OtherView(SingleViewportLayout view)
@@ -406,8 +449,6 @@ namespace Warps
 			ActiveView.ActionMode = actionType;
 		}
 
-
-
 		/// <summary>
 		/// allows trackers to setup the view for actions.
 		/// I could have done this with an enum but it seemed like more 
@@ -519,7 +560,7 @@ namespace Warps
 			if (!this[0].Layers.Contains(lay) && !this[1].Layers.Contains(lay))
 			{
 				n1 = this[0].Layers.Add(new Layer(layer, Colors[layer], visible));
-				n2 = this[1].Layers.Add(new Layer(layer, Colors[layer], visible));
+				n2 = this[1].Layers.Add(new Layer(layer, Colors[layer], !visible));
 			}
 			else
 				return this[0].Layers.IndexOf(lay);
@@ -604,21 +645,23 @@ namespace Warps
 				this[i].ZoomOut(50);
 				this[i].Grid.Max = this[i].BoundingBox.Max;
 				this[i].Grid.Min = this[i].BoundingBox.Min;
+
+
 			}
 			Refresh();
 		}
 
 		public void Add(IRebuild g)
 		{
-			Entity[] groupEntities = g.CreateEntities();
+			List<Entity> groupEntities = g.CreateEntities();
 			devDept.Eyeshot.Labels.Label[] groupLabels = g.EntityLabel;
 
 			if (groupEntities == null)
 				return;
 
-			int layerIndex = AddLayer(g.Label, Color.Black, true);
+			int layerIndex = AddLayer(g.Layer, Color.Black, true);
 
-			for (int i = 0; i < groupEntities.Length; i++)
+			for (int i = 0; i < groupEntities.Count; i++)
 			{
 				if (groupEntities[i].LayerIndex == 0)
 					groupEntities[i].LayerIndex = layerIndex;
@@ -826,6 +869,15 @@ namespace Warps
 				Refresh();
 			}
 		}
+		private void toggleGridToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			ActiveView.Grid.Visible = !ActiveView.Grid.Visible;
+			ActiveView.Refresh();
+		}
+		private void toggleArrowsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			ToggleArrows(ActiveViewIndex);
+		}
 
 		void LayerClick(object sender, EventArgs e)
 		{
@@ -836,8 +888,74 @@ namespace Warps
 				if (l != null)
 				{
 					l.Visible = !l.Visible;
+					if (l.Name == "Gauss")
+						ActiveView.Legends[0].Visible = l.Visible;				
 					Refresh();
 				}
+			}
+		}
+		private void showAllToolstrip_Click(object sender, EventArgs e)
+		{
+			ShowAll();
+			Refresh();
+		}
+		private void hideAllToolstrip_Click(object sender, EventArgs e)
+		{
+			HideAll();
+			Refresh();
+		}
+
+		void Value_ColorChanged(object sender, EventArgs<string[], Color> e)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				if (e.ValueT.Contains("Background"))
+					this[i].Background.TopColor = e.ValueP;
+				if (e.ValueT.Contains("Backgrad"))
+					this[i].Background.BottomColor = e.ValueP;
+				if (e.ValueT.Contains("GridLines"))
+					this[i].Grid.MajorLineColor = e.ValueP;
+				if (e.ValueT.Contains("Selection"))
+					this[i].SelectionColor = e.ValueP;
+				IEnumerable<Layer> layers = this[i].Layers.Where(ly => e.ValueT.Contains(ly.Name));
+				foreach (Layer l in layers)
+					l.Color = e.ValueP;
+				//Layer l = this[i].Layers.FirstOrDefault(ly => ly.Name == e.ValueT);
+				//if (l != null)
+				//{
+				//	l.Color = e.ValueP;
+				//}
+				this[i].Refresh();
+			}
+		}
+		private void colorsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			KeyValuePair<Form, ColorEditor> p = ColorEditor.Show(Colors);
+			p.Key.Owner = this.ParentForm;
+			System.Drawing.Point loc = this.PointToScreen(ActiveView.Location);
+			loc.X -= p.Key.Width;
+			p.Key.Location = loc;
+			p.Value.ColorChanged += Value_ColorChanged;
+			//Warps.Controls.ColorWheelForm cwf = new Controls.ColorWheelForm(ActiveView);
+			//cwf.Location = MousePosition;
+			//cwf.Show(this);
+		}
+		private void saveColorsToolStripMenuItem_Click_1(object sender, EventArgs e)
+		{
+			SaveColors();
+		}
+		private void loadColorsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Colors.ReadIniFile(null);
+
+			for (int i = 0; i < 2; i++)
+			{
+				this[i].Background.TopColor = Colors["Background", this[i].Background.TopColor];
+				this[i].Grid.MajorLineColor = Colors["GridLines"];
+				this[i].SelectionColor = Colors["Selection", this[i].SelectionColor];
+				foreach (Layer L in this[i].Layers)
+					L.Color = Colors[L.Name, L.Color];
+				this[i].Refresh();
 			}
 		}
 
@@ -854,6 +972,10 @@ namespace Warps
 					view.SetView(viewType.Top);
 				view.ZoomFit();
 				view.ZoomOut(50);
+
+				//view.Legends[0].Position = new System.Drawing.Point(0, -10);
+				//view.Legends[0].ItemSize = new Size(15, (int)(view.Height * .08));
+
 			}
 		}
 
@@ -877,7 +999,7 @@ namespace Warps
 							view.DisplayMode = displayType.Shaded;
 							break;
 						case displayType.Shaded:
-							view.DisplayMode = displayType.HiddenLines;
+							view.DisplayMode = displayType.Wireframe;//skip hidden lines mode
 							break;
 					}
 					break;
@@ -960,7 +1082,6 @@ namespace Warps
 
 				count = explode ? count + 1 : count - 1;
 			});
-
 			Regen();
 		}
 
@@ -1035,31 +1156,33 @@ namespace Warps
 			Refresh();
 		}
 
-		internal void HideLayer(IRebuild p)
-		{
-			Entity e = ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == p);
+		//internal void HideLayer(IRebuild p)
+		//{
+		//	Entity e = ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == p);
 
-			if (e == null)
-				return;
+		//	if (e == null)
+		//		return;
 
-			this[0].Layers.TurnOff(e.LayerIndex);// = !this[0].Layers[e.LayerIndex].Visible;
-			this[1].Layers.TurnOff(e.LayerIndex);// = !this[1].Layers[e.LayerIndex].Visible;
+		//	this[0].Layers.TurnOff(e.LayerIndex);// = !this[0].Layers[e.LayerIndex].Visible;
+		//	this[1].Layers.TurnOff(e.LayerIndex);// = !this[1].Layers[e.LayerIndex].Visible;
 
-			Refresh();
-		}
+		//	Refresh();
+		//}
+
 
 		internal void ShowAll()
 		{
-			for (int i = 0; i < 2; i++)
-				this[i].Layers.TurnAllOn();
+			ActiveView.Layers.TurnAllOn();
+			//for (int i = 0; i < 2; i++)
+			//	this[i].Layers.TurnAllOn();
 
-			Refresh();
 		}
 
 		internal void HideAll()
 		{
-			for (int i = 0; i < 2; i++)
-				this[i].Layers.TurnAllOff();
+			ActiveView.Layers.TurnAllOff();
+			//for (int i = 0; i < 2; i++)
+			//	this[i].Layers.TurnAllOff();
 		}
 
 		internal void ShowOnly(IRebuild obj)
@@ -1110,14 +1233,6 @@ namespace Warps
 			Refresh();
 		}
 
-		internal void ToggleLayer(Sail sail)
-		{
-			this[0].Layers[1].Visible = !this[0].Layers[1].Visible;
-			this[1].Layers[1].Visible = !this[1].Layers[1].Visible;
-
-			Refresh();
-		}
-
 		internal void Invalidate(IRebuild item)
 		{
 			for (int i = 0; i < 2; i++)
@@ -1156,7 +1271,7 @@ namespace Warps
 			return this[0].ShowCurveDirection;
 		}
 
-		int opacityLevel = 25;
+		int opacityLevel = 100;
 
 		internal void DeSelectAllLayers()
 		{
@@ -1208,76 +1323,6 @@ namespace Warps
 		{
 			return ActiveView.Layers.FirstOrDefault(ly => ly.Name == surface.Label);
 		}
-
-		private void toggleArrowsToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			ToggleArrows(ActiveViewIndex);
-		}
-
-		//bool m_editMode = false;
-		//public bool EditMode { get { return m_editMode; } set { m_editMode = value; Update(); } }
-		private void gridToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			ActiveView.Grid.Visible = !ActiveView.Grid.Visible;
-
-			ActiveView.Refresh();
-		}
-
-		private void colorsToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			KeyValuePair<Form, ColorEditor> p = ColorEditor.Show(Colors);
-			p.Key.Owner = this.ParentForm;
-			System.Drawing.Point loc = this.PointToScreen(ActiveView.Location);
-			loc.X -= p.Key.Width;
-			p.Key.Location = loc;
-			p.Value.ColorChanged += Value_ColorChanged;
-			//Warps.Controls.ColorWheelForm cwf = new Controls.ColorWheelForm(ActiveView);
-			//cwf.Location = MousePosition;
-			//cwf.Show(this);
-		}
-
-		void Value_ColorChanged(object sender, EventArgs<string[], Color> e)
-		{
-			for (int i = 0; i < 2; i++)
-			{
-				if (e.ValueT.Contains("Background"))
-					this[i].Background.TopColor = e.ValueP;
-				if (e.ValueT.Contains("Backgrad"))
-					this[i].Background.BottomColor = e.ValueP;
-				if (e.ValueT.Contains("GridLines"))
-					this[i].Grid.MajorLineColor = e.ValueP;
-				if (e.ValueT.Contains("Selection"))
-					this[i].SelectionColor = e.ValueP;
-				IEnumerable<Layer> layers = this[i].Layers.Where(ly => e.ValueT.Contains(ly.Name));
-				foreach (Layer l in layers)
-					l.Color = e.ValueP;
-				//Layer l = this[i].Layers.FirstOrDefault(ly => ly.Name == e.ValueT);
-				//if (l != null)
-				//{
-				//	l.Color = e.ValueP;
-				//}
-				this[i].Refresh();
-			}
-		}
-		private void saveColorsToolStripMenuItem_Click_1(object sender, EventArgs e)
-		{
-			SaveColors();
-		}
-		private void loadColorsToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			Colors.ReadIniFile(null);
-
-			for (int i = 0; i < 2; i++)
-			{
-				this[i].Background.TopColor = Colors["Background", this[i].Background.TopColor];
-				this[i].Grid.MajorLineColor = Colors["GridLines"];
-				this[i].SelectionColor = Colors["Selection", this[i].SelectionColor];
-				foreach (Layer L in this[i].Layers)
-					L.Color = Colors[L.Name, L.Color];
-				this[i].Refresh();
-			}
-		}
-
 		bool m_editMode = false;
 
 		public bool EditMode
@@ -1309,6 +1354,7 @@ namespace Warps
 
 		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+
 			SaveFileDialog mySaveFileDialog = new SaveFileDialog();
 
 			mySaveFileDialog.InitialDirectory = ".";
@@ -1323,6 +1369,7 @@ namespace Warps
 
 			if (mySaveFileDialog.ShowDialog() == DialogResult.OK)
 			{
+				ActiveView.WriteIGES(System.IO.Path.ChangeExtension(mySaveFileDialog.FileName, "iges"),false);
 
 				switch (mySaveFileDialog.FilterIndex)
 				{
@@ -1337,6 +1384,7 @@ namespace Warps
 						break;
 					case 5: ActiveView.WriteToFileRaster(4, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
 						break;
+					
 				}
 
 			}
@@ -1346,6 +1394,8 @@ namespace Warps
 		{
 			ActiveView.CopyToClipboardRaster(2);
 		}
+
+
 
 	}
 }

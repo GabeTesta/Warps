@@ -104,6 +104,9 @@ namespace Warps
 		{
 			addCur.Enabled = Enabled;
 			delCur.Enabled = Enabled && SelectedCurve != null;
+#if !DEBUG
+			importCurveToolStripMenuItem.Visible = false;
+#endif
 		}
 	}
 }

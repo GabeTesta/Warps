@@ -154,9 +154,16 @@ namespace Warps
 			//s = s0;
 			return false;
 		}
-		
-		
+
+		public static bool CrossPoint(IMouldCurve A, IMouldCurve B, ref Vect2 uv, ref Vect3 xyz, ref Vect2 sPos)
+		{
+			return CrossPoint(A, B, ref uv, ref xyz, ref sPos, 20, true);
+		}
 		public static bool CrossPoint(IMouldCurve A, IMouldCurve B, ref Vect2 uv, ref Vect3 xyz, ref Vect2 sPos, int nRez)
+		{
+			return CrossPoint(A, B, ref uv, ref xyz, ref sPos, nRez, true);
+		}
+		public static bool CrossPoint(IMouldCurve A, IMouldCurve B, ref Vect2 uv, ref Vect3 xyz, ref Vect2 sPos, int nRez, bool bLimit)
 		{
 			//h(x) = 1st curve (this)
 			//g(x) = 2nd curve
@@ -245,7 +252,6 @@ namespace Warps
 				}
 			}
 			Vect3 xa, xb; xa = new Vect3(); xb = new Vect3();
-			bool bLimit = true;
 			//	Newton-Raphson iteration from closest 1/100 points
 			for (iNwt = 0; iNwt < 250; iNwt++)
 			{
@@ -335,7 +341,21 @@ namespace Warps
 			{
 				s = (double)i / (double)(CNT - 1);
 				c.xVal(s, ref uv, ref xyz);
-				Utilities.Vect3ToPoint3D(ref d[i], xyz);
+				d[i] = Utilities.Vect3ToPoint3D(xyz);
+			}
+			return d;
+		}
+		public static Point3D[] GetLimitPathPoints(IMouldCurve c, int CNT, Vect2 sLimits)
+		{
+			double s;
+			Vect2 uv = new Vect2();
+			Vect3 xyz = new Vect3();
+			Point3D[] d = new Point3D[CNT];
+			for (int i = 0; i < CNT; i++)
+			{
+				s = BLAS.interpolate(i, CNT, sLimits[1], sLimits[0]); 
+				c.xVal(s, ref uv, ref xyz);
+				d[i] = Utilities.Vect3ToPoint3D(xyz);
 			}
 			return d;
 		}

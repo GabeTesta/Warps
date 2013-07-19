@@ -28,27 +28,27 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.m_scriptBox = new System.Windows.Forms.TextBox();
 			this.m_import = new System.Windows.Forms.Button();
 			this.m_copy = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// textBox1
 			// 
-			this.textBox1.AcceptsReturn = true;
-			this.textBox1.AllowDrop = true;
-			this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.m_scriptBox.AcceptsReturn = true;
+			this.m_scriptBox.AllowDrop = true;
+			this.m_scriptBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.textBox1.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.textBox1.Location = new System.Drawing.Point(0, 29);
-			this.textBox1.Multiline = true;
-			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(150, 121);
-			this.textBox1.TabIndex = 0;
-			this.textBox1.WordWrap = false;
-			this.textBox1.Enter += new System.EventHandler(this.textBox1_Enter);
+			this.m_scriptBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.m_scriptBox.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.m_scriptBox.Location = new System.Drawing.Point(0, 29);
+			this.m_scriptBox.Multiline = true;
+			this.m_scriptBox.Name = "textBox1";
+			this.m_scriptBox.Size = new System.Drawing.Size(150, 121);
+			this.m_scriptBox.TabIndex = 0;
+			this.m_scriptBox.WordWrap = false;
+			this.m_scriptBox.Enter += new System.EventHandler(this.scriptBox_Enter);
 			// 
 			// m_import
 			// 
@@ -82,7 +82,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.m_copy);
 			this.Controls.Add(this.m_import);
-			this.Controls.Add(this.textBox1);
+			this.Controls.Add(this.m_scriptBox);
 			this.Name = "CurveW4L";
 			this.ResumeLayout(false);
 			this.PerformLayout();
@@ -91,7 +91,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.TextBox textBox1;
+		private System.Windows.Forms.TextBox m_scriptBox;
 		private System.Windows.Forms.Button m_import;
 		private System.Windows.Forms.Button m_copy;
 	}

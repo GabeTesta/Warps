@@ -407,7 +407,7 @@ namespace Warps.Trackers
 				int i = 0;
 				foreach (Vect2 v in m_edit.CombPnts)
 				{
-					if (BLAS.is_equal(v.u, x, .02))
+					if (BLAS.IsEqual(v.u, x, .02))
 					{
 						m_index = i;
 						break;

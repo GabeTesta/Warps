@@ -144,7 +144,8 @@ namespace Warps.Controls
 		public void fillEditorWithData()
 		{
 			GroupLabel = PanGroup.Label;
-			populateWarpBox();
+			m_warpListView.Items.Clear();
+			PanGroup.Bounds.ForEach(wrp => m_warpListView.Items.Add(wrp.Label, wrp.Label, wrp.GetType().Name));
 			if (PanGroup.Guides != null)
 			{
 				PanGroup.Guides.ForEach(guide =>
@@ -156,18 +157,15 @@ namespace Warps.Controls
 			m_orientationList.DataSource = null;
 			m_orientationList.DataSource = System.Enum.GetValues(typeof(PanelGroup.ClothOrientations));
 			Orientation = PanGroup.ClothAlignment;
+
+			widthEQB.Equation = PanGroup.PanelWidth;
 			//outputs
 			//AchievedDPI = PanGroup.AchievedDpi;
 			//AchievedYarnCount = PanGroup.Count;
 
 			//populateDensityCurveLocationBox(PanGroup.DensityPos);
 		}
-		public void populateWarpBox()
-		{
-			m_warpListView.Items.Clear();
-			PanGroup.Bounds.ForEach(wrp => m_warpListView.Items.Add(wrp.Label, wrp.Label, wrp.GetType().Name));
-			//availableCurves.ForEach(cur => m_warpSelectionCheckbox.Items.Add(cur, m_group.Warps.Contains(cur)));
-		}
+
 
 		public bool m_selectingWarp = false;
 		public bool m_selectingGuide = false;

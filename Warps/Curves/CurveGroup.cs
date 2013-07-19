@@ -23,7 +23,10 @@ namespace Warps
 		public CurveGroup(System.IO.BinaryReader bin, Sail sail)
 		{
 			m_sail = sail;
-			m_label = Utilities.ReadCString(bin);
+			m_layer = m_label = Utilities.ReadCString(bin);
+#if DEBUG
+			m_layer = "Mould";
+#endif
 			m_locked = true;
 			int iC = bin.ReadInt32();
 			for (int nC = 0; nC < iC; nC++)
@@ -57,6 +60,11 @@ namespace Warps
 			get { return m_label; }
 			set { m_label = value; }
 		}
+		public string Layer
+		{
+			get { return m_layer != null ? m_layer : "Curves"; }
+		}
+		string m_layer;
 
 		TreeNode m_node;
 		public TreeNode WriteNode()
@@ -127,6 +135,7 @@ namespace Warps
 		//	}
 		//}
 
+
 		public devDept.Eyeshot.Labels.Label[] EntityLabel
 		{
 			get
@@ -146,7 +155,7 @@ namespace Warps
 
 			return ret;
 		}
-		public Entity[] CreateEntities()
+		public List<Entity> CreateEntities()
 		{
 			List<Entity> ret = new List<Entity>();
 
@@ -158,7 +167,7 @@ namespace Warps
 				});
 
 
-			return ret.ToArray();
+			return ret;
 		}
 
 		public bool Affected(List<IRebuild> connected)
@@ -337,5 +346,6 @@ namespace Warps
 		{
 			return Label;
 		}
+
 	}
 }

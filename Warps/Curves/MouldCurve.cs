@@ -156,7 +156,10 @@ namespace Warps
 			get { return m_label; }
 			set { m_label = value; }
 		}
-
+		public string Layer
+		{
+			get { return Group != null ? Group.Layer : "Curves"; }
+		}
 		Sail m_sail;
 		public Sail Sail
 		{
@@ -244,14 +247,18 @@ namespace Warps
 		}
 
 		bool[] m_bGirths;
+		public bool[] GirthSegments
+		{
+			get { return m_bGirths; }
+		}
 		internal bool IsGirth(int nSegment)
 		{
-			return m_bGirths == null ? false : nSegment >= m_bGirths.Length ? false : m_bGirths[nSegment];
+			return GirthSegments == null ? false : nSegment >= GirthSegments.Length ? false : GirthSegments[nSegment];
 		}
 		internal void Girth(int nSeg, bool bGirth)
 		{
-			if (0 <= nSeg && nSeg < m_bGirths.Length)
-				m_bGirths[nSeg] = bGirth;
+			if (0 <= nSeg && nSeg < GirthSegments.Length)
+				GirthSegments[nSeg] = bGirth;
 		}
 
 		/// <summary>
@@ -284,7 +291,7 @@ namespace Warps
 		}
 		public void Fit(MouldCurve clone)
 		{
-			Fit(clone.FitPoints.ToArray(), clone.m_bGirths.ToArray());
+			Fit(clone.FitPoints.ToArray(), clone.GirthSegments.ToArray());
 		}
 		public void Fit(Vect2 uStart, Vect2 uEnd)
 		{
@@ -303,14 +310,20 @@ namespace Warps
 			//if any segements are flagged as girths then attempt to Geodesic fit
 			if (anyGirths)
 				if (Geodesic.Geo(this, points))
-					return;
+					return;//return on success
+				//else
+				//	if (points != null && points.Length >= 2)
+				//		throw new Exception(string.Format("Failed to Girth [{0}] between ({1}) and ({2}) defaulting to Spline", Label, points[0].ToString(), points.Last().ToString()));
+				//	else
+				//		throw new Exception(string.Format("Failed to Girth [{0}] defaulting to Spline", Label));
+				
 			//defualt to SurfaceCurve fit
 			SurfaceCurve.Fit(this, points);
 		}
 
 		private bool InitializeGirthSegments(IFitPoint[] points)
 		{
-			if (m_bGirths == null || m_bGirths.Length != points.Length - 1)
+			if (GirthSegments == null || GirthSegments.Length != points.Length - 1)
 			{
 				////optionally reuse existing segment settings
 				//bool[] bGir = null;
@@ -325,14 +338,14 @@ namespace Warps
 				////by default Girth the first and last segment(if more than 2 segments)
 				//if (bGir == null)
 				//{
-				m_bGirths = new bool[points.Length-1];
-					m_bGirths[0] = true;
-					if (m_bGirths.Length > 2)
-						m_bGirths[m_bGirths.Length - 1] = true;
+				m_bGirths = new bool[points.Length - 1];
+					GirthSegments[0] = true;
+					if (GirthSegments.Length > 2)
+						GirthSegments[GirthSegments.Length - 1] = true;
 				//}
 			}
 			//true if any are true
-			return m_bGirths.Aggregate((cur, sum) => sum |= cur);
+			return GirthSegments.Aggregate((cur, sum) => sum |= cur);
 		}
 
 		public void ReSpline(double[] sFits, Vect2[] uFits)
@@ -395,6 +408,7 @@ namespace Warps
 
 		public virtual void uVal(double s, ref Vect2 uv)
 		{
+			if (uv == null) uv = new Vect2();
 			Spline.BsVal(s, ref uv.m_vec);
 		}
 		public virtual void uVec(double s, ref Vect2 uv, ref Vect2 du)
@@ -490,7 +504,7 @@ namespace Warps
 
 		public bool CrossPoint(IMouldCurve otherCurve, ref Vect2 uv, ref Vect3 xyz, ref Vect2 sPos)
 		{
-			return CurveTools.CrossPoint(this, otherCurve, ref uv, ref xyz, ref sPos, 101);
+			return CurveTools.CrossPoint(this, otherCurve, ref uv, ref xyz, ref sPos);
 		}
 
 		#endregion
@@ -701,11 +715,11 @@ namespace Warps
 				m_bGirths = null;
 				return;
 			}
-			m_bGirths = new bool[lines.Count-1];
+			m_bGirths = new bool[lines.Count - 1];
 			int i = 0;
 			for(i=1; i< lines.Count; i++ )
 			{
-				bool.TryParse(lines[i].Trim('\t'), out m_bGirths[i-1]);
+				bool.TryParse(lines[i].Trim('\t'), out GirthSegments[i-1]);
 			}
 		}
 		public virtual List<string> WriteScript()
@@ -717,10 +731,10 @@ namespace Warps
 				foreach (string s in fp.WriteScript())
 					script.Add("\t" + s);
 			}
-			if (m_bGirths != null)
+			if (GirthSegments != null)
 			{
 				script.Add("\tGirth Segments:");
-				foreach (bool b in m_bGirths)
+				foreach (bool b in GirthSegments)
 					script.Add("\t\t" + b);
 			}
 
@@ -778,16 +792,16 @@ namespace Warps
 
 		//}
 
-		public virtual Entity[] CreateEntities()
+		public virtual List<Entity> CreateEntities()
 		{
 			double[] sPos;
-			return CreateEntities(false, Math.PI/180.0, out sPos).ToArray();
+			return CreateEntities(false, Math.PI/180.0, out sPos);
 		}
 
-		public virtual Entity[] CreateEntities(bool bFitPoints)
+		public virtual List<Entity> CreateEntities(bool bFitPoints)
 		{
 			double[] sPos;
-			return CreateEntities(bFitPoints, Math.PI / 180.0, out sPos).ToArray();
+			return CreateEntities(bFitPoints, Math.PI / 180.0, out sPos);
 		}
 		public virtual List<Entity> CreateEntities(bool bFitPoints, double TolAngle, out double[] sPos)
 		{
@@ -1056,7 +1070,7 @@ namespace Warps
 			//double reduce = Math.Max(dm.Magnitude, dmds.Magnitude);
 			double dot = dmds.Dot(dm);//mouse.X * dmds.X + mouse.Y * dmds.Y;
 			dot = dot / (dm.Magnitude * dmds.Magnitude);
-			if (BLAS.is_equal(dot, 0, 1e-5))//dont move when perpendicular to the mouse
+			if (BLAS.IsEqual(dot, 0, 1e-5))//dont move when perpendicular to the mouse
 				return true;
 
 			dot *= delta_s;// / dmds.Magnitude;
@@ -1234,6 +1248,5 @@ namespace Warps
 		{
 			return FitPoints.Contains(p);
 		}
-
 	}
 }

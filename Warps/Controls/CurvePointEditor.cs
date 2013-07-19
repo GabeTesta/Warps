@@ -18,6 +18,7 @@ namespace Warps
 			//m_cs.ReturnPress += ReturnPress;
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Equation CS
 		{
 			get
@@ -34,6 +35,7 @@ namespace Warps
 				//m_cs.Text = value.ToString("0.0000");
 			}
 		}
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public MouldCurve Curve
 		{
 			get
@@ -48,7 +50,7 @@ namespace Warps
 			}
 		}
 
-		[DefaultValue("")]
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public string CSText
 		{
 			get
@@ -61,6 +63,7 @@ namespace Warps
 			}
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public IEnumerable<MouldCurve> Curves 
 		{
 			set 
@@ -99,6 +102,7 @@ namespace Warps
 			}
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public List<object> AutoFillData
 		{
 			set
@@ -132,7 +136,7 @@ namespace Warps
 				return String.Format("{0,5} [{1,5};{2}]",
 					type,
 					lbl,
-					CS.Result.ToString("f3"));
+					CS.Value.ToString("f3"));
 			}
 		}
 		#endregion
@@ -145,9 +149,6 @@ namespace Warps
 			m_cs.Width = wid;
 			m_curves.Left = wid+Padding.Horizontal;
 			m_curves.Width = wid;
-			//m_cs.Height = 23;
-			//m_curves.Height = 23;
-			//Height = 23;
 
 		}
 

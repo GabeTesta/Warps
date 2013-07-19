@@ -64,6 +64,10 @@ namespace Warps
 		}
 
 
+		public static Point3D DoubleToPoint3D(double[] xyz)
+		{
+			return new Point3D(xyz);
+		}
 		public static void DoubleToPoint3D(ref Point3D pnt, double[] xyz)
 		{
 			pnt.X = xyz[0];

@@ -14,30 +14,62 @@ namespace Warps.Curves
 {
 	public partial class CurveW4L : UserControl
 	{
-		public static DialogResult ShowDialog(MouldCurveEditor edit)
+		//public static DialogResult ShowDialog(MouldCurveEditor edit)
+		//{
+		//	Form f = new Form();
+		//	f.SuspendLayout();
+		//	f.StartPosition = FormStartPosition.Manual;
+		//	f.Size = new Size(520, 150);
+		//	f.Location = edit.PointToScreen(edit.Location);
+		//	f.FormBorderStyle = FormBorderStyle.SizableToolWindow;
+		//	f.Owner = edit.ParentForm;
+
+		//	CurveW4L importer = new CurveW4L(edit);
+		//	importer.Dock = DockStyle.Fill;
+		//	f.Controls.Add(importer);
+		//	f.AcceptButton = importer.m_import;
+		//	f.CancelButton = importer.m_copy;
+		//	f.ResumeLayout(true);
+		//	return f.ShowDialog();
+		//}
+		public DialogResult ShowDialog(MouldCurveEditor edit)
 		{
 			Form f = new Form();
 			f.SuspendLayout();
 			f.StartPosition = FormStartPosition.Manual;
 			f.Size = new Size(520, 150);
-			f.Location = edit.PointToScreen(edit.Location);
 			f.FormBorderStyle = FormBorderStyle.SizableToolWindow;
-			f.Owner = edit.ParentForm;
 
-			CurveW4L importer = new CurveW4L(edit);
-			importer.Dock = DockStyle.Fill;
-			f.Controls.Add(importer);
-			f.AcceptButton = importer.m_import;
-			f.CancelButton = importer.m_copy;
-			f.ResumeLayout(true);
-			return f.ShowDialog();
-		}
-		public CurveW4L(MouldCurveEditor edit)
-		{
-			InitializeComponent();
-			m_import.Visible = false;//no import for now
+			if (edit != null)
+			{
+				f.Owner = edit.ParentForm;
+				f.Location = edit.PointToScreen(edit.Location);
+			}
+			else
+			{
+				f.Owner = WarpFrame.ActiveForm;
+				f.StartPosition = FormStartPosition.CenterParent;
+			}
+
+			//intitialze this guy
 			m_edit = edit;
 			SetText();
+
+			//add it to the form and show
+			Dock = DockStyle.Fill;
+			f.Controls.Add(this);
+			f.AcceptButton = m_import;
+			f.CancelButton = m_copy;
+			f.ResumeLayout(true);
+			return f.ShowDialog();
+
+		}
+		public CurveW4L()
+		{
+			InitializeComponent();
+#if !DEBUG
+			m_import.Visible = false;//no import for now
+#endif
 		}
 
 		private void SetText()
@@ -71,18 +103,18 @@ namespace Warps.Curves
 					script.Append(" stopping ");
 
 			}
-			textBox1.Text = script.ToString();
+			m_scriptBox.Text = script.ToString();
 		}
 		MouldCurveEditor m_edit;
-		private void textBox1_Enter(object sender, EventArgs e)
+		private void scriptBox_Enter(object sender, EventArgs e)
 		{
-			if (Clipboard.ContainsText())
+			if (m_import.Visible && Clipboard.ContainsText())
 			{
 				string txt = Clipboard.GetText(TextDataFormat.Text);
 				if ((txt.StartsWith("GIRTH") || txt.StartsWith("CURVE")) && txt.Length > 13)
 				{
 					if (MessageBox.Show(string.Format("Copy {0} from clipboard?", txt.Substring(0, 13)), "Import Curve", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-						textBox1.Text = txt;
+						m_scriptBox.Text = txt;
 				}
 			}
 		}
@@ -94,34 +126,46 @@ namespace Warps.Curves
 
 		private void m_copy_Click(object sender, EventArgs e)
 		{
-			Clipboard.SetText(textBox1.Text, TextDataFormat.Text);
+			Clipboard.SetText(m_scriptBox.Text, TextDataFormat.Text);
 		}
 
-		#region CurveMaker
+		#region Importing
 
-		//private void CreateCurve(string script)
-		//{
-		//	List<IFitPoint> fits = new List<IFitPoint>();
-		//	int nS = script.IndexOf("tarting");
-		//	nS = script.IndexOf(' ', nS);
-		//	fits.Add(ReadFitPoint(script, ++nS));
-		//	while ((nS = script.IndexOf("hrough", nS)) > 0)
-		//	{
-		//		nS += 6;
-		//		while (script[++nS] == ' ') ;//skip spaces
-		//		fits.Add(ReadFitPoint(script, nS));
-		//	}
-		//	nS = script.IndexOf("topping");
-		//	nS = script.IndexOf(' ', nS);
-		//	fits.Add(ReadFitPoint(script, ++nS));
-		//	if (Curve == null)
-		//		Curve = new MouldCurve(script.Substring(7, 5), m_sail, fits.ToArray());
-		//	else
-		//	{
-		//		Curve.Label = script.Substring(7, 5);
-		//		Curve.Fit(fits.ToArray());
-		//	}
-		//}
+		public MouldCurve ParseScript()
+		{
+			string script = m_scriptBox.Text;
+			List<IFitPoint> fits = new List<IFitPoint>();
+			int nS = script.IndexOf("tarting");
+			nS = script.IndexOf(' ', nS);
+			fits.Add(ReadFitPoint(script, ++nS));
+			while ((nS = script.IndexOf("hrough", nS)) > 0)
+			{
+				nS += 6;
+				while (script[++nS] == ' ') ;//skip spaces
+				fits.Add(ReadFitPoint(script, nS));
+			}
+			nS = script.IndexOf("topping");
+			nS = script.IndexOf(' ', nS);
+			fits.Add(ReadFitPoint(script, ++nS));
+			MouldCurve curve = new MouldCurve(script.Substring(7, 5).Trim(), WarpFrame.CurrentSail, fits.ToArray());
+			if (script.StartsWith("GIRTH"))
+				curve.Girth(0, true);
+			else
+				for (int nGir = 0; nGir < fits.Count - 1; nGir++)
+					curve.Girth(nGir, false);
+
+			return curve;
+			//KeyValuePair<string, IFitPoint[]> cur
+			//	= new KeyValuePair<string, IFitPoint[]>(script.Substring(7, 5), fits.ToArray());
+			//return cur;
+			//if (Curve == null)
+			//	Curve = new MouldCurve(script.Substring(7, 5), m_sail, fits.ToArray());
+			//else
+			//{
+			//	Curve.Label = script.Substring(7, 5);
+			//	Curve.Fit(fits.ToArray());
+			//}
+		}
 
 		//private void CreateGirth(string script)
 		//{
@@ -141,44 +185,47 @@ namespace Warps.Curves
 		//	}
 		//}
 
-		//IFitPoint ReadFitPoint(string script, int nType)
-		//{
-		//	int nE, nS = nType + 5;
-		//	double u, v;
-		//	string curve;
-		//	MouldCurve cur;
-		//	string type = script.Substring(nType, 5);
-		//	switch (type)
-		//	{
-		//		case "POINT":
-		//			nS = script.IndexOf('[', nS);
-		//			nE = script.IndexOf(';', ++nS);
-		//			curve = script.Substring(nS, nE - nS);
-		//			double.TryParse(curve, out u);
-		//			nS = script.IndexOf(']', ++nE);
-		//			curve = script.Substring(nE, nS - nE);
-		//			double.TryParse(curve, out v);
-		//			return new FixedPoint(u, v);
-		//		case "CURVE":
-		//			nS = script.IndexOf('[', nS);
-		//			nE = script.IndexOf(';', ++nS);
-		//			curve = script.Substring(nS, nE - nS).Trim();
-		//			cur = m_sail.FindCurve(curve);
-		//			nS = script.IndexOf(']', ++nE);
-		//			curve = script.Substring(nE, nS - nE);
-		//			double.TryParse(curve, out v);
-		//			return new CurvePoint(cur, v);
-		//		case "SLIDE":
-		//			nS = script.IndexOf('[', nS);
-		//			nE = script.IndexOf(';', ++nS);
-		//			curve = script.Substring(nS, nE - nS);
-		//			cur = m_sail.FindCurve(curve);
-		//			nS = script.IndexOf(']', ++nE);
-		//			double.TryParse(script.Substring(nE, nS - nE), out v);
-		//			return new SlidePoint(cur, v);
-		//	}
-		//	return null;
-		//}
+		IFitPoint ReadFitPoint(string script, int nType)
+		{
+			Sail s = WarpFrame.CurrentSail;
+			if (s == null)
+				throw new ArgumentNullException("No Active Sail Object, Cannot Import W4L Script");
+			int nE, nS = nType + 5;
+			double u, v;
+			string curve;
+			MouldCurve cur;
+			string type = script.Substring(nType, 5);
+			switch (type)
+			{
+				case "POINT":
+					nS = script.IndexOf('[', nS);
+					nE = script.IndexOf(';', ++nS);
+					curve = script.Substring(nS, nE - nS);
+					double.TryParse(curve, out u);
+					nS = script.IndexOf(']', ++nE);
+					curve = script.Substring(nE, nS - nE);
+					double.TryParse(curve, out v);
+					return new FixedPoint(u, v);
+				case "CURVE":
+					nS = script.IndexOf('[', nS);
+					nE = script.IndexOf(';', ++nS);
+					curve = script.Substring(nS, nE - nS).Trim();
+					cur = s.FindCurve(curve);
+					nS = script.IndexOf(']', ++nE);
+					curve = script.Substring(nE, nS - nE);
+					double.TryParse(curve, out v);
+					return new CurvePoint(cur, v);
+				case "SLIDE":
+					nS = script.IndexOf('[', nS);
+					nE = script.IndexOf(';', ++nS);
+					curve = script.Substring(nS, nE - nS);
+					cur = s.FindCurve(curve);
+					nS = script.IndexOf(']', ++nE);
+					double.TryParse(script.Substring(nE, nS - nE), out v);
+					return new SlidePoint(cur, v);
+			}
+			return null;
+		}
 
 		#endregion
 	}

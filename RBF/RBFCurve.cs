@@ -203,7 +203,7 @@ namespace RBF
 			foreach (ICenter c in Centers)
 			{
 				r = c.radius(p); // radius
-				if (BLAS.is_equal(r, 0)) continue;
+				if (BLAS.IsEqual(r, 0)) continue;
 
 				p[2] += c.w * Basis.val(r); // sum the weight * rbf values
 
@@ -225,7 +225,7 @@ namespace RBF
 			foreach (ICenter c in Centers)
 			{
 				r = c.radius(p); // radius
-				if (BLAS.is_equal(r, 0)) continue;
+				if (BLAS.IsEqual(r, 0)) continue;
 
 
 				p[1] += c.w * Basis.val(r); // sum the weight * rbf values

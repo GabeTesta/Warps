@@ -206,7 +206,8 @@ namespace Warps
 			m_group.Clear();
 			eqs.ForEach(eq => m_group.Add(eq));
 
-			changed.ForEach(eq => m_frame.Rebuild(eq));
+			m_frame.Rebuild(changed);
+			//changed.ForEach(eq => m_frame.Rebuild(eq));
 			//m_frame.Rebuild(m_group);
 			if (changed.Count > 0)
 			{

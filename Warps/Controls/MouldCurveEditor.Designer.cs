@@ -68,6 +68,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.m_panel.AutoScroll = true;
+			this.m_panel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.m_panel.Location = new System.Drawing.Point(3, 29);
 			this.m_panel.Name = "m_panel";
 			this.m_panel.Size = new System.Drawing.Size(244, 405);
@@ -128,6 +129,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoScroll = true;
+			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.Controls.Add(this.m_w4lBtn);
 			this.Controls.Add(this.m_panel);
 			this.Controls.Add(this.m_label);

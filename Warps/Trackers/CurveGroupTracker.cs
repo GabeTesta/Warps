@@ -22,7 +22,9 @@ namespace Warps
 			m_edit = new CurveGroupEditor(m_group);
 			m_edit.addCur.Click += OnAdd;
 			m_edit.delCur.Click += delCur_Click;
+			m_edit.importCurve.Click += importCurve_Click;
 		}
+
 
 		public void Track(WarpFrame frame)
 		{
@@ -33,6 +35,7 @@ namespace Warps
 				m_frame.EditorPanel = Edit;
 				EditMode = m_frame.EditMode;
 				m_edit.AfterSelect += m_frame.m_tree_AfterSelect;
+
 
 				//m_frame.okButton.Click += OnBuild;
 				//m_frame.cancelButton.Click += OnCancel;
@@ -238,6 +241,17 @@ namespace Warps
 			m_frame.Delete(m_group);
 			//m_frame.Rebuild(null);
 
+		}
+
+		void importCurve_Click(object sender, EventArgs e)
+		{
+			Warps.Curves.CurveW4L dlg = new Curves.CurveW4L();
+			if (dlg.ShowDialog(null) == System.Windows.Forms.DialogResult.OK)
+			{
+				MouldCurve cur = dlg.ParseScript();
+				m_curveTracker = new CurveTracker(cur);
+				m_curveTracker.Track(m_frame);
+			}
 		}
 
 		public void OnCancel(object sender, EventArgs e)

@@ -228,14 +228,25 @@ namespace Warps
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Text = Label;
 			m_node.Tag = this;
-			m_node.ToolTipText = GetType().Name;
-			m_node.ImageKey = GetType().Name;
-			m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
 			m_node.Nodes.Clear();
 			//if( m_path != null && m_path.Length > 0 )
 			//	m_node.Nodes.Add("Path: " + m_path);
 			m_node.Nodes.Add("Fit Error: " + m_error);
 			return m_node;
+		}
+
+		double[] m_colors = null;
+		public double[] ColorValues
+		{
+			get
+			{
+				return m_colors;
+			}
+			set
+			{
+				m_colors = value;
+			}
 		}
 
 		#endregion

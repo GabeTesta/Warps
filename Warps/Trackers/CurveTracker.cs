@@ -156,7 +156,7 @@ namespace Warps
 			//Detach();
 			OnPreview(sender, null);
 			//View.Remove(m_temp);
-			View.Remove(Curve);
+			//View.Remove(Curve);
 
 			Curve.Fit(m_temp);
 			Curve.Label = m_edit.Label;
@@ -164,7 +164,7 @@ namespace Warps
 			if( sender != null )
 				m_frame.Rebuild(Curve);//returns false if AutoBuild is off
 			
-			View.Refresh(); 
+			//View.Refresh();
 		}
 		public void OnPreview(object sender, EventArgs e)
 		{

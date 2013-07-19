@@ -10,8 +10,9 @@ namespace Warps
 {
 	public interface IRebuild
 	{
-		string Label { get; set; } 
-		
+		string Label { get; set; }
+		string Layer { get; }
+
 		List<string> WriteScript();
 		bool ReadScript(Sail sail, IList<string> txt);
 
@@ -22,7 +23,7 @@ namespace Warps
 		bool Locked { get; set; }
 
 		TreeNode WriteNode();
-		Entity[] CreateEntities();
+		List<Entity> CreateEntities();
 		devDept.Eyeshot.Labels.Label[] EntityLabel { get; }
 
 		/// <summary>

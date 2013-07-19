@@ -64,6 +64,7 @@ namespace Warps.Yarns
 			View.EditMode = state;
 			m_edit.Enabled = state;
 			View.DeSelectAllLayers();
+			View.Select(m_group);
 			//View.SelectLayer(m_group);
 			foreach (MouldCurve curve in m_group.Warps)
 				View.Select(curve);

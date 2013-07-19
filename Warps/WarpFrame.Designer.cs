@@ -32,11 +32,9 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WarpFrame));
 			this.m_vertsplit = new System.Windows.Forms.SplitContainer();
 			this.m_horizsplit = new System.Windows.Forms.SplitContainer();
-			this.m_tree = new Warps.TabTree();
 			this.previewButton = new System.Windows.Forms.Button();
 			this.editPanel = new System.Windows.Forms.Panel();
 			this.okButton = new System.Windows.Forms.Button();
-			this.m_dualView = new Warps.DualView();
 			this.m_toolstrip = new System.Windows.Forms.ToolStrip();
 			this.newToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.openToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -61,6 +59,8 @@
 			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.m_statusProgress = new System.Windows.Forms.ToolStripProgressBar();
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
+			this.m_tree = new Warps.TabTree();
+			this.m_dualView = new Warps.DualView();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
 			this.m_vertsplit.Panel1.SuspendLayout();
 			this.m_vertsplit.Panel2.SuspendLayout();
@@ -114,19 +114,11 @@
 			this.m_horizsplit.SplitterDistance = 205;
 			this.m_horizsplit.TabIndex = 0;
 			// 
-			// m_tree
-			// 
-			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_tree.Location = new System.Drawing.Point(0, 0);
-			this.m_tree.Name = "m_tree";
-			this.m_tree.SelectedTag = null;
-			this.m_tree.Size = new System.Drawing.Size(205, 523);
-			this.m_tree.TabIndex = 0;
-			// 
 			// previewButton
 			// 
 			this.previewButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.previewButton.BackColor = System.Drawing.Color.White;
+			this.previewButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SeaGreen;
 			this.previewButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.previewButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.previewButton.Location = new System.Drawing.Point(3, 497);
@@ -135,8 +127,6 @@
 			this.previewButton.TabIndex = 1;
 			this.previewButton.Text = "Preview";
 			this.previewButton.UseVisualStyleBackColor = false;
-			this.previewButton.MouseEnter += new System.EventHandler(this.okButton_MouseEnter);
-			this.previewButton.MouseLeave += new System.EventHandler(this.okButton_MouseLeave);
 			// 
 			// editPanel
 			// 
@@ -153,6 +143,7 @@
 			// 
 			this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.okButton.BackColor = System.Drawing.Color.White;
+			this.okButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SteelBlue;
 			this.okButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.okButton.Location = new System.Drawing.Point(119, 497);
 			this.okButton.Name = "okButton";
@@ -160,17 +151,6 @@
 			this.okButton.TabIndex = 2;
 			this.okButton.Text = "Apply";
 			this.okButton.UseVisualStyleBackColor = false;
-			this.okButton.MouseEnter += new System.EventHandler(this.okButton_MouseEnter);
-			this.okButton.MouseLeave += new System.EventHandler(this.okButton_MouseLeave);
-			// 
-			// m_dualView
-			// 
-			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_dualView.EditMode = false;
-			this.m_dualView.Location = new System.Drawing.Point(0, 0);
-			this.m_dualView.Name = "m_dualView";
-			this.m_dualView.Size = new System.Drawing.Size(613, 523);
-			this.m_dualView.TabIndex = 0;
 			// 
 			// m_toolstrip
 			// 
@@ -198,7 +178,7 @@
             this.cancelButton});
 			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
 			this.m_toolstrip.Name = "m_toolstrip";
-			this.m_toolstrip.Size = new System.Drawing.Size(494, 25);
+			this.m_toolstrip.Size = new System.Drawing.Size(508, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
 			// 
@@ -292,14 +272,14 @@
 			// 
 			// toolStripButton1
 			// 
-			this.toolStripButton1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
 			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
 			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButton1.Name = "toolStripButton1";
-			this.toolStripButton1.Size = new System.Drawing.Size(55, 22);
-			this.toolStripButton1.Text = "Clear All";
+			this.toolStripButton1.Size = new System.Drawing.Size(38, 22);
+			this.toolStripButton1.Text = "Clear";
 			this.toolStripButton1.ToolTipText = "Clear project";
+			this.toolStripButton1.Visible = false;
 			this.toolStripButton1.Click += new System.EventHandler(this.clearAll_Click);
 			// 
 			// toolStripSeparator4
@@ -416,6 +396,24 @@
 			// toolStripContainer1.TopToolStripPanel
 			// 
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
+			// 
+			// m_tree
+			// 
+			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_tree.Location = new System.Drawing.Point(0, 0);
+			this.m_tree.Name = "m_tree";
+			this.m_tree.SelectedTag = null;
+			this.m_tree.Size = new System.Drawing.Size(205, 523);
+			this.m_tree.TabIndex = 0;
+			// 
+			// m_dualView
+			// 
+			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_dualView.EditMode = false;
+			this.m_dualView.Location = new System.Drawing.Point(0, 0);
+			this.m_dualView.Name = "m_dualView";
+			this.m_dualView.Size = new System.Drawing.Size(613, 523);
+			this.m_dualView.TabIndex = 0;
 			// 
 			// WarpFrame
 			// 

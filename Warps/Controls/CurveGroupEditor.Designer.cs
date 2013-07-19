@@ -39,6 +39,7 @@
 			this.m_popup = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.addCur = new System.Windows.Forms.ToolStripMenuItem();
 			this.delCur = new System.Windows.Forms.ToolStripMenuItem();
+			this.importCurve = new System.Windows.Forms.ToolStripMenuItem();
 			this.m_popup.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -113,9 +114,10 @@
 			// 
 			this.m_popup.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addCur,
-            this.delCur});
+            this.delCur,
+            this.importCurve});
 			this.m_popup.Name = "m_popup";
-			this.m_popup.Size = new System.Drawing.Size(153, 70);
+			this.m_popup.Size = new System.Drawing.Size(153, 92);
 			this.m_popup.Opening += new System.ComponentModel.CancelEventHandler(this.m_popup_Opening);
 			// 
 			// addCur
@@ -129,6 +131,12 @@
 			this.delCur.Name = "delCur";
 			this.delCur.Size = new System.Drawing.Size(152, 22);
 			this.delCur.Text = "Delete Curve";
+			// 
+			// importCurve
+			// 
+			this.importCurve.Name = "importCurve";
+			this.importCurve.Size = new System.Drawing.Size(152, 22);
+			this.importCurve.Text = "Import Curve";
 			// 
 			// CurveGroupEditor
 			// 
@@ -158,5 +166,6 @@
 		private System.Windows.Forms.ContextMenuStrip m_popup;
 		internal System.Windows.Forms.ToolStripMenuItem addCur;
 		internal System.Windows.Forms.ToolStripMenuItem delCur;
+		internal System.Windows.Forms.ToolStripMenuItem importCurve;
 	}
 }

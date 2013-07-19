@@ -36,7 +36,7 @@ namespace Warps
 			Expression ex = new Expression(equation.EquationText, EvaluateOptions.IgnoreCase);
 
 			List<Equation> avails = sail.WatermarkEqs(equation);
-			avails.ForEach(eq => ex.Parameters[eq.Label] = eq.Result);
+			avails.ForEach(eq => ex.Parameters[eq.Label] = eq.Value);
 			//Set up a custom delegate so NCalc will ask you for a parameter's value
 			//   when it first comes across a variable
 
@@ -48,13 +48,13 @@ namespace Warps
 			try
 			{
 				result = Convert.ToDouble(ex.Evaluate());
-				equation.SetResult(result);
+				equation.m_result = result;
 				worked = true;
 			}
 			catch (Exception exx)
 			{
 				worked = double.TryParse(equation.EquationText, out result);
-				equation.SetResult(result);
+				equation.m_result = result;
 				Warps.Logger.logger.Instance.LogErrorException(exx);
 			}
 			finally
@@ -63,7 +63,7 @@ namespace Warps
 				{
 					if (showBox)
 						System.Windows.Forms.MessageBox.Show("Error parsing equation");
-					result = double.NaN;
+					equation.m_result = double.NaN;
 				}
 			}
 

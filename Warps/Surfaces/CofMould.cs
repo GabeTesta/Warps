@@ -122,6 +122,12 @@ namespace Warps
 		}
 		List<IGroup> m_moucurves;
 		List<RigLine> m_rigcurves;
+
+		public List<RigLine> RigCurves
+		{
+			get { return m_rigcurves; }
+			set { m_rigcurves = value; }
+		}
 		void ReadBinCurves(BinaryReader bin, Sail sail)
 		{
 			//read 3d curve count
@@ -137,6 +143,7 @@ namespace Warps
 			//read curvegroups from bin file
 			for (int nC = 0; nC < iC; nC++)
 				m_moucurves.Add(new CurveGroup(bin, sail));
+
 		}
 
 		#endregion
@@ -159,6 +166,8 @@ namespace Warps
 		//double[,] m_xMat = new double[3, 3];
 		//double[] m_xVec = new double[3]; 
 		#endregion
+
+		#region ISurface Members
 
 		private void BsCil(int iDer, double t, int iK, out int nInterval, ref double[,] basis)
 		{
@@ -464,19 +473,11 @@ namespace Warps
 			return false;
 		}
 
-		public override string ToString()
-		{
-			return Label;
-			//return string.Format("{0}: {1} [{2}]", GetType().Name, Label, CofPath); 
-		}
-
-		#region ISurface Members
-
 		public List<Entity> CreateEntities(double[,] uvLims, bool bGauss)
 		{
 			List<Entity> ents = new List<Entity>();
 			ents.Add(SurfaceTools.GetMesh(this, uvLims, bGauss));
-
+			List<Entity> grp;
 			if (!bGauss)//only add curves to non-gauss layer
 			{
 				if (m_rigcurves != null)
@@ -488,7 +489,10 @@ namespace Warps
 				if (m_moucurves != null)
 					foreach (IGroup g in m_moucurves)
 					{
-						ents.AddRange(g.CreateEntities());
+						grp = g.CreateEntities();
+						foreach (Entity e in grp)
+							e.EntityData = this;
+						ents.AddRange(grp);	
 					}
 			}
 			return ents;
@@ -522,9 +526,7 @@ namespace Warps
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Text = CofPath;
 			m_node.Tag = this;
-			m_node.ToolTipText = GetType().Name;
-			m_node.ImageKey = GetType().Name;
-			m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
 			m_node.Nodes.Clear();
 			if( m_moucurves != null )
 			foreach (IGroup g in m_moucurves)
@@ -538,6 +540,11 @@ namespace Warps
 
 		#endregion
 
+		public override string ToString()
+		{
+			return Label;
+			//return string.Format("{0}: {1} [{2}]", GetType().Name, Label, CofPath); 
+		}
 		//List<Entity> m_entities = new List<Entity>();
 
 		//public List<Entity> Entities
@@ -581,5 +588,22 @@ namespace Warps
 		//	mesh.Selectable = false;
 		//	return mesh;
 		//}
+
+		#region ISurface Members
+
+		double[] m_colors = null;
+		public double[] ColorValues
+		{
+			get
+			{
+				return m_colors;
+			}
+			set
+			{
+				m_colors = value;
+			}
+		}
+
+		#endregion
 	}
 }

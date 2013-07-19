@@ -28,7 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			Warps.Equation equation1 = new Warps.Equation();
 			this.m_variableTextBox = new System.Windows.Forms.TextBox();
 			this.m_selectedCheckbox = new System.Windows.Forms.CheckBox();
 			this.m_resultTB = new System.Windows.Forms.TextBox();
@@ -65,17 +64,10 @@
 			// 
 			// m_eqBox
 			// 
-			this.m_eqBox.AutoFillVariables = null;
-			equation1.EquationText = "0.0000";
-			equation1.Label = "eq";
-			equation1.Locked = false;
-			this.m_eqBox.Equation = equation1;
 			this.m_eqBox.Location = new System.Drawing.Point(4, 23);
 			this.m_eqBox.Name = "m_eqBox";
-			this.m_eqBox.sail = null;
 			this.m_eqBox.Size = new System.Drawing.Size(213, 24);
 			this.m_eqBox.TabIndex = 2;
-			this.m_eqBox.Value = 0D;
 			// 
 			// VariableEditor
 			// 

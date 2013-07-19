@@ -33,17 +33,19 @@ namespace RBF
 			if (uvs.Count != xyz.Count || xyz.Count == 0 || uvs.Count == 0 || xyz[0].Length == 0)
 				return;
 
-			m_Centers = new List<double[]>(xyz);
-			m_Weights = new double[xyz.Count + 2, xyz[0].Length];
+			m_Centers = new List<double[]>(uvs);
+			double[,] A = FitMat();
+
+			m_Weights = new double[A.GetLength(0), xyz[0].Length];
 			double[][] b = new double[Dimensions][];
-			int nx = 0;
+			int nx = 0, i;
 			for (nx = 0; nx < Dimensions; nx++)
 			{
-				b[nx] = new double[xyz.Count];
-				for (int i = 0; i < xyz.Count; i++)
+				b[nx] = new double[A.GetLength(0)];//include 0's for polyterms
+				for (i = 0; i < xyz.Count; i++)
 					b[nx][i] = xyz[i][nx];
+	
 			}
-			double[,] A = FitMat();
 
 			for (nx = 0; nx < Dimensions; nx++)
 				Solve(A, b[nx], nx);
@@ -126,16 +128,23 @@ namespace RBF
 			if (uv.Length != CenterDims || xyz.Length != Dimensions || dxyz.GetLength(0) != CenterDims || dxyz.GetLength(1) != Dimensions)
 				return;
 
-			double rad;
+			double rad, drad;
 			int nx, nCent;
 			for (nx = 0; nx < xyz.Length; nx++)
+			{
 				xyz[nx] = 0;//initialize x
+				for (nCent = 0; nCent < CenterDims; nCent++)
+					dxyz[nCent,nx] =0;
+			}
 			for (nCent = 0; nCent < Count; nCent++)
 			{
-				rad = m_basis.val(BLAS.distance(m_Centers[nCent], uv));
+				rad = BLAS.distance(m_Centers[nCent], uv);
+				//drad = m_basis.dr(rad);
+				rad = m_basis.val(rad);
 				for (nx = 0; nx < Dimensions; nx++)
 				{
 					xyz[nx] += m_Weights[nCent, nx] * rad;
+					//dxyz[nCent, nx] += m_Weights[nCent, nx] * drad;
 				}
 			}
 			for (int nPoly = 0; nPoly <= CenterDims; nPoly++)
@@ -147,68 +156,68 @@ namespace RBF
 
 	}
 
-	public class RBFNetwork2
-	{
-		public RBFNetwork2(uint nDim)
-			: this(nDim, null, PolyTypes.Plane)//null defaults to Thin Plate Spline
-		{ }
-		private RBFNetwork2(uint nDim, IBasisFunction basis, PolyTypes poly)
-		{
-			m_rbfs = new RBFSurface[nDim];
-			for (uint i = 0; i < nDim; i++)
-			{
-				m_rbfs[i] = new RBFSurface(null, basis, poly, 0);
-			}
-		}
+	//public class RBFNetwork2
+	//{
+	//	public RBFNetwork2(uint nDim)
+	//		: this(nDim, null, PolyTypes.Plane)//null defaults to Thin Plate Spline
+	//	{ }
+	//	private RBFNetwork2(uint nDim, IBasisFunction basis, PolyTypes poly)
+	//	{
+	//		m_rbfs = new RBFSurface[nDim];
+	//		for (uint i = 0; i < nDim; i++)
+	//		{
+	//			m_rbfs[i] = new RBFSurface(null, basis, poly, 0);
+	//		}
+	//	}
 
-		RBFSurface[] m_rbfs;// = new RBFSurface[3];
-		int Dimensions
-		{
-			get { return m_rbfs.Length; }
-		}
-		public void Fit(IList<double[]> uvs, IList<double[]> xyz)
-		{
-			if (uvs.Count != xyz.Count || xyz.Count == 0 || xyz[0].Length != Dimensions)
-				return;
+	//	RBFSurface[] m_rbfs;// = new RBFSurface[3];
+	//	int Dimensions
+	//	{
+	//		get { return m_rbfs.Length; }
+	//	}
+	//	public void Fit(IList<double[]> uvs, IList<double[]> xyz)
+	//	{
+	//		if (uvs.Count != xyz.Count || xyz.Count == 0 || xyz[0].Length != Dimensions)
+	//			return;
 
 
-			List<double[]>[] fits = new List<double[]>[Dimensions];
-			int nDim = 0;
-			for (nDim = 0; nDim < Dimensions; nDim++)
-			{
-				fits[nDim] = new List<double[]>(uvs.Count);
-				for (int i = 0; i < uvs.Count; i++)
-					fits[nDim].Add(new double[] { uvs[i][0], uvs[i][1], xyz[i][nDim] });
-			}
+	//		List<double[]>[] fits = new List<double[]>[Dimensions];
+	//		int nDim = 0;
+	//		for (nDim = 0; nDim < Dimensions; nDim++)
+	//		{
+	//			fits[nDim] = new List<double[]>(uvs.Count);
+	//			for (int i = 0; i < uvs.Count; i++)
+	//				fits[nDim].Add(new double[] { uvs[i][0], uvs[i][1], xyz[i][nDim] });
+	//		}
 
-			for (nDim = 0; nDim < Dimensions; nDim++)
-				m_rbfs[nDim].Fit(fits[nDim]);
-		}
+	//		for (nDim = 0; nDim < Dimensions; nDim++)
+	//			m_rbfs[nDim].Fit(fits[nDim]);
+	//	}
 
-		public void Value(double[] uv, ref double[] xyz)
-		{
-			double[] p = new double[3];
-			p[0] = uv[0]; p[1] = uv[1];
-			for (int i = 0; i < Dimensions; i++)
-			{
-				m_rbfs[i].Value(ref p);
-				xyz[i] = p[2];
+	//	public void Value(double[] uv, ref double[] xyz)
+	//	{
+	//		double[] p = new double[3];
+	//		p[0] = uv[0]; p[1] = uv[1];
+	//		for (int i = 0; i < Dimensions; i++)
+	//		{
+	//			m_rbfs[i].Value(ref p);
+	//			xyz[i] = p[2];
 
-			}
-		}
-		public void First(double[] uv, ref double[] xyz, ref double[,] dxyz)
-		{
-			double[] p = new double[3];
-			double[] d = new double[3];
-			p[0] = uv[0]; p[1] = uv[1];
-			for (int i = 0; i < Dimensions; i++)
-			{
-				m_rbfs[i].First(ref p, ref d);
-				xyz[i] = p[2];
-				dxyz[i, 0] = d[0];
-				dxyz[i, 1] = d[1];
-			}
-		}
+	//		}
+	//	}
+	//	public void First(double[] uv, ref double[] xyz, ref double[,] dxyz)
+	//	{
+	//		double[] p = new double[3];
+	//		double[] d = new double[3];
+	//		p[0] = uv[0]; p[1] = uv[1];
+	//		for (int i = 0; i < Dimensions; i++)
+	//		{
+	//			m_rbfs[i].First(ref p, ref d);
+	//			xyz[i] = p[2];
+	//			dxyz[i, 0] = d[0];
+	//			dxyz[i, 1] = d[1];
+	//		}
+	//	}
 
-	}
+	//}
 }

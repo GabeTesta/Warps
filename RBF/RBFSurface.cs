@@ -218,7 +218,7 @@ namespace RBF
 			foreach (Center3d c in Centers)
 			{
                     r = c.radius(p); // radius
-                    if (BLAS.is_equal(r, 0)) continue;
+                    if (BLAS.IsEqual(r, 0)) continue;
 
                     p[2] += c.w * Basis.val(r); // sum the weight * rbf values
 
@@ -252,7 +252,7 @@ namespace RBF
 			foreach (Center3d c in Centers)
 			{
                     r = c.radius(p); // radius
-                    if (BLAS.is_equal(r, 0)) continue;
+                    if (BLAS.IsEqual(r, 0)) continue;
                     p[2] += c.w * Basis.val(r); // sum the weight * rbf values
 
                     dr = Basis.dr(r); // dRBF/dr

@@ -28,8 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			Warps.Equation equation1 = new Warps.Equation();
-			Warps.Equation equation2 = new Warps.Equation();
 			this.m_labelTextBox = new System.Windows.Forms.TextBox();
 			this.m_guideListView = new System.Windows.Forms.ListView();
 			this.selectGuideButt = new System.Windows.Forms.Button();
@@ -94,17 +92,10 @@
 			// 
 			this.yarnDenierEQB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.yarnDenierEQB.AutoFillVariables = null;
-			equation1.EquationText = "0.0000";
-			equation1.Label = "eq";
-			this.yarnDenierEQB.Equation = equation1;
 			this.yarnDenierEQB.Location = new System.Drawing.Point(3, 305);
-			this.yarnDenierEQB.MaximumSize = new System.Drawing.Size(201, 24);
 			this.yarnDenierEQB.Name = "yarnDenierEQB";
-			this.yarnDenierEQB.sail = null;
 			this.yarnDenierEQB.Size = new System.Drawing.Size(166, 24);
 			this.yarnDenierEQB.TabIndex = 2;
-			this.yarnDenierEQB.Value = 0D;
 			// 
 			// selectWarpButt
 			// 
@@ -161,17 +152,10 @@
 			// 
 			this.targetDPIEQB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.targetDPIEQB.AutoFillVariables = null;
-			equation2.EquationText = "0.0000";
-			equation2.Label = "eq";
-			this.targetDPIEQB.Equation = equation2;
 			this.targetDPIEQB.Location = new System.Drawing.Point(3, 348);
-			this.targetDPIEQB.MaximumSize = new System.Drawing.Size(201, 24);
 			this.targetDPIEQB.Name = "targetDPIEQB";
-			this.targetDPIEQB.sail = null;
 			this.targetDPIEQB.Size = new System.Drawing.Size(166, 24);
 			this.targetDPIEQB.TabIndex = 3;
-			this.targetDPIEQB.Value = 0D;
 			// 
 			// outputGroup
 			// 

@@ -14,7 +14,7 @@ namespace Warps
 	/// </summary>
 	public class GuideComb : MouldCurve
 	{
-		public GuideComb() { Label = "none"; uSplines = new Vect2[]{new Vect2(0, 0)}; }
+		public GuideComb() { Label = "none"; uSplines = new Vect2[] { new Vect2(0, 0) }; }
 
 		/// <summary>
 		/// creates a new guidecomb optionally fit to the specified points and combheights

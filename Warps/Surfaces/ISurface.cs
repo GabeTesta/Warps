@@ -14,7 +14,8 @@ namespace Warps
 	{
 		COF = 0,
 		RBF,
-		COMBO
+		COMBO,
+		OBJ
 	};
 
 	public interface ISurface
@@ -36,6 +37,7 @@ namespace Warps
 		bool ReadScript(Sail sail, IList<string> txt);
 
 		List<devDept.Eyeshot.Entities.Entity> CreateEntities(double[,] uvLims, bool bGauss);
+		double[] ColorValues { get; set; }
 
 		System.Windows.Forms.TreeNode WriteNode();
 	}
@@ -43,8 +45,8 @@ namespace Warps
 	public static class SurfaceTools
 	{
 
-		public static int MESHU = 60;
-		public static int MESHV = 90;
+		public static int MESHU = 50;
+		public static int MESHV = 50;
 		public static double[,] MESHLIMITS = new double[,] { { -0.2, 1.2 }, { -0.2, 1.2 } };
 
 		//static public void GetFittingMesh(ISurface s, double vMid, out List<Vect2> uv, out List<Vect3> xyz)
@@ -243,7 +245,7 @@ namespace Warps
 		/// <param name="COLS">the number of constant-v sections</param>
 		/// <param name="uvLim">(optional)the uv limits to mesh, uvLim[0,x] = uLim, uvLim[1,x] = vLim</param>
 		/// <returns>the grid of points for meshing</returns>
-		static public PointRGB[] GetMeshGaussianPoints(ISurface s, int ROWS, int COLS, double[,] uvLim)
+		static public PointRGB[] GetMeshGaussianPoints(ISurface s, int ROWS, int COLS, double[,] uvLim, out double[] cGauss)
 		{
 			if (uvLim == null)
 				uvLim = new double[,] { { 0, 1 }, { 0, 1 } };
@@ -251,7 +253,7 @@ namespace Warps
 			Vect3 xyz = new Vect3();
 			List<Vect3> xyzs = new List<Vect3>(ROWS * COLS);
 			PointRGB[] meshpts = new PointRGB[ROWS * COLS];
-			double[] gauss = new double[ROWS * COLS];
+			cGauss = new double[ROWS * COLS];
 			double kMax = -1e9, kMin = 1e9;
 			int i = 0;
 			for (int iU = 0; iU < ROWS; iU++)
@@ -262,25 +264,25 @@ namespace Warps
 				{
 					uv[1] = BLAS.interpolate((double)iV / (double)(COLS - 1), uvLim[1, 1], uvLim[1, 0]);
 					//uv[1] = (double)iV / (double)(COLS - 1);
-					s.xRad(uv, ref xyz, ref gauss[i]);
+					s.xRad(uv, ref xyz, ref cGauss[i]);
 					//copy to temp array
 					xyzs.Add(new Vect3(xyz));
 					//meshpts[i].X = xyz[0];
 					//meshpts[i].Y = xyz[1];
 					//meshpts[i].Z = xyz[2];
 					//track max/min for color scale
-					kMax = Math.Max(kMax, gauss[i]);
-					kMin = Math.Min(kMin, gauss[i]);
+					kMax = Math.Max(kMax, cGauss[i]);
+					kMin = Math.Min(kMin, cGauss[i]);
 				}
 			}
-			double ave, q1, q3, stddev = BLAS.StandardDeviation(gauss, out ave, out q3, out q1);
+			double ave, q1, q3, stddev = BLAS.StandardDeviation(cGauss, out ave, out q3, out q1);
 			Color c;
 			for (i = 0; i < meshpts.Length; i++)
 			{
-				c = ColorMath.GetScaleColor(ave + 2 * stddev, ave - 2 * stddev, gauss[i]);
+				c = ColorMath.GetScaleColor(ave + 2 * stddev, ave - 2 * stddev, cGauss[i]);
 				meshpts[i] = new PointRGB(xyzs[i][0], xyzs[i][1], xyzs[i][2], c);
 			}
-
+			
 			return meshpts;
 
 		}
@@ -315,10 +317,12 @@ namespace Warps
 		{
 			int rows = MESHU, cols = MESHV;
 			//Mesh mesh = new Mesh(meshNatureType.RichPlain);
-			meshNatureType meshtype = bGauss ? meshNatureType.MulticolorSmooth : meshNatureType.ColorSmooth;
-			Mesh mesh = new Mesh(meshtype);
+			double[] cGauss = null;
+			Mesh mesh = new Mesh(bGauss ? meshNatureType.MulticolorSmooth : meshNatureType.ColorSmooth);
 			mesh.ColorMethod = bGauss ? colorMethodType.byEntity : colorMethodType.byLayer;
-			mesh.Vertices = bGauss ? SurfaceTools.GetMeshGaussianPoints(s, rows, cols, uvLims) : SurfaceTools.GetExtensionPoints(s, rows, cols, uvLims);
+			mesh.Vertices = bGauss ? SurfaceTools.GetMeshGaussianPoints(s, rows, cols, uvLims, out cGauss) : SurfaceTools.GetExtensionPoints(s, rows, cols, uvLims);
+			//record the color vals for displaying colorscale
+			s.ColorValues = cGauss;
 
 			mesh.RegenMode = regenType.RegenAndCompile;
 			mesh.Triangles = new SmoothTriangle[(rows - 1) * (cols - 1) * 2];
@@ -343,6 +347,24 @@ namespace Warps
 			mesh.EntityData = s;
 			mesh.Selectable = false;
 			return mesh;
+		}
+
+		public static Mesh GetMesh(List<double[]> verts, int rows)
+		{
+			List<Point3D> pnts = verts.ConvertAll<Point3D>(new Converter<double[], Point3D>(Utilities.DoubleToPoint3D));
+			return GetMesh(pnts.ToArray(), rows);
+
+		}
+		public static Mesh GetMesh(Vect3[,] verts)
+		{
+			List<Point3D> pnts = new List<Point3D>(verts.Length);
+			for (int i = 0; i < verts.GetLength(0); i++)
+			{
+				for( int j=0; j< verts.GetLength(1); j++ )
+					pnts.Add(Utilities.Vect3ToPoint3D(verts[i,j]));
+			}
+			return GetMesh(pnts.ToArray(), verts.GetLength(0));
+
 		}
 
 		/// <summary>
@@ -406,6 +428,31 @@ namespace Warps
 			//mesh.ComputeNormals();
 			target.NormalAveragingMode = meshNormalAveragingType.AveragedByAngle;
 
+		}
+
+		internal static Entity GetPointCloud(Vect3[,] verts)
+		{
+			List<Point3D> pnts = new List<Point3D>(verts.Length);
+			for (int i = 0; i < verts.GetLength(0); i++)
+			{
+				for (int j = 0; j < verts.GetLength(1); j++)
+					pnts.Add(Utilities.Vect3ToPoint3D(verts[i, j]));
+			}
+			PointCloud cloud = new PointCloud(pnts);
+			cloud.LineWeight = 4;
+			cloud.LineWeightMethod = colorMethodType.byEntity;
+			return cloud;
+		}
+
+		internal static Entity GetMesh(Point2D[,] strip)
+		{
+			List<Point3D> pnts = new List<Point3D>(strip.Length);
+			for (int i = 0; i < strip.GetLength(0); i++)
+			{
+				for (int j = 0; j < strip.GetLength(1); j++)
+					pnts.Add(new Point3D(strip[i,j].X, strip[i,j].Y));
+			}
+			return GetMesh(pnts.ToArray(), strip.GetLength(0));
 		}
 	}
 }

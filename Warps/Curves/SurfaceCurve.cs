@@ -23,8 +23,10 @@ namespace Warps
 				SimpleFit(c, points);
 			else //linear uv interpolation to match minimum 5 points required
 				InterpoFit(c, points);
+			for (int nSeg = 0; nSeg < points.Length; nSeg++)
+				c.Girth(nSeg, false);//no girths
 		}
-		
+
 		/// <summary>
 		/// Interpolates intermediate points in uv and fits a curve
 		/// </summary>

@@ -73,9 +73,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap copy1 {
+        internal static System.Drawing.Bitmap crosspt {
             get {
-                object obj = ResourceManager.GetObject("copy1", resourceCulture);
+                object obj = ResourceManager.GetObject("crosspt", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -103,29 +103,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap CurvePoint {
-            get {
-                object obj = ResourceManager.GetObject("CurvePoint", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap curvept {
             get {
                 object obj = ResourceManager.GetObject("curvept", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap dragger {
-            get {
-                object obj = ResourceManager.GetObject("dragger", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -176,16 +156,6 @@ namespace Warps.Properties {
         internal static System.Drawing.Bitmap equation {
             get {
                 object obj = ResourceManager.GetObject("equation", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap FixedPoint {
-            get {
-                object obj = ResourceManager.GetObject("FixedPoint", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -376,16 +346,6 @@ namespace Warps.Properties {
         internal static System.Drawing.Bitmap SmallEye {
             get {
                 object obj = ResourceManager.GetObject("SmallEye", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap uv {
-            get {
-                object obj = ResourceManager.GetObject("uv", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

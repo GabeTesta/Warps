@@ -145,9 +145,6 @@
   <data name="panel" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\panel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="dragger" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\dragger.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="glyphicons_192_circle_remove" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_192_circle_remove.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -187,9 +184,6 @@
   <data name="icon_sail" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\icon_sail.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="FixedPoint" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\FixedPoint.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="equation" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\equation.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -202,20 +196,11 @@
   <data name="EqText" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EqText.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="CurvePoint" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CurvePoint.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="glyphicons_098_vector_path_curve" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_098_vector_path_curve.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="uv" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\uv.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="GuideComb" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\GuideComb.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="copy1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\copy1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="curvepath" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\curvepath.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -225,5 +210,8 @@
   </data>
   <data name="EndCondition" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EndCondition.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="crosspt" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\crosspt.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

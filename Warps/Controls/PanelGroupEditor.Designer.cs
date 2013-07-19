@@ -28,7 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			Warps.Equation equation1 = new Warps.Equation();
 			this.label3 = new System.Windows.Forms.Label();
 			this.m_orientationList = new System.Windows.Forms.ComboBox();
 			this.groupBox6 = new System.Windows.Forms.GroupBox();
@@ -97,7 +96,7 @@
 			this.selectGuideButt.Name = "selectGuideButt";
 			this.selectGuideButt.Size = new System.Drawing.Size(166, 23);
 			this.selectGuideButt.TabIndex = 19;
-			this.selectGuideButt.Text = "Select Guide";
+			this.selectGuideButt.Text = "Select Warps";
 			this.selectGuideButt.UseVisualStyleBackColor = false;
 			this.selectGuideButt.Click += new System.EventHandler(this.selectGuideButt_Click);
 			// 
@@ -111,7 +110,7 @@
 			this.selectWarpButt.Name = "selectWarpButt";
 			this.selectWarpButt.Size = new System.Drawing.Size(166, 23);
 			this.selectWarpButt.TabIndex = 18;
-			this.selectWarpButt.Text = "Select Warps";
+			this.selectWarpButt.Text = "Select Boundarys";
 			this.selectWarpButt.UseVisualStyleBackColor = false;
 			this.selectWarpButt.Click += new System.EventHandler(this.selectWarpButt_Click);
 			// 
@@ -155,17 +154,10 @@
 			this.widthEQB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.widthEQB.AutoFillVariables = null;
-			equation1.EquationText = "0.0000";
-			equation1.Label = "eq";
-			equation1.Locked = false;
-			this.widthEQB.Equation = equation1;
 			this.widthEQB.Location = new System.Drawing.Point(3, 305);
-			this.widthEQB.MaximumSize = new System.Drawing.Size(201, 24);
 			this.widthEQB.Name = "widthEQB";
-			this.widthEQB.sail = null;
 			this.widthEQB.Size = new System.Drawing.Size(166, 24);
 			this.widthEQB.TabIndex = 15;
-			this.widthEQB.Value = 0D;
 			// 
 			// PanelGroupEditor
 			// 

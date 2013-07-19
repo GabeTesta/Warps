@@ -102,6 +102,9 @@ namespace Warps
 		{
 			List<Entity> ents = new List<Entity>();
 			ents.Add(SurfaceTools.GetMesh(this, uvLims, bGauss));
+			if (m_mould.RigCurves != null)
+				foreach (RigLine rl in m_mould.RigCurves)
+					ents.Add(rl.CreateEntities());
 			return ents;
 			//m_entities.Add(SurfaceTools.GetMesh(this, true));
 			//m_entities.Last().LayerIndex 
@@ -154,5 +157,24 @@ namespace Warps
 			return Label;
 		}
 
+
+		#region ISurface Members
+
+
+		double[] m_colors = null;
+		public double[] ColorValues
+		{
+			get
+			{
+				return m_colors;
+			}
+			set
+			{
+				m_colors = value;
+			}
+		}
+
+
+		#endregion
 	}
 }

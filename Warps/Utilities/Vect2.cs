@@ -76,6 +76,11 @@ namespace Warps
 			this[0] = vec[0];
 			this[1] = vec[1];
 		}
+		public void Set(double u, double v)
+		{
+			this[0] = u;
+			this[1] = v;
+		}
 		public void Zero()
 		{
 			this[0] = this[1] = 0;
@@ -117,6 +122,8 @@ namespace Warps
 		readonly static double TOL = 1e-7;
 		public static bool operator ==(Vect2 a, Vect2 b)
 		{
+			if( System.Object.ReferenceEquals(a, null) )
+				return System.Object.ReferenceEquals(b, null);//a and b are null, thus ==
 			return a.Equals(b);
 		}
 		public static bool operator !=(Vect2 a, Vect2 b)
@@ -131,7 +138,7 @@ namespace Warps
 				return false;
 			Vect2 b = obj as Vect2;
 			Debug.Assert(this.Length == b.Length);
-			return BLAS.is_equal(this[0], b[0], TOL) && BLAS.is_equal(this[1], b[1], TOL);
+			return BLAS.IsEqual(this[0], b[0], TOL) && BLAS.IsEqual(this[1], b[1], TOL);
 		}
 		public override int GetHashCode()
 		{
@@ -254,6 +261,16 @@ namespace Warps
 				rot1 = new Vect2(Math.Sign(rad), Math.Cos(rad));
 
 			return new Vect2(v.Dot(rot0), v.Dot(rot1));
+		}
+
+		/// <summary>
+		/// Calculate the angle between two vectors
+		/// </summary>
+		/// <param name="B">the vector to determine the angle between</param>
+		/// <returns>The angle between this and B in radians</returns>
+		public double AngleTo(Vect2 B)
+		{
+			return Math.Acos(this.Dot(B) / (Magnitude * B.Magnitude));
 		}
 		#endregion
 

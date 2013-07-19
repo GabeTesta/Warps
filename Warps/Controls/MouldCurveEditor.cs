@@ -61,6 +61,7 @@ namespace Warps.Controls
 			box.Items.Add(new DropDownImage("Point", Warps.Properties.Resources.fixedpt, typeof(FixedPoint)));
 			box.Items.Add(new DropDownImage("Curve", Warps.Properties.Resources.curvept, typeof(CurvePoint)));
 			box.Items.Add(new DropDownImage("Slide", Warps.Properties.Resources.slidept, typeof(SlidePoint)));
+			box.Items.Add(new DropDownImage("Cross", Warps.Properties.Resources.crosspt, typeof(CrossPoint)));
 
 			foreach (DropDownImage img in box.Items)
 			{
@@ -109,7 +110,7 @@ namespace Warps.Controls
 			{
 				//create the type-speific point editor
 				old = m_edits[i] as Control;
-				ptBox = c[i].WriteEditor(ref m_edits[i]);
+				ptBox = c.FitPoints[i].WriteEditor(ref m_edits[i]);
 				ptBox.TabIndex = nTab++;
 				if( AutoFill != null )
 					m_edits[i].AutoFillData = AutoFill;
@@ -144,7 +145,71 @@ namespace Warps.Controls
 			ResumeLayout(true);
 			PerformLayout();
 			m_panel.Invalidate();//invalidate the panel for next redraw
-		}
+		}		
+		//public void ReadCurve(IFitPoint[] FitPoints, bool[] girSegs)
+		//{
+		//	if (FitPoints == null)
+		//	{
+		//		Panel.Clear();
+		//		return;
+		//	}
+		//	//Label = c.Label;
+		//	//Length = c.Length;
+		//	SuspendLayout();
+		//	if (m_edits == null || FitPoints.Length != m_edits.Length)
+		//	{
+		//		Panel.Clear();
+		//		m_girths = new CheckBox[FitPoints.Length - 1];
+		//		m_combos = new ImageComboBox[FitPoints.Length];
+		//		m_edits = new IFitEditor[FitPoints.Length];
+		//	}
+		//	Control ptBox = null;
+		//	Control old = null;
+		//	////get the list of available curves from the sail
+		//	//object[] autofill =  c.Sail.GetAutoFillData(c).ToArray();
+		//	int nTab = 1;
+		//	//create the point controls and add them to the panel
+		//	for (int i = 0; i < FitPoints.Length; i++)
+		//	{
+		//		//create the type-speific point editor
+		//		old = m_edits[i] as Control;
+		//		ptBox = FitPoints[i].WriteEditor(ref m_edits[i]);
+		//		ptBox.TabIndex = nTab++;
+		//		if( AutoFill != null )
+		//			m_edits[i].AutoFillData = AutoFill;
+		//		//remove old control if new pointeditor
+		//		if (old != ptBox)
+		//			Panel.Remove(old);
+		//		Panel.Add(ptBox);
+
+		//		//create the type selection combobox
+		//		if (m_combos[i] == null)
+		//			m_combos[i] = ImageBox(m_edits[i].FitType);
+		//		else
+		//			SetCombo(m_combos[i], m_edits[i].FitType);
+		//		Panel.Add(m_combos[i]);
+		//		//skip over the dropdowns
+		//		m_combos[i].TabStop = false;
+				
+		//		//create the segment checkboxes
+		//		if (i < FitPoints.Length - 1)
+		//		{
+		//			old = m_girths[i];
+		//			//m_girths[i] = GirthCheck(c.IsGirth(i));
+		//			m_girths[i] = GirthCheck(i < girSegs.Length ? girSegs[i] : false);
+		//			if (old != m_girths[i])
+		//				Panel.Remove(old);
+		//			Panel.Add(m_girths[i]);
+		//			//m_girths[i].TabIndex = nTab++;
+		//			//skip checks on tab
+		//			m_girths[i].TabStop = false;
+		//		}
+		//	}
+		//	//force the layout of the panel controls
+		//	ResumeLayout(true);
+		//	PerformLayout();
+		//	m_panel.Invalidate();//invalidate the panel for next redraw
+		//}
 
 		public void WriteCurve(MouldCurve c)
 		{
@@ -165,12 +230,16 @@ namespace Warps.Controls
 
 			c.Fit(points, girths);
 		}
+		//int nCol = 0;
+		//Color[] colls = new Color[] { Color.Red, Color.Blue, Color.Green };
 		protected override void OnLayout(LayoutEventArgs e)
 		{
 			base.OnLayout(e);
 			if (m_edits == null)
 				return;
 			m_panel.SuspendLayout();
+			//m_panel.BackColor = colls[nCol++%colls.Length];
+			//BackColor = colls[nCol++ % colls.Length]; 
 			// distribute the point editors and checkboxes down the panel
 			int top = 0, CHK = 0;
 			Control ptBox = null;
@@ -344,9 +413,15 @@ namespace Warps.Controls
 
 		private void m_w4lBtn_Click(object sender, EventArgs e)
 		{
-			if (Warps.Curves.CurveW4L.ShowDialog(this) == DialogResult.OK)
+			Warps.Curves.CurveW4L importer = new Curves.CurveW4L();
+
+			if (importer.ShowDialog(this) == DialogResult.OK)
 			{
 				//import here
+				MouldCurve importCurve = importer.ParseScript();
+				Label = importCurve.Label;
+				ReadCurve(importCurve);
+				Refresh();
 			}
 		}
 

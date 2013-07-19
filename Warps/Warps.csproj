@@ -55,8 +55,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="devDept.EyeshotNurbs">
-      <HintPath>..\Net40\devDept.EyeshotNurbs.dll</HintPath>
+    <Reference Include="devDept.EyeshotNurbs, Version=6.0.120.40, Culture=neutral, PublicKeyToken=5385d83d2fb4d7d9, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\devDept Software\Eyeshot Nurbs 6.0\Bin40\devDept.EyeshotNurbs.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics">
       <HintPath>..\Net40\MathNet.Numerics.dll</HintPath>
@@ -102,6 +103,12 @@
     </Compile>
     <Compile Include="Controls\ColorWheelForm.Designer.cs">
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CrossPointEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CrossPointEditor.Designer.cs">
+      <DependentUpon>CrossPointEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\EquationBoxAuto.cs">
       <SubType>UserControl</SubType>
@@ -168,6 +175,8 @@
     <Compile Include="Controls\YarnGroupEditor.Designer.cs">
       <DependentUpon>YarnGroupEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Curves\ChainCurve.cs" />
+    <Compile Include="Curves\CrossPoint.cs" />
     <Compile Include="Curves\CurveGroup.cs" />
     <Compile Include="Controls\CurveGroupEditor.cs">
       <SubType>UserControl</SubType>
@@ -183,7 +192,9 @@
     </Compile>
     <Compile Include="Curves\GuideComb.cs" />
     <Compile Include="Curves\IMouldCurve.cs" />
+    <Compile Include="Curves\OffsetPoint.cs" />
     <Compile Include="Curves\RigLine.cs" />
+    <Compile Include="Curves\SegmentCurve.cs" />
     <Compile Include="Equations\Equation.cs" />
     <Compile Include="Equations\EquationEditorForm.cs">
       <SubType>Form</SubType>
@@ -196,8 +207,14 @@
     <Compile Include="Panels\Panel.cs" />
     <Compile Include="Panels\PanelGroup.cs" />
     <Compile Include="Panels\PanelGroupTracker.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Surfaces\CofMould.cs" />
     <Compile Include="Surfaces\ComboMould.cs" />
+    <Compile Include="Surfaces\RBFMesh.cs" />
     <Compile Include="Surfaces\RBFMould.cs" />
     <Compile Include="Trackers\CurveGroupTracker.cs" />
     <Compile Include="Curves\CurvePoint.cs" />
@@ -265,6 +282,9 @@
     <EmbeddedResource Include="Controls\ColorWheelForm.resx">
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CrossPointEditor.resx">
+      <DependentUpon>CrossPointEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\CurveGroupEditor.resx">
       <DependentUpon>CurveGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -324,14 +344,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -379,25 +394,10 @@
     <None Include="Resources\curvepath.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\uv.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\empty.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\glyphicons_097_vector_path_line.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SlidePoint1.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\FixedPoint.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\CurvePoint.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\dragger.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\glyphicons_224_chevron-left.png" />
@@ -415,9 +415,6 @@
     <None Include="Resources\paste.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\copy1.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\showonly.png" />
   </ItemGroup>
   <ItemGroup>
@@ -425,6 +422,7 @@
     <None Include="Curves\fixedpt.PNG" />
     <None Include="Curves\slidept.PNG" />
     <Content Include="icon.ico" />
+    <None Include="Resources\crosspt.PNG" />
     <Content Include="Resources\curvept.PNG" />
     <None Include="Resources\EndCondition.png" />
     <Content Include="Resources\fixedpt.PNG" />
@@ -433,11 +431,13 @@
     <Content Include="Resources\slidept.PNG" />
     <None Include="Resources\Warps.png" />
     <None Include="Resources\GuideComb.png" />
-    <None Include="Resources\yarns.png" />
     <None Include="Resources\EqText.png" />
     <None Include="Resources\EqNum.png" />
     <None Include="Resources\VariableGroup.png" />
     <None Include="Resources\equation.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tapes\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

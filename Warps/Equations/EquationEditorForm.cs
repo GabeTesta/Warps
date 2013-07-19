@@ -81,7 +81,7 @@ namespace Warps
 			{
 				textBox1.Text = eqname;
 				autoCompleteTextBoxEdit.Text = m_group[eqname].EquationText;
-				valuebox.Text = m_group[eqname].Result.ToString();
+				valuebox.Text = m_group[eqname].Value.ToString();
 				ToggleEditEnable(true);
 				
 			}else

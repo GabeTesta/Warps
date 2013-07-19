@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace Warps
 {
-	class CurvePoint : IFitPoint
+	public class CurvePoint : IFitPoint
 	{
 		public CurvePoint() : this(0, null, 0) { }
 
@@ -20,7 +20,7 @@ namespace Warps
 		public CurvePoint(double s, MouldCurve curve, double sCurve)
 		{
 			m_sPos = s;
-			S_Equ = new Equation("s", sCurve.ToString());
+			S_Equ = new Equation(sCurve);
 			m_curve = curve;
 		}
 
@@ -75,10 +75,13 @@ namespace Warps
 		/// </summary>
 		public double SCurve
 		{
-			get { return S_Equ.Result; }
+			get { return S_Equ.Value; }
 			set
 			{
-				S_Equ.SetValue(value);
+				if(S_Equ.IsNumber())
+					S_Equ.Value = value;
+				else
+					throw new Exception(string.Format("Cannot set value [{0}] for non-numeric equation [{1}]", value, S_Equ.ToString()));
 			}
 		}
 
@@ -88,7 +91,7 @@ namespace Warps
 			{
 				Vect2 uv = new Vect2();
 				if (m_curve != null)
-					m_curve.uVal(S_Equ.Result, ref uv);//m_curve.uVal(m_sCurve, ref uv);
+					m_curve.uVal(SCurve, ref uv);//m_curve.uVal(m_sCurve, ref uv);
 				
 				return uv;
 			}
@@ -99,7 +102,7 @@ namespace Warps
 				{
 					double sCur = 0;
 					m_curve.uClosest(ref sCur, ref value, ref dist, 1e-9);//m_curve.uClosest(ref m_sCurve, ref value, ref dist, 1e-9);
-					S_Equ.SetValue(sCur);
+					SCurve = sCur;
 				}
 			}
 		}
@@ -149,7 +152,7 @@ namespace Warps
 				TreeNode point = new TreeNode(string.Format("{0:0.0000} [{1}]", S, UV.ToString("0.0000")));
 				point.ImageKey = this.GetType().Name;
 				point.SelectedImageKey = this.GetType().Name;
-				TreeNode tmp = new TreeNode(string.Format("S-Cur: {0:0.0000}", S_Equ.Result));
+				TreeNode tmp = new TreeNode(string.Format("S-Cur: {0:0.0000}", S_Equ.Value));
 				tmp.ImageKey = "empty";
 				tmp.SelectedImageKey = "empty";
 				point.Nodes.Add(tmp);
@@ -336,7 +339,6 @@ namespace Warps
 			{
 				return m_curve != null;
 			}
-			set { }
 		}
 	}
 }

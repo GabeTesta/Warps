@@ -22,6 +22,7 @@ namespace Warps.Controls
 		Color m_bak = Color.Empty;
 		private Sail m_sail = null;
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Sail sail
 		{
 			get { return m_sail; }
@@ -59,27 +60,29 @@ namespace Warps.Controls
 		public override string Text
 		{
 			get { return equationBox.Text; }
-			set { base.Text = value; toolTip1.ToolTipTitle = value; }
+			set { equationBox.Text = value; toolTip1.ToolTipTitle = value; }
 		}
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public string EQ
 		{
 			get { return equationBox.Text; } // equation.EQ }
 		}
-
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Equation Equation
 		{
 			get { return new Equation("eq", Text); }
 			set
 			{
-				if (value.IsNumber())
-					equationBox.Value = value.Result;
-				else
-					equationBox.Text = value.EquationText;
+				//if (value.IsNumber())
+				//	equationBox.Value = value.Value;
+				//else
+					equationBox.Text = value.EquationText;//text will be either value.tostring() or the eq text
 				//Text = value.Label;
 				//equationBox.EQ = value.EquationText;
 			}
 		}
 
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public double Value
 		{
 			get

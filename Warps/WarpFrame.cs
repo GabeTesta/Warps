@@ -27,6 +27,22 @@ namespace Warps
 
 	public partial class WarpFrame : Form
 	{
+		public static Sail CurrentSail
+		{
+			get
+			{
+				if (WarpFrame.ActiveForm is WarpFrame)
+					return (WarpFrame.ActiveForm as WarpFrame).m_sail;
+
+				foreach (Form f in Application.OpenForms)
+				{
+					if (f is WarpFrame)
+						return (f as WarpFrame).m_sail;
+				}
+				return null;
+			}
+		}
+
 		public WarpFrame()
 		{
 
@@ -135,6 +151,31 @@ namespace Warps
 
 		void LoadSail(string path)
 		{
+			if (m_sail != null)
+				clearAll_Click(null, null);
+			Status = String.Format("Loading {0}", path);
+
+			m_sail = new Sail();
+			m_sail.updateStatus += UpdateStatusStrip;
+			m_sail.ReadFile(path);
+
+			if (m_sail == null)
+				Status = String.Format("{0} Load Failed", m_sail.FilePath);
+
+			m_tree.Add(m_sail.WriteNode());
+
+			AddSailtoView(m_sail);
+
+			Tree.ExpandToDepth(0);
+
+			Status = String.Format("{0} Loaded Successfully", m_sail.FilePath);
+			Title = m_sail.FilePath; // display the version number in the title bar
+			m_statusProgress.Visible = false;
+
+		}
+
+		void LoadSailAsync(string path)
+		{
 			Status = String.Format("Loading {0}", path);
 
 			Sail s = new Sail();
@@ -180,11 +221,20 @@ namespace Warps
 			int nlayer = View.AddLayer("Mould", Color.Beige, true);
 			s.Mould.CreateEntities(null, false).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
 
+			//if (s.m_type != SurfaceType.OBJ)
+			//{
 			nlayer = View.AddLayer("Gauss", Color.Black, false);
-			s.Mould.CreateEntities(null, true).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
+			s.Mould.CreateEntities(null, true).ForEach(ent =>
+			{
+				ent.LayerIndex = nlayer; View.Add(ent);
+				if (ent is Mesh)
+					View.SetColorScale(ent as Mesh);
+			});
+			
 
 			nlayer = View.AddLayer("Extension", Color.BurlyWood, false);
 			s.Mould.CreateEntities(new double[,] { { -.2, 1.2 }, { -.2, 1.2 } }, false).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
+			//}
 
 			//add the groups attached to the sail file if any
 			if (s.Mould.Groups != null)
@@ -198,14 +248,14 @@ namespace Warps
 
 		#region Rebuild
 
-		public bool Rebuild(IRebuild tag)
+		public bool Rebuild(List<IRebuild> tags)
 		{
-			if (tag != null)
-				tag.Update(ActiveSail);
+			if (tags != null)
+				tags.ForEach(tag => tag.Update(ActiveSail));
 			if (AutoBuild)
 			{
 				//List<IRebuild> updated = ActiveSail.Rebuild(tag);
-				List<IRebuild> connected = ActiveSail.GetConnected(tag);
+				List<IRebuild> connected = ActiveSail.GetConnected(tags);
 				List<IRebuild> succeeded = new List<IRebuild>();
 				List<IRebuild> failed = new List<IRebuild>();
 				DateTime before = DateTime.Now;
@@ -213,7 +263,7 @@ namespace Warps
 				{
 					foreach (IRebuild item in connected)
 					{
-						if (item.Update(ActiveSail))
+						if (tags.Contains(item) || item.Update(ActiveSail))
 							succeeded.Add(item);
 						else
 							failed.Add(item);
@@ -237,7 +287,68 @@ namespace Warps
 						b.AppendLine("\nRebuilt Failed:\n");
 					foreach (IRebuild item in failed)//failed
 					{
+#if DEBUG
+						UpdateViews(item);
+#else
 						View.Invalidate(item);
+#endif
+						Tree.Invalidate(item);
+						b.AppendLine(item.ToString());
+					}
+					View.Refresh();
+				}
+#if DEBUG
+				MessageBox.Show(b.ToString());
+#endif
+			}
+			else if (tags != null)
+				tags.ForEach(tag => UpdateViews(tag));
+			return AutoBuild;
+		}
+		public bool Rebuild(IRebuild tag)
+		{
+			if (tag != null)
+				tag.Update(ActiveSail);
+			if (AutoBuild)
+			{
+				//List<IRebuild> updated = ActiveSail.Rebuild(tag);
+				List<IRebuild> connected = ActiveSail.GetConnected(tag);
+				List<IRebuild> succeeded = new List<IRebuild>();
+				List<IRebuild> failed = new List<IRebuild>();
+				DateTime before = DateTime.Now;
+				if (connected != null)
+				{
+					foreach (IRebuild item in connected)
+					{
+						if (item == tag || item.Update(ActiveSail))
+							succeeded.Add(item);
+						else
+							failed.Add(item);
+					}
+					//connected.ForEach(item => item.Update(ActiveSail));
+				}
+				//two lists (failed and succeeded)
+				// update succeeded
+				// invalidate failed
+				DateTime after = DateTime.Now;
+				Console.WriteLine("{0} ms", (after - before).TotalMilliseconds);
+				StringBuilder b = new StringBuilder("Rebuilt Succeeded:\n");
+				if (connected != null)
+				{
+					foreach (IRebuild item in succeeded)//succeeded
+					{
+						UpdateViews(item);
+						b.AppendLine(item.ToString());
+					}
+					if (failed.Count > 0)
+						b.AppendLine("\nRebuilt Failed:\n");
+					foreach (IRebuild item in failed)//failed
+					{
+#if DEBUG
+						UpdateViews(item);
+#else
+						View.Invalidate(item);
+#endif
 						Tree.Invalidate(item);
 						b.AppendLine(item.ToString());
 					}
@@ -248,7 +359,10 @@ namespace Warps
 #endif
 			}
 			else if (tag != null)
+			{
 				UpdateViews(tag);
+				View.Refresh();
+			}
 			return AutoBuild;
 		}
 
@@ -266,20 +380,23 @@ namespace Warps
 
 			Tree.BeginUpdate();
 
-			if (item is IGroup)
-			{
-				View.Add(item as IGroup);
-				(item as IGroup).WriteNode();
-			}
-			else if (item is MouldCurve)
-			{
-				View.Add(item as MouldCurve);
-				(item as MouldCurve).WriteNode();
-			}
-			else if (item is Equation)
-			{
-				(item as Equation).WriteNode();
-			}
+			View.Add(item);
+			item.WriteNode();
+
+			//if (item is IGroup)
+			//{
+			//	View.Add(item as IGroup);
+			//	(item as IGroup).WriteNode();
+			//}
+			//else if (item is MouldCurve)
+			//{
+			//	View.Add(item as MouldCurve);
+			//	(item as MouldCurve).WriteNode();
+			//}
+			//else if (item is Equation)
+			//{
+			//	(item as Equation).WriteNode();
+			//}
 			Tree.Revalidate(item);
 			Tree.EndUpdate();
 		}
@@ -364,6 +481,19 @@ namespace Warps
 			//	return;
 			SaveFile();
 			//	m_tree.SaveScriptFile(sfd.FileName);
+		}
+
+		private void clearAll_Click(object sender, EventArgs e)
+		{
+			if (m_sail == null || DialogResult.Yes == MessageBox.Show(string.Format("Are you sure you want to close\n{0}\nUnsaved changes will be lost.", m_sail.FilePath), Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+			{
+				Tree.ClearAll();
+				View.ClearAll();
+				ClearTracker();
+				if (m_sail != null)
+					m_sail.Layout.Clear();
+				m_sail = null;
+			}
 		}
 
 		private void SaveFile()
@@ -490,7 +620,7 @@ namespace Warps
 			set
 			{
 				m_editButton.Checked = !value;
-				m_editButton_CheckedChanged(this, new EventArgs());
+				//m_editButton_CheckedChanged(this, new EventArgs());
 			}
 		}
 		private void m_editButton_CheckedChanged(object sender, EventArgs e)
@@ -500,10 +630,12 @@ namespace Warps
 
 			if (m_Tracker != null)
 			{
+				SuspendLayout();
 				ITracker tracker = m_Tracker;
 				ClearTracker();
 				tracker.EditMode = EditMode;
 				PostTracker(tracker);
+				ResumeLayout(true);
 			}
 
 			//cancelButton.Enabled = EditMode;
@@ -528,7 +660,7 @@ namespace Warps
 			//	}
 			//}
 		}
-		void cancelButton_Click(object sender, EventArgs e)
+		private void cancelButton_Click(object sender, EventArgs e)
 		{
 			ClearTracker();
 		}
@@ -627,18 +759,18 @@ namespace Warps
 
 		#region Ok/Cancel/Preview Buttons
 
-		private void okButton_MouseEnter(object sender, EventArgs e)
-		{
-			//(sender as Button).ForeColor = Color.White;
-			if (sender == okButton)
-				okButton.BackColor = Color.SeaGreen;
-			else if (sender == previewButton)
-				previewButton.BackColor = Color.LightSkyBlue;
-		}
-		private void okButton_MouseLeave(object sender, EventArgs e)
-		{
-			if (sender is Button) (sender as Button).BackColor = Color.White;
-		}
+		//private void okButton_MouseEnter(object sender, EventArgs e)
+		//{
+		//	//(sender as Button).ForeColor = Color.White;
+		//	if (sender == okButton)
+		//		okButton.BackColor = Color.SeaGreen;
+		//	else if (sender == previewButton)
+		//		previewButton.BackColor = Color.LightSkyBlue;
+		//}
+		//private void okButton_MouseLeave(object sender, EventArgs e)
+		//{
+		//	if (sender is Button) (sender as Button).BackColor = Color.White;
+		//}
 
 		#endregion
 
@@ -646,8 +778,27 @@ namespace Warps
 
 		private void helpToolStripButton_Click(object sender, EventArgs e)
 		{
+
+			//Warps.Surfaces.RBFMesh mesh = new Surfaces.RBFMesh(@"C:\Users\Mikker\Desktop\enginecoverin2meshes.obj");
+			//Warps.Surfaces.RBFMesh mesh = new Surfaces.RBFMesh(@"C:\Users\Mikker\Desktop\single.obj");
+			//mesh.m_obj.AddToScene(m_dualView.ActiveView);
+			//m_sail = new Sail();
+			//LoadSail(@"C:\Users\Mikker\Desktop\small.obj");
+			//View.Refresh();
+			//return;
+			if (ActiveSail != null)
+				clearAll_Click(null, null);
 			if (ActiveSail == null)
+			{
+				//LoadSail(@"C:\Users\Mikker\Desktop\small.obj");
+				//LoadSail(@"C:\Users\Mikker\Desktop\single.obj");
+				//View.Refresh();
+				//return;
+				if(ModifierKeys == Keys.Control )
 				LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Main.sail");
+				else
+				LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\df.sail");
+			}
 
 			if (Tree.SelectedTag != null)
 			{
@@ -662,18 +813,26 @@ namespace Warps
 				MessageBox.Show(sb.ToString());
 				return;
 			}
-			CurveGroup fills = new CurveGroup("Fills", ActiveSail);
-			ActiveSail.Add(fills);
-			PanelGroup mids = new PanelGroup("MidPan", ActiveSail);
-			mids.Bounds.Add(ActiveSail.FindCurve("L-spl"));
-			mids.Bounds.Add(ActiveSail.FindCurve("Leech"));
-			mids.Bounds.Add(ActiveSail.FindCurve("M-spl"));//ensure curves are ordered correctly
-			mids.Bounds.Add(ActiveSail.FindCurve("Luff"));
 
-			MouldCurve guide = fills.Add(new MouldCurve("Up", ActiveSail, new IFitPoint[] { new FixedPoint(0.5, 0), new SlidePoint(ActiveSail.FindCurve("Head"), 0.5) }));
+			CurveGroup fills = new CurveGroup("Fills", ActiveSail);
+			//MouldCurve guide = fills.Add(new MouldCurve("Up", ActiveSail, new IFitPoint[] {new FixedPoint(.7,.7), new FixedPoint(.4,.15) }));
+			MouldCurve guide = fills.Add(new MouldCurve("Up", ActiveSail, new IFitPoint[] {new FixedPoint(.5,1), new FixedPoint(.5,-.1) }));
+			ActiveSail.Add(fills);
+
+			PanelGroup mids = new PanelGroup("MidPan", ActiveSail, new Equation("w", 1), PanelGroup.ClothOrientations.FILLS);
+			mids.Bounds.Add(ActiveSail.FindCurve("Luff"));
+			//mids.Bounds.Add(ActiveSail.FindCurve("M-spl"));//ensure curves are ordered correctly
+			mids.Bounds.Add(ActiveSail.FindCurve("Head"));//ensure curves are ordered correctly
+			mids.Bounds.Add(ActiveSail.FindCurve("Leech"));
+//			mids.Bounds.Add(ActiveSail.FindCurve("L-spl"));
+			mids.Bounds.Add(ActiveSail.FindCurve("Foot"));
+
 
 			mids.Guides.Add(guide);
 			ActiveSail.Add(mids);
+
+			if (false)
+			{
 
 			//IGroup outer = ActiveSail.CreateOuterCurves();
 			PanelGroup pans = new PanelGroup("TackPan", ActiveSail);
@@ -682,20 +841,24 @@ namespace Warps
 			pans.Bounds.Add(ActiveSail.FindCurve("L-spl"));
 			pans.Bounds.Add(ActiveSail.FindCurve("1-spl"));
 
-			Vect2 end = new Vect2(), sPos = new Vect2();
-			Vect3 xyz = new Vect3();
-			CurveTools.CrossPoint(pans.Bounds[2], pans.Bounds[3], ref end, ref xyz, ref sPos, 10);
+			//Vect2 end = new Vect2(), sPos = new Vect2();
+			//Vect3 xyz = new Vect3();
+			//CurveTools.CrossPoint(pans.Bounds[2], pans.Bounds[3], ref end, ref xyz, ref sPos, 10);
 
-			MouldCurve tac = fills.Add(new MouldCurve("Tack", ActiveSail, new Vect2(0, 0), end));
-			MouldCurve clw = fills.Add(new MouldCurve("Clew", ActiveSail, new Vect2(1, 0), end));
+			MouldCurve tac = fills.Add(new MouldCurve("Tack", ActiveSail,
+				new IFitPoint[]{
+				new FixedPoint(0,0),
+				new OffsetPoint(.5, pans.Bounds[1], 2 )}));
+			MouldCurve clw = fills.Add(new MouldCurve("Clew", ActiveSail,
+				new IFitPoint[]{
+				new FixedPoint(1, 0),
+				new CrossPoint(pans.Bounds[2], pans.Bounds[3])}));
 
 			//ActiveSail.Add(fills);
 
 			pans.Guides.Add(tac);
 			ActiveSail.Add(pans);
 
-			if (false)
-			{
 
 				Warps.PanelGroup clew = new PanelGroup("ClewPan", ActiveSail);
 				clew.Bounds.Add(ActiveSail.FindCurve("Foot"));//ensure curves are ordered correctly
@@ -742,7 +905,7 @@ namespace Warps
 			ActiveSail.Rebuild(ActiveSail.FindCurve("Luff"));
 			ActiveSail.Rebuild(null);
 			UpdateViews(fills);
-			UpdateViews(pans);
+		//	UpdateViews(pans);
 		//	UpdateViews(clew);
 			UpdateViews(mids);
 		//	UpdateViews(tops);
@@ -852,18 +1015,6 @@ namespace Warps
 		{
 			UpdateViews(e.Value);
 			View.Refresh();
-		}
-
-		private void clearAll_Click(object sender, EventArgs e)
-		{
-			if (DialogResult.Yes == MessageBox.Show("Are you sure you want to clear all?", String.Format("Warps v{0}", Utilities.CurVersion), MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
-			{
-				Tree.ClearAll();
-				View.ClearAll();
-				m_sail.Layout.Clear();
-				m_sail = null;
-				EditorPanel = null;
-			}
 		}
 
 		private void printToolStripButton_Click(object sender, EventArgs e)

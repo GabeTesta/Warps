@@ -82,13 +82,18 @@ namespace Warps
 		}
 		public double TargetDpi
 		{
-			get { return m_targetDenier.Result; }
-			set { m_targetDenier.SetValue(value); }
+			get { return m_targetDenier.Value; }
+			private set
+			{
+				if (TargetDenierEqu.IsNumber())
+					m_targetDenier.Value = value;
+				else
+					throw new Exception(string.Format("Yarn Group [{0}] cannot set nonnumeric TargetDPI [{1}] to [{2}]", Label, TargetDenierEqu.EquationText, value));
+			}
 		}
 		public double YarnDenier
 		{
-			get { return m_yarnDenier.Result; }
-			set { m_yarnDenier.SetValue(value); }
+			get { return m_yarnDenier.Value; }
 		}
 		public List<double> DensityPos
 		{
@@ -263,7 +268,7 @@ namespace Warps
 				if( YarnsUpdated != null )
 					YarnsUpdated(this, new EventArgs<YarnGroup>(this));
 
-				if (BLAS.is_equal(AchievedDpi, TargetDpi, 200))
+				if (BLAS.IsEqual(AchievedDpi, TargetDpi, 200))
 					break;
 				m_Scale *= AchievedDpi / TargetDpi;
 			}
@@ -338,7 +343,7 @@ namespace Warps
 				if (YarnsUpdated != null)
 					YarnsUpdated(this, new EventArgs<YarnGroup>(this));
 
-				if (BLAS.is_equal(last.m_p, 1, 1e-4) && Count == nTarget)//check to see if last yarn hits warp and that the target number of yarns exist
+				if (BLAS.IsEqual(last.m_p, 1, 1e-4) && Count == nTarget)//check to see if last yarn hits warp and that the target number of yarns exist
 				{
 					//last.m_p = 1;//enssure towarp
 					break;
@@ -423,7 +428,7 @@ namespace Warps
 				P = Math.Min(1, P);
 				p = GlobalToBracket(P, pWarps, ref nWrp);
 
-				if (Count > 2 && BLAS.is_equal(p, this.Last().m_p, 1e-7)) //zero length space
+				if (Count > 2 && BLAS.IsEqual(p, this.Last().m_p, 1e-7)) //zero length space
 					break;
 
 				//create a yarn with an initial spacing
@@ -978,6 +983,11 @@ namespace Warps
 			get { return m_label; }
 			set { m_label = value; }
 		}
+		public string Layer
+		{
+			get { return m_layer != null ? m_layer : "Yarns"; }
+		}
+		string m_layer;
 
 		TreeNode m_node;
 		public TreeNode WriteNode()
@@ -1045,7 +1055,7 @@ namespace Warps
 				//	new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter)};
 			}
 		}
-		public Entity[] CreateEntities()
+		public List<Entity> CreateEntities()
 		{
 			List<Entity> yarns = new List<Entity>(Count);
 			Vect3[] pnts;
@@ -1065,7 +1075,7 @@ namespace Warps
 					yarns.AddRange(es);
 				}
 
-			return yarns.ToArray();
+			return yarns;
 		}
 		public Entity[] CreateOnlyYarnEntities()
 		{

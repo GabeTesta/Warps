@@ -28,11 +28,7 @@ namespace Warps
 			this.TextAlign = HorizontalAlignment.Right;
 			this.Values = autofills;
 		}
-		//public string EQ
-		//{
-		//	get { return Text; }
-		//	set { Text = value; }
-		//}
+		
 		public double Value
 		{
 			get
@@ -42,7 +38,7 @@ namespace Warps
 				{
 					double result = 0;
 
-					if (EquationEvaluator.Evaluate(new Equation("Test", Text), sail, out result))
+					if (EquationEvaluator.Evaluate(new Equation(null, Text), sail, out result))
 						return result;
 				}
 				else if (double.TryParse(Text, out u))

@@ -66,6 +66,10 @@ namespace Warps
 				m_label = value;
 			}
 		}
+		public string Layer
+		{
+			get { return "EQ"; }
+		}
 
 		bool m_locked = false;
 
@@ -103,7 +107,7 @@ namespace Warps
 		{
 			get { return null; }
 		}
-		public devDept.Eyeshot.Entities.Entity[] CreateEntities()
+		public List<devDept.Eyeshot.Entities.Entity> CreateEntities()
 		{
 			return null;
 		}

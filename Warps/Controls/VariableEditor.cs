@@ -29,19 +29,20 @@ namespace Warps.Controls
 		//		//	m_eqBox.Text = "= " + EqText;
 		//	}
 		//}
-		public VariableEditor(string label, string EqText, double result)
+		public VariableEditor(string label, Equation e)
 		{
 			InitializeComponent();
 			Label = label;
-			if (EqText.Length > 0)
+			if (e != null)
 			{
+				m_eqBox.Equation = e;
 				//if (EqText[0] == '=')
-				m_eqBox.Text = EqText;
+				//m_eqBox.Text = EqText;
 				//else
 				//	m_eqBox.Text = "= " + EqText;
 			}
 
-			m_resultTB.Text = result.ToString("#.###");
+			m_resultTB.Text = e.Value.ToString("f4");
 		}
 		public event EventHandler<KeyEventArgs> ReturnPress;
 
