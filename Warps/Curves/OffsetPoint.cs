@@ -10,7 +10,7 @@ namespace Warps
 	class OffsetPoint: IFitPoint
 	{
 		public OffsetPoint(OffsetPoint cloneme) : this(cloneme.m_sCurve, cloneme.m_curve, cloneme.m_xOffset) {  }
-		public OffsetPoint(double sCurve, MouldCurve curve, double offset)
+		public OffsetPoint(double sCurve, IMouldCurve curve, double offset)
 		{
 			m_sCurve = sCurve;
 			m_curve = curve;
@@ -19,7 +19,7 @@ namespace Warps
 		}
 		double m_sCurve;
 		double m_xOffset;
-		MouldCurve m_curve;
+		IMouldCurve m_curve;
 
 		#region IFitPoint Members
 
@@ -137,13 +137,13 @@ namespace Warps
 
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			if( !parents.Contains(m_curve) )
-				parents.Add(m_curve);
+			if( m_curve is IRebuild )
+				parents.Add(m_curve as IRebuild);
 		}
 
 		public bool Affected(List<IRebuild> connected)
 		{
-			return connected.Contains(m_curve);
+			return connected.Contains(m_curve as IRebuild);
 		}
 
 		public bool Update(Sail s)

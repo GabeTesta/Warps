@@ -127,7 +127,8 @@ namespace Warps.Controls
 		public void populateWarpBox()
 		{
 			m_warpListView.Items.Clear();
-			YarGroup.Warps.ForEach(wrp => m_warpListView.Items.Add(wrp.Label, wrp.Label, wrp.GetType().Name));
+			YarGroup.Warps.ForEach(wrp => 
+				m_warpListView.Items.Add(wrp.Label, wrp.Label, wrp.GetType().Name));
 			//availableCurves.ForEach(cur => m_warpSelectionCheckbox.Items.Add(cur, m_group.Warps.Contains(cur)));
 		}
 

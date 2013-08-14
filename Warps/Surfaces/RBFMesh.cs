@@ -68,13 +68,13 @@ namespace Warps.Surfaces
 		public void xVec(Vect2 uv, ref Vect3 xyz, ref Vect3 dxu, ref Vect3 dxv)
 		{
 			throw new NotImplementedException("RBFNetwork derivatives do not work");
-			double[,] dxy = new double[3,2];
-			m_rbf.First(uv.m_vec, ref xyz.m_vec, ref dxy);
-			for (int i = 0; i < 3; i++)
-			{
-				dxu[i] = dxy[i, 0];
-				dxv[i] = dxy[i, 1];
-			}
+			//double[,] dxy = new double[3,2];
+			//m_rbf.First(uv.m_vec, ref xyz.m_vec, ref dxy);
+			//for (int i = 0; i < 3; i++)
+			//{
+			//	dxu[i] = dxy[i, 0];
+			//	dxv[i] = dxy[i, 1];
+			//}
 		}
 
 		public void xCvt(Vect2 uv, ref Vect3 xyz, ref Vect3 dxu, ref Vect3 dxv, ref Vect3 ddxu, ref Vect3 ddxv, ref Vect3 dduv)

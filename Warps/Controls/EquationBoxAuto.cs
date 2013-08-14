@@ -16,7 +16,6 @@ namespace Warps.Controls
 		{
 			InitializeComponent();
 			m_bak = Color.White;
-			
 		//	equationBox.ReturnPress += ReturnPress;
 		}
 		Color m_bak = Color.Empty;
@@ -52,9 +51,9 @@ namespace Warps.Controls
 			Text = eqText;
 			toolTip1.ToolTipTitle = equationBox.Text;
 			if (EQ != null && !equationBox.IsNumber())
-				button1.BackColor = Color.Lime;
+				buttonFn.BackColor = Color.Lime;
 			else
-				button1.BackColor = m_bak;
+				buttonFn.BackColor = m_bak;
 		}
 
 		public override string Text
@@ -116,9 +115,9 @@ namespace Warps.Controls
 		private void equationBox_TextChanged(object sender, EventArgs e)
 		{
 			if (!equationBox.IsNumber())
-				button1.BackColor = Color.Lime;
+				buttonFn.BackColor = Color.Lime;
 			else
-				button1.BackColor = m_bak;
+				buttonFn.BackColor = m_bak;
 		}
 
 		/// <summary>
@@ -135,18 +134,23 @@ namespace Warps.Controls
 		protected override void OnLayout(LayoutEventArgs e)
 		{
 			base.OnLayout(e);
-			button1.Top = 0;
-			equationBox.Top = 0;
+			equationBox.Location = new Point(0, 0);
 
 			//square button
-			button1.Height = button1.Width = Height;
+			buttonFn.Size = new System.Drawing.Size(equationBox.Height, equationBox.Height);
 
 			//full height text box
-			equationBox.Height = Height;
+			//equationBox.Height = Height;
 
 			//right-justified button
-			button1.Left = Width - button1.Width-3;
-			equationBox.Width = Width - button1.Width-3;
+			equationBox.Width = Width - buttonFn.Width;
+			buttonFn.Location = new Point(equationBox.Right, 0);
+		}
+		protected override void OnSizeChanged(EventArgs e)
+		{
+			base.OnSizeChanged(e);
+			equationBox.Height = Height;
+			Height = equationBox.Height;
 		}
 	}
 }

@@ -10,7 +10,7 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
-using Warps.Logger;
+using Logger;
 
 namespace Warps
 {
@@ -35,7 +35,8 @@ namespace Warps
 			{
 				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
 				Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
-				Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+				Tree.AttachTracker(this);
+				//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
 			}
 
 			View.AttachTracker(this);
@@ -53,7 +54,8 @@ namespace Warps
 
 			Tree.KeyUp -= Tree_KeyUp;
 			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
-			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
+			//Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
+			Tree.DetachTracker(this);
 
 			View.DetachTracker(this);
 
@@ -219,9 +221,9 @@ namespace Warps
 
 			Curve = cur;
 
-			IFitPoint[] pts = new IFitPoint[Curve.FitPoints.Length];
-			for (int i = 0; i < pts.Length; i++)
-				pts[i] = Curve[i].Clone();
+			//IFitPoint[] pts = new IFitPoint[Curve.FitPoints.Length];
+			//for (int i = 0; i < pts.Length; i++)
+			//	pts[i] = Curve[i].Clone();
 
 			m_temp = new MouldCurve(cur);
 			m_temp.Label += "[preview]";
@@ -365,7 +367,7 @@ namespace Warps
 		void UpdateViewCurve(bool bEditor)
 		{
 			m_temp.ReFit();
-			List<Entity> verts = m_temp.CreateEntities(true).ToList();
+			List<Entity> verts = m_temp.CreateEntities(true);
 			if( verts != null && verts[0] != null && verts[1] != null )
 			foreach (Entity[] ents in m_tents)
 			{
@@ -413,27 +415,27 @@ namespace Warps
 			}
 		}
 
-		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-		{
-			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
+		//void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		//{
+		//	logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
 
-			//if (e.ClickedItem.Text == "Copy")
-			//{
-			//	OnCopy(sender, new EventArgs());
-			//}
-			if (e.ClickedItem.Text == "Paste")
-			{
-				OnPaste(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Delete")
-			{
-				OnDelete(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Add")
-			{
-				OnAdd(sender, new EventArgs());
-			}
-		}
+		//	//if (e.ClickedItem.Text == "Copy")
+		//	//{
+		//	//	OnCopy(sender, new EventArgs());
+		//	//}
+		//	if (e.ClickedItem.Text == "Paste")
+		//	{
+		//		OnPaste(sender, new EventArgs());
+		//	}
+		//	else if (e.ClickedItem.Text == "Delete")
+		//	{
+		//		OnDelete(sender, new EventArgs());
+		//	}
+		//	else if (e.ClickedItem.Text == "Add")
+		//	{
+		//		OnAdd(sender, new EventArgs());
+		//	}
+		//}
 
 		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
 		{

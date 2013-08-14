@@ -10,7 +10,7 @@ using devDept.Geometry;
 using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
-using Warps.Logger;
+using Logger;
 
 namespace Warps.Trackers
 {
@@ -192,7 +192,7 @@ namespace Warps.Trackers
 		void UpdateViewCurve(bool bEditor)
 		{
 			m_temp.ReFit();
-			List<Entity> verts = m_temp.CreateEntities(true).ToList();
+			List<Entity> verts = m_temp.CreateEntities(true);
 			int nMsh = verts.Count;
 			for( nMsh = 0; nMsh < verts.Count; nMsh++ )
 				if( verts[nMsh] is Mesh) break;

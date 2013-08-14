@@ -78,6 +78,7 @@ namespace Warps.Controls
 			if (sender is IFitEditor)
 				index = m_flow.Controls.IndexOf(sender as Control);
 			else if (sender is EquationBox)
+				//throw new Exception("VariableGroupEditor ve_ReturnPress sender is EquationBox");
 				index = m_flow.Controls.IndexOf((sender as EquationBox).Parent);
 			if (ReturnPress != null)
 				ReturnPress(sender, new EventArgs<int>(index));

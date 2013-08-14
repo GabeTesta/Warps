@@ -10,7 +10,7 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
-using Warps.Logger;
+using Logger;
 
 namespace Warps
 {

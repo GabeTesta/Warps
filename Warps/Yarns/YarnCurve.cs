@@ -19,29 +19,37 @@ namespace Warps
 		internal MouldCurve[] m_Warps = new MouldCurve[2];
 		internal double m_p;
 		internal double m_h;
+		internal double m_length;
 
 		ISurface Surface 
 		{get { return m_Warps[0] == null ? null : m_Warps[0].Surface; }}
 
-		/// <summary>
-		/// returns CNT evenly spaced points, inferior to CreateEntity
-		/// </summary>
-		/// <param name="CNT">the number of points desired on the line</param>
-		/// <returns>the array of points</returns>
-		public Vect3[] GetPathPoints(int CNT)
-		{
-			double s;
-			Vect2 uv = new Vect2();
-			Vect3[] d = new Vect3[CNT];
-			for (int i = 0; i < CNT; i++)
-			{
-				s = (double)i / (double)(CNT - 1);
-				d[i] = new Vect3();
-				xVal(s, ref uv, ref d[i]);
-			}
-			return d;
-		}
+		///// <summary>
+		///// returns CNT evenly spaced points, inferior to CreateEntity
+		///// </summary>
+		///// <param name="CNT">the number of points desired on the line</param>
+		///// <returns>the array of points</returns>
+		//public Vect3[] GetPathPoints(int CNT)
+		//{
+		//	double s;
+		//	Vect2 uv = new Vect2();
+		//	Vect3[] d = new Vect3[CNT];
+		//	for (int i = 0; i < CNT; i++)
+		//	{
+		//		s = (double)i / (double)(CNT - 1);
+		//		d[i] = new Vect3();
+		//		xVal(s, ref uv, ref d[i]);
+		//	}
+		//	return d;
+		//}
 
+		public double Length
+		{
+			get
+			{
+				return m_length;
+			}
+		}
 		#region IMouldCurve Members
 
 		public void uVal(double s, ref Vect2 uv)
@@ -165,6 +173,12 @@ namespace Warps
 		}
 
 		#endregion
+
+		public string Label
+		{
+			get { return ToString(); }
+		}
+
 
 		public override string ToString()
 		{

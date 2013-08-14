@@ -34,16 +34,18 @@
 			// 
 			// m_vEq
 			// 
+			this.m_vEq.AutoFillVariables = null;
 			this.m_vEq.Location = new System.Drawing.Point(95, 0);
 			this.m_vEq.Name = "m_vEq";
-			this.m_vEq.Size = new System.Drawing.Size(89, 24);
+			this.m_vEq.Size = new System.Drawing.Size(89, 23);
 			this.m_vEq.TabIndex = 1;
 			// 
 			// m_uEq
 			// 
+			this.m_uEq.AutoFillVariables = null;
 			this.m_uEq.Location = new System.Drawing.Point(0, 0);
 			this.m_uEq.Name = "m_uEq";
-			this.m_uEq.Size = new System.Drawing.Size(89, 24);
+			this.m_uEq.Size = new System.Drawing.Size(89, 23);
 			this.m_uEq.TabIndex = 0;
 			// 
 			// FixedPointEditor
@@ -54,7 +56,7 @@
 			this.Controls.Add(this.m_vEq);
 			this.Controls.Add(this.m_uEq);
 			this.Name = "FixedPointEditor";
-			this.Size = new System.Drawing.Size(184, 23);
+			this.Size = new System.Drawing.Size(197, 92);
 			this.ResumeLayout(false);
 
 		}

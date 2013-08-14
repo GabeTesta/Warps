@@ -27,9 +27,9 @@ namespace Warps
 		devDept.Eyeshot.Labels.Label[] EntityLabel { get; }
 
 		/// <summary>
-		/// get a list of GetConnect objects
+		/// checks the updated list and adds itself if any of it's parents are in the list
 		/// </summary>
-		/// <param name="updated">object to search from</param>
+		/// <param name="updated">the list of all connected nodes</param>
 		/// <returns>List of connected objects</returns>
 		void GetConnected(List<IRebuild> updated);
 		void GetParents(Sail s, List<IRebuild> parents);

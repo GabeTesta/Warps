@@ -263,35 +263,8 @@ namespace Warps
 			return view == m_viewleft ? m_viewright : view == m_viewright ? m_viewleft : null;
 		}
 
+
 		public void Select(object tag)
-		{
-			for (int i = 0; i < 2; i++)
-			{
-				foreach (Entity e in this[i].Entities)
-				{
-					if (e.EntityData == tag)
-					{
-						e.Selected = true;
-						SelectLayer(e.LayerIndex);
-						//break;
-					}
-				}
-				foreach (devDept.Eyeshot.Labels.Label e in this[i].Labels)
-				{
-					if (e is OutlinedText)
-					{
-						if ((e as OutlinedText).Text.Contains(tag.ToString()))
-						{
-							e.Visible = true;
-							//break;
-						}
-					}
-				}
-			}
-
-		}
-
-		public void SelectEntity(object tag)
 		{
 			for (int i = 0; i < 2; i++)
 			{
@@ -376,6 +349,14 @@ namespace Warps
 			//Regen();
 			//Refresh();
 		}
+		public void RemoveRange(Entity[][] temps)
+		{
+			int i;
+			foreach (Entity[] temp in temps)
+				for (i = 0; i < 2; i++)
+					this[i].Entities.Remove(temp[i]);
+		}
+
 
 		Vector3D CameraDirection
 		{
@@ -502,6 +483,22 @@ namespace Warps
 					SetActionMode(devDept.Eyeshot.actionType.SelectVisibleByPick);
 					Refresh();
 					break;
+				case "guidesurface":
+					RestoreVisState();
+					SaveVisState();
+
+					for (int i = 0; i < ActiveView.Entities.Count; i++)
+					{
+						if (!(ActiveView.Entities[i].EntityData is IRebuild))
+							continue;
+
+						IRebuild irb = ActiveView.Entities[i].EntityData as IRebuild;
+						if (!(irb is GuideSurface))
+							ActiveView.Entities[i].Visible = false;
+					}
+					SetActionMode(devDept.Eyeshot.actionType.SelectVisibleByPick);
+					Refresh();
+					break;
 
 				default:
 					RestoreVisState();
@@ -510,9 +507,7 @@ namespace Warps
 					break;
 			}
 		}
-
 		Dictionary<IRebuild, bool[]> m_visSelOld = new Dictionary<IRebuild, bool[]>();
-
 		private void SaveVisState()
 		{
 			m_visSelOld.Clear();
@@ -524,7 +519,6 @@ namespace Warps
 					m_visSelOld.Add(ActiveView.Entities[i].EntityData as IRebuild, new bool[] { ActiveView.Entities[i].Visible, ActiveView.Entities[i].Selected });
 			}
 		}
-
 		private void RestoreVisState()
 		{
 			if (m_visSelOld.Count > 0)
@@ -639,15 +633,14 @@ namespace Warps
 				this[0].SetView(viewType.Top);
 				this[1].SetView(viewType.Top);
 			}
-			for (int i = 0; i < 2; i++)
+			for (int i = 0; i < 1; i++)
 			{
 				this[i].ZoomFit();
 				this[i].ZoomOut(50);
 				this[i].Grid.Max = this[i].BoundingBox.Max;
 				this[i].Grid.Min = this[i].BoundingBox.Min;
-
-
 			}
+			LtoR_Click(null, null);//match zooms
 			Refresh();
 		}
 
@@ -717,12 +710,12 @@ namespace Warps
 
 			if (System.IO.File.Exists(path))
 			{
-				Warps.Logger.logger.Instance.Log("loading color.txt file from " + Utilities.ExeDir);
+				Logger.logger.Instance.Log("loading color.txt file from " + Utilities.ExeDir);
 				Colors.ReadIniFile(path);
 			}
 			else
 			{
-				Warps.Logger.logger.Instance.Log("No color.txt file found at " + Utilities.ExeDir);
+				Logger.logger.Instance.Log("No color.txt file found at " + Utilities.ExeDir);
 			}
 		}
 
@@ -1169,7 +1162,6 @@ namespace Warps
 		//	Refresh();
 		//}
 
-
 		internal void ShowAll()
 		{
 			ActiveView.Layers.TurnAllOn();
@@ -1189,6 +1181,18 @@ namespace Warps
 		{
 			HideAll();
 			ToggleLayer(obj);
+		}
+
+		public void ShowOnly(int nView, params object[] layers)
+		{
+			this[nView % 2].Layers.TurnAllOff();
+			foreach(object o  in layers )
+				if (o is String)
+				{
+					Layer l = this[nView % 2].Layers.FirstOrDefault(ly => ly.Name == o as string);
+					if( l != null )
+						l.Visible = true;
+				}
 		}
 
 		internal void ToggleLayer(IRebuild p)
@@ -1369,8 +1373,9 @@ namespace Warps
 
 			if (mySaveFileDialog.ShowDialog() == DialogResult.OK)
 			{
+#if DEBUG
 				ActiveView.WriteIGES(System.IO.Path.ChangeExtension(mySaveFileDialog.FileName, "iges"),false);
-
+#endif
 				switch (mySaveFileDialog.FilterIndex)
 				{
 
@@ -1380,22 +1385,96 @@ namespace Warps
 						break;
 					case 3: ActiveView.WriteToFileRaster(2, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Wmf);
 						break;
-					case 4: ActiveView.WriteToFileRaster(2, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Emf);
+					case 4: ActiveView.WriteToFileVector(false, mySaveFileDialog.FileName);
+				//	case 4: ActiveView.WriteToFileRaster(2, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Emf);
 						break;
 					case 5: ActiveView.WriteToFileRaster(4, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
 						break;
-					
 				}
-
 			}
 		}
-
 		private void copyToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			ActiveView.CopyToClipboardRaster(2);
+			ActiveView.CopyToClipboardRaster();
 		}
 
+		Bitmap DualBitmap(float imageScale, int dividerWidth)
+		{
+			//create each view's bmp
+			this[0].CopyToClipboardRaster(imageScale);
+			Bitmap left = Clipboard.GetImage() as Bitmap;
+			this[1].CopyToClipboardRaster(imageScale);
+			Bitmap right = Clipboard.GetImage() as Bitmap;
+			//create target bmp and graphics
+			Bitmap bmp = new Bitmap(left.Width + right.Width + dividerWidth, left.Height);
+			Graphics g = Graphics.FromImage(bmp);
 
+			//draw each image
+			g.DrawImage(left, new PointF(0, 0));
+			g.DrawImage(right, new PointF(left.Width + dividerWidth, 0));
 
+			//draw center divider if specified
+			if( dividerWidth > 0 )
+				g.FillRectangle(Brushes.Black, left.Width, 0, dividerWidth, left.Height);
+
+			return bmp;
+		}
+		private void saveDualToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			SaveFileDialog mySaveFileDialog = new SaveFileDialog();
+
+			mySaveFileDialog.InitialDirectory = ".";
+			mySaveFileDialog.Filter = "Bitmap (*.bmp)|*.bmp|" +
+				"Portable Network Graphics (*.png)|*.png|" +
+				//"Windows metafile (*.wmf)|*.wmf|" +
+				//"Enhanced Windows Metafile (*.emf)|*.emf|" +
+				"Joint Photographic Experts Group (*.jpeg) |*.jpeg";
+
+			mySaveFileDialog.FilterIndex = 2;
+			mySaveFileDialog.RestoreDirectory = true;
+
+			if (mySaveFileDialog.ShowDialog() == DialogResult.OK)
+			{
+				System.Drawing.Imaging.ImageFormat frmt;
+				switch (mySaveFileDialog.FilterIndex)
+				{
+					case 1: frmt = System.Drawing.Imaging.ImageFormat.Bmp;
+						break;
+					case 2: frmt = System.Drawing.Imaging.ImageFormat.Png;
+						break;
+					//case 3: frmt =System.Drawing.Imaging.ImageFormat.Wmf;
+					//	break;
+					//case 4: frmt =System.Drawing.Imaging.ImageFormat.Emf;
+					//	break;
+					case 3: frmt = System.Drawing.Imaging.ImageFormat.Jpeg;
+						break;
+					default: frmt = System.Drawing.Imaging.ImageFormat.Bmp;
+						break;
+				}
+
+				DualBitmap(2, 3).Save(mySaveFileDialog.FileName, frmt);
+			}
+		}
+		private void copyDualToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Clipboard.SetImage(DualBitmap(1, 2));
+
+		}
+
+		//private void copyToolStripMenuItem2_Click(object sender, EventArgs e)
+		//{
+		//	this[0].CopyToClipboardRaster(1);
+		//	Bitmap left = Clipboard.GetImage() as Bitmap;
+		//	this[1].CopyToClipboardRaster(1);
+		//	Bitmap right = Clipboard.GetImage() as Bitmap;
+
+		//	Bitmap bmp = new Bitmap(left.Width + right.Width, left.Height);
+		//	for( int j = 0 ; j < bmp.Height; j++ )
+		//	for (int i = 0; i < bmp.Width; i++)
+		//	{
+		//		bmp.SetPixel(i, j, i == left.Width ? Color.Black : i > left.Width ? right.GetPixel(i - left.Width, j) : left.GetPixel(i, j));
+		//	}
+		//	Clipboard.SetImage(bmp);
+		//}
 	}
 }

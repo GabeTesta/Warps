@@ -38,6 +38,7 @@
 			this.m_curve1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.m_curve1.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.m_curve1.FormattingEnabled = true;
+			this.m_curve1.IntegralHeight = false;
 			this.m_curve1.Location = new System.Drawing.Point(3, 3);
 			this.m_curve1.Name = "m_curve1";
 			this.m_curve1.Size = new System.Drawing.Size(84, 21);
@@ -50,6 +51,7 @@
 			this.m_curve2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.m_curve2.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.m_curve2.FormattingEnabled = true;
+			this.m_curve2.IntegralHeight = false;
 			this.m_curve2.Location = new System.Drawing.Point(93, 3);
 			this.m_curve2.Name = "m_curve2";
 			this.m_curve2.Size = new System.Drawing.Size(84, 21);

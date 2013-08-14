@@ -38,6 +38,7 @@
 			this.m_curves.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.m_curves.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.m_curves.FormattingEnabled = true;
+			this.m_curves.IntegralHeight = false;
 			this.m_curves.Location = new System.Drawing.Point(95, 0);
 			this.m_curves.Name = "m_curves";
 			this.m_curves.Size = new System.Drawing.Size(84, 21);
@@ -46,9 +47,10 @@
 			// 
 			// m_cs
 			// 
+			this.m_cs.AutoFillVariables = null;
 			this.m_cs.Location = new System.Drawing.Point(0, 0);
 			this.m_cs.Name = "m_cs";
-			this.m_cs.Size = new System.Drawing.Size(89, 24);
+			this.m_cs.Size = new System.Drawing.Size(89, 23);
 			this.m_cs.TabIndex = 0;
 			// 
 			// CurvePointEditor
@@ -58,7 +60,7 @@
 			this.Controls.Add(this.m_cs);
 			this.Controls.Add(this.m_curves);
 			this.Name = "CurvePointEditor";
-			this.Size = new System.Drawing.Size(179, 23);
+			this.Size = new System.Drawing.Size(179, 21);
 			this.ResumeLayout(false);
 
 		}

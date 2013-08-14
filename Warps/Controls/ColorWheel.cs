@@ -688,6 +688,37 @@ namespace Warps
 			return HslToRgb(new HslColor((byte)(255 * m_rand.NextDouble()), (byte)(100 + 155 * m_rand.NextDouble()),  (byte)(255 - (255 * m_rand.NextDouble()))));
 		}
 		static Random m_rand = new Random((int)DateTime.Now.Ticks);
+
+		/// <summary>
+		/// Returns the next color of a preset sequence of colors
+		/// </summary>
+		/// <returns></returns>
+		public static Color NextColor()
+		{ return COLORS[nCol++]; }
+
+		/// <summary>
+		/// Get the index-specified Color
+		/// </summary>
+		/// <param name="nCol">the index of the desired color</param>
+		/// <returns>A Color from the colors array</returns>
+		public static Color IntColor(int nCol)
+		{ return COLORS[nCol % COLORS.Length]; }
+
+		static int m_nCol = 0;
+		static int nCol
+		{
+			get { return m_nCol; }
+			set { m_nCol = value % COLORS.Length; }
+		}
+		static System.Drawing.Color[] COLORS = new System.Drawing.Color[]{
+			System.Drawing.Color.Cyan,
+			System.Drawing.Color.Brown,
+			System.Drawing.Color.Blue,
+			System.Drawing.Color.Red,
+			System.Drawing.Color.Green,
+			System.Drawing.Color.Orange,
+			System.Drawing.Color.Purple,
+			System.Drawing.Color.Gold}; 
 	}
 
 	public struct HslColor

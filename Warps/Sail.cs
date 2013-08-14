@@ -18,7 +18,8 @@ namespace Warps
 
 		string m_path;
 		ISurface m_mould;
-		List<IGroup> m_layout;
+		List<IGroup> m_layout = new List<IGroup>();
+
 
 		#endregion
 
@@ -58,12 +59,13 @@ namespace Warps
 					m_path = path;
 					break;
 				case ".obj":
-					m_layout = new List<IGroup>();//default empty layout
 					ReadOBJFile(path);
 					//CreateInnerCurves();
 					break;
+				case ".bin":
+					ReadBinFile(path);
+					break;
 				default:
-					m_layout = new List<IGroup>();//default empty layout
 					CreateMould(path);//read the file
 
 					//#if DEBUG
@@ -81,16 +83,55 @@ namespace Warps
 			CreateMould(m_path);
 		}
 
+		public void WriteBinFile(string binpath)
+		{
+			using (BinaryWriter bin = new BinaryWriter(File.Open(binpath, FileMode.OpenOrCreate, FileAccess.Write)))
+			{
+				Utilities.WriteCString(bin, Mould.Label);
+				bin.Write((Int32)m_layout.Count);
+				Layout.ForEach(l => l.WriteBin(bin));
+			}
+		}
+
+		public void ReadBinFile(string binpath)
+		{
+			if (!File.Exists(binpath))
+				return;
+			m_path = binpath;
+			using (BinaryReader bin = new BinaryReader(File.Open(binpath, FileMode.Open, FileAccess.Read)))
+			{
+				string label = Utilities.ReadCString(bin);
+				CreateMould(label);
+				int nGrps = bin.ReadInt32();
+				while (--nGrps > 0)
+				{
+					IGroup grp = MakeGroup(bin);
+					if (grp != null)
+						Add(grp);
+				}
+			}
+			//Rebuild();
+		}
+
+		private IGroup MakeGroup(BinaryReader bin)
+		{
+			string type = Utilities.ReadCString(bin);
+			var obj = Utilities.CreateInstance(type, bin);
+			if (obj != null)
+				return obj as IGroup;
+			return null;
+		}
+
 		void CreateMould(string path)
 		{
 			CreateMould(null, path);
 		}
 		void CreateMould(string type, string path)
 		{
-			if (path == null || path.Length == 0)
+			if (path == null || path.Length == 0 || !File.Exists(path))
 			{
 				string[] paths = WarpFrame.OpenFileDlg(1);
-				if (paths.Length > 0)
+				if (paths != null && paths.Length > 0)
 					path = paths[0];
 
 				if (path == null || path.Length == 0)
@@ -167,7 +208,6 @@ namespace Warps
 				CreateMould(ScriptTools.ReadType(line), ScriptTools.ReadPath(line));
 
 				//read layout
-				m_layout = new List<IGroup>();
 				line = txt.ReadLine();
 				string[] splits;
 				while (line != null)
@@ -314,22 +354,13 @@ namespace Warps
 		//	return curves.Find(curve => curve.Label == name);
 		//}
 
-		public List<IRebuild> Rebuild(IRebuild tag)
+		public void Rebuild()
 		{
-			List<IRebuild> updated = null;
-			if (tag != null)
-			{
-				updated = new List<IRebuild>();
-				updated.Add(tag);
-			}
-
 			foreach (IRebuild item in Layout)
 			{
-				item.Update(this);// (updated);
+				item.Update(this);
 			}
-			if (tag == null)
-				WriteNode();
-			return updated;
+			WriteNode();
 		}
 		public List<IRebuild> GetConnected(IRebuild tag)
 		{
@@ -672,8 +703,7 @@ namespace Warps
 				{
 					uv[1] = new Vect2(1.3, BLAS.interpolant(nAng, NANG));
 
-					MouldCurve g = new MouldCurve(string.Format(group.Label + "[{0}]", nAng), this, null);
-					g.Fit(uv[0], uv[1]);
+					MouldCurve g = new MouldCurve(string.Format(group.Label + "[{0}]", nAng), this, uv[0], uv[1]);
 					group.Add(g);
 				}
 				Add(group);
@@ -683,10 +713,10 @@ namespace Warps
 
 		public IGroup CreateOuterCurves()
 		{
-			if (FindGroup("Outer") != null)
-				return FindGroup("Outer");
+			//if (FindGroup("Outer") != null)
+			//	return FindGroup("Outer");
 
-			CurveGroup outer = new CurveGroup("Outer", this);
+			CurveGroup outer = new CurveGroup("Outerr", this);
 			//int nLayer = View.AddLayer("Outer", Color.MistyRose, true);
 			FixedPoint[] corners = new FixedPoint[4];
 			corners[0] = new FixedPoint(0, 0);
@@ -805,8 +835,7 @@ namespace Warps
 					else
 						gir[0] = new CurvePoint(0, outer[2 * i], dg);
 
-					MouldCurve girth = new MouldCurve(String.Format("{0}ir-{1:##0}%", i == 0 ? "G" : "V", dg * 100), this, null);
-					girth.Fit(gir);
+					MouldCurve girth = new MouldCurve(String.Format("{0}ir-{1:##0}%", i == 0 ? "G" : "V", dg * 100), this, gir);
 					girths.Add(girth);
 				}
 				Add(girths);
@@ -835,8 +864,7 @@ namespace Warps
 
 					gir[0] = new CurvePoint(0, outer[2 * i], dg);
 
-					MouldCurve curve = new MouldCurve(String.Format("{0}ec-{1:##0}%", i == 0 ? "S" : "V", dg * 100), this, null);
-					curve.Fit(gir);
+					MouldCurve curve = new MouldCurve(String.Format("{0}ec-{1:##0}%", i == 0 ? "S" : "V", dg * 100), this, gir);
 					curves.Add(curve);
 				}
 				Add(curves);
@@ -848,7 +876,7 @@ namespace Warps
 		#endregion
 
 		#region Bounding Box
-				/// <summary>
+		/// <summary>
 		/// Mould bounding box limits in xyz
 		/// 0: x min/max, 1: y min/max, 2: z min/max
 		/// </summary>

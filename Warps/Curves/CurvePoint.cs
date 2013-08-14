@@ -14,17 +14,17 @@ namespace Warps
 		public CurvePoint(CurvePoint c)
 			: this(c.S, c.m_curve, c.m_sEqu) { }
 
-		public CurvePoint(MouldCurve curve, double sCurve)
+		public CurvePoint(IMouldCurve curve, double sCurve)
 			: this(0, curve, sCurve) { }
 
-		public CurvePoint(double s, MouldCurve curve, double sCurve)
+		public CurvePoint(double s, IMouldCurve curve, double sCurve)
 		{
 			m_sPos = s;
 			S_Equ = new Equation(sCurve);
 			m_curve = curve;
 		}
 
-		public CurvePoint(double s, MouldCurve curve, Equation Sequ)
+		public CurvePoint(double s, IMouldCurve curve, Equation Sequ)
 		{
 			m_sPos = s;
 			S_Equ = Sequ;
@@ -32,7 +32,7 @@ namespace Warps
 		}
 
 		internal double m_sPos;
-		internal MouldCurve m_curve;
+		internal IMouldCurve m_curve;
 		//internal double m_sCurve;
 
 		Equation m_sEqu = new Equation();
@@ -101,13 +101,13 @@ namespace Warps
 				if (m_curve != null)
 				{
 					double sCur = 0;
-					m_curve.uClosest(ref sCur, ref value, ref dist, 1e-9);//m_curve.uClosest(ref m_sCurve, ref value, ref dist, 1e-9);
+					CurveTools.uClosest(m_curve, ref sCur, ref value, ref dist, 1e-9);//m_curve.uClosest(ref m_sCurve, ref value, ref dist, 1e-9);
 					SCurve = sCur;
 				}
 			}
 		}
 
-		public MouldCurve Curve
+		public IMouldCurve Curve
 		{
 			get { return m_curve; }
 		}
@@ -230,7 +230,7 @@ namespace Warps
 		{
 			if (connected == null) 
 				return false;
-			if (connected.Contains(m_curve)) 
+			if (m_curve is IRebuild && connected.Contains(m_curve as IRebuild)) 
 				return true;
 
 			if (connected != null)
@@ -264,7 +264,10 @@ namespace Warps
 		}
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			parents.Add(Curve);
+			if (Curve is IRebuild)
+				parents.Add(Curve as IRebuild);
+			else
+				throw new Exception("CurvePoint's Curve is not IRebuild");
 
 			//parents.Add(m_sEqu);
 			m_sEqu.GetParents(s, parents);

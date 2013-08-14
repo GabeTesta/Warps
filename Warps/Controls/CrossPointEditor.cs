@@ -19,18 +19,24 @@ namespace Warps
 		protected override void OnLayout(LayoutEventArgs e)
 		{
 			base.OnLayout(e);
-			int wid = Width / 2 - (2 * Padding.Horizontal);
-			m_curve1.Top = m_curve2.Top = 0;
-			m_curve1.Left = 0;
-			m_curve1.Width = wid;
-			m_curve2.Left = wid + Padding.Horizontal;
-			m_curve2.Width = wid;
+			int wid = Width / 2 - Padding.Horizontal;
+			m_curve1.Width = m_curve2.Width = wid;
+			m_curve1.Location = new Point(0, 0);
+			m_curve2.Location = new Point(wid + Padding.Horizontal, 0);
+			
 			this.Height = m_curve1.Height;
 		}
-
-		internal MouldCurve Curve1
+		protected override void OnSizeChanged(EventArgs e)
 		{
-			get{ return m_curve1.SelectedItem as MouldCurve; }
+			base.OnSizeChanged(e);
+			m_curve1.Height = Height;
+			m_curve2.Height = Height;
+			Height = m_curve1.Height;
+		}
+
+		internal IMouldCurve Curve1
+		{
+			get{ return m_curve1.SelectedItem as IMouldCurve; }
 			set
 			{
 				if (value != null && !m_curve1.Items.Contains(value))
@@ -38,9 +44,9 @@ namespace Warps
 				m_curve1.SelectedItem = value;
 			}
 		}
-		internal MouldCurve Curve2
+		internal IMouldCurve Curve2
 		{
-			get{ return m_curve2.SelectedItem as MouldCurve; }
+			get{ return m_curve2.SelectedItem as IMouldCurve; }
 			set
 			{
 				if (value != null && !m_curve2.Items.Contains(value))
@@ -69,13 +75,13 @@ namespace Warps
 				if (value == null)
 					return;
 
-				MouldCurve c1 = Curve1;//backup current curve
-				MouldCurve c2 = Curve2;//backup current curve
+				IMouldCurve c1 = Curve1;//backup current curve
+				IMouldCurve c2 = Curve2;//backup current curve
 				m_curve1.Items.Clear();
 				m_curve2.Items.Clear();
 				foreach (object o in value)
 				{
-					if (o is MouldCurve)
+					if (o is IMouldCurve)
 					{
 						if (!m_curve1.Items.Contains(o))
 							m_curve1.Items.Add(o);

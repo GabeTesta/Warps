@@ -10,9 +10,10 @@ using devDept.Eyeshot;
 using devDept.Geometry;
 using devDept.Eyeshot.Entities;
 using Warps.Controls;
-using Warps.Logger;
+using Logger;
+using Warps.Panels;
 
-namespace Warps
+namespace Warps.Trackers
 {
 	class PanelGroupTracker: ITracker
 	{
@@ -167,22 +168,22 @@ namespace Warps
 			if (Edit.m_selectingGuide)
 			{
 				if (Edit.AddRemoveGuide(selected as MouldCurve))
-					View.SelectEntity(selected as MouldCurve);
+					View.Select(selected as MouldCurve);
 				else
 					View.DeSelect(selected as MouldCurve);
 			}
 			else if (Edit.m_selectingWarp)
 			{
 				if (Edit.AddRemoveWarp(selected as MouldCurve))
-					View.SelectEntity(selected as MouldCurve);
+					View.Select(selected as MouldCurve);
 				else
 					View.DeSelect(selected as MouldCurve);
 			}
 
 			View.DeSelectAll();
 
-			foreach (MouldCurve cur in Edit.Curves)
-				View.SelectEntity(cur);
+			foreach (IMouldCurve cur in Edit.Curves)
+				View.Select(cur);
 
 
 			View.Refresh();

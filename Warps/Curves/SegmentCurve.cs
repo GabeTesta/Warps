@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Warps.Curves
 {
-	[System.Diagnostics.DebuggerDisplay("{m_curve.Label} {m_sLimit}", Name = "{m_curve.Label} {m_sLimit}", Type = "{GetType()}")]
+	[System.Diagnostics.DebuggerDisplay("{ToString()}", Name = "{ToString()}", Type = "{GetType()}")]
 	public class SegmentCurve: IMouldCurve
 	{
 		public SegmentCurve(IMouldCurve curve, double smin, double smax)
@@ -37,9 +37,25 @@ namespace Warps.Curves
 			private set { m_curve = value; }
 		}
 
+		public double Length
+		{
+			get
+			{
+				double len = 0;
+
+				devDept.Geometry.Point3D[] pts = CurveTools.GetEvenPathPoints(Curve, 20);
+				//accumulate length along each segment
+				for (int i = 1; i < pts.Length; i++)
+					len += pts[i - 1].DistanceTo(pts[i]);
+
+				return len;
+			}
+		}
+
 		IMouldCurve m_curve;
 		Vect2 m_sLimit;
 		#endregion
+
 
 		#region IMouldCurve Members
 
@@ -101,6 +117,16 @@ namespace Warps.Curves
 		public void xNor(double s, ref Vect2 uv, ref Vect3 xyz, ref Vect3 dx, ref Vect3 xn)
 		{
 			m_curve.xNor(SPos(s), ref uv, ref xyz, ref dx, ref xn);
+		}
+
+		public string Label
+		{
+			get { return ToString(); }
+		}
+
+		public override string ToString()
+		{
+			return m_curve == null ? "nullSegment" : string.Format("{0} {1}", m_curve.Label, m_sLimit.ToString(true));
 		}
 
 		#endregion

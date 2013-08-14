@@ -63,6 +63,8 @@ namespace Warps
 			return a > b ? (b <= val && val <= a) : (a <= val && val <= b);
 		}
 
+		public static double DegToRad(double deg) { return deg * Math.PI / 180.0; }
+		public static double RadToDeg(double rad) { return rad * 180.0 / Math.PI; }
 
 		public static Point3D DoubleToPoint3D(double[] xyz)
 		{
@@ -83,6 +85,10 @@ namespace Warps
 		public static Point3D Vect3ToPoint3D(Vect3 xyz)
 		{
 			return new Point3D(xyz.Array);
+		}
+		public static PointRGB Vect3ToPointRGB(Vect3 xyz, System.Drawing.Color c)
+		{
+			return new PointRGB(xyz.x, xyz.y, xyz.z, c);
 		}
 
 		public static object CreateInstance(Type t, params object[] parameters)
@@ -151,7 +157,7 @@ namespace Warps
 			catch (Exception ex)
 			{
 				string message = ex.Message;
-				Warps.Logger.logger.Instance.LogErrorException(ex); 
+				Logger.logger.Instance.LogErrorException(ex); 
 			}
 
 			return ret;
@@ -220,7 +226,7 @@ namespace Warps
 			}
 			catch (Exception e)
 			{
-				Warps.Logger.logger.Instance.LogErrorException(e); 
+				Logger.logger.Instance.LogErrorException(e); 
 				System.Windows.Forms.MessageBox.Show("File: [" + path + "]\n" + e.Message, "Failed to launch file");
 			}
 		}
@@ -318,6 +324,12 @@ namespace Warps
 		{
 			uint len = bin.ReadUInt32();
 			return new string(bin.ReadChars((int)len)).Trim();
+		}
+
+		public static void WriteCString(System.IO.BinaryWriter bin, string str)
+		{
+			bin.Write((UInt32)(str.Length));
+			bin.Write(str.ToCharArray());
 		}
 	}
 

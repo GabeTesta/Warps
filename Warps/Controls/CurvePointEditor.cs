@@ -36,7 +36,7 @@ namespace Warps
 			}
 		}
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		public MouldCurve Curve
+		public IMouldCurve Curve
 		{
 			get
 			{
@@ -111,7 +111,7 @@ namespace Warps
 					return;
 
 				m_cs.AutoFillVariables = value;
-				MouldCurve c = Curve;//backup current curve
+				IMouldCurve c = Curve;//backup current curve
 				m_curves.Items.Clear();
 				foreach (object o in value)
 				{
@@ -144,12 +144,18 @@ namespace Warps
 		protected override void OnLayout(LayoutEventArgs e)
 		{
 			base.OnLayout(e);
-			int wid = Width / 2 - (2 * Padding.Horizontal);
+			int wid = Width / 2 - Padding.Horizontal;
 
-			m_cs.Width = wid;
-			m_curves.Left = wid+Padding.Horizontal;
-			m_curves.Width = wid;
-
+			m_curves.Width = m_cs.Width = wid;
+			m_cs.Location = new Point(0, 0);
+			m_curves.Location = new Point(wid + Padding.Horizontal, 0);
+		}
+		protected override void OnSizeChanged(EventArgs e)
+		{
+			base.OnSizeChanged(e);
+			m_curves.Height = Height;
+			m_cs.Height = Height;
+			Height = Math.Max(m_curves.Height, m_cs.Height);
 		}
 
 		private void m_curves_Validating(object sender, CancelEventArgs e)

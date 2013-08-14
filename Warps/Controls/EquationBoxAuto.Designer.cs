@@ -29,25 +29,26 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this.button1 = new System.Windows.Forms.Button();
+			this.buttonFn = new System.Windows.Forms.Button();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.equationBox = new Warps.EquationBox();
 			this.SuspendLayout();
 			// 
-			// button1
+			// buttonFn
 			// 
-			this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.button1.BackColor = System.Drawing.Color.White;
-			this.button1.BackgroundImage = global::Warps.Properties.Resources.equation;
-			this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-			this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.button1.Location = new System.Drawing.Point(81, 0);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(23, 23);
-			this.button1.TabIndex = 1;
-			this.button1.TabStop = false;
-			this.button1.UseVisualStyleBackColor = false;
-			this.button1.Click += new System.EventHandler(this.button1_Click);
+			this.buttonFn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.buttonFn.BackColor = System.Drawing.Color.White;
+			this.buttonFn.BackgroundImage = global::Warps.Properties.Resources.equation;
+			this.buttonFn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+			this.buttonFn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.buttonFn.Location = new System.Drawing.Point(78, 0);
+			this.buttonFn.Margin = new System.Windows.Forms.Padding(5);
+			this.buttonFn.Name = "buttonFn";
+			this.buttonFn.Size = new System.Drawing.Size(23, 23);
+			this.buttonFn.TabIndex = 1;
+			this.buttonFn.TabStop = false;
+			this.buttonFn.UseVisualStyleBackColor = false;
+			this.buttonFn.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// equationBox
 			// 
@@ -69,10 +70,9 @@
 			// 
 			// EquationBoxAuto
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.Controls.Add(this.equationBox);
-			this.Controls.Add(this.button1);
+			this.Controls.Add(this.buttonFn);
 			this.Name = "EquationBoxAuto";
 			this.Size = new System.Drawing.Size(101, 24);
 			this.Load += new System.EventHandler(this.EquationBoxAuto_Load);
@@ -84,7 +84,7 @@
 		#endregion
 
 		private EquationBox equationBox;
-		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.Button buttonFn;
 		private System.Windows.Forms.ToolTip toolTip1;
 	}
 }

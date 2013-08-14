@@ -23,7 +23,8 @@ namespace Warps
 		string m_cofPath;
 		public string Label
 		{
-			get { return m_cofPath == null ? "" : Path.GetFileNameWithoutExtension(m_cofPath); }
+			//get { return m_cofPath == null ? "" : Path.GetFileNameWithoutExtension(m_cofPath); }
+			get { return m_cofPath; }
 		}
 		public string CofPath
 		{
@@ -39,7 +40,8 @@ namespace Warps
 		{
 			if( cofPath != null )
 				m_cofPath = cofPath;
-
+			if (!File.Exists(m_cofPath))
+				throw new FileNotFoundException("ReadCofFile");
 			if (Path.GetExtension(m_cofPath).ToLower() == ".cof")
 				ReadMFCCofFile(cofPath);
 			else
@@ -80,6 +82,8 @@ namespace Warps
 
 			}
 		}
+
+		#endregion
 
 		#region .Sail Bin file
 
@@ -147,9 +151,6 @@ namespace Warps
 		}
 
 		#endregion
-
-		#endregion
-
 		#region Coefficients
 		string m_text;
 

@@ -16,97 +16,116 @@ namespace Warps
 
 	public class MouldCurve : IRebuild, IMouldCurve
 	{
-		static bool EXTENDENTITY = false;
 		public MouldCurve()
 		{ }
-		public MouldCurve(string label, Sail sail, Vect2 uv1, Vect2 uv2)
-			: this(label, sail, new IFitPoint[] { new FixedPoint(uv1), new FixedPoint(uv2) }) { }
+		public MouldCurve(string label, Sail sail)
+		{
+			m_sail = sail;
+			m_label = label;
+		}
 
+		//public MouldCurve(string label, Sail sail, Vect2 uv1, Vect2 uv2)
+		//	: this(label, sail, new IFitPoint[] { new FixedPoint(uv1), new FixedPoint(uv2) }) { }
+
+		public MouldCurve(string label, Sail sail, params Vect2[] uvs)
+			:this(label, sail)
+		{
+			IFitPoint[] fits = new IFitPoint[uvs.Length];
+			int i =0;
+			foreach (Vect2 v in uvs)
+				fits[i++] = new FixedPoint(v);
+			Fit(fits);
+		}
 		public MouldCurve(MouldCurve curve)
 		{
 			m_sail = curve.Sail;
 			m_label = curve.Label;
 			Fit(curve);
 		}
-		/// <summary>
-		/// Construct a subcurve of a given
-		/// </summary>
-		/// <param name="parent">the parent curve to copy</param>
-		/// <param name="sLimits">the subcurve spos end limits</param>
-		public MouldCurve(string label, MouldCurve parent, Vect2 sLimits)
-		{
-			m_sail = parent.Sail;
-			m_label = label;
-			if (sLimits[0] > sLimits[1])//swap if reversed
-			{
-				sLimits[0] += sLimits[1];
-				sLimits[1] = sLimits[0] - sLimits[1];
-				sLimits[0] -= sLimits[1];
-			}
-			//find starting defpoints
-			int nStart = -1, nStop = -1, nS;
-			for (nS = 0; nS < parent.m_sSplines.Length; nS++)
-			{
-				if (nStart == -1 && parent.m_sSplines[nS] > sLimits[0])
-					nStart = nS;
-				if (nStop == -1 && parent.m_sSplines[nS] > sLimits[1])
-					nStop = nS;
-				if (nStop != -1 && nStart != -1)
-					break;//stop when both are found
-			}
-			if (nStart == -1 || nStop == -1)
-				return;
 
-			//get all internally used fitpoints inside the slimits
-			List<double> sSubs = new List<double>(nStop-nStart+2);
-			sSubs.Add(sLimits[0]);
-			for( nS = nStart; nS < nStop; nS++ )
-			{
-				sSubs.Add(parent.m_sSplines[nS]);
-			}
-			sSubs.Add(sLimits[1]);
-			if (sSubs.Count < 5)
-				GetViewFits(ref sSubs, parent);
+		///// <summary>
+		///// Construct a subcurve of a given
+		///// </summary>
+		///// <param name="parent">the parent curve to copy</param>
+		///// <param name="sLimits">the subcurve spos end limits</param>
+		//public MouldCurve(string label, MouldCurve parent, Vect2 sLimits)
+		//{
+		//	m_sail = parent.Sail;
+		//	m_label = label;
+		//	bool bswap = false;
+		//	if (sLimits[0] > sLimits[1])//swap if reversed
+		//	{
+		//		bswap = true;
+		//		sLimits[0] += sLimits[1];
+		//		sLimits[1] = sLimits[0] - sLimits[1];
+		//		sLimits[0] -= sLimits[1];
+		//	}
+		//	//find starting defpoints
+		//	int nStart = -1, nStop = -1, nS;
+		//	for (nS = 0; nS < parent.m_sSplines.Length; nS++)
+		//	{
+		//		if (nStart == -1 && parent.m_sSplines[nS] > sLimits[0])
+		//			nStart = nS;
+		//		if (nStop == -1 && parent.m_sSplines[nS] > sLimits[1])
+		//			nStop = nS;
+		//		if (nStop != -1 && nStart != -1)
+		//			break;//stop when both are found
+		//	}
+		//	if (nStart == -1 || nStop == -1)
+		//		return;
 
-			FitPoints = new IFitPoint[sSubs.Count];
-			nS = 0;
-			foreach (double s in sSubs)
-			{
-				FitPoints[nS++] = new CurvePoint(parent, s);
-			}
-			m_bGirths = new bool[FitPoints.Length - 1];//no girth segments
-			ReFit();
+		//	//get all internally used fitpoints inside the slimits
+		//	List<double> sSubs = new List<double>(nStop-nStart+2);
+		//	sSubs.Add(sLimits[0]);
+		//	for( nS = nStart; nS < nStop; nS++ )
+		//	{
+		//		sSubs.Add(parent.m_sSplines[nS]);
+		//	}
+		//	sSubs.Add(sLimits[1]);
+		//	if (sSubs.Count < 5)
+		//		GetViewFits(ref sSubs, parent);
 
-		}
+		//	FitPoints = new IFitPoint[sSubs.Count];
+		//	nS = bswap ? sSubs.Count: 0;
+		//	foreach (double s in sSubs)
+		//	{
+		//		if (bswap)
+		//			FitPoints[--nS] = new CurvePoint(parent, s);
+		//		else
+		//			FitPoints[nS++] = new CurvePoint(parent, s);
+		//	}
 
-		private void GetViewFits(ref List<double> sSubs, MouldCurve parent)
-		{
-			if (sSubs[0] > sSubs.Last())
-				sSubs.Reverse();
+		//	m_bGirths = new bool[FitPoints.Length - 1];//no girth segments
+		//	ReFit();
 
-			double[] sPos;
-			parent.CreateEntities(false, Math.PI / 180.0, out sPos);
-			int nS, nE;
-			for (nE = nS = 1; nE < sPos.Length; nE++)
-			{
-				if (sPos[nE - 1] < sSubs[0] && sSubs[0] < sPos[nE])
-					nS = nE;
-				if (sPos[nE - 1] < sSubs.Last() && sSubs.Last() < sPos[nE])
-					break;
-			}
-			double sS = sSubs[0], sE = sSubs.Last();
-			sSubs.Clear();
-			sSubs.Add(sS);
-			for (; nS < nE; nS++)
-			{
-				sSubs.Add(sPos[nS]);
-			}
-			sSubs.Add(sE);
-		}
+		//}
+		//private void GetViewFits(ref List<double> sSubs, MouldCurve parent)
+		//{
+		//	if (sSubs[0] > sSubs.Last())
+		//		sSubs.Reverse();
+
+		//	double[] sPos;
+		//	parent.CreateEntities(false, Math.PI / 180.0, out sPos);
+		//	int nS, nE;
+		//	for (nE = nS = 1; nE < sPos.Length; nE++)
+		//	{
+		//		if (sPos[nE - 1] < sSubs[0] && sSubs[0] < sPos[nE])
+		//			nS = nE;
+		//		if (sPos[nE - 1] < sSubs.Last() && sSubs.Last() < sPos[nE])
+		//			break;
+		//	}
+		//	double sS = sSubs[0], sE = sSubs.Last();
+		//	sSubs.Clear();
+		//	sSubs.Add(sS);
+		//	for (; nS < nE; nS++)
+		//	{
+		//		sSubs.Add(sPos[nS]);
+		//	}
+		//	sSubs.Add(sE);
+		//}
 		public MouldCurve(string label, Sail sail, IFitPoint[] fits)
+			:this(label, sail)
 		{
-			m_sail = sail;
-			m_label = label;
 			if (fits != null)
 				Fit(fits);
 		}
@@ -147,7 +166,18 @@ namespace Warps
 			FitPoints = pts.ToArray();
 			m_bGirths = new bool[pts.Count - 1];//spline all segments
 		}
-		
+
+		internal void WriteBin(System.IO.BinaryWriter bin)
+		{
+			Utilities.WriteCString(bin, m_label);
+			bin.Write((Int32)m_sSplines.Length);
+			foreach (double sPos in m_sSplines)
+				bin.Write(sPos);
+
+			m_bSpline.WriteBin(bin);
+
+		}
+
 		#region Members
 
 		string m_label;
@@ -794,115 +824,120 @@ namespace Warps
 
 		public virtual List<Entity> CreateEntities()
 		{
-			double[] sPos;
-			return CreateEntities(false, Math.PI/180.0, out sPos);
+			return CreateEntities(false);
 		}
 
 		public virtual List<Entity> CreateEntities(bool bFitPoints)
 		{
-			double[] sPos;
+			
+			List<double> sPos;
 			return CreateEntities(bFitPoints, Math.PI / 180.0, out sPos);
 		}
-		public virtual List<Entity> CreateEntities(bool bFitPoints, double TolAngle, out double[] sPos)
+		public virtual List<Entity> CreateEntities(bool bFitPoints, double TolAngle, out List<double> sPos)
 		{
 			if (!AllFitPointsValid())
 			{
 				sPos = null;
 				return new List<Entity>();
 			}
+			List<double> sFits = new List<double>(FitPoints.Length);
+			foreach(IFitPoint p in FitPoints)
+				sFits.Add(p.S);
 
-			List<double> spos = new List<double>();
-			const int TEST = 8;
-			int FitLength = FitPoints.Length;
-			double[] stest = new double[(FitLength - 1) * TEST];
-			Vect3[] xtest = new Vect3[(FitLength - 1) * TEST];
-			Vect2 uv = new Vect2();
-			Vect3 xyz = new Vect3();
-			Vect3 dxp = new Vect3(), dxm = new Vect3();
-			//initial 8 subdivisions per segment
-			int nFit, nTest = 0;
-			for (nFit = 1; nFit < FitLength; nFit++)
-			{
-				for (int i = 0; i < TEST; i++, nTest++)
-				{
-					stest[nTest] = BLAS.interpolate(i, TEST, FitPoints[nFit].S, FitPoints[nFit - 1].S);
-					xtest[nTest] = new Vect3();
-					xVal(stest[nTest], ref uv, ref xtest[nTest]);
-				}
-			}
+			List<Point3D> pnts = CurveTools.GetPathPoints(this, TolAngle, sFits, false, out m_Length, out sPos);
 
-			//test the midpoint of each subsegment to determine required # of points
-			int[] nAdd = new int[stest.Length];
-			double cosA;
-			double smid;
-			int nTotal = FitLength;
-			for (nTest = 1; nTest < stest.Length; nTest++)
-			{
-				//midpoint position
-				smid = (stest[nTest] + stest[nTest - 1]) / 2.0;
-				xVal(smid, ref uv, ref xyz);
-				//forward and backward tangents
-				dxp = xtest[nTest] - xyz;
-				dxm = xtest[nTest - 1] - xyz;
-				//change in angle between for and aft tans
-				cosA = -(dxp.Dot(dxm)) / (dxp.Magnitude * dxm.Magnitude);
-				Utilities.LimitRange(-1, ref cosA, 1);
-				cosA = Math.Acos(cosA);
-				//determine additional points and sum total
-				nTotal += nAdd[nTest] = (int)(cosA / TolAngle + 1);
-			}
+			//List<double> spos = new List<double>();
+			//const int TEST = 8;
+			//int FitLength = FitPoints.Length;
+			//double[] stest = new double[(FitLength - 1) * TEST];
+			//Vect3[] xtest = new Vect3[(FitLength - 1) * TEST];
+			//Vect2 uv = new Vect2();
+			//Vect3 xyz = new Vect3();
+			//Vect3 dxp = new Vect3(), dxm = new Vect3();
+			////initial 8 subdivisions per segment
+			//int nFit, nTest = 0;
+			//for (nFit = 1; nFit < FitLength; nFit++)
+			//{
+			//	for (int i = 0; i < TEST; i++, nTest++)
+			//	{
+			//		stest[nTest] = BLAS.interpolate(i, TEST, FitPoints[nFit].S, FitPoints[nFit - 1].S);
+			//		xtest[nTest] = new Vect3();
+			//		xVal(stest[nTest], ref uv, ref xtest[nTest]);
+			//	}
+			//}
 
-			m_Length = 0;
-			Vect3 xprev = new Vect3();
-			Vect3 dx = new Vect3();
-			List<Point3D> pnts = new List<Point3D>();
-			List<Vect3> tans = new List<Vect3>();
-			xVal(stest[0], ref uv, ref xprev);
-			pnts.Add(new Point3D(xprev.ToArray()));
-			spos.Add(stest[0]);
-			for (nTest = 1; nTest < stest.Length; nTest++)
-			{
-				for (int i = 1; i <= nAdd[nTest]; i++)
-				{
-					smid = ((nAdd[nTest] - i) * stest[nTest - 1] + i * stest[nTest]) / nAdd[nTest];
-					xVec(smid, ref uv, ref xyz, ref dx);
-					spos.Add(smid);
-					pnts.Add(new Point3D(xyz.ToArray()));
-					tans.Add(new Vect3(dx));
-					m_Length += xyz.Distance(xprev);
-					xprev.Set(xyz);
-				}
-			}
+			////test the midpoint of each subsegment to determine required # of points
+			//int[] nAdd = new int[stest.Length];
+			//double cosA;
+			//double smid;
+			//int nTotal = FitLength;
+			//for (nTest = 1; nTest < stest.Length; nTest++)
+			//{
+			//	//midpoint position
+			//	smid = (stest[nTest] + stest[nTest - 1]) / 2.0;
+			//	xVal(smid, ref uv, ref xyz);
+			//	//forward and backward tangents
+			//	dxp = xtest[nTest] - xyz;
+			//	dxm = xtest[nTest - 1] - xyz;
+			//	//change in angle between for and aft tans
+			//	cosA = -(dxp.Dot(dxm)) / (dxp.Magnitude * dxm.Magnitude);
+			//	Utilities.LimitRange(-1, ref cosA, 1);
+			//	cosA = Math.Acos(cosA);
+			//	//determine additional points and sum total
+			//	nTotal += nAdd[nTest] = (int)(cosA / TolAngle + 1);
+			//}
+
+			//m_Length = 0;
+			//Vect3 xprev = new Vect3();
+			//Vect3 dx = new Vect3();
+			//List<Point3D> pnts = new List<Point3D>();
+			//List<Vect3> tans = new List<Vect3>();
+			//xVal(stest[0], ref uv, ref xprev);
+			//pnts.Add(new Point3D(xprev.ToArray()));
+			//spos.Add(stest[0]);
+			//for (nTest = 1; nTest < stest.Length; nTest++)
+			//{
+			//	for (int i = 1; i <= nAdd[nTest]; i++)
+			//	{
+			//		smid = ((nAdd[nTest] - i) * stest[nTest - 1] + i * stest[nTest]) / nAdd[nTest];
+			//		xVec(smid, ref uv, ref xyz, ref dx);
+			//		spos.Add(smid);
+			//		pnts.Add(new Point3D(xyz.ToArray()));
+			//		tans.Add(new Vect3(dx));
+			//		m_Length += xyz.Distance(xprev);
+			//		xprev.Set(xyz);
+			//	}
+			//}
 
 
-			if (EXTENDENTITY)
-			{
-				//add for-cast/back-cast points
-				for (int i = 0; i < 2; i++)
-				{
-					for (nTest = 0; nTest < 10; nTest++)
-					{
-						smid = BLAS.interpolant(nTest, 10) * 0.05;//scale down to .1 cast
-						if (i == 0)
-							smid = -smid;
-						else
-							smid += 1.0;
+			//if (EXTENDENTITY)
+			//{
+			//	//add for-cast/back-cast points
+			//	for (int i = 0; i < 2; i++)
+			//	{
+			//		for (nTest = 0; nTest < 10; nTest++)
+			//		{
+			//			smid = BLAS.interpolant(nTest, 10) * 0.05;//scale down to .1 cast
+			//			if (i == 0)
+			//				smid = -smid;
+			//			else
+			//				smid += 1.0;
 
-						xVal(smid, ref uv, ref xyz);
-						if (i == 0)
-							pnts.Insert(0, new Point3D(xyz.ToArray()));
-						else
-							pnts.Add(new Point3D(xyz.ToArray()));
-					}
-				}
-			}
+			//			xVal(smid, ref uv, ref xyz);
+			//			if (i == 0)
+			//				pnts.Insert(0, new Point3D(xyz.ToArray()));
+			//			else
+			//				pnts.Add(new Point3D(xyz.ToArray()));
+			//		}
+			//	}
+			//}
 
 			LinearPath lp = new LinearPath(pnts);
 			lp.EntityData = this;
 			//lp.LineWeight = 3.0f;
 			//lp.LineWeightMethod = colorMethodType.byEntity;
-			List<Entity> tanpaths = new List<Entity>();
-			tanpaths.Add(lp);
+			List<Entity> entities = new List<Entity>();
+			entities.Add(lp);
 			if (bFitPoints)
 			{
 				//LinearPath path;
@@ -919,6 +954,7 @@ namespace Warps
 				//	//xVal(pnt.UV, ref xyz);
 				//	//pnts.Add(new Point3D(xyz.ToArray()));
 				//}
+				Vect3 xyz = new Vect3();
 				pnts = new List<Point3D>();
 				foreach (IFitPoint pnt in FitPoints)
 				{
@@ -927,10 +963,9 @@ namespace Warps
 				}
 				PointCloud pc = new PointCloud(pnts, 8f);
 				pc.EntityData = this;
-				tanpaths.Add(pc);
+				entities.Add(pc);
 			}
-			sPos = spos.ToArray();
-			return tanpaths;
+			return entities;
 		}
 
 		public virtual devDept.Eyeshot.Labels.Label[] EntityLabel
@@ -1248,5 +1283,6 @@ namespace Warps
 		{
 			return FitPoints.Contains(p);
 		}
+
 	}
 }

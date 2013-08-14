@@ -20,6 +20,8 @@ namespace Warps
 			m_sail = s;
 		}
 
+		public void WriteBin(System.IO.BinaryWriter bin) { }
+
 		public  Equation this[int index]
 		{
 			get

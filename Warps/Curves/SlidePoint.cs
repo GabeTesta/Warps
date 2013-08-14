@@ -13,9 +13,9 @@ namespace Warps
 		public SlidePoint(SlidePoint s)
 			: base(s) { }
 		//	: this(s.m_sPos, s.m_curve, s.m_sCurve) { }
-		public SlidePoint(MouldCurve curve, double sCurve)
+		public SlidePoint(IMouldCurve curve, double sCurve)
 			: this(0, curve, sCurve) { }
-		public SlidePoint(double s, MouldCurve curve, double sCurve)
+		public SlidePoint(double s, IMouldCurve curve, double sCurve)
 			: base(s, curve, sCurve) { }
 
 		public override IFitPoint Clone()

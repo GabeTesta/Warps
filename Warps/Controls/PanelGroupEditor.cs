@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Warps.Panels;
 
 namespace Warps.Controls
 {
@@ -78,11 +79,11 @@ namespace Warps.Controls
 			set { m_view = value; }
 		}
 
-		public List<MouldCurve> Guides
+		public List<IMouldCurve> Guides
 		{
 			get
 			{
-				List<MouldCurve> ret = new List<MouldCurve>();
+				List<IMouldCurve> ret = new List<IMouldCurve>();
 				if (m_group.Sail != null && m_guideListView.Items.Count > 0)
 				{
 					for (int i = 0; i < m_guideListView.Items.Count; i++)
@@ -93,11 +94,11 @@ namespace Warps.Controls
 			}
 		}
 
-		public List<MouldCurve> SelectedBounds
+		public List<IMouldCurve> SelectedBounds
 		{
 			get
 			{
-				List<MouldCurve> ret = new List<MouldCurve>();
+				List<IMouldCurve> ret = new List<IMouldCurve>();
 				if (PanGroup.Sail != null && m_warpListView.Items.Count > 0)
 				{
 					for (int i = 0; i < m_warpListView.Items.Count; i++)
@@ -109,11 +110,11 @@ namespace Warps.Controls
 			}
 		}
 
-		public List<MouldCurve> Curves
+		public List<IMouldCurve> Curves
 		{
 			get
 			{
-				List<MouldCurve> ret = new List<MouldCurve>();
+				List<IMouldCurve> ret = new List<IMouldCurve>();
 				ret.AddRange(SelectedBounds);
 				if (Guides != null)
 					ret.AddRange(Guides);

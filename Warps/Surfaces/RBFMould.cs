@@ -41,7 +41,8 @@ namespace Warps
 		public void ReadCofFile(Sail sail, string cofpath)
 		{
 			CofMould cof = new CofMould(sail, cofpath);
-			m_label = "RBF " + cof.Label;
+			//m_label = "RBF " + cof.Label;
+			m_label = cofpath;
 			m_path = cof.CofPath;
 			Fit(cof);
 			m_Groups = cof.Groups;

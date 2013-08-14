@@ -262,5 +262,26 @@ namespace Warps
 			//cf.Write(m_xKnot, (2 + m_Kn3t) * sizeof(double));
 			//cf.Write(m_xCofs, (m_nx * m_Kn3t) * sizeof(double));
 		}
+
+		internal void WriteBin(System.IO.BinaryWriter bin)
+		{
+			//m_Kn0t = nOffs - 3;
+			//m_Kn2t = nOffs - 1;
+			//m_Kn3t = nOffs;
+			//m_Kn5t = nOffs + 1;
+			bin.Write((Int32)(m_xKnot.Length - 5));
+			bin.Write((Int32)(m_xKnot.Length - 3));
+			bin.Write((Int32)(m_xKnot.Length-2));
+			bin.Write((Int32)(m_xKnot.Length-1));
+			bin.Write((Int32)(m_degree));
+
+			foreach (double knot in m_xKnot)
+				bin.Write(knot);
+
+			//xxxxyyyyzzzz format
+			for (int nD = 0; nD < m_degree; nD++)
+				for (int i = 0; i < m_xKnot.Length-2; i++)
+					bin.Write(m_xCof[i, nD]);
+		}
 	}
 }

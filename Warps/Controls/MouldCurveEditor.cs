@@ -19,6 +19,8 @@ namespace Warps.Controls
 			//m_panel.Paint += m_panel_Paint;
 		}
 
+		#region Members
+
 		public string Label
 		{
 			get { return m_label.Text; }
@@ -28,25 +30,111 @@ namespace Warps.Controls
 		{
 			set { m_length.Text = value.ToString("f4"); }
 		}
-
-		//public IFitEditor this[int i]
-		//{
-		//	get { return m_edits[i]; }
-		//}
-
-		internal CheckBox[] m_girths;
-		ImageComboBox[] m_combos;
-		internal IFitEditor[] m_edits;
-		List<object> m_autoFill;
-
 		public List<object> AutoFill
 		{
 			get { return m_autoFill; }
 			set { m_autoFill = value; }
 		}
-
 		ControlCollection Panel
 		{ get { return m_panel.Controls; } }
+
+		internal List<CheckBox> m_girths;
+		internal List<ImageComboBox> m_combos;
+		internal IFitEditor[] m_edits;
+		internal List<FlatUpDown> m_updowns;
+
+		List<object> m_autoFill;
+
+		#endregion		
+
+		#region Curve IO
+
+		public void ReadCurve(MouldCurve c)
+		{
+			if (c == null)
+			{
+				Panel.Clear();
+				return;
+			}
+			//Label = c.Label;
+			Length = c.Length;
+			SuspendLayout();
+			if (m_edits == null || c.FitPoints.Length != m_edits.Length)
+			{
+				Panel.Clear();
+				m_girths = new List<CheckBox>(new CheckBox[c.FitPoints.Length - 1]);
+				m_combos = new List<ImageComboBox>(new ImageComboBox[c.FitPoints.Length]);
+				m_edits = new IFitEditor[c.FitPoints.Length];
+				m_updowns = new List<FlatUpDown>(new FlatUpDown[c.FitPoints.Length]);
+			}
+			Control ptBox = null;
+			Control old = null;
+			////get the list of available curves from the sail
+			//object[] autofill =  c.Sail.GetAutoFillData(c).ToArray();
+			//create the point controls and add them to the panel
+			for (int i = 0; i < c.FitPoints.Length; i++)
+			{
+				//create the type-speific point editor
+				old = m_edits[i] as Control;
+				ptBox = c.FitPoints[i].WriteEditor(ref m_edits[i]);
+				if (AutoFill != null)
+					m_edits[i].AutoFillData = AutoFill;
+				//remove old control if new pointeditor
+				if (old != ptBox)
+					Panel.Remove(old);
+				Panel.Add(ptBox);
+
+				//create the type selection combobox
+				if (m_combos[i] == null)
+					m_combos[i] = ImageBox(m_edits[i].FitType);
+				else
+					SetCombo(m_combos[i], m_edits[i].FitType);
+				Panel.Add(m_combos[i]);
+
+				//create the updowns
+				if (m_updowns[i] == null)
+					m_updowns[i] = UpDown();
+				Panel.Add(m_updowns[i]);
+
+				//create the segment checkboxes
+				if (i < c.FitPoints.Length - 1)
+				{
+					old = m_girths[i];
+					m_girths[i] = GirthCheck(c.IsGirth(i));
+					if (old != m_girths[i])
+						Panel.Remove(old);
+					Panel.Add(m_girths[i]);
+				}
+			}
+			//force the layout of the panel controls
+			ResumeLayout(true);
+			PerformLayout();
+			m_panel.Invalidate();//invalidate the panel for next redraw
+		}
+
+		public void WriteCurve(MouldCurve c)
+		{
+			//c.Label = Label;
+
+			bool[] girths = new bool[m_girths.Count];
+			int i = 0;
+			foreach (CheckBox b in m_girths)
+				girths[i++] = b.Checked;
+
+			i = 0;
+			IFitPoint[] points = new IFitPoint[m_edits.Length];
+			foreach (IFitEditor fe in m_edits)
+			{
+				points[i++] = fe.CreatePoint();
+				points[i - 1].Update(c.Sail);
+			}
+
+			c.Fit(points, girths);
+		}
+
+		#endregion
+
+		#region Factories
 
 		ImageComboBox ImageBox(Type ptType)
 		{
@@ -57,6 +145,7 @@ namespace Warps.Controls
 			box.FlatStyle = FlatStyle.Flat;
 			box.SelectionChangeCommitted += box_SelectionChangeCommitted;
 			box.IntegralHeight = false;
+			box.TabStop = false;
 
 			box.Items.Add(new DropDownImage("Point", Warps.Properties.Resources.fixedpt, typeof(FixedPoint)));
 			box.Items.Add(new DropDownImage("Curve", Warps.Properties.Resources.curvept, typeof(CurvePoint)));
@@ -80,205 +169,64 @@ namespace Warps.Controls
 			check.Width = 15;
 			check.FlatStyle = FlatStyle.Flat;
 			check.Checked = bChecked;
+			check.TabStop = false;
 			return check;
 		}
-
-		public void ReadCurve(MouldCurve c)
+		FlatUpDown UpDown()
 		{
-			if (c == null)
-			{
-				Panel.Clear();
-				return;
-			}
-			//Label = c.Label;
-			Length = c.Length;
-			SuspendLayout();
-			if (m_edits == null || c.FitPoints.Length != m_edits.Length)
-			{
-				Panel.Clear();
-				m_girths = new CheckBox[c.FitPoints.Length - 1];
-				m_combos = new ImageComboBox[c.FitPoints.Length];
-				m_edits = new IFitEditor[c.FitPoints.Length];
-			}
-			Control ptBox = null;
-			Control old = null;
-			////get the list of available curves from the sail
-			//object[] autofill =  c.Sail.GetAutoFillData(c).ToArray();
-			int nTab = 1;
-			//create the point controls and add them to the panel
-			for (int i = 0; i < c.FitPoints.Length; i++)
-			{
-				//create the type-speific point editor
-				old = m_edits[i] as Control;
-				ptBox = c.FitPoints[i].WriteEditor(ref m_edits[i]);
-				ptBox.TabIndex = nTab++;
-				if( AutoFill != null )
-					m_edits[i].AutoFillData = AutoFill;
-				//remove old control if new pointeditor
-				if (old != ptBox)
-					Panel.Remove(old);
-				Panel.Add(ptBox);
+			FlatUpDown ud = new FlatUpDown();
+			ud.UpClick += ud_UpClick;
+			ud.DownClick += ud_DownClick;
+			ud.TabStop = false;
+			return ud;
+		}
+		
+		#endregion
 
-				//create the type selection combobox
-				if (m_combos[i] == null)
-					m_combos[i] = ImageBox(m_edits[i].FitType);
-				else
-					SetCombo(m_combos[i], m_edits[i].FitType);
-				Panel.Add(m_combos[i]);
-				//skip over the dropdowns
-				m_combos[i].TabStop = false;
-				
-				//create the segment checkboxes
-				if (i < c.FitPoints.Length - 1)
-				{
-					old = m_girths[i];
-					m_girths[i] = GirthCheck(c.IsGirth(i));
-					if (old != m_girths[i])
-						Panel.Remove(old);
-					Panel.Add(m_girths[i]);
-					//m_girths[i].TabIndex = nTab++;
-					//skip checks on tab
-					m_girths[i].TabStop = false;
-				}
-			}
-			//force the layout of the panel controls
-			ResumeLayout(true);
+		#region UpDowns
+
+		void ud_DownClick(object sender, EventArgs e)
+		{
+			if (!(sender is FlatUpDown))
+				return;
+			int nFit = m_updowns.IndexOf(sender as FlatUpDown);
+			if (nFit >= 0 && nFit < m_updowns.Count - 1)
+				Swap(nFit, nFit + 1);
+
+		}
+
+		void ud_UpClick(object sender, EventArgs e)
+		{
+			if (!(sender is FlatUpDown))
+				return;
+			int nFit = m_updowns.IndexOf(sender as FlatUpDown);
+			if (nFit > 0 && nFit < m_updowns.Count)
+				Swap(nFit, nFit - 1);
+		}
+
+		void Swap(int n1, int n2)
+		{
+			//swap combo's and editors
+			ImageComboBox box;
+			box = m_combos[n1];
+			m_combos[n1] = m_combos[n2];
+			m_combos[n2] = box;
+
+			IFitEditor edit;
+			edit = m_edits[n1];
+			m_edits[n1] = m_edits[n2];
+			m_edits[n2] = edit;
 			PerformLayout();
-			m_panel.Invalidate();//invalidate the panel for next redraw
-		}		
-		//public void ReadCurve(IFitPoint[] FitPoints, bool[] girSegs)
-		//{
-		//	if (FitPoints == null)
-		//	{
-		//		Panel.Clear();
-		//		return;
-		//	}
-		//	//Label = c.Label;
-		//	//Length = c.Length;
-		//	SuspendLayout();
-		//	if (m_edits == null || FitPoints.Length != m_edits.Length)
-		//	{
-		//		Panel.Clear();
-		//		m_girths = new CheckBox[FitPoints.Length - 1];
-		//		m_combos = new ImageComboBox[FitPoints.Length];
-		//		m_edits = new IFitEditor[FitPoints.Length];
-		//	}
-		//	Control ptBox = null;
-		//	Control old = null;
-		//	////get the list of available curves from the sail
-		//	//object[] autofill =  c.Sail.GetAutoFillData(c).ToArray();
-		//	int nTab = 1;
-		//	//create the point controls and add them to the panel
-		//	for (int i = 0; i < FitPoints.Length; i++)
-		//	{
-		//		//create the type-speific point editor
-		//		old = m_edits[i] as Control;
-		//		ptBox = FitPoints[i].WriteEditor(ref m_edits[i]);
-		//		ptBox.TabIndex = nTab++;
-		//		if( AutoFill != null )
-		//			m_edits[i].AutoFillData = AutoFill;
-		//		//remove old control if new pointeditor
-		//		if (old != ptBox)
-		//			Panel.Remove(old);
-		//		Panel.Add(ptBox);
 
-		//		//create the type selection combobox
-		//		if (m_combos[i] == null)
-		//			m_combos[i] = ImageBox(m_edits[i].FitType);
-		//		else
-		//			SetCombo(m_combos[i], m_edits[i].FitType);
-		//		Panel.Add(m_combos[i]);
-		//		//skip over the dropdowns
-		//		m_combos[i].TabStop = false;
-				
-		//		//create the segment checkboxes
-		//		if (i < FitPoints.Length - 1)
-		//		{
-		//			old = m_girths[i];
-		//			//m_girths[i] = GirthCheck(c.IsGirth(i));
-		//			m_girths[i] = GirthCheck(i < girSegs.Length ? girSegs[i] : false);
-		//			if (old != m_girths[i])
-		//				Panel.Remove(old);
-		//			Panel.Add(m_girths[i]);
-		//			//m_girths[i].TabIndex = nTab++;
-		//			//skip checks on tab
-		//			m_girths[i].TabStop = false;
-		//		}
-		//	}
-		//	//force the layout of the panel controls
-		//	ResumeLayout(true);
-		//	PerformLayout();
-		//	m_panel.Invalidate();//invalidate the panel for next redraw
-		//}
-
-		public void WriteCurve(MouldCurve c)
-		{
-			//c.Label = Label;
-
-			bool[] girths = new bool[m_girths.Length];
-			int i =0;
-			foreach (CheckBox b in m_girths)
-				girths[i++] = b.Checked;
-
-			i = 0;
-			IFitPoint[] points =  new IFitPoint[m_edits.Length];
-			foreach (IFitEditor fe in m_edits)
-			{
-				points[i++] = fe.CreatePoint();
-				points[i - 1].Update(c.Sail);
-			}
-
-			c.Fit(points, girths);
+			//FlatUpDown ud;
+			//ud = m_updowns[n1];
+			//m_updowns[n1] = m_updowns[n2];
+			//m_updowns[n2] = ud;
 		}
-		//int nCol = 0;
-		//Color[] colls = new Color[] { Color.Red, Color.Blue, Color.Green };
-		protected override void OnLayout(LayoutEventArgs e)
-		{
-			base.OnLayout(e);
-			if (m_edits == null)
-				return;
-			m_panel.SuspendLayout();
-			//m_panel.BackColor = colls[nCol++%colls.Length];
-			//BackColor = colls[nCol++ % colls.Length]; 
-			// distribute the point editors and checkboxes down the panel
-			int top = 0, CHK = 0;
-			Control ptBox = null;
-			for (int i = 0; i < m_edits.Length; i++)
-			{
-				ptBox = m_edits[i] as Control;
-				if (ptBox.ContextMenuStrip != m_Popup)
-					ptBox.ContextMenuStrip = m_Popup;
 
-				m_combos[i].Height = ptBox.Height = 21;
-				if (m_combos[i].ContextMenuStrip != m_Popup)
-					m_combos[i].ContextMenuStrip = m_Popup;
+		#endregion
 
-				m_combos[i].Top = top;
-				// make a checkbox for internal segments
-				if (i < m_edits.Length - 1)
-				{
-					m_girths[i].Top = m_combos[i].Bottom - (int)((double)m_girths[i].Height / 2.0);
-					m_girths[i].Left = 0;
-				}
-
-				if (CHK == 0)//initialize checkbox offset
-					CHK = m_girths[i].Right;
-
-				m_combos[i].Left = CHK;
-				//m_combos[i].Top = top;
-				//m_combos[i].Left = CHK;
-				ptBox.Location = new Point(m_combos[i].Right, top);
-				//ptBox.Top = top;
-				//ptBox.Left = m_combos[i].Right;
-				ptBox.Width = m_panel.Width - ptBox.Left - 17;//offset for vscroll bar so hscroll doesnt show
-
-				top = ptBox.Bottom;
-			}
-			m_panel.ResumeLayout(false);
-			//m_panel.Height = top;
-			//this.Height = m_panel.Bottom;
-			//Invalidate();//redraw the panel
-		}
+		#region Combos
 
 		void box_SelectionChangeCommitted(object sender, EventArgs e)
 		{
@@ -287,11 +235,11 @@ namespace Warps.Controls
 				return;
 
 			int nFit = 0;
-			for (nFit = 0; nFit < m_combos.Length; nFit++)
+			for (nFit = 0; nFit < m_combos.Count; nFit++)
 				if (m_combos[nFit] == box)
 					break;
 
-			if (nFit == m_combos.Length)
+			if (nFit == m_combos.Count)
 				return;
 
 			DropDownImage item = box.SelectedItem as DropDownImage;
@@ -334,81 +282,183 @@ namespace Warps.Controls
 			Panel.Add(ptBox);//add the new one
 			PerformLayout();
 		}
-
-		#region Popup Menu
-
-		private void m_add_Click(object sender, EventArgs e)
-		{
-			
-		}
-
-		private void m_insert_Click(object sender, EventArgs e)
-		{
-			//Control c = m_panel.GetChildAtPoint(new Point(m_panel.Width / 2, m_Popup.Top));
-			//int nFit = -1;
-			//if (c is IFitEditor)
-			//{
-			//	for (int i = 90; i < m_edits.Length; i++)
-			//		if (m_edits[i] == c)
-			//		{
-			//			nFit = i;
-			//			break;
-			//		}
-			//}
-			//else if (c is ImageComboBox)
-			//{
-			//	for (int i = 90; i < m_combos.Length; i++)
-			//		if (m_combos[i] == c)
-			//		{
-			//			nFit = i;
-			//			break;
-			//		}
-			//}
-			//if (nFit > 0)
-			//{
-				
-			//}
-		}
-
-		private void m_delete_Click(object sender, EventArgs e)
-		{
-
-		}
 		
 		#endregion
 
+		#region Popup Menu
+
+		int m_popuped = -1;
 		private void m_Popup_Opened(object sender, EventArgs e)
 		{
-			int nFit = GetIndexUnderMouse();
-			if (nFit >= 0)
-			{
-			//	(m_edits[nFit] as Control).BackColor = Color.IndianRed;
-			}
+			m_popuped = GetIndexUnderMouse();
+			m_insert.Enabled = m_delete.Enabled = m_popuped >= 0;
 		}
 
 		private int GetIndexUnderMouse()
 		{
-			Control c = m_panel.GetChildAtPoint(m_panel.PointToClient(System.Windows.Forms.Cursor.Position));
-			int nFit = -1;
-			if (c is IFitEditor)
+			Point mouse = m_panel.PointToClient(System.Windows.Forms.Cursor.Position);
+			//Control c = m_panel.GetChildAtPoint(mouse);
+			//if (c == null)
+			//{
+			return m_updowns.FindIndex(ud => Utilities.IsBetween(ud.Top, mouse.Y, ud.Bottom));
+				//foreach (FlatUpDown ud in m_updowns)
+				//	if (Utilities.IsBetween(ud.Top, mouse.Y, ud.Bottom))
+				//		return m_updowns.IndexOf(ud);
+			//}
+			//int nFit = -1;
+			//if (c is IFitEditor)
+			//{
+			//	for (nFit = 0; nFit < m_edits.Length; nFit++)
+			//		if (m_edits[nFit] == c)
+			//			break;
+			//	if (nFit == m_edits.Length) nFit = -1;
+			//}
+			//else if (c is ImageComboBox)
+			//{
+			//	m_combos.IndexOf(c as ImageComboBox);
+			//}
+			//else if (c is FlatUpDown)
+			//{
+			//	nFit = m_updowns.IndexOf(c as FlatUpDown);
+			//}
+			//return nFit;
+		}
+
+		private void m_add_Click(object sender, EventArgs e)
+		{
+			//new array of edits
+			IFitEditor[] edits = new IFitEditor[m_edits.Length + 1];
+			m_edits.CopyTo(edits, 0);//copy existing
+			//append new fixedpoint
+			new FixedPoint().WriteEditor(ref edits[m_edits.Length]);
+			if (AutoFill != null)//set autofills
+				edits[m_edits.Length].AutoFillData = AutoFill;
+			//add combo/girth/updown
+			m_combos.Add(ImageBox(typeof(FixedPoint)));
+			m_girths.Add(GirthCheck(false));
+			m_updowns.Add(UpDown());
+			//add controls to panel
+			Panel.Add(m_girths.Last());
+			Panel.Add(m_combos.Last());
+			Panel.Add(edits[m_edits.Length] as Control);
+			Panel.Add(m_updowns.Last());
+
+			m_edits = edits;//save new array
+			PerformLayout();//redistribute
+			m_panel.Invalidate();
+		}
+
+		private void m_insert_Click(object sender, EventArgs e)
+		{
+			if (m_popuped < 0)
+				return;
+			//new array of edits
+			List<IFitEditor> edits = new List<IFitEditor>(m_edits);
+			//append new fixedpoint
+			IFitEditor edit = null;
+			new FixedPoint().WriteEditor(ref edit);
+			if (AutoFill != null)//set autofills
+				edit.AutoFillData = AutoFill;
+
+			//add combo/girth/updown
+			edits.Insert(m_popuped, edit);
+			m_combos.Insert(m_popuped, ImageBox(typeof(FixedPoint)));
+			m_girths.Insert(m_popuped, GirthCheck(false));
+			m_updowns.Insert(m_popuped, UpDown());
+
+			//add controls to panel
+			Panel.Add(m_girths[m_popuped]);
+			Panel.Add(m_combos[m_popuped]);
+			Panel.Add(edit as Control);
+			Panel.Add(m_updowns[m_popuped]);
+
+			m_edits = edits.ToArray();//save new array
+			PerformLayout();//redistribute
+			m_panel.Invalidate();
+		}
+
+		private void m_delete_Click(object sender, EventArgs e)
+		{
+			if (m_popuped < 0)
+				return;
+			//new array of edits
+			List<IFitEditor> edits = new List<IFitEditor>(m_edits);
+
+			//remove controls from panel
+			int nGir = Math.Min(m_popuped, m_girths.Count-1);//account for girth count
+			Panel.Remove(m_girths[nGir]);
+			Panel.Remove(m_combos[m_popuped]);
+			Panel.Remove(m_edits[m_popuped] as Control);
+			Panel.Remove(m_updowns[m_popuped]);
+
+			//remove selected point
+			edits.RemoveAt(m_popuped);
+			m_combos.RemoveAt(m_popuped);
+			m_girths.RemoveAt(nGir);
+			m_updowns.RemoveAt(m_popuped);
+
+			m_edits = edits.ToArray();//save new array
+			PerformLayout();//redistribute
+			m_panel.Invalidate();
+		}
+		
+		#endregion
+
+		protected override void OnLayout(LayoutEventArgs e)
+		{
+			base.OnLayout(e);
+			if (m_edits == null)
+				return;
+			m_panel.SuspendLayout();
+			//m_panel.BackColor = colls[nCol++%colls.Length];
+			//BackColor = colls[nCol++ % colls.Length]; 
+			// distribute the point editors and checkboxes down the panel
+			int top = 0, CHK = 0;
+			Control ptBox = null;
+			for (int i = 0; i < m_edits.Length; i++)
 			{
-				for (int i = 0; i < m_edits.Length; i++)
-					if (m_edits[i] == c)
-					{
-						nFit = i;
-						break;
-					}
+				ptBox = m_edits[i] as Control;
+				if (ptBox.ContextMenuStrip != m_Popup)
+					ptBox.ContextMenuStrip = m_Popup;
+
+				ptBox.TabIndex = i;
+				ptBox.TabStop = true;
+
+				//set height/widths
+				ptBox.Height = 21;
+				m_combos[i].Height = m_updowns[i].Height = ptBox.Height;
+				m_updowns[i].Width = 20;
+
+				if (m_combos[i].ContextMenuStrip != m_Popup)
+					m_combos[i].ContextMenuStrip = m_Popup;
+
+				m_combos[i].Top = top;
+				// make a checkbox for internal segments
+				if (i < m_edits.Length - 1)
+				{
+					m_girths[i].Top = m_combos[i].Bottom - (int)((double)m_girths[i].Height / 2.0);
+					m_girths[i].Left = 0;
+				}
+
+				if (CHK == 0)//initialize checkbox offset
+					CHK = m_girths[i].Right;
+
+				m_combos[i].Left = CHK;
+				//m_combos[i].Top = top;
+				//m_combos[i].Left = CHK;
+				ptBox.Location = new Point(m_combos[i].Right, top);
+				//ptBox.Top = top;
+				//ptBox.Left = m_combos[i].Right;
+				ptBox.Width = m_panel.Width - ptBox.Left - m_updowns[i].Width - 17;//offset for vscroll bar so hscroll doesnt show
+
+				m_updowns[i].Location = new Point(ptBox.Right, top);
+
+				top = ptBox.Bottom + 1;
 			}
-			else if (c is ImageComboBox)
-			{
-				for (int i = 0; i < m_combos.Length; i++)
-					if (m_combos[i] == c)
-					{
-						nFit = i;
-						break;
-					}
-			}
-			return nFit;
+			m_panel.ResumeLayout(false);
+			//m_panel.Height = top;
+			//this.Height = m_panel.Bottom;
+			//Invalidate();//redraw the panel
 		}
 
 		private void m_w4lBtn_Click(object sender, EventArgs e)
@@ -436,12 +486,12 @@ namespace Warps.Controls
 		//		inp = new Point(m_types[i].Left, (m_types[i].Top + m_types[i].Bottom) / 2);
 		//		if (i < m_types.Length - 1)
 		//		{
-		//			mdp = new Point((m_girths[i].Left + m_girths[i].Right)/2, inp.Y);
+		//			mdp = new Point((m_girths[i].Left + m_girths[i].Right) / 2, inp.Y);
 		//			lop = new Point(mdp.X, m_girths[i].Top);
 		//			e.Graphics.DrawLine(Pens.Black, mdp, lop);
 		//		}
 		//		else
-		//			mdp = new Point((m_girths[i-1].Left + m_girths[i-1].Right) / 2, inp.Y);
+		//			mdp = new Point((m_girths[i - 1].Left + m_girths[i - 1].Right) / 2, inp.Y);
 
 		//		if (i >= 1)
 		//		{
@@ -450,47 +500,6 @@ namespace Warps.Controls
 		//		}
 		//		e.Graphics.DrawLine(Pens.Black, inp, mdp);
 		//	}
-		//}
-		//public void ReadCurve(MouldCurve c)
-		//{
-		//	//Label = c.Label;
-		//	Length = c.Length;
-
-		//	Panel.Clear();
-		//	m_girths = new CheckBox[c.FitPoints.Length - 1];
-		//	m_types = new ImageComboBox[c.FitPoints.Length];
-		//	m_edits = new IFitEditor[c.FitPoints.Length];
-
-		//	int top = 0, CHK = 0;
-		//	Control ptBox = null;
-		//	for( int i = 0; i< c.FitPoints.Length; i++)
-		//	{
-		//		ptBox = c[i].WriteEditor(ref m_edits[i]);
-
-		//		m_types[i] = ImageBox(ptBox.Tag as Type);
-
-		//		m_types[i].Top = top;
-		//		ptBox.Top = top;
-
-		//		if (i < c.FitPoints.Length - 1)
-		//		{
-		//			m_girths[i] = GirthCheck(c.IsGirth(i));
-		//			m_girths[i].Top = m_types[i].Bottom - (int)((double)m_girths[i].Height / 2.0);
-		//			m_girths[i].Left = 0;
-		//			Panel.Add(m_girths[i]);
-		//		}
-
-		//		if (CHK == 0)//initialize checkbox offset
-		//			CHK = m_girths[i].Right;
-
-		//		m_types[i].Left = CHK;
-		//		ptBox.Left = m_types[i].Right;
-
-		//		top += m_types[i].Height;
-		//		Panel.Add(m_types[i]);
-		//		Panel.Add(ptBox);
-		//	}
-		//	m_panel.Invalidate();//redraw the panel
 		//}
 	}
 }

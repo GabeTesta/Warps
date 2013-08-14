@@ -4,11 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using devDept.Geometry;
+using devDept.Eyeshot.Entities;
 
 namespace Warps
 {
 	public interface IMouldCurve
 	{
+		string Label { get; }
+
+		double Length { get; }
+
 		void uVal(double s, ref Vect2 uv);
 		void uVec(double s, ref Vect2 uv, ref Vect2 du);
 		void uCvt(double s, ref Vect2 uv, ref Vect2 du, ref Vect2 ddu);
@@ -88,6 +93,45 @@ namespace Warps
 			return false;
 		}
 
+		public static bool uClosest(IMouldCurve c, ref double s, ref Vect2 uvTarget, ref double dist, double tol)
+		{
+			Vect2 u = new Vect2(uvTarget);
+			Vect2 du = new Vect2();
+			Vect2 ddu = new Vect2();
+
+			Vect2 h = new Vect2();
+			Vect2 e = new Vect2();
+			double dedx;
+
+			double s0 = s;
+			int loop = 0, max_loops = 100;
+			while (loop++ < max_loops)
+			{
+				c.uCvt(s, ref u, ref du, ref ddu);
+
+				h = u - uvTarget;
+				dist = h.Magnitude;
+
+				e[0] = s;
+				e[1] = h.Dot(du); // error, dot product is 0 at pi/2
+
+				if (Math.Abs(e[1]) < tol) // error is less than the tolerance
+				{
+					uvTarget.Set(u);// return point to caller
+					return true;
+				}
+
+				dedx = du.Norm + h.Dot(ddu);
+				//dedx = BLAS.dot(dx, dx) + BLAS.dot(h, ddx);
+
+				// calculate a new s
+				s = e[0] - e[1] / dedx;
+				//logger.write_format_line("%.5g\t%.5g\t%.5g\t%.5g\t%.5g\t", x[ox], x[oy], e[ox], e[oy], dist);
+			}
+			s = s0;
+			return false;
+		}
+		
 		public static bool AnglePoint(IMouldCurve c, ref double s, ref Vect2 uv, ref Vect3 xyzTarget, Vect3 dxnTarget, double rad, bool bUseGuess)
 		{
 			Vect3 x = new Vect3(xyzTarget);
@@ -331,6 +375,99 @@ namespace Warps
 			return false;
 		}
 
+
+		public static List<Point3D> GetPathPoints(IMouldCurve c, double TolAngle, List<double> sKnots, bool extend, out double Length, out List<double> sPos)
+		{
+			if (sKnots == null)
+				sKnots = new List<double>() { 0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0 };//default 1/8th point starting positions
+			List<double> spos = new List<double>();
+			const int TEST = 8;
+			int FitLength =  sKnots.Count;
+			double[] stest = new double[(FitLength - 1) * TEST];
+			Vect3[] xtest = new Vect3[(FitLength - 1) * TEST];
+			Vect2 uv = new Vect2();
+			Vect3 xyz = new Vect3();
+			Vect3 dxp = new Vect3(), dxm = new Vect3();
+			//initial 8 subdivisions per segment
+			int nFit, nTest = 0;
+			for (nFit = 1; nFit < FitLength; nFit++)
+			{
+				for (int i = 0; i < TEST; i++, nTest++)
+				{
+					stest[nTest] = BLAS.interpolate(i, TEST, sKnots[nFit], sKnots[nFit - 1]);
+					xtest[nTest] = new Vect3();
+					c.xVal(stest[nTest], ref uv, ref xtest[nTest]);
+				}
+			}
+
+			//test the midpoint of each subsegment to determine required # of points
+			int[] nAdd = new int[stest.Length];
+			double cosA;
+			double smid;
+			int nTotal = FitLength;
+			for (nTest = 1; nTest < stest.Length; nTest++)
+			{
+				//midpoint position
+				smid = (stest[nTest] + stest[nTest - 1]) / 2.0;
+				c.xVal(smid, ref uv, ref xyz);
+				//forward and backward tangents
+				dxp = xtest[nTest] - xyz;
+				dxm = xtest[nTest - 1] - xyz;
+				//change in angle between for and aft tans
+				cosA = -(dxp.Dot(dxm)) / (dxp.Magnitude * dxm.Magnitude);
+				Utilities.LimitRange(-1, ref cosA, 1);
+				cosA = Math.Acos(cosA);
+				//determine additional points and sum total
+				nTotal += nAdd[nTest] = (int)(cosA / TolAngle + 1);
+			}
+
+			Length = 0;
+			Vect3 xprev = new Vect3();
+			Vect3 dx = new Vect3();
+			List<Point3D> pnts = new List<Point3D>();
+			List<Vect3> tans = new List<Vect3>();
+			c.xVal(stest[0], ref uv, ref xprev);
+			pnts.Add(new Point3D(xprev.ToArray()));
+			spos.Add(stest[0]);
+			for (nTest = 1; nTest < stest.Length; nTest++)
+			{
+				for (int i = 1; i <= nAdd[nTest]; i++)
+				{
+					smid = ((nAdd[nTest] - i) * stest[nTest - 1] + i * stest[nTest]) / nAdd[nTest];
+					c.xVec(smid, ref uv, ref xyz, ref dx);
+					spos.Add(smid);
+					pnts.Add(new Point3D(xyz.ToArray()));
+					tans.Add(new Vect3(dx));
+					Length += xyz.Distance(xprev);
+					xprev.Set(xyz);
+				}
+			}
+
+
+			if (extend)
+			{
+				//add for-cast/back-cast points
+				for (int i = 0; i < 2; i++)
+				{
+					for (nTest = 0; nTest < 10; nTest++)
+					{
+						smid = BLAS.interpolant(nTest, 10) * 0.05;//scale down to .1 cast
+						if (i == 0)
+							smid = -smid;
+						else
+							smid += 1.0;
+
+						c.xVal(smid, ref uv, ref xyz);
+						if (i == 0)
+							pnts.Insert(0, new Point3D(xyz.ToArray()));
+						else
+							pnts.Add(new Point3D(xyz.ToArray()));
+					}
+				}
+			}
+			sPos = spos;
+			return pnts;
+		}
 		public static Point3D[] GetEvenPathPoints(IMouldCurve c, int CNT)
 		{
 			double s;
@@ -423,6 +560,7 @@ namespace Warps
 		//	}
 		//	return d;
 		//}
+
 
 	}
 }

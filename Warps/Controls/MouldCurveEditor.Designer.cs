@@ -76,7 +76,6 @@
 			// 
 			// m_Popup
 			// 
-			this.m_Popup.Enabled = false;
 			this.m_Popup.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.m_add,
             this.m_insert,
@@ -87,7 +86,6 @@
 			// 
 			// m_add
 			// 
-			this.m_add.Enabled = false;
 			this.m_add.Name = "m_add";
 			this.m_add.Size = new System.Drawing.Size(107, 22);
 			this.m_add.Text = "Add";
@@ -95,7 +93,6 @@
 			// 
 			// m_insert
 			// 
-			this.m_insert.Enabled = false;
 			this.m_insert.Name = "m_insert";
 			this.m_insert.Size = new System.Drawing.Size(107, 22);
 			this.m_insert.Text = "Insert";
@@ -103,7 +100,6 @@
 			// 
 			// m_delete
 			// 
-			this.m_delete.Enabled = false;
 			this.m_delete.Name = "m_delete";
 			this.m_delete.Size = new System.Drawing.Size(107, 22);
 			this.m_delete.Text = "Delete";
@@ -130,6 +126,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoScroll = true;
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.ContextMenuStrip = this.m_Popup;
 			this.Controls.Add(this.m_w4lBtn);
 			this.Controls.Add(this.m_panel);
 			this.Controls.Add(this.m_label);

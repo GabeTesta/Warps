@@ -32,13 +32,17 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WarpFrame));
 			this.m_vertsplit = new System.Windows.Forms.SplitContainer();
 			this.m_horizsplit = new System.Windows.Forms.SplitContainer();
+			this.m_tree = new Warps.TabTree();
 			this.previewButton = new System.Windows.Forms.Button();
 			this.editPanel = new System.Windows.Forms.Panel();
 			this.okButton = new System.Windows.Forms.Button();
+			this.m_dualView = new Warps.DualView();
 			this.m_toolstrip = new System.Windows.Forms.ToolStrip();
 			this.newToolStripButton = new System.Windows.Forms.ToolStripButton();
-			this.openToolStripButton = new System.Windows.Forms.ToolStripButton();
-			this.saveToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.saveToolStripButton = new System.Windows.Forms.ToolStripDropDownButton();
+			this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveBinToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.printToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
 			this.cutToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -59,8 +63,7 @@
 			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.m_statusProgress = new System.Windows.Forms.ToolStripProgressBar();
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-			this.m_tree = new Warps.TabTree();
-			this.m_dualView = new Warps.DualView();
+			this.openToolStripButton = new System.Windows.Forms.ToolStripButton();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
 			this.m_vertsplit.Panel1.SuspendLayout();
 			this.m_vertsplit.Panel2.SuspendLayout();
@@ -114,6 +117,15 @@
 			this.m_horizsplit.SplitterDistance = 205;
 			this.m_horizsplit.TabIndex = 0;
 			// 
+			// m_tree
+			// 
+			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_tree.Location = new System.Drawing.Point(0, 0);
+			this.m_tree.Name = "m_tree";
+			this.m_tree.SelectedTag = null;
+			this.m_tree.Size = new System.Drawing.Size(205, 523);
+			this.m_tree.TabIndex = 0;
+			// 
 			// previewButton
 			// 
 			this.previewButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -152,6 +164,15 @@
 			this.okButton.Text = "Apply";
 			this.okButton.UseVisualStyleBackColor = false;
 			// 
+			// m_dualView
+			// 
+			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_dualView.EditMode = false;
+			this.m_dualView.Location = new System.Drawing.Point(0, 0);
+			this.m_dualView.Name = "m_dualView";
+			this.m_dualView.Size = new System.Drawing.Size(613, 523);
+			this.m_dualView.TabIndex = 0;
+			// 
 			// m_toolstrip
 			// 
 			this.m_toolstrip.Dock = System.Windows.Forms.DockStyle.None;
@@ -178,7 +199,7 @@
             this.cancelButton});
 			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
 			this.m_toolstrip.Name = "m_toolstrip";
-			this.m_toolstrip.Size = new System.Drawing.Size(508, 25);
+			this.m_toolstrip.Size = new System.Drawing.Size(514, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
 			// 
@@ -192,25 +213,38 @@
 			this.newToolStripButton.Text = "&New";
 			this.newToolStripButton.Click += new System.EventHandler(this.newToolStripButton_Click);
 			// 
-			// openToolStripButton
-			// 
-			this.openToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.openToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripButton.Image")));
-			this.openToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.openToolStripButton.Name = "openToolStripButton";
-			this.openToolStripButton.Size = new System.Drawing.Size(23, 22);
-			this.openToolStripButton.Text = "&Open";
-			this.openToolStripButton.Click += new System.EventHandler(this.openToolStripButton_Click);
-			// 
 			// saveToolStripButton
 			// 
 			this.saveToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.saveToolStripButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveToolStripMenuItem,
+            this.saveAsToolStripMenuItem,
+            this.saveBinToolStripMenuItem});
 			this.saveToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripButton.Image")));
 			this.saveToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.saveToolStripButton.Name = "saveToolStripButton";
-			this.saveToolStripButton.Size = new System.Drawing.Size(23, 22);
+			this.saveToolStripButton.Size = new System.Drawing.Size(29, 22);
 			this.saveToolStripButton.Text = "&Save";
-			this.saveToolStripButton.Click += new System.EventHandler(this.saveToolStripButton_Click);
+			// 
+			// saveToolStripMenuItem
+			// 
+			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+			this.saveToolStripMenuItem.Text = "Save";
+			this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripButton_Click);
+			// 
+			// saveAsToolStripMenuItem
+			// 
+			this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+			this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+			this.saveAsToolStripMenuItem.Text = "Save As";
+			// 
+			// saveBinToolStripMenuItem
+			// 
+			this.saveBinToolStripMenuItem.Name = "saveBinToolStripMenuItem";
+			this.saveBinToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+			this.saveBinToolStripMenuItem.Text = "Save Bin";
+			this.saveBinToolStripMenuItem.Click += new System.EventHandler(this.saveBinToolStripMenuItem_Click);
 			// 
 			// printToolStripButton
 			// 
@@ -397,23 +431,15 @@
 			// 
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
 			// 
-			// m_tree
+			// openToolStripButton
 			// 
-			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_tree.Location = new System.Drawing.Point(0, 0);
-			this.m_tree.Name = "m_tree";
-			this.m_tree.SelectedTag = null;
-			this.m_tree.Size = new System.Drawing.Size(205, 523);
-			this.m_tree.TabIndex = 0;
-			// 
-			// m_dualView
-			// 
-			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_dualView.EditMode = false;
-			this.m_dualView.Location = new System.Drawing.Point(0, 0);
-			this.m_dualView.Name = "m_dualView";
-			this.m_dualView.Size = new System.Drawing.Size(613, 523);
-			this.m_dualView.TabIndex = 0;
+			this.openToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.openToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripButton.Image")));
+			this.openToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.openToolStripButton.Name = "openToolStripButton";
+			this.openToolStripButton.Size = new System.Drawing.Size(23, 22);
+			this.openToolStripButton.Text = "&Open";
+			this.openToolStripButton.Click += new System.EventHandler(this.openToolStripButton_Click);
 			// 
 			// WarpFrame
 			// 
@@ -452,8 +478,6 @@
 		private System.Windows.Forms.SplitContainer m_horizsplit;
 		private System.Windows.Forms.ToolStrip m_toolstrip;
 		private System.Windows.Forms.ToolStripButton newToolStripButton;
-		private System.Windows.Forms.ToolStripButton openToolStripButton;
-		private System.Windows.Forms.ToolStripButton saveToolStripButton;
 		private System.Windows.Forms.ToolStripButton printToolStripButton;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
 		private System.Windows.Forms.ToolStripButton cutToolStripButton;
@@ -479,6 +503,11 @@
 	   private System.Windows.Forms.ToolStripButton cancelButton;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
 	   private System.Windows.Forms.ToolStripProgressBar m_statusProgress;
+	   private System.Windows.Forms.ToolStripDropDownButton saveToolStripButton;
+	   private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+	   private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+	   private System.Windows.Forms.ToolStripMenuItem saveBinToolStripMenuItem;
+	   private System.Windows.Forms.ToolStripButton openToolStripButton;
 	}
 }
 

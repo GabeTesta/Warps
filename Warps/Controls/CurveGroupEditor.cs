@@ -15,10 +15,26 @@ namespace Warps
 		public CurveGroupEditor()
 		{
 			InitializeComponent();
+			this.EnabledChanged += CurveGroupEditor_EnabledChanged;
+		}
+
+		void CurveGroupEditor_EnabledChanged(object sender, EventArgs e)
+		{
+			if (!Enabled)
+			{
+				Enabled = true;
+				m_popup.Enabled = false;
+				m_labelTextBox.Enabled = false;
+			}
+			else
+			{
+				m_popup.Enabled = Enabled;
+				m_labelTextBox.Enabled = Enabled;
+			}
 		}
 		public CurveGroupEditor(CurveGroup group)
+			:this()
 		{
-			InitializeComponent();
 			//m_grid.LabelEdit = true;
 			//m_grid.MultiSelect = false;
 			m_grid.View = View.Details;
@@ -37,7 +53,7 @@ namespace Warps
 
 		}
 		CurveGroup m_group = null;
-
+		
 		public string Label
 		{
 			set { m_labelTextBox.Text = value; }

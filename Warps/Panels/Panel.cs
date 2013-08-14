@@ -8,10 +8,11 @@ using devDept.Eyeshot.Entities;
 using devDept.Geometry;
 
 using Warps.Curves;
+using System.Drawing;
 
-namespace Warps
+namespace Warps.Panels
 {
-	[System.Diagnostics.DebuggerDisplay("{Seams[0].Label} {Corners}", Name = "{Seams[0].Label}", Type = "{GetType()}")]
+	[System.Diagnostics.DebuggerDisplay("{Label} {Corners}", Name = "{Label}", Type = "{GetType()}")]
 	public class Panel : IRebuild
 	{
 		//public Panel()
@@ -36,20 +37,28 @@ namespace Warps
 		//}
 		public Panel(PanelGroup group, PanelCorner[,] panCorners)
 		{
+			Locked = true;
 			m_group = group;
 			Corners = panCorners;
+			m_label = m_group.PanLabel();
 
-			Locked = true;
+			m_seams = new IMouldCurve[2];
 			//first create 2 seams from the corner curvepoints
-			MouldCurve s1 = new MouldCurve(m_group.PanLabel(), sail, new IFitPoint[] { panCorners[0, 1].GetSeamPoint(1), panCorners[0, 2].GetSeamPoint(1) });
-			MouldCurve s2 = new MouldCurve(m_group.PanLabel(1), sail, new IFitPoint[] { panCorners[1, 1].GetSeamPoint(1), panCorners[1, 2].GetSeamPoint(1) });
+			for (int nEdg = 0; nEdg < 2; nEdg++)
+			{
+				if (Corners[nEdg, 1].Seams[0] != null && Corners[nEdg, 1].Seams[0] == Corners[nEdg, 2].Seams[0] )//edge curve, use segment
+					m_seams[nEdg] = new SegmentCurve(Corners[nEdg, 1].Seams[0], Corners[nEdg, 1].sPos[0], Corners[nEdg, 2].sPos[0]);
+					//m_seams[nEdg] = new SegmentCurve(m_group.PanLabel(nEdg), Corners[nEdg, 1].Seams[0], new Vect2(Corners[nEdg, 1].sPos[0], Corners[nEdg, 2].sPos[0]));
+				else//internal seam, span girth
+					m_seams[nEdg] = new MouldCurve(m_group.PanLabel(nEdg), sail, new IFitPoint[] { Corners[nEdg, 1].GetSeamPoint(1), Corners[nEdg, 2].GetSeamPoint(1) });
+			}
+				//s2 = new MouldCurve(m_group.PanLabel(1), sail, new IFitPoint[] { Corners[1, 1].GetSeamPoint(1), Corners[1, 2].GetSeamPoint(1) });
 
-			m_seams = new MouldCurve[] { s1, s2 };
 
-			int[] tmesh = new int[] { 10,20 };
+			int[] tmesh = new int[] { 4,8 };
 			//FlatWidth(tmesh);
-			//TMeshRBF2(tmesh);
-			TMesh(tmesh);
+			TMeshRBF2(tmesh);
+			//TMesh(tmesh);
 			Flatten();
 		}
 
@@ -60,8 +69,8 @@ namespace Warps
 			get { return sail.Mould; }
 		}
 
-		MouldCurve[] m_seams;//primary seams, should be 2 
-		public MouldCurve[] Seams
+		IMouldCurve[] m_seams;//primary seams, should be 2 
+		public IMouldCurve[] Seams
 		{
 			get { return m_seams; }
 		}
@@ -70,6 +79,12 @@ namespace Warps
 		#region TMESH
 
 		Vect3[,] m_mesh = null;
+		/// <summary>
+		/// gets the TMESH array size
+		/// </summary>
+		/// <param name="nDir">0 for cross-seam, 1 for along-seam</param>
+		/// <returns>the number of panels in the specified mesh direction</returns>
+		int TMESH(int nDir) { return m_mesh.GetLength(nDir); }
 
 		void TMesh(int[] tmesh)
 		{
@@ -89,12 +104,34 @@ namespace Warps
 					edges[nEdg].Add(Corners[nEdg, 3].Seams[1], Corners[nEdg, 2].sPos[1], Corners[nEdg, 3].sPos[1]);
 			}
 
+			//place nodes on edge-kinks
+			List<double> kinks = new List<double>();
+			kinks.Add(0);
+			for (int nEdg = 0; nEdg < 2; nEdg++)
+			{
+				if (edges[nEdg].Segments.Count > 2) //check for internal kinks
+					for (int i = 1; i < edges[nEdg].Segments.Count - 1; i++)
+						kinks.Add(edges[nEdg].Segments[i]);
+			}
+			kinks.Add(1);
+			kinks.Sort();//sort and unique
+			kinks = new List<double>(kinks.Distinct());
 
+			List<int> iKinks = new List<int>(kinks.Count);
+			//iKinks.Add(0);
+			kinks.ForEach(k => iKinks.Add((int)Math.Ceiling(k * ( tmesh[1] + 1))));
+			//iKinks.Add(tmesh[1] + 1);
+			//int nKink = 1;
+
+			//populate TMESH by interpolating nodes from edge positions
 			double s, t;
 			Vect2 uv0 = new Vect2(), uv1 = new Vect2(), uvi = new Vect2();
 			m_mesh = new Vect3[tmesh[0] + 1, tmesh[1] + 1];
 			for (int j = 0; j <= tmesh[1]; j++)//create edge uv/xyz points
 			{
+				//if (j > iKinks[nKink]) nKink++;//overstepped kink braket, increment into new bracket
+				//s = BLAS.interpolate(j - iKinks[nKink - 1], iKinks[nKink] - iKinks[nKink - 1], kinks[nKink], kinks[nKink - 1]);
+
 				s = BLAS.interpolant(j, tmesh[1] + 1);
 				m_mesh[0, j] = new Vect3();
 				edges[0].xVal(s, ref uv0, ref m_mesh[0, j]);//get lower seam point
@@ -104,14 +141,27 @@ namespace Warps
 
 				for (int i = 0; i < tmesh[0]; i++)
 				{
-					t = BLAS.interpolant(i, tmesh[0] + 1);
-					uvi[0] = BLAS.interpolate(t, uv1[0], uv0[0]);
-					uvi[1] = BLAS.interpolate(t, uv1[1], uv0[1]);
+					if (j == 0 && Corners[0, 0] == Corners[1, 1] && Corners[0,1] == Corners[1,0])//overlapping upper edge, place points on edge curve
+					{
+						t = BLAS.interpolate(i, tmesh[0] + 1, Corners[0, 0].sPos[1], Corners[1, 0].sPos[1]);//interpolate edge curve s position between limits
+						Corners[0, 0].Seams[1].uVal(t, ref uvi);
+					}
+					else if (j == tmesh[1] && Corners[0, 3] == Corners[1, 2] && Corners[0, 2] == Corners[1, 3]) //overlapping lower edge, place points on edge curve
+					{
+						t = BLAS.interpolate(i, tmesh[0] + 1, Corners[0, 3].sPos[1], Corners[1, 3].sPos[1]);//interpolate edge curve s position between limits
+						Corners[1,3].Seams[1].uVal(t, ref uvi);
+					}
+					else//linear interpolation of uv-coords for internal points
+					{
+						t = BLAS.interpolant(i, tmesh[0] + 1);
+						uvi[0] = BLAS.interpolate(t, uv1[0], uv0[0]);
+						uvi[1] = BLAS.interpolate(t, uv1[1], uv0[1]);
+					}
+					//get mesh xyz from mould and store
 					m_mesh[i, j] = new Vect3();
 					Mould.xVal(uvi, ref m_mesh[i, j]);
 				}
 			}
-
 		} 
 
 		double TMeshRBF(int[] tmesh)
@@ -191,7 +241,6 @@ namespace Warps
 
 			return 0;
 		}
-
 		double TMeshRBF2(int[] tmesh)
 		{
 			//construct long-seam chains
@@ -307,12 +356,12 @@ namespace Warps
 					C = m_mesh[nRow, nTri + 1].Distance(m_mesh[nRow + 1, nTri]);
 
 					//angle between A and B
-					theta = (A * A + B * B - C * C) / (2 * A * B);
+					theta = A == 0 || B == 0 ? 0 : (A * A + B * B - C * C) / (2 * A * B);
 					Utilities.LimitRange(-1, ref theta, 1);//ensure valid acos
 					theta = Math.Acos(theta);//get angle
 
 					//angle between A and horizontal
-					alpha = (m_flat[nRow][1, nTri].Y - m_flat[nRow][0, nTri].Y) / A;
+					alpha = A == 0 ? 1 : (m_flat[nRow][1, nTri].Y - m_flat[nRow][0, nTri].Y) / A;
 					Utilities.LimitRange(-1, ref alpha, 1);//ensure valid asin
 					alpha = Math.Asin(alpha);
 
@@ -331,6 +380,7 @@ namespace Warps
 					//C = m_mesh[nRow, nTri + 1].Distance(m_mesh[nRow + 1, nTri]);common edge
 
 					//angle between C and A'
+					//gamma = B == 0 || C == 0 ? 0 : (B * B + C * C - A * A) / (2 * B * C);
 					gamma = (B * B + C * C - A * A) / (2 * B * C);
 					Utilities.LimitRange(-1, ref gamma, 1);//ensure valid acos
 					gamma = Math.Acos(gamma);//get angle
@@ -369,8 +419,6 @@ namespace Warps
 				tran.Translation(m_flat[nRow][1, 0].X, m_flat[nRow][1, 0].Y, 0);
 			}
 		}
-
-
 
 		internal void AlignFlatPanels(Panel prev)
 		{
@@ -418,16 +466,19 @@ namespace Warps
 
 		#region IRebuild Members
 
+		string m_label;
 		public string Label
 		{
 			get
 			{
-				return m_seams != null && m_seams.Length > 1 && m_seams[1] != null ? m_seams[1].Label : "";
+				return m_label;
+				//return m_seams != null && m_seams.Length > 1 && m_seams[1] != null ? m_seams[1].Label : "";
 			}
 			set
 			{
-				if (m_seams != null && m_seams.Length > 1 && m_seams[1] != null)
-					m_seams[1].Label = value;
+				m_label = value;
+				//if (m_seams != null && m_seams.Length > 1 && m_seams[1] != null)
+				//	m_seams[1].Label = value;
 			}
 		}
 		public string Layer
@@ -463,8 +514,8 @@ namespace Warps
 			m_node.ToolTipText = GetToolTipData();
 			if (m_seams != null && m_seams.Length > 1 && m_seams[0] != null && m_seams[1] != null)
 			{
-				m_node.Nodes.Add(m_seams[0].Label);
-				m_node.Nodes.Add(m_seams[1].Label);
+				m_node.Nodes.Add(m_seams[0].ToString());
+				m_node.Nodes.Add(m_seams[1].ToString());
 			}
 			return m_node;
 		}
@@ -478,9 +529,12 @@ namespace Warps
 		{
 			if (m_seams != null && m_seams.Length > 1 && m_seams[0] != null && m_seams[1] != null)
 			{
-				List<Entity> ee = new List<Entity>(m_seams[0].CreateEntities());
-				ee.AddRange(m_seams[1].CreateEntities());
+				List<Entity> ee = new List<Entity>();
 
+				//ee.AddRange(m_seams[0].CreateEntities());
+				//ee.AddRange(m_seams[1].CreateEntities());
+				foreach (IMouldCurve seam in m_seams)
+					ee.Add(new LinearPath(CurveTools.GetEvenPathPoints(seam, 20)));
 
 
 				//if (m_sends != null)
@@ -502,7 +556,7 @@ namespace Warps
 
 				if (m_mesh != null)
 				{
-					ee.Add(SurfaceTools.GetMesh(m_mesh));
+					ee.Add(SurfaceTools.GetMesh(m_mesh, null));
 					//ee.Add(SurfaceTools.GetPointCloud(m_mesh));
 				}
 
@@ -512,15 +566,15 @@ namespace Warps
 					{
 						if( strip != null )
 						ee.Add(SurfaceTools.GetMesh(strip));
-						ee.Last().Translate(0, 0, m_group.IndexOf(this));
+						//ee.Last().Translate(0, 0, m_group.IndexOf(this));//zoffset
 					}
 				}
 
 				//panel bounding box
 				ee.Add(new LinearPath(m_length[0], m_width[0], Length, Width));
-				ee.Last().Translate(0, 0, m_group.IndexOf(this));
+				//ee.Last().Translate(0, 0, m_group.IndexOf(this));//zoffset
 				
-				System.Drawing.Color c = PanelGroup.NextColor();
+				System.Drawing.Color c = ColorMath.NextColor();
 
 				foreach (Entity e in ee)
 				{
@@ -539,10 +593,19 @@ namespace Warps
 		{
 			get
 			{
-				List<devDept.Eyeshot.Labels.Label> labels = new List<devDept.Eyeshot.Labels.Label>();
-				for (int i = 0; i < 2; i++)
-					labels.AddRange(m_seams[i].EntityLabel);
-				return labels.ToArray();
+				devDept.Eyeshot.Labels.Label[] lbls = new devDept.Eyeshot.Labels.Label[1];
+				Point3D center;
+				if (m_mesh != null)
+					center = Utilities.Vect3ToPoint3D(m_mesh[m_mesh.GetLength(0) / 2, m_mesh.GetLength(1) / 2]);
+				else
+					return null;
+				lbls[0] = new devDept.Eyeshot.Labels.OutlinedText(center, Label,	new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter);
+				return lbls;
+
+				//List<devDept.Eyeshot.Labels.Label> labels = new List<devDept.Eyeshot.Labels.Label>();
+				//for (int i = 0; i < 2; i++)
+				//	labels.AddRange(m_seams[i].EntityLabel);
+				//return labels.ToArray();
 			}
 			//get { return m_seams != null && m_seams.Length > 1 && m_seams[1] != null ? m_seams[1].EntityLabel: null; }
 		}

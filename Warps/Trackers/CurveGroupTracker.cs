@@ -10,7 +10,7 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
-using Warps.Logger;
+using Logger;
 
 namespace Warps
 {
@@ -373,7 +373,7 @@ namespace Warps
 					m_frame.Status = String.Format("{0}:{1} Pasted into {2}:{3} From Clipboard", cur.GetType().Name, (cur as MouldCurve).Label, group.GetType().Name, group.Label);
 				}
 			}
-			catch (Exception ex) { Warps.Logger.logger.Instance.LogErrorException(ex); return; }
+			catch (Exception ex) { Logger.logger.Instance.LogErrorException(ex); return; }
 			m_frame.Rebuild(group);
 		}
 

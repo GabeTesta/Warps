@@ -17,6 +17,7 @@ namespace Warps
 			this.Size = new System.Drawing.Size(80, 20);
 			this.TextAlign = HorizontalAlignment.Right;
 			this.AcceptsTab = false;
+			this.MinimumSize = new System.Drawing.Size(0, 0);
 		}
 
 		public Sail sail = null;

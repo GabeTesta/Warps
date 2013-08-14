@@ -130,7 +130,8 @@ namespace Warps
 			{
 				g.xVal(end.UV, ref xI);
 				sguess = (start as SlidePoint).SCurve;
-				if ((start as SlidePoint).Curve.xClosest(ref sguess, ref utemp, ref xI, ref d, 1e-9, false))
+				if (CurveTools.xClosest((start as SlidePoint).Curve, ref sguess, ref utemp, ref xI, ref d, 1e-9, false))
+				//if ((start as SlidePoint).Curve.xClosest(ref sguess, ref utemp, ref xI, ref d, 1e-9, false))
 					(start as SlidePoint).SCurve = sguess;
 			}
 
@@ -142,7 +143,8 @@ namespace Warps
 			{
 				g.xVal(uFits[0], ref xI);
 				sguess = (end as SlidePoint).SCurve;
-				if ((end as SlidePoint).Curve.xClosest(ref sguess, ref utemp, ref xI, ref d, 1e-9, false))
+				if (CurveTools.xClosest((end as SlidePoint).Curve, ref sguess, ref utemp, ref xI, ref d, 1e-9, false))
+				//if ((end as SlidePoint).Curve.xClosest(ref sguess, ref utemp, ref xI, ref d, 1e-9, false))
 					(end as SlidePoint).SCurve = sguess;
 			}
 			sFits[END] = 1;

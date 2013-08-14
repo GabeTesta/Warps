@@ -33,7 +33,8 @@ namespace Warps
 		{
 			m_mould = new CofMould(sail, cofpath);
 			m_extension = new RBFMould(m_mould);
-			m_label = "Combo " + Mould.Label;
+			//m_label = "Combo " + Mould.Label;
+			m_label = cofpath;
 		}
 
 		public List<IGroup> Groups

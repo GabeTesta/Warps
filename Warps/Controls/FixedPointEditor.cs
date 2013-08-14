@@ -119,13 +119,17 @@ namespace Warps
 		protected override void OnLayout(LayoutEventArgs e)
 		{
 			base.OnLayout(e);
-			int wid = Width / 2 - (2 * Padding.Horizontal);
-
-			m_uEq.Width = wid;
-			m_vEq.Left = wid +Padding.Horizontal;
-			m_vEq.Width = wid;
-			Height = 23;
-			m_vEq.Height = m_uEq.Height = 23;
+			int wid = Width / 2 - Padding.Horizontal;
+			m_vEq.Width = m_uEq.Width = wid;
+			m_uEq.Location = new Point(0, 0);		
+			m_vEq.Location = new Point(wid +Padding.Horizontal,0);
+		}
+		protected override void OnSizeChanged(EventArgs e)
+		{
+			base.OnSizeChanged(e);
+			m_uEq.Height = Height;
+			m_vEq.Height = m_uEq.Height;
+			Height = m_uEq.Height;
 		}
 	}
 }

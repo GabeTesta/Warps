@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Warps.Logger;
+using Logger;
 
 namespace Warps
 {
@@ -97,6 +97,12 @@ namespace Warps
 		public void AttachTracker(ITracker tracker)
 		{
 			AfterSelect += tracker.OnSelect;
+			TreeContextMenu.Items[0].Click += tracker.OnAdd;
+			TreeContextMenu.Items[1].Click += tracker.OnDelete;
+
+			//TreeContextMenu.Items[3].Click += tracker.OnCopy;//handled here
+			TreeContextMenu.Items[4].Click += tracker.OnPaste;
+
 			//SeqTree.AfterSelect += tracker.OnSelect;
 			//SorTree.AfterSelect += tracker.OnSelect;
 		}
@@ -104,6 +110,12 @@ namespace Warps
 		public void DetachTracker(ITracker tracker)
 		{
 			AfterSelect -= tracker.OnSelect;
+			TreeContextMenu.Items[0].Click -= tracker.OnAdd;
+			TreeContextMenu.Items[1].Click -= tracker.OnDelete;
+
+			//TreeContextMenu.Items[3].Click -= tracker.OnCopy;//handled here
+			TreeContextMenu.Items[4].Click -= tracker.OnPaste;
+
 			//SeqTree.AfterSelect -= tracker.OnSelect;
 			//SorTree.AfterSelect -= tracker.OnSelect;
 		}
@@ -813,7 +825,7 @@ namespace Warps
 						}
 					}
 
-					Sail.Rebuild(null);
+					Sail.Rebuild();
 					SeqTree.Refresh();
 				}
 

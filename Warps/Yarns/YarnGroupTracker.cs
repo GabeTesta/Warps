@@ -10,7 +10,7 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
-using Warps.Logger;
+using Logger;
 
 namespace Warps.Yarns
 {
@@ -35,7 +35,7 @@ namespace Warps.Yarns
 				{
 					Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
 					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
-					Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+					//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
 				}
 				
 			}
@@ -56,11 +56,18 @@ namespace Warps.Yarns
 		public bool EditMode
 		{
 			get { return m_editMode; }
-			set { m_editMode = value; toggleEditMode(value); }
+			set
+			{
+				m_editMode = value && m_group.Locked;
+				toggleEditMode(value && m_group.Locked);
+			}
 		}
 
 		void toggleEditMode(bool state)
 		{
+			if (m_group.Locked && state)
+				return;
+
 			View.EditMode = state;
 			m_edit.Enabled = state;
 			View.DeSelectAllLayers();
@@ -86,17 +93,15 @@ namespace Warps.Yarns
 		{
 			get { return m_edit; }
 		}
+		Sail Sail
+		{
+			get { return m_frame != null ? m_frame.ActiveSail : null; }
+		}
 
 		DualView View
 		{
 			get { return m_frame != null ? m_frame.View : null; }
 		}
-
-		Sail Sail
-		{
-			get { return m_frame != null ? m_frame.ActiveSail : null; }
-		}
-		
 		TabTree Tree
 		{
 			get { return m_frame != null ? m_frame.Tree : null; }
@@ -129,23 +134,23 @@ namespace Warps.Yarns
 			Tree.TreeContextMenu.Show();
 		}
 
-		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-		{
-			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
+		//void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		//{
+		//	logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
 			
-			if (e.ClickedItem.Text == "Paste")
-			{
-				OnPaste(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Delete")
-			{
-				OnDelete(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Add")
-			{
-				OnAdd(sender, new EventArgs());
-			}
-		}
+		//	if (e.ClickedItem.Text == "Paste")
+		//	{
+		//		OnPaste(sender, new EventArgs());
+		//	}
+		//	else if (e.ClickedItem.Text == "Delete")
+		//	{
+		//		OnDelete(sender, new EventArgs());
+		//	}
+		//	else if (e.ClickedItem.Text == "Add")
+		//	{
+		//		OnAdd(sender, new EventArgs());
+		//	}
+		//}
 
 		void EditColorClick(object sender, EventArgs e)
 		{
@@ -189,7 +194,7 @@ namespace Warps.Yarns
 			m_frame.EditorPanel = null;
 			View.SetActionMode(devDept.Eyeshot.actionType.None);
 			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
-			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
+		//	Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
 			Tree.KeyUp -= Tree_KeyUp;
 
 			Tree.DetachTracker(this);
@@ -246,7 +251,7 @@ namespace Warps.Yarns
 			else if (selected is MouldCurve)
 			{
 				if (Edit.AddRemoveWarp(selected as MouldCurve))
-					View.SelectEntity(selected as MouldCurve);	
+					View.Select(selected as MouldCurve);	
 				else
 					View.DeSelect(selected as MouldCurve);	
 			}
@@ -254,7 +259,7 @@ namespace Warps.Yarns
 			View.DeSelectAll();
 
 			foreach (MouldCurve cur in Edit.Curves)
-				View.SelectEntity(cur);
+				View.Select(cur);
 
 
 			View.Refresh();

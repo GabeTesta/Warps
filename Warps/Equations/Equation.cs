@@ -10,6 +10,7 @@ namespace Warps
 	public class Equation: IRebuild
 	{
 		public Equation() { m_label = ""; m_text = null; Value = 0; }
+		public Equation(string equationText) : this(null, equationText) { }
 		public Equation(double value)
 		{
 			m_label = "";

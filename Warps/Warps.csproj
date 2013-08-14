@@ -116,6 +116,18 @@
     <Compile Include="Controls\EquationBoxAuto.Designer.cs">
       <DependentUpon>EquationBoxAuto.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FlatUpDown.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\FlatUpDown.Designer.cs">
+      <DependentUpon>FlatUpDown.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Forms\EqTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\Forms\EqTextBox.Designer.cs">
+      <DependentUpon>EqTextBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\GuideEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -204,7 +216,9 @@
     </Compile>
     <Compile Include="Equations\EquationEvaluator.cs" />
     <Compile Include="Equations\VariableGroup.cs" />
+    <Compile Include="GuideSurface.cs" />
     <Compile Include="Panels\Panel.cs" />
+    <Compile Include="Panels\PanelCorner.cs" />
     <Compile Include="Panels\PanelGroup.cs" />
     <Compile Include="Panels\PanelGroupTracker.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -212,10 +226,20 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="RebuildGroup.cs" />
     <Compile Include="Surfaces\CofMould.cs" />
     <Compile Include="Surfaces\ComboMould.cs" />
     <Compile Include="Surfaces\RBFMesh.cs" />
     <Compile Include="Surfaces\RBFMould.cs" />
+    <Compile Include="Tapes\Tape.cs" />
+    <Compile Include="Tapes\TapeGroup.cs" />
+    <Compile Include="Tapes\TapeGroupEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Tapes\TapeGroupEditor.Designer.cs">
+      <DependentUpon>TapeGroupEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Tapes\TapeGroupTracker.cs" />
     <Compile Include="Trackers\CurveGroupTracker.cs" />
     <Compile Include="Curves\CurvePoint.cs" />
     <Compile Include="Controls\CurvePointEditor.cs">
@@ -279,6 +303,9 @@
     <EmbeddedResource Include="Controls\AddGroup.resx">
       <DependentUpon>AddGroup.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\AutoCompleteTextBox.resx">
+      <DependentUpon>AutoCompleteTextBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\ColorWheelForm.resx">
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -293,6 +320,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\EquationBoxAuto.resx">
       <DependentUpon>EquationBoxAuto.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FlatUpDown.resx">
+      <DependentUpon>FlatUpDown.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\Forms\EqTextBox.resx">
+      <DependentUpon>EqTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\GuideEditor.resx">
       <DependentUpon>GuideEditor.cs</DependentUpon>
@@ -338,6 +371,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Equations\EquationEditorForm.resx">
       <DependentUpon>EquationEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tapes\TapeGroupEditor.resx">
+      <DependentUpon>TapeGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="WarpFrame.resx">
       <DependentUpon>WarpFrame.cs</DependentUpon>
@@ -436,9 +472,7 @@
     <None Include="Resources\VariableGroup.png" />
     <None Include="Resources\equation.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Tapes\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

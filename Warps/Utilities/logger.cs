@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Collections;
 using System.Threading;
+using Warps;
 
-namespace Warps.Logger
+namespace Logger
 {
 	public enum LogPriority
 	{

@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
 
-namespace Warps
+namespace Warps.Panels
 {
 	[System.Diagnostics.DebuggerDisplay("{Label} {m_clothAlignment} [{Count}]", Name = "{Label}", Type = "{GetType()}")]
 	public class PanelGroup : List<Panel>, IGroup
@@ -18,11 +18,14 @@ namespace Warps
 		{
 			Label = label;
 			Sail = s;
-			Bounds = new List<MouldCurve>();
-			Guides = new List<MouldCurve>();
+			Bounds = new List<IMouldCurve>();
+			Guides = new List<IMouldCurve>();
 			PanelWidth = width;
 			ClothAlignment = alignment;
 		}
+
+		public void WriteBin(System.IO.BinaryWriter bin) { }
+
 
 		const int MAX_PANS = 50;
 
@@ -485,15 +488,16 @@ namespace Warps
 			{				
 				target = Width;//initialize guess width
 
-				for ( nNwt = 0; nNwt < 150; nNwt++)
+				for ( nNwt = 0; nNwt < 50; nNwt++)
 				{
 					//iterate on width to lay second seam
-					try
-					{
+					//try
+					//{
 						p = Seamer(target);
 						atSeam = p == null;
-					}
-					catch (Exception e) { MessageBox.Show(e.Message); atSeam = true; }
+					//}
+					//catch (Exception e) { MessageBox.Show(e.Message); atSeam = true; }
+
 
 					//flatten and check actual width(panel.Width) vs input width(m_Width)
 					if (atSeam || BLAS.IsEqual(p.Width, Width, 1e-3))//on target width
@@ -501,10 +505,13 @@ namespace Warps
 
 					//iterate target width to hit input width
 					target += (Width - p.Width);//calculate new width aim-off
+
+					if (target <= 0)//vanishing target width, probably flattening error
+						break;
 					//target = Width / p.Width;
 				}
-				if (!atSeam && nNwt == 150)
-					MessageBox.Show(string.Format("Failed to hit target width for Panel [{0}]", p.Seams[0].Label));
+				if (!atSeam && nNwt == 50)
+					MessageBox.Show(string.Format("Failed to hit target width for Panel [{0}]", p.Label));
 				if (!atSeam)
 				{
 					Add(p);
@@ -516,7 +523,8 @@ namespace Warps
 						Vect3 xyp = new Vect3();
 						p.Seams[0].xVec(0, ref uv, ref xyz, ref xyp);
 						//p.Seams[0].xVal(1, ref uv, ref xyp);
-						//xyp -= xyz;
+						p.Seams[0].xVal(1, ref uv, ref xyp);
+						xyp -= xyz;
 						p.AlignFlatPanels(new Point2D(xyz.x+Sail.Width, xyz.y), new Vect2(xyp.x, xyp.y));
 						//p.AlignFlatPanels(new Point2D(Sail.Width, Sail.Height), new Vect2(-1, 0));
 					}
@@ -833,9 +841,12 @@ namespace Warps
 					{
 						//intersection with this boundary curve
 						panCorners[1, 1] = new PanelCorner(null, Bounds[nTop], new Vect2(-1, s), new Vect2(uv), new Vect3(xyz));
-
-						if (panCorners[0, 1].Seams[0] == panCorners[0, 2].Seams[0]//triangle condition: shift corner in
-						&&  panCorners[1, 1].Seams[1] == panCorners[0, 1].Seams[0])
+						if (panCorners[1, 1] == panCorners[1, 2])
+						{
+							panCorners[1, 1] = null;//skip repeated corner
+						}
+						else if (panCorners[0, 1].Seams[0] == panCorners[0, 2].Seams[0]//triangle condition: shift corner in
+							&&  panCorners[1, 1].Seams[1] == panCorners[0, 1].Seams[0])
 						{
 							panCorners[0, 1] = panCorners[1, 1].Clone();
 							panCorners[1, 0] = panCorners[0, 2].Clone();
@@ -865,9 +876,12 @@ namespace Warps
 					{
 						//intersection with this boundary curve
 						panCorners[1, 2] = new PanelCorner(null, Bounds[nBot], new Vect2(-1, s), new Vect2(uv), new Vect3(xyz));
-
-						if (panCorners[0, 1].Seams[0] == panCorners[0, 2].Seams[0]//triangle condition: shift corner in
-						&& panCorners[1, 2].Seams[1] == panCorners[0, 1].Seams[0])
+						if (panCorners[1, 2] == panCorners[1, 1])
+						{
+							panCorners[1, 2] = null;//skip repeated corner
+						}
+						else if (panCorners[0, 1].Seams[0] == panCorners[0, 2].Seams[0]//triangle condition: shift corner in
+							&&  panCorners[1, 2].Seams[1] == panCorners[0, 1].Seams[0])
 						{
 							panCorners[0, 2] = panCorners[1, 2].Clone();//shift boundary-corner to triangle
 							panCorners[1, 3] = panCorners[0, 1].Clone();//set extension point to corner
@@ -897,7 +911,7 @@ namespace Warps
 					break;
 				}
 			}
-			if (panCorners[1, 1] == null || panCorners[1, 2] == null)
+			if (panCorners[1, 1] == null || panCorners[1, 2] == null )
 				return null;
 				//throw new Exception(string.Format("Panel Group [{0}] failed to set angle points for panel [{1}]", Label, Count));
 
@@ -1227,8 +1241,8 @@ namespace Warps
 		string m_label;
 
 		Equation m_Width;
-		List<MouldCurve> m_bounds;
-		List<MouldCurve> m_guides;
+		List<IMouldCurve> m_bounds;
+		List<IMouldCurve> m_guides;
 		ClothOrientations m_clothAlignment = ClothOrientations.FILLS;
 
 
@@ -1244,12 +1258,12 @@ namespace Warps
 			set { m_Width = value; m_Width.Label = "PanelWidth"; }
 		}
 
-		public List<MouldCurve> Bounds
+		public List<IMouldCurve> Bounds
 		{
 			get { return m_bounds; }
 			set { m_bounds = value; }
 		}
-		public List<MouldCurve> Guides
+		public List<IMouldCurve> Guides
 		{
 			get { return m_guides; }
 			set { m_guides = value; }
@@ -1336,9 +1350,8 @@ namespace Warps
 		}
 		public string Layer
 		{
-			get { return m_layer != null ? m_layer : "Panels"; }
+			get { return "Panels"; }
 		}
-		string m_layer;
 
 		bool m_locked = false;
 		public bool Locked { get { return m_locked; } set { m_locked = value; } }
@@ -1472,11 +1485,22 @@ namespace Warps
 
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			if (Guides != null)
-				parents.AddRange(Guides);
+			Guides.ForEach(g =>
+			{
+				if (g is IRebuild)
+					parents.Add(g as IRebuild);
+			});
 
-			if (Bounds.Count > 0)
-				parents.AddRange(Bounds);
+			Bounds.ForEach(g =>
+			{
+				if (g is IRebuild)
+					parents.Add(g as IRebuild);
+			});
+			//if (Guides != null)
+			//	parents.AddRange(Guides);
+
+			//if (Bounds.Count > 0)
+			//	parents.AddRange(Bounds);
 
 			//	parents.Add(TargetDenierEqu);
 			PanelWidth.GetParents(s, parents);
@@ -1516,122 +1540,6 @@ namespace Warps
 		public override string ToString()
 		{
 			return Label;
-		}
-
-		public static System.Drawing.Color NextColor()
-		{  return COLORS[nCol++]; }
-		static int m_nCol = 0;
-		static int nCol
-		{
-			get { return m_nCol; }
-			set { m_nCol = value % COLORS.Length; }
-		}
-		static System.Drawing.Color[] COLORS = new System.Drawing.Color[]{
-			System.Drawing.Color.Cyan,
-			System.Drawing.Color.Brown,
-			System.Drawing.Color.Blue,
-			System.Drawing.Color.Red,
-			System.Drawing.Color.Green,
-			System.Drawing.Color.Orange,
-			System.Drawing.Color.Purple,
-			System.Drawing.Color.Gold};
-	}
-
-	[System.Diagnostics.DebuggerDisplay("{Seams[0].Label} {Seams[1].Label} {sPos.ToString(\"f4\")}", Name = "{Seams[0].Label} {Seams[1].Label}", Type = "{GetType()}")]
-	public class PanelCorner
-	{
-		public PanelCorner(PanelCorner cor) : this(cor.Seams[0], cor.Seams[1], cor.sPos, cor.uPos, cor.xPos) { }
-		public PanelCorner(MouldCurve c1, MouldCurve c2)
-		{
-			Seams.Add(c1);
-			Seams.Add(c2);
-			if( !CurveTools.CrossPoint(c1, c2, ref uPos, ref xPos, ref sPos) )
-				throw new Exception(string.Format("Edge [{0}] does not intersect Edge [{1}]", Seams[0].Label, Seams[1].Label));
-		}
-		public PanelCorner(MouldCurve c1, MouldCurve c2, Vect2 s, Vect2 u, Vect3 x)
-		{
-			Seams.Add(c1);
-			Seams.Add(c2);
-			if( s != null )
-			sPos.Set(s);
-			if( u != null )
-			uPos.Set(u);
-			if( x != null )
-			xPos.Set(x);
-		}
-		public PanelCorner Clone() { return new PanelCorner(this); }
-
-		public static bool operator ==(PanelCorner a, PanelCorner b)
-		{
-			if (System.Object.ReferenceEquals(a, null))
-				return System.Object.ReferenceEquals(b, null);//a and b are null, thus ==
-			return a.Equals(b);
-		}
-		public static bool operator !=(PanelCorner a, PanelCorner b)
-		{
-			return !(a == b);
-		}
-		public override bool Equals(object obj)
-		{
-			if (obj == null)
-				return false;
-			if (!(obj is PanelCorner))
-				return false;
-			PanelCorner b = obj as PanelCorner;
-			return b.xPos == xPos//same position, same seams
-				&& 
-				( (b.Seams[0] == Seams[0] && b.Seams[1] == Seams[1])
-				|| (b.Seams[0] == Seams[1] && b.Seams[1] == Seams[0]) );
-		}
-		public override int GetHashCode()
-		{
-			return sPos.GetHashCode() ^ Seams.GetHashCode();
-		}
-		public void Copy(PanelCorner parent)
-		{
-			Seams.AddRange(parent.Seams);
-			sPos.Set(parent.sPos);
-			uPos.Set(parent.uPos);
-			xPos.Set(parent.xPos);
-		}
-
-		public List<MouldCurve> Seams = new List<MouldCurve>(2);
-		public Vect2 sPos = new Vect2();//seam positions
-		public Vect2 uPos = new Vect2();
-		public Vect3 xPos = new Vect3();
-		
-		public double Distance(PanelCorner c)
-		{
-			return xPos.Distance(c.xPos);
-		}
-
-		public void SlidePos(int nEdge, double s)
-		{
-			Seams[nEdge].xVal(s, ref uPos, ref xPos);
-			sPos[nEdge] = s;//record new values and update cache'd data
-
-			sPos[1 - nEdge] = -1;//nullify other curve's position
-		}
-		public double GetSeamPos(MouldCurve seam)
-		{
-			return sPos[Seams.IndexOf(seam)];
-		}
-
-		public CurvePoint GetSeamPoint(int nPnt)
-		{
-			return new CurvePoint(Seams[nPnt], sPos[nPnt]);
-		}
-
-		public void Swap()
-		{
-			double d;
-			d = sPos[0];
-			sPos[0] = sPos[1];
-			sPos[1] = d;
-
-			MouldCurve c = Seams[0];
-			Seams[0] = Seams[1];
-			Seams[1] = c;
 		}
 	}
 

@@ -115,13 +115,13 @@ namespace Warps
 			xyzComb = xyz + xnor;
 		}
 
-		public override List<Entity> CreateEntities(bool bFitPoints, double TolAngle, out double[] sPos)
+		public override List<Entity> CreateEntities(bool bFitPoints, double TolAngle, out List<double> sPos)
 		{
 			List<Entity> e = base.CreateEntities(bFitPoints, TolAngle, out sPos);
 			if (sPos == null)
 				return e;
 			
-			e.AddRange(CreateCombEntity(sPos, false));
+			e.AddRange(CreateCombEntity(sPos.ToArray(), false));
 			Vect2 u = new Vect2();
 			Vect3 xyz = new Vect3(), xup = new Vect3();
 			foreach (double s in SComb)

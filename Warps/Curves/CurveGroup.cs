@@ -24,13 +24,23 @@ namespace Warps
 		{
 			m_sail = sail;
 			m_layer = m_label = Utilities.ReadCString(bin);
-#if DEBUG
-			m_layer = "Mould";
-#endif
+//#if DEBUG
+//			m_layer = "Mould";
+//#endif
 			m_locked = true;
 			int iC = bin.ReadInt32();
 			for (int nC = 0; nC < iC; nC++)
 				Add(new MouldCurve(bin, sail));
+		}
+		public CurveGroup(System.IO.BinaryReader bin)
+			: this(bin, WarpFrame.CurrentSail) { }
+
+		public void WriteBin(System.IO.BinaryWriter bin)
+		{
+			Utilities.WriteCString(bin, GetType().ToString());
+			Utilities.WriteCString(bin, m_label);
+			bin.Write((Int32)Count);
+			ForEach(mc => mc.WriteBin(bin));
 		}
 
 		public MouldCurve this[string label]

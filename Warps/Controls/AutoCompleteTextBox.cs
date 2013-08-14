@@ -67,9 +67,21 @@ namespace Warps.Controls
 
 		private void InitializeComponent()
 		{
-			_listBox = new ListBox();
-			KeyDown += this_KeyDown;
-			KeyUp += this_KeyUp;
+			this._listBox = new System.Windows.Forms.ListBox();
+			this.SuspendLayout();
+			// 
+			// _listBox
+			// 
+			this._listBox.Location = new System.Drawing.Point(0, 0);
+			this._listBox.Name = "_listBox";
+			this._listBox.Size = new System.Drawing.Size(120, 96);
+			this._listBox.TabIndex = 0;
+			// 
+			// AutoCompleteTextBox
+			// 
+			this.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.ResumeLayout(false);
+
 		}
 
 		private void ShowListBox()

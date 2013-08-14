@@ -333,11 +333,11 @@ namespace Warps
 				{
 
 					mesh.Triangles[count++] = new SmoothTriangle(i + j * cols,
-																   i + j * cols + 1,
-																   i + (j + 1) * cols + 1);
+														i + j * cols + 1,
+														i + (j + 1) * cols + 1);
 					mesh.Triangles[count++] = new SmoothTriangle(i + j * cols,
-																   i + (j + 1) * cols + 1,
-																   i + (j + 1) * cols);
+														i + (j + 1) * cols + 1,
+														i + (j + 1) * cols);
 				}
 			}
 
@@ -355,13 +355,25 @@ namespace Warps
 			return GetMesh(pnts.ToArray(), rows);
 
 		}
-		public static Mesh GetMesh(Vect3[,] verts)
+		public static Mesh GetMesh(Vect3[,] verts, double[,] colors)
 		{
+			double ave=0, q1=0, q3=0, stddev=0;
+			if (colors != null)
+			{
+				stddev = BLAS.StandardDeviation(colors, out ave, out q3, out q1);
+				q1 = ave - 2 * stddev;
+				q3 = ave + 2 * stddev;
+			}
 			List<Point3D> pnts = new List<Point3D>(verts.Length);
 			for (int i = 0; i < verts.GetLength(0); i++)
 			{
-				for( int j=0; j< verts.GetLength(1); j++ )
-					pnts.Add(Utilities.Vect3ToPoint3D(verts[i,j]));
+				for (int j = 0; j < verts.GetLength(1); j++)
+				{
+					if (colors != null)
+						pnts.Add(Utilities.Vect3ToPointRGB(verts[i, j], ColorMath.GetScaleColor(q3, q1, colors[i, j])));
+					else
+						pnts.Add(Utilities.Vect3ToPoint3D(verts[i, j]));
+				}
 			}
 			return GetMesh(pnts.ToArray(), verts.GetLength(0));
 
@@ -376,8 +388,10 @@ namespace Warps
 		/// <returns>a ColorPlain mesh object colored by layer</returns>
 		public static Mesh GetMesh(Point3D[] verts, int rows)
 		{
+			bool colors = verts[0] is PointRGB;
 			int cols = verts.Length / rows;
-			Mesh mesh = new Mesh(meshNatureType.ColorSmooth);
+			Mesh mesh = new Mesh(colors ? meshNatureType.MulticolorSmooth : meshNatureType.ColorSmooth);
+			mesh.ColorMethod = colors ? colorMethodType.byEntity : colorMethodType.byLayer;
 			mesh.Vertices = verts;
 			mesh.Triangles = new SmoothTriangle[(rows - 1) * (cols - 1) * 2];
 			int count = 0;
@@ -443,7 +457,18 @@ namespace Warps
 			cloud.LineWeightMethod = colorMethodType.byEntity;
 			return cloud;
 		}
-
+		internal static Entity GetPointCloud(Vect3[] verts)
+		{
+			List<Point3D> pnts = new List<Point3D>(verts.Length);
+			for (int i = 0; i < verts.Length; i++)
+			{
+				pnts.Add(Utilities.Vect3ToPoint3D(verts[i]));
+			}
+			PointCloud cloud = new PointCloud(pnts);
+			cloud.LineWeight = 10;
+			cloud.LineWeightMethod = colorMethodType.byEntity;
+			return cloud;
+		}
 		internal static Entity GetMesh(Point2D[,] strip)
 		{
 			List<Point3D> pnts = new List<Point3D>(strip.Length);

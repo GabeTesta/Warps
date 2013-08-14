@@ -551,13 +551,23 @@ public static class BLAS
 		return Math.Sqrt(d);
 	}
 
-	static public bool IsEqual(double a, double b)
-	{
-		return Math.Abs(a - b) < 1e-7;
-	}
+	static public bool IsEqual(double a, double b) { return IsEqual(a, b, 1e-7); }
+
 	static public bool IsEqual(double a, double b, double tol)
 	{
 		return Math.Abs(a - b) < Math.Abs(tol);
+	}
+
+	static public bool IsGreaterEqual(double a, double b) { return IsGreaterEqual(a, b, 1e-7); }
+	static public bool IsGreaterEqual(double a, double b, double tol)
+	{
+		return IsEqual(a, b, tol) || a > b;
+	}
+
+	static public bool IsLesserEqual(double a, double b) { return IsLesserEqual(a, b, 1e-7); }
+	static public bool IsLesserEqual(double a, double b, double tol)
+	{
+		return IsEqual(a, b, tol) || a < b;
 	}
 
 	static public double[] subtract(double[] a, double[] b)
@@ -622,6 +632,24 @@ public static class BLAS
 			sumOfDerivation += (value) * (value);
 		}
 		double sumOfDerivationAverage = sumOfDerivation / doubleList.Count;
+		return Math.Sqrt(sumOfDerivationAverage - (average * average));
+	}
+	public static double StandardDeviation(double[,] doubleArray, out double average, out double max, out double min)
+	{
+		average = 0;
+		foreach (double d in doubleArray)
+			average += d;
+		average /= doubleArray.Length;
+		double sumOfDerivation = 0;
+		max = -1e9;
+		min = 1e9;
+		foreach (double value in doubleArray)
+		{
+			max = Math.Max(max, value);
+			min = Math.Min(min, value);
+			sumOfDerivation += (value) * (value);
+		}
+		double sumOfDerivationAverage = sumOfDerivation / doubleArray.Length;
 		return Math.Sqrt(sumOfDerivationAverage - (average * average));
 	}
 

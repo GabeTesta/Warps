@@ -18,5 +18,7 @@ namespace Warps
 		int Count { get; }
 
 		bool Watermark(IRebuild tag, ref List<IRebuild> rets);
+
+		void WriteBin(System.IO.BinaryWriter bin);
 	}
 }

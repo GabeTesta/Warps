@@ -55,7 +55,7 @@ namespace Warps
 			{
 				worked = double.TryParse(equation.EquationText, out result);
 				equation.m_result = result;
-				Warps.Logger.logger.Instance.LogErrorException(exx);
+				Logger.logger.Instance.LogErrorException(exx);
 			}
 			finally
 			{

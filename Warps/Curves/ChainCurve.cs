@@ -11,15 +11,27 @@ using devDept.Eyeshot.Entities;
 namespace Warps.Curves
 {
 
-	[System.Diagnostics.DebuggerDisplay("{m_curves[0]} {m_curves[1]}", Name = "{m_curves[0]} {m_curves.Count}", Type = "{GetType()}")]
+	[System.Diagnostics.DebuggerDisplay("{ToString()}", Name = "{ToString()}", Type = "{GetType()}")]
 	public class ChainCurve : IMouldCurve
 	{
 
 		List<SegmentCurve> m_curves = new List<SegmentCurve>();
 		List<double> m_P = new List<double>();
-		public void Add(MouldCurve c, double lim0, double lim1)
+
+		public List<SegmentCurve> Curves
+		{
+			get { return m_curves; }
+			set { m_curves = value; }
+		}
+
+		public void Add(IMouldCurve c, double lim0, double lim1)
 		{
 			m_curves.Add(new SegmentCurve(c, lim0, lim1));
+			SetSegments();
+		}
+		public void Add(SegmentCurve seg)
+		{
+			m_curves.Add(seg);
 			SetSegments();
 		}
 		void SetSegments()
@@ -40,8 +52,12 @@ namespace Warps.Curves
 			for (int i = 0; i < m_P.Count; i++)
 				m_P[i] /= m_P.Last();
 		}
+		public List<double> Segments
+		{
+			get { return m_P; }
+		}
 
-		double Length
+		public double Length
 		{
 			get
 			{
@@ -79,7 +95,7 @@ namespace Warps.Curves
 			return ents;
 		}
 
-
+		
 
 		#region IMouldCurve Members
 
@@ -107,7 +123,6 @@ namespace Warps.Curves
 			p= (p - m_P[nPos]) / (m_P[nPos + 1] - m_P[nPos]);
 			return nPos;
 		}
-
 
 		public void uVal(double s, ref Vect2 uv)
 		{
@@ -168,6 +183,26 @@ namespace Warps.Curves
 			m_curves[nBrk].xNor(s, ref uv, ref xyz, ref dx, ref xn);
 		}
 
+		public string Label
+		{
+			get { return ToString(); }
+		}
+
+		public override string ToString()
+		{
+			if (m_curves == null)
+				return "nullChain";
+			if (m_curves.Count == 0)
+				return "emptyChain";
+			StringBuilder sb = new StringBuilder();
+			// StartingCurve 0.35 MidCurve 0.85 EndCurve
+			sb.Append(m_curves[0].Label);
+			for (int nCur = 1; nCur < m_curves.Count; nCur++)
+				sb.AppendFormat(" {0} {1}", m_P[nCur].ToString("f2"), m_curves[nCur].Label);
+			return sb.ToString();
+
+			//return m_curves != null ? m_curves[0].ToString() + " [" + m_P + "]" : "emptyChain";
+		}
 		#endregion
 	}
 	//public class SeamSegment

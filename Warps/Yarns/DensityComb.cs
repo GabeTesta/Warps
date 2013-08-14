@@ -10,6 +10,7 @@ using devDept.Eyeshot.Entities;
 using devDept.Geometry;
 namespace Warps
 {
+	[System.Diagnostics.DebuggerDisplay("{Label} {DPI}", Name = "{Label}", Type = "{GetType()}")]
 	public class DensityComb : GuideComb
 	{
 		public DensityComb(YarnGroup group, double s)
@@ -79,7 +80,7 @@ namespace Warps
 			FitCurve();
 		}
 
-		public override List<devDept.Eyeshot.Entities.Entity> CreateEntities(bool bFitPoints, double TolAngle, out double[] sPos)
+		public override List<devDept.Eyeshot.Entities.Entity> CreateEntities(bool bFitPoints, double TolAngle, out List<double> sPos)
 		{
 			List<Entity> e = base.CreateEntities(bFitPoints, TolAngle, out sPos);
 			if (sPos == null || e.Count == 0)

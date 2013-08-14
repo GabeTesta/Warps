@@ -15,7 +15,7 @@ namespace Warps
 			m_Curves[0] = WarpFrame.CurrentSail.FindCurve(c1);
 			m_Curves[1] = WarpFrame.CurrentSail.FindCurve(c2);
 		}
-		public CrossPoint(MouldCurve c1, MouldCurve c2)
+		public CrossPoint(IMouldCurve c1, IMouldCurve c2)
 		{
 			m_Curves[0] = c1;
 			m_Curves[1] = c2;
@@ -26,7 +26,7 @@ namespace Warps
 			m_Curves[1] = cross.m_Curves[1];
 		}
 		internal double m_sPos;
-		internal MouldCurve[] m_Curves = new MouldCurve[2];
+		internal IMouldCurve[] m_Curves = new IMouldCurve[2];
 		#region IFitPoint Members
 
 		public bool ReadScript(Sail sail, IList<string> txt)
@@ -161,14 +161,19 @@ namespace Warps
 
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			parents.AddRange(m_Curves);
+			if (m_Curves[0] is IRebuild)
+				parents.Add(m_Curves[0] as IRebuild);
+
+			if (m_Curves[1] is IRebuild)
+				parents.Add(m_Curves[1] as IRebuild);
+			//parents.AddRange(m_Curves);
 		}
 
 		public bool Affected(List<IRebuild> connected)
 		{
 			if (connected == null)
 				return false;
-			return connected.Contains(m_Curves[0]) || connected.Contains(m_Curves[1]);
+			return connected.Contains(m_Curves[0] as IRebuild) || connected.Contains(m_Curves[1] as IRebuild);
 		}
 		public bool Update(Sail s)
 		{

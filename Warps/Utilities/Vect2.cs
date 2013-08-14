@@ -70,6 +70,11 @@ namespace Warps
 		{
 			Set(vec.m_vec);
 		}
+		public void Set(Vect3 vec3)
+		{
+			this[0] = vec3[0];
+			this[1] = vec3[1];
+		}
 		public void Set(IList<double> vec)
 		{
 			Debug.Assert(vec.Count >= 2);
@@ -283,9 +288,9 @@ namespace Warps
 		{
 			Debug.Assert(m_vec.Length == 2);
 			if (brackets)
-				return String.Format("<{0}, {1}>", this[0], this[1]);
+				return String.Format("<{0}, {1}>", this[0].ToString("g3"), this[1].ToString("g3"));
 			else
-				return String.Format("{0}, {1}", this[0], this[1]);
+				return String.Format("{0}, {1}", this[0].ToString("g3"), this[1].ToString("g3"));
 		}
 		public string ToString(string frmt)
 		{

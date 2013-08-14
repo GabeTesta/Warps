@@ -31,6 +31,51 @@ namespace Warps
 			m_targetDenier = targetDPI;
 		}
 
+		public YarnGroup(System.IO.BinaryReader bin)
+		{
+			m_locked = true;
+			m_label = Utilities.ReadCString(bin);
+			int nCnt = bin.ReadInt32();
+			YarnCurve yarn;
+			MouldCurve mc1, mc2;
+			string l1, l2;
+			while( nCnt-- > 0 )
+			{
+				l1 = Utilities.ReadCString(bin);
+				l2 = Utilities.ReadCString(bin);
+				mc1 = WarpFrame.CurrentSail.FindCurve(l1);
+				mc2 = WarpFrame.CurrentSail.FindCurve(l2);
+
+				yarn = new YarnCurve(bin.ReadDouble(), mc1, mc2);
+
+				//add unique warps
+				if (!Warps.Contains(mc1))
+					Warps.Add(mc1);
+				if (!Warps.Contains(mc2))
+					Warps.Add(mc2);
+				//add yarn
+				if (yarn != null)
+					Add(yarn);
+
+				//set height as %p
+				if (Count > 1)
+					yarn.m_h = yarn.m_p - this[Count - 2].m_p;
+			}
+			SetWarpBrackets(.5);
+		}
+		public void WriteBin(System.IO.BinaryWriter bin)
+		{
+			Utilities.WriteCString(bin, GetType().ToString());
+			Utilities.WriteCString(bin, m_label);
+			bin.Write((Int32)Count);
+			ForEach(yar =>
+			{
+				Utilities.WriteCString(bin, yar.m_Warps[0].Label);
+				Utilities.WriteCString(bin, yar.m_Warps[1].Label);
+				bin.Write(yar.m_p);
+			});
+		}
+
 		#region Members
 
 		//IGroup
@@ -153,6 +198,27 @@ namespace Warps
 			return LayoutYarns(null, null, 0);
 		}
 
+		/// <summary>
+		/// Creates the specified number of yarns
+		/// </summary>
+		/// <param name="nTarget">The desired number of yarns</param>
+		/// <returns>The number of yarns created, negative if failed</returns>
+		public int LayoutEvenYarns(List<MouldCurve> warps, int nTarget)
+		{
+			//store new warps 
+			if (warps != null && Warps != warps)
+				Warps = warps;
+			SetWarpBrackets(0.5);//set warp brackets at midpoint
+			int nWrp = 0;
+			double pB;
+			double pInc = 1.0 / nTarget;
+			for (int nYar = 0; nYar < nTarget; nYar++)
+			{
+				pB = GlobalToBracket(pInc * nYar, ref nWrp);
+				Add(new YarnCurve(pB, Warps[nWrp - 1], Warps[nWrp]));
+			}
+			return Count;
+		}
 		/// <summary>
 		/// creates yarns between the given warps with spacing controlled by a guide curve and target dpi
 		/// </summary>
@@ -299,18 +365,20 @@ namespace Warps
 
 			//create combs for inspection
 			m_Combs = new DensityComb[spos.Count];
-			int i =0;
+			//int i =0;
 			double d = 0;
-			foreach( double s in spos )
+			Parallel.For(0, spos.Count, nComb=>
+			//foreach( double s in spos )
 			{
-				m_Combs[i] = new DensityComb(this, s);
+				m_Combs[nComb] = new DensityComb(this, spos[nComb]);
 				//generate combs and accumulate dpi
-				d += m_Combs[i].DPI;
-				i++;
-			}
+				d += m_Combs[nComb].DPI;
+				//i++;
+			});
 			d /= m_Combs.Length;//return average dpi
 			return d;
 		}
+
 
 		/// <summary>
 		/// Spreads yarns to land on the final warp exactly using the current number of yarns as a target
@@ -381,27 +449,14 @@ namespace Warps
 			//Vect3 dxu = new Vect3(), dxv = new Vect3();
 
 			//yarn points for warp stepping
-			Vect2[] uYars = new Vect2[] { new Vect2(), new Vect2() };
-			Vect3[] xYars = new Vect3[] { new Vect3(), new Vect3() };
+			//Vect3[] xYars = new Vect3[] { new Vect3(), new Vect3() };
 			//warp points for warp stepping
-			Vect2[] uWars = new Vect2[] { new Vect2(), new Vect2(), new Vect2() };
-			Vect3[] xWars = new Vect3[] { new Vect3(), new Vect3(), new Vect3() };
+			//Vect2[] uWars = new Vect2[] { new Vect2(), new Vect2(), new Vect2() };
+			//Vect3[] xWars = new Vect3[] { new Vect3(), new Vect3(), new Vect3() };
 
 			//determine warp pPos crossovers from guide/warp0 starting point
 			CurveTools.CrossPoint(m_guide, m_Warps[0], ref u, ref x, ref s, 15);
-			List<double> pWarps = new List<double>(m_Warps.Count);
-			pWarps.Add(0);
-			int i = 0;
-			foreach (IMouldCurve wrp in m_Warps)
-			{
-				wrp.uVal(s[1], ref uYars[0]);
-				if (i != 0)
-					pWarps.Add(uYars[0].Distance(uYars[1]) + pWarps[i - 1]);
-				uYars[1].Set(uYars[0]);
-				i++;
-			}
-			for (i = 0; i < pWarps.Count; i++)
-				pWarps[i] /= pWarps.Last();
+			SetWarpBrackets(s[1]);
 
 			//check target count condition
 			if (nTarget <= 0)
@@ -426,7 +481,7 @@ namespace Warps
 
 				P += dP;
 				P = Math.Min(1, P);
-				p = GlobalToBracket(P, pWarps, ref nWrp);
+				p = GlobalToBracket(P,ref nWrp);
 
 				if (Count > 2 && BLAS.IsEqual(p, this.Last().m_p, 1e-7)) //zero length space
 					break;
@@ -456,7 +511,7 @@ namespace Warps
 					else
 					{
 						//calc global-P derivative
-						dHdP = hYar / (BracketToGlobal(this[Count - 1], pWarps) - BracketToGlobal(this[Count - 2], pWarps));
+						dHdP = hYar / (BracketToGlobal(this[Count - 1]) - BracketToGlobal(this[Count - 2]));
 						dP = hTarget - hYar;
 						dP /= dHdP;
 						// determine delta P and enforce max step
@@ -469,7 +524,7 @@ namespace Warps
 							P = Math.Min(1.3, P);
 
 						//set the yarn's bracket p value and warps
-						cur.m_p = GlobalToBracket(P, pWarps, ref nWrp);
+						cur.m_p = GlobalToBracket(P, ref nWrp);
 						cur.m_Warps[0] = m_Warps[nWrp - 1];
 						cur.m_Warps[1] = m_Warps[nWrp];
 					}
@@ -478,40 +533,67 @@ namespace Warps
 				//	YarnsUpdated(this, new EventArgs<YarnGroup>(this));
 			}
 		}
-		public double GlobalToBracket(double pG, List<double> pWarps, ref int nWrp)
+
+		private void SetWarpBrackets(double sWarpPos)
 		{
+			Vect2[] uYars = new Vect2[] { new Vect2(), new Vect2() };
+			m_WarpBrackets = new List<double>(m_Warps.Count);
+			m_WarpBrackets.Add(0);
+			int i = 0;
+			foreach (IMouldCurve wrp in m_Warps)
+			{
+				wrp.uVal(sWarpPos, ref uYars[0]);
+				if (i != 0)
+					m_WarpBrackets.Add(uYars[0].Distance(uYars[1]) + m_WarpBrackets[i - 1]);
+				uYars[1].Set(uYars[0]);
+				i++;
+			}
+			for (i = 0; i < m_WarpBrackets.Count; i++)
+				m_WarpBrackets[i] /= m_WarpBrackets.Last();
+		}
+		public double GlobalToBracket(double pG, ref int nWrp)
+		{
+			if (m_WarpBrackets == null)
+			{
+				nWrp = 1;
+				return pG;
+			}
 			if (pG >= 1)//end condition
 			{
-				nWrp = pWarps.Count - 1;
+				nWrp = m_WarpBrackets.Count - 1;
 			}
 			else//find warp bracket
 			{
-				nWrp = pWarps.Count;
-				for (nWrp = 1; nWrp < pWarps.Count; nWrp++)
+				nWrp = m_WarpBrackets.Count;
+				for (nWrp = 1; nWrp < m_WarpBrackets.Count; nWrp++)
 				{
-					if (pWarps[nWrp - 1] <= pG && pG < pWarps[nWrp])//found bracket
+					if (m_WarpBrackets[nWrp - 1] <= pG && pG < m_WarpBrackets[nWrp])//found bracket
 						break;
 				}
 			}
 
-			if (nWrp < pWarps.Count)//successful find
+			if (nWrp < m_WarpBrackets.Count)//successful find
 			{
-				double pB = (pG - pWarps[nWrp - 1]) / (pWarps[nWrp] - pWarps[nWrp - 1]);//convert to bracket parameter
+				double pB = (pG - m_WarpBrackets[nWrp - 1]) / (m_WarpBrackets[nWrp] - m_WarpBrackets[nWrp - 1]);//convert to bracket parameter
 				return pB;
 			}
 			return -1;
 		}
-		public double BracketToGlobal(YarnCurve cur, List<double> pWarps)
+		public double BracketToGlobal(YarnCurve cur)
 		{
+			if (m_WarpBrackets == null)
+				return cur.m_p;
 			int nWrp = m_Warps.IndexOf(cur.m_Warps[1]);
-			return BracketToGlobal(cur.m_p, pWarps, nWrp);
-
+			if (nWrp < 0)
+				nWrp = 1;
+			return BracketToGlobal(cur.m_p, nWrp);
 		}
-		public double BracketToGlobal(double pB, List<double> pWarps, int nWrp)
+		public double BracketToGlobal(double pB, int nWrp)
 		{
-			return pB * (pWarps[nWrp] - pWarps[nWrp - 1]) + pWarps[nWrp - 1];
+			return pB * (m_WarpBrackets[nWrp] - m_WarpBrackets[nWrp - 1]) + m_WarpBrackets[nWrp - 1];
 
 		}
+		List<double> m_WarpBrackets;
 
 		/// <summary>
 		/// Spreads yarns across any number of warps using warp-stepping and bracket-p algorithm
@@ -985,15 +1067,15 @@ namespace Warps
 		}
 		public string Layer
 		{
-			get { return m_layer != null ? m_layer : "Yarns"; }
+			get { return "Yarns"; }
 		}
-		string m_layer;
 
 		TreeNode m_node;
 		public TreeNode WriteNode()
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
+			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
 			m_node.Tag = this;
 			m_node.Text = Label;
 			m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
@@ -1058,13 +1140,18 @@ namespace Warps
 		public List<Entity> CreateEntities()
 		{
 			List<Entity> yarns = new List<Entity>(Count);
-			Vect3[] pnts;
-
+			List<Point3D> pnts;
+			double len;
+			List<double> sPos;
 			foreach (YarnCurve yarn in this)
 			{
-				pnts = yarn.GetPathPoints(100);
-				yarns.Add(new LinearPath(ConvertPoints(pnts)));
+				//pnts = yarn.GetPathPoints(100);
+				//yarns.Add(new LinearPath(ConvertPoints(pnts)));
+				pnts = CurveTools.GetPathPoints(yarn, 2.5 * Math.PI / 180.0, null, false, out len, out sPos);
+				yarns.Add(new LinearPath(pnts));
 				yarns.Last().EntityData = this;
+				//yarns.Add(new PointCloud(pnts));
+				//yarns.Last().EntityData = this;
 			}
 			if( m_Combs != null )
 				foreach (DensityComb comb in m_Combs)
@@ -1077,19 +1164,20 @@ namespace Warps
 
 			return yarns;
 		}
-		public Entity[] CreateOnlyYarnEntities()
+		public  List<List<Point3D>> CreateYarnPaths(out List<List<double>> sPoses)
 		{
 			List<Entity> yarns = new List<Entity>(Count);
-			Vect3[] pnts;
-
+			List<List<Point3D>> rets = new List<List<Point3D>>();
+			sPoses = new List<List<double>>();
+			List<Point3D> pnts;
+			List<double> sPos;
 			foreach (YarnCurve yarn in this)
 			{
-				pnts = yarn.GetPathPoints(100);
-				yarns.Add(new LinearPath(ConvertPoints(pnts)));
-				yarns.Last().EntityData = this;
+				pnts = CurveTools.GetPathPoints(yarn, 2 * Math.PI / 180.0, null, false, out yarn.m_length, out sPos);
+				rets.Add(pnts);
+				sPoses.Add(sPos);
 			}
-
-			return yarns.ToArray();
+			return rets;
 		}
 		public static Point3D[] ConvertPoints(Vect3[] pts)
 		{
@@ -1246,6 +1334,7 @@ namespace Warps
 
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
 		{
+			if (this == tag) return true;
 			//no IRebuilds in a yarn group either (except combs which we ignore)
 			return false;
 		}
@@ -1255,6 +1344,18 @@ namespace Warps
 		public override string ToString()
 		{
 			return Label;
+		}
+
+		/// <summary>
+		/// Creates a new yarn with the desired p-value
+		/// </summary>
+		/// <param name="pYarn">the p-value for the new yarn, must be global-p</param>
+		/// <returns>a new yarn curve, not added to this group</returns>
+		internal YarnCurve MakeYarn(double pYarn)
+		{
+			int nWrp = 0;
+			double pB = GlobalToBracket(pYarn, ref nWrp);
+			return new YarnCurve(pB, Warps[nWrp-1], Warps[nWrp]);
 		}
 	}
 }
