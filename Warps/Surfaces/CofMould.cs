@@ -41,7 +41,7 @@ namespace Warps
 			if( cofPath != null )
 				m_cofPath = cofPath;
 			if (!File.Exists(m_cofPath))
-				throw new FileNotFoundException("ReadCofFile");
+				throw new FileNotFoundException(m_cofPath == null ? "ReadCofFile" : string.Format("ReadCofFile\n[{0}]", m_cofPath));
 			if (Path.GetExtension(m_cofPath).ToLower() == ".cof")
 				ReadMFCCofFile(cofPath);
 			else
@@ -52,6 +52,8 @@ namespace Warps
 					ReadBinShape(bin);
 
 					ReadBinCurves(bin, sail);
+
+					ReadBinTransform(bin);
 				}
 
 		}
@@ -150,7 +152,33 @@ namespace Warps
 
 		}
 
+		private void ReadBinTransform(BinaryReader bin)
+		{
+			Transformation rot = new Transformation();
+			for (int j = 0; j < 3; j++)
+				for (int i = 0; i < 3; i++)
+					rot[j, i] = bin.ReadDouble();
+
+			Vect3 trans = new Vect3();
+			for (int i = 0; i < 3; i++)
+				trans[i] = bin.ReadDouble();
+			MoveRig(rot, new Translation(trans[0], trans[1], trans[2]));
+		}
+
+		void MoveRig(Transformation rot, Translation trans)
+		{
+			//combine transformations into single matrix
+			rot = rot * trans;
+			//get the inverse to remove the transform from the rigcurves
+			rot.Invert();
+			m_rigcurves.ForEach(rc =>
+			{
+				rc.Transform(rot);
+			});
+		}
+
 		#endregion
+
 		#region Coefficients
 		string m_text;
 
@@ -500,6 +528,18 @@ namespace Warps
 			//m_entities.Add(SurfaceTools.GetMesh(this, true));
 			//m_entities.Last().LayerIndex 
 		}
+		double[] m_colors = null;
+		public double[] ColorValues
+		{
+			get
+			{
+				return m_colors;
+			}
+			set
+			{
+				m_colors = value;
+			}
+		}
 
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
@@ -590,21 +630,5 @@ namespace Warps
 		//	return mesh;
 		//}
 
-		#region ISurface Members
-
-		double[] m_colors = null;
-		public double[] ColorValues
-		{
-			get
-			{
-				return m_colors;
-			}
-			set
-			{
-				m_colors = value;
-			}
-		}
-
-		#endregion
 	}
 }

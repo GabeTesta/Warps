@@ -189,6 +189,8 @@ namespace Warps.Trackers
 			Tree.ContextMenuStrip.Show();
 		}
 
+		#endregion
+
 		void UpdateViewCurve(bool bEditor)
 		{
 			m_temp.ReFit();
@@ -260,8 +262,6 @@ namespace Warps.Trackers
 			Edit.WriteComb(m_temp);
 			m_temp.FitComb(Edit.CombPnts);
 		}
-
-		#endregion
 
 		public void OnAdd(object sender, EventArgs e) { }
 		public void OnDelete(object sender, EventArgs e)

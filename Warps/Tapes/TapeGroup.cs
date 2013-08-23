@@ -12,6 +12,9 @@ namespace Warps.Tapes
 {
 	public class TapeGroup : List<Tape>, IGroup
 	{
+		public TapeGroup()
+		{
+		}
 		public TapeGroup(string label, List<MouldCurve> warps, GuideSurface uvDens, double pLen, double chainTol, double angTol)
 		{
 			m_label = label;
@@ -81,6 +84,8 @@ namespace Warps.Tapes
 			//chain pixels together
 			List<SegmentCurve> chains = new List<SegmentCurve>();
 			ChainCurve chain;
+			Vect3 xBase = new Vect3(), xTest = new Vect3();
+			Vect2 uBase = new Vect2(), uTest = new Vect2();
 			int nYar = 0;
 			int nPix = 0;
 			bool bfound;
@@ -105,8 +110,12 @@ namespace Warps.Tapes
 						{
 							if (!active[i, nPix + j] || pixels[i].Count < (nPix + j)) continue;//skip inative pixels
 
+							pixels[i][nPix + j].xVal(0, ref uTest, ref xTest);//get the test point's u and x
+							baseyarns.xVal(pPixel, pixels[i][nPix + j].Min, ref uBase, ref xBase);//slide the base point's u and x up to the test points s-pos
+
 							//check distance
-							if (Math.Abs(pPixel - baseyarns.BracketToGlobal(baseyarns[i])) < m_chainTol)
+							if (xBase.Distance(xTest) < m_chainTol)
+							//if (Math.Abs(pPixel - baseyarns.BracketToGlobal(baseyarns[i])) < m_chainTol)
 							{
 								chain.Add(pixels[i][nPix + j]);	//add chain
 								active[i, nPix + j] = false; //deactivate chained sections
@@ -130,9 +139,11 @@ namespace Warps.Tapes
 		void LayoutPixels(Sail s)
 		{
 			Clear();
+			if (Warps == null || DensityMap == null)
+				return;
 			//create base comb to generate evenly spaced yarns
-			List<IFitPoint> combpts = new List<IFitPoint>(Warps.Count);
-			Warps.ForEach(w => combpts.Add(new CurvePoint(w, 0.5)));
+			//List<IFitPoint> combpts = new List<IFitPoint>(Warps.Count);
+			//Warps.ForEach(w => combpts.Add(new CurvePoint(w, 0.5)));
 			//GuideComb comb = new GuideComb("PixelComb", s, combpts.ToArray(), new Vect2[]{ new Vect2(0,1), new Vect2(1,1)});
 
 			//create yarn group for pixelation
@@ -177,6 +188,9 @@ namespace Warps.Tapes
 			//chain pixels together
 			List<SegmentCurve> chains = new List<SegmentCurve>();
 			ChainCurve chain;
+			Vect3 xBase = new Vect3(), xTest = new Vect3();
+			Vect2 uBase = new Vect2(), uTest = new Vect2();
+
 			int nYar = 0;
 			int nPix = 0;
 			bool bfound;
@@ -201,9 +215,16 @@ namespace Warps.Tapes
 						{
 							if (!active[i, nPix + j] || pixels[i].Count <= (nPix + j)) continue;//skip inative pixels
 
+							pixels[i][nPix + j].xVal(0.5, ref uTest, ref xTest);//get the test point's u and x
+							baseyarns.xVal(pPixel, pixels[i][nPix + j].Mid, ref uBase, ref xBase);//slide the base point's u and x up to the test points s-pos
+
 							//check distance
-							pDel = Math.Abs(pPixel - baseyarns.BracketToGlobal(baseyarns[i]));
-							if (pDel < m_chainTol)
+							pDel = xBase.Distance(xTest);
+
+							//check distance
+							//pDel = Math.Abs(pPixel - baseyarns.BracketToGlobal(baseyarns[i]));
+
+							if (pDel <= m_chainTol)
 							{
 								////check next point to ensure closest
 								//if (i < pixels.Count - 2)
@@ -219,7 +240,7 @@ namespace Warps.Tapes
 								//	}
 								//}
 								chain.Add(pixels[i][nPix + j]);	//add chain
-								active[i, nPix + j] = false; //deactivate chained sections
+								active[i, nPix + j] = false; //deactivate chained sections to avoid repeats
 								bfound = true;
 								break;//step to next bracket
 							}
@@ -264,19 +285,19 @@ namespace Warps.Tapes
 			Vect3 nexMid = new Vect3();
 			Vect2 uvMid = new Vect2();
 			int nYar = 0;//start on first pixel
-
+			bool bStagger = i % 2 == 0 && m_bStagger;
 			while (pixels[nYar].Count <= i && nYar < pixels.Count)
 				nYar++;
 			//if (nYar >= pixels.Count)
 			//	continue;
 			if (nYar < pixels.Count)
 			{
-				active[nYar, i] = true;//first pixel is active
+				active[nYar, i] = !bStagger;//first pixel is active
 				pixels[nYar][i].xVal(0.5, ref uvMid, ref pixMid);//first pixel reference point
 				densWid[0] = uvMid[0]; densWid[1] = uvMid[1];
-				m_densitymap.RBF.Value(ref densWid);//get the target density at this point
+				m_densitymap.Surf.Value(ref densWid);//get the target density at this point
 				densWid[2] = 1.0 / densWid[2];
-
+				if (bStagger) densWid[2] /= 2;//half step the first step if staggering
 				for (int j = nYar + 1; j < pixels.Count; j++)
 				{
 					if (i >= pixels[j].Count)
@@ -287,7 +308,7 @@ namespace Warps.Tapes
 						active[j, i] = true;//activate pixel
 						pixMid.Set(nexMid);//update refernce pixel
 						densWid[0] = uvMid[0]; densWid[1] = uvMid[1];
-						m_densitymap.RBF.Value(ref densWid);//update the target density at this point
+						m_densitymap.Surf.Value(ref densWid);//update the target density at this point
 						densWid[2] = 1.0 / densWid[2];
 					}
 					else
@@ -351,7 +372,7 @@ namespace Warps.Tapes
 		string m_label;
 		Sail m_sail;
 
-		List<MouldCurve> m_warps;
+		List<MouldCurve> m_warps = new List<MouldCurve>();
 		GuideSurface m_densitymap;
 
 		double m_pixlen;
@@ -359,6 +380,14 @@ namespace Warps.Tapes
 		double m_chainTol = 0.05;
 
 		double m_totalLength = 0;
+
+		bool m_bStagger = false;
+
+		public bool Stagger
+		{
+			get { return m_bStagger; }
+			set { m_bStagger = value; }
+		}
 
 		public List<MouldCurve> Warps { get { return m_warps; } }
 		public GuideSurface DensityMap { get { return m_densitymap; } set { m_densitymap = value; } }
@@ -443,7 +472,7 @@ namespace Warps.Tapes
 
 		public List<string> WriteScript()
 		{
-			throw new NotImplementedException();
+			return new List<string>() { ScriptTools.Label(GetType().Name, Label) };
 		}
 
 		public bool ReadScript(Sail sail, IList<string> txt)
@@ -531,7 +560,7 @@ namespace Warps.Tapes
 				for (int j = 0; j < MESH[1]; j++)
 				{
 					uv[1] = rbf[1] = BLAS.interpolant(j, MESH[1]);
-					m_densitymap.RBF.Value(ref rbf);
+					m_densitymap.Surf.Value(ref rbf);
 					Sail.Mould.xNor(uv, ref xyz, ref nor);
 					mesh[i, j] = xyz + (nor * rbf[2] * SCALE);
 					color[i,j] = rbf[2];
@@ -574,6 +603,8 @@ namespace Warps.Tapes
 						}
 					}
 				}
+				if (DensityMap != null)
+					bupdate |= connected.Contains(DensityMap);
 			}
 			return bupdate;
 		}

@@ -31,6 +31,10 @@ namespace Warps.Curves
 			get { return m_sLimit[1]; }
 			set { m_sLimit[1] = value; }
 		}
+		public double Mid
+		{
+			get { return (m_sLimit[0] + m_sLimit[1])/2.0; }
+		}
 		public IMouldCurve Curve
 		{
 			get { return m_curve; }

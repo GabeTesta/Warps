@@ -694,15 +694,15 @@ namespace Warps
 				return false;
 
 			List<IFitPoint> fits = new List<IFitPoint>();
-			string[] splits = txt[0].Split(':');
-			Label = "";
-			if (splits.Length > 0)//extract label
-				Label = splits[1];
-			if (splits.Length > 1)//incase label contains ":"
-				for (int i = 2; i < splits.Length; i++)
-					Label += ":" + splits[i];
-			Label = Label.Trim();
-
+			string[] splits;// = txt[0].Split(':');
+			//Label = "";
+			//if (splits.Length > 0)//extract label
+			//	Label = splits[1];
+			//if (splits.Length > 1)//incase label contains ":"
+			//	for (int i = 2; i < splits.Length; i++)
+			//		Label += ":" + splits[i];
+			//Label = Label.Trim();
+			Label = ScriptTools.ReadLabel(txt[0]);
 			string header;
 			for (int nLine = 1; nLine < txt.Count; )
 			{
@@ -755,7 +755,7 @@ namespace Warps
 		public virtual List<string> WriteScript()
 		{
 			List<string> script = new List<string>();
-			script.Add(GetType().Name + ": " + Label);
+			script.Add(ScriptTools.Label(GetType().Name, Label));
 			foreach (IFitPoint fp in FitPoints)
 			{
 				foreach (string s in fp.WriteScript())

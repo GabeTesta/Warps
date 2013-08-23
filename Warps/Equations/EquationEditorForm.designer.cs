@@ -79,7 +79,7 @@
             this.deleteEquationToolStripMenuItem,
             this.recalculateToolStripMenuItem});
 			this.contextMenuStrip1.Name = "contextMenuStrip1";
-			this.contextMenuStrip1.Size = new System.Drawing.Size(158, 48);
+			this.contextMenuStrip1.Size = new System.Drawing.Size(158, 70);
 			// 
 			// deleteEquationToolStripMenuItem
 			// 

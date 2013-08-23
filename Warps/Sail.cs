@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 using Warps.Yarns;
+using Logger;
+using devDept.Eyeshot;
+using devDept.Geometry;
 
 namespace Warps
 {
@@ -88,11 +91,109 @@ namespace Warps
 			using (BinaryWriter bin = new BinaryWriter(File.Open(binpath, FileMode.OpenOrCreate, FileAccess.Write)))
 			{
 				Utilities.WriteCString(bin, Mould.Label);
-				bin.Write((Int32)m_layout.Count);
+				//bin.Write((Int32)Layout.Count);
+				int test = Layout.Count(g => g.GetType() == typeof(CurveGroup) || g.GetType() == typeof(YarnGroup));
+				bin.Write((Int32)Layout.Count(g => g.GetType() == typeof(CurveGroup) || g.GetType() == typeof(YarnGroup)));
 				Layout.ForEach(l => l.WriteBin(bin));
 			}
 		}
+		public void Save3DLFile(string tdipath)
+		{
+			Task.Factory.StartNew(() =>
+			{
+				logger.Instance.Log("saving {0} to {1}...", Path.GetFileName(tdipath), Path.GetDirectoryName(tdipath));
+				//DateTime now = DateTime.Now;
+				using (StreamWriter sw = new StreamWriter(tdipath))
+				{
+					//write header
+					//OUS102439-001, Fat26, EnergySolution ITA14313, Main ORCi, 10850 dpi, 3Dl 680, Capitani/NSI,//3DLayOut_Release 1.1.0.171
+					string w1, w2, u, v, x, y, z, a, b, c;
+					Vect2 uv = new Vect2();
+					Vect3 xyz = new Vect3();
+					Vect3 dx = new Vect3();
+					Vect3 xnor = new Vect3();
+					sw.WriteLine("{0} //Warps v{1}", ToString(), Utilities.CurVersion);
+					foreach (YarnGroup yar in Layout.FindAll(grp => grp is YarnGroup))
+					{
+						List<List<double>> sPos;
+						List<List<Point3D>> ents = yar.CreateYarnPaths(out sPos);
 
+						for (int i = 0; i < ents.Count; i++)
+						{
+							/*
+ 9xxxxxxx-03, JV ORCi 38, Light Medium, 12600, xxxx, CW//3DLayOut_Release 1.1.0.227
+   MD_UP  1.0000   FT_OT  0.0000  spacing  0.1106    80 offsets on yarn #1
+ 0.00000 0.56000    0 -1.592914  9.488185  0.016586 -0.876260  0.330783 -0.876260  0.000000
+ 0.00770 0.55505    1 -1.612374  9.417699  0.033659 -0.866415  0.326699 -0.866415  0.000000
+ 0.01541 0.55010    2 -1.631196  9.347072  0.050821 -0.855913  0.322363 -0.855913  0.000000
+ 0.02313 0.54514    3 -1.649370  9.276309  0.068057 -0.844782  0.317788 -0.844782  0.000000
+							 * */
+
+							w1 = yar[i].m_Warps[1].Label;
+							w1 = w1.Length > 8 ? w1.Substring(0, 8) : w1.Length < 8 ? w1.PadLeft(8) : w1;
+
+							w2 = yar[i].m_Warps[0].Label;
+							w2 = w2.Length > 8 ? w2.Substring(0, 8) : w2.Length < 8 ? w2.PadLeft(8) : w2;
+
+							a = "  1.0000";
+							b = "  0.0000";
+							c = (ents[i].Count - 1).ToString().PadLeft(8);
+
+							sw.WriteLine("{0}{1}{2}{3}  spacing{4}{5} offsets on yarn #{6}",
+								w1, a, w2, b, b, c, i);
+							
+
+
+							//sw.WriteLine("{0,-8}{1,-8:f4}{2,-8}{3,-8:f4}{4,-8}{5,-8:f4}{6,-8:n0} offsets on yarn #{7}"
+							//		, yar[i].m_Warps[1].Label, 1.00, yar[i].m_Warps[0].Label.ToString(),0, "spacing", 0, ents[i].Count - 1, i);
+
+							for (int j = 0; j < ents[i].Count; j++)
+							{
+								//get yarn position
+								yar[i].xNor(sPos[i][j], ref uv, ref xyz, ref dx, ref xnor);
+/*
+ 0.00000 0.56000    0 -1.592914  9.488185  0.016586 -0.876260  0.330783 -0.876260  0.000000
+ 0.00770 0.55505    1 -1.612374  9.417699  0.033659 -0.866415  0.326699 -0.866415  0.000000
+ 0.01541 0.55010    2 -1.631196  9.347072  0.050821 -0.855913  0.322363 -0.855913  0.000000
+ 0.02313 0.54514    3 -1.649370  9.276309  0.068057 -0.844782  0.317788 -0.844782  0.000000
+*/
+								u = uv[0].ToString("f5").PadLeft(8);
+								v = uv[1].ToString("f5").PadLeft(8);
+
+								w1 = j.ToString().PadLeft(5);
+
+								x = ents[i][j].X.ToString("f5").PadLeft(10);
+								y = ents[i][j].Y.ToString("f5").PadLeft(10);
+								z = ents[i][j].Z.ToString("f5").PadLeft(10);
+
+								a = xnor[0].ToString("f5").PadLeft(10);
+								b = xnor[1].ToString("f5").PadLeft(10);
+								c = xnor[2].ToString("f5").PadLeft(10);
+
+								w2 = "   0.000000";
+
+								sw.WriteLine("{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}",
+									u, v, w1,
+									x, y, z,
+									a, b, c,
+									w2);
+
+								//sw.WriteLine(" {0:#0.00000} {1:#0.00000}    {2}  {3:#0.000000}  {4:#0.000000}  {5:#0.000000}  {6:#0.000000}  {7:#0.000000}  {8:#0.000000}  {9:#0.000000}",
+								//sw.WriteLine("{0,-8}{1,-8}{2,-5}{3,-10}{4,-10}{5,-10}{6,-10}{7,-10}{8,-10}{9,-10}",
+								//	uv[0].ToString("f4"), uv[1].ToString("f4"), j.ToString()
+								//	, ents[i][j].X.ToString("f5"), ents[i][j].Y.ToString("f5"), ents[i][j].Z.ToString("f5")
+								//	, 0, 0, 0
+								//	, 0);
+								//0.98647-0.00093    0  3.726569 -0.020588  0.007790  0.155863  0.003351  0.987773  0.000000
+							}
+						}
+					}
+				}
+				Utilities.HandleProcess(tdipath,null);
+				//TimeSpan span = (DateTime.Now - now);
+				//MessageBox.Show(string.Format("{0}\n{1}", span.TotalMilliseconds, span.TotalSeconds));
+			});
+		}
 		public void ReadBinFile(string binpath)
 		{
 			if (!File.Exists(binpath))
@@ -871,6 +972,25 @@ namespace Warps
 				rets[i] = curves;
 			}
 			return rets;
+		}
+
+		public IGroup CreateBaxCurves()
+		{
+			CurveGroup batts = FindGroup("Batts") as CurveGroup;
+			CurveGroup baxxs = new CurveGroup("Bax", this);
+			MouldCurve Luff = FindCurve("Luff");
+			MouldCurve Leech = FindCurve("Leech");
+			Vect2 uv1 = new Vect2(), uv2 = new Vect2(), sPos = new Vect2();
+			Vect3 xyz = new Vect3();
+
+			foreach (MouldCurve bat in batts)
+			{
+				if (CurveTools.CrossPoint(Luff, bat, ref uv1, ref xyz, ref sPos, 20, false))
+					if (CurveTools.CrossPoint(Leech, bat, ref uv2, ref xyz, ref sPos, 20, false))
+						baxxs.Add(new MouldCurve(bat.Label.Replace("Bat", "Bax"), this, uv1, uv2));
+			}
+			Add(baxxs);
+			return baxxs;
 		}
 
 		#endregion

@@ -79,5 +79,13 @@ namespace Warps.Controls
 			if (CurveListBox.SelectedItem != null)
 				autoCompleteTextBox1.Text += CurveListBox.SelectedItem.ToString();
 		}
+
+		protected override void OnLayout(LayoutEventArgs levent)
+		{
+			base.OnLayout(levent);
+			EquationListBox.Width = CurveListBox.Width = (Width - 30) / 2;
+			EquationListBox.Left = CurveListBox.Right + 10;
+
+		}
 	}
 }

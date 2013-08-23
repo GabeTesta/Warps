@@ -47,6 +47,11 @@ namespace Warps
 		{
 			get
 			{
+				if (m_length == 0)
+				{
+					List<double> sPos;
+					CurveTools.GetPathPoints(this, 2 * Math.PI / 180.0, null, false, out m_length, out sPos);
+				}
 				return m_length;
 			}
 		}

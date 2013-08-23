@@ -25,7 +25,9 @@ namespace RBF
 					Poly = new RBFPolynomials.Conic(this);
 					break;
 			}
-			Basis = basis != null ? basis : new ThinPlateSpline();
+			//defaults 
+			Poly = Poly ?? new RBFPolynomials.Plane(this);
+			Basis = basis ?? new ThinPlateSpline();
                Relaxation = relax;
 
                if (fitpoints != null)
@@ -48,7 +50,11 @@ namespace RBF
 		public RBFSurface(IList<double[]> fitPoints)
 			: this(fitPoints, null, null, 0)
 		{	}
-
+		public RBFSurface(Vect3[] fitPoints)
+			:this(null,null,null,0)
+		{
+			Fit(Array.ConvertAll<Vect3, double[]>(fitPoints, element => element.m_vec));
+		}
 		Center3d[] m_centers;
 		IBasisFunction m_basis;
 		IRBFPolynomial m_poly;

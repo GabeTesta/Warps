@@ -86,8 +86,10 @@ namespace Warps.Tapes
 			if (View != null)
 			{
 				View.DetachTracker(this);
-				View.SetActionMode(devDept.Eyeshot.actionType.None);
-				View.RemoveRange(m_tents);
+				View.Remove(m_temp);
+				View.DeSelect(m_group);
+				View.StopSelect();
+				View.Refresh();
 			}
 		}
 
@@ -171,8 +173,8 @@ namespace Warps.Tapes
 			View.DeSelectAllLayers();
 			View.Select(m_group);
 			//View.SelectLayer(m_group);
-			foreach (MouldCurve curve in m_group.Warps)
-				View.Select(curve);
+			if (m_group.Warps != null)
+				m_group.Warps.ForEach(curve => View.Select(curve));
 
 			View.Refresh();
 		}
@@ -230,17 +232,17 @@ namespace Warps.Tapes
 					Tree.ActiveTree.SelectedNode = m_group.m_node.Nodes[2].Nodes[nTp];
 					Tree.ActiveTree.SelectedNode.EnsureVisible();
 				}
-				//check temp tapes
-				one = View.ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == m_temp);
-				nGrp = View.ActiveView.Entities.IndexOf(one);
-				nTp = nEnt - nGrp;
-				if (nTp >= 0 && nTp < m_temp.Count)
-				{
-					View.DeSelectAll();
-					View.ActiveView.Entities[nEnt].Selected = true;
-					Tree.ActiveTree.SelectedNode = m_group.m_node.Nodes[2].Nodes[nTp];
-					Tree.ActiveTree.SelectedNode.EnsureVisible();
-				}
+				////check temp tapes
+				//one = View.ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == m_temp);
+				//nGrp = View.ActiveView.Entities.IndexOf(one);
+				//nTp = nEnt - nGrp;
+				//if (nTp >= 0 && nTp < m_temp.Count)
+				//{
+				//	View.DeSelectAll();
+				//	View.ActiveView.Entities[nEnt].Selected = true;
+				//	Tree.ActiveTree.SelectedNode = m_group.m_node.Nodes[2].Nodes[nTp];
+				//	Tree.ActiveTree.SelectedNode.EnsureVisible();
+				//}
 			}
 		}
 

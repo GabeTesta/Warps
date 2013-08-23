@@ -36,6 +36,12 @@ namespace Warps
 			//[1] = "\t\tCurve1: Luff"
 			m_Curves[0] = sail.FindCurve(txt[1].Split(new char[] { ':' })[1].Trim());
 			m_Curves[1] = sail.FindCurve(txt[2].Split(new char[] { ':' })[1].Trim());
+			if (m_Curves[0] == null || m_Curves[1] == null)
+				throw new ArgumentException(string.Format("Cannot find CrossPoint curve: {0}",
+					m_Curves[0] == null ? 
+					txt[1].Split(new char[] { ':' })[1].Trim() : 
+					txt[2].Split(new char[] { ':' })[1].Trim()));
+
 			return Update(sail);
 		}
 

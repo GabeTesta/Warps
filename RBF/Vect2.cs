@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Drawing;
 
-namespace Warps
-{
+
 	[Serializable()]
-	public class Vect3
+	public class Vect2
 	{
 		#region Indexer
 
@@ -16,79 +16,87 @@ namespace Warps
 		{
 			get
 			{
-				Debug.Assert(i < 3 && i >= 0);
+				Debug.Assert(i < 2 && i >= 0);
 				return m_vec[i];
 			}
 			set
 			{
-				Debug.Assert(i < 3 && i >= 0);
+				Debug.Assert(i < 2 && i >= 0);
 				m_vec[i] = value;
 			}
 		}
-		public double x
+		public double u
 		{
 			get { return this[0]; }
 			set { this[0] = value; }
 		}
-		public double y
+		public double v
 		{
 			get { return this[1]; }
 			set { this[1] = value; }
 		}
-		public double z
-		{
-			get { return this[2]; }
-			set { this[2] = value; }
-		}
 		public double Length
-		{ get { Debug.Assert(m_vec.Length == 3); return 3; } }
-		internal double[] m_vec = new double[3];
+		{ get { Debug.Assert(m_vec.Length == 2); return 2; } }
+		public double[] m_vec = new double[2];
 
 		#endregion
 
 		#region Constructors
 
-		public Vect3(Vect3 vec)
-			: this(vec[0], vec[1], vec[2]) { }
-		public Vect3(double x, double y, double z)
+		public Vect2(Vect2 vec)
+			: this(vec[0], vec[1]) { }
+		public Vect2(double u, double v)
 		{
-			this[0] = x;
-			this[1] = y;
-			this[2] = z;
+			this[0] = u;
+			this[1] = v;
 		}
-		public Vect3(IList<double> vec)
+		public Vect2(IList<double> vec)
 		{
 			Set(vec);
 		}
-		public Vect3()
+		public Vect2(PointF pnt)
+			: this(pnt.X, pnt.Y) { }
+		public Vect2()
 		{
 			Zero();
+		}
+		public Vect2(string xy)
+		{
+			FromString(xy);
 		}
 
 		#endregion
 
 		#region Initialzers
 
-		public void Set(Vect3 vec)
+		public void Set(Vect2 vec)
 		{
 			Set(vec.m_vec);
 		}
+		public void Set(Vect3 vec3)
+		{
+			this[0] = vec3[0];
+			this[1] = vec3[1];
+		}
 		public void Set(IList<double> vec)
 		{
-			Debug.Assert(vec.Count >= 3);
+			Debug.Assert(vec.Count >= 2);
 			this[0] = vec[0];
 			this[1] = vec[1];
-			this[2] = vec[2];
+		}
+		public void Set(double u, double v)
+		{
+			this[0] = u;
+			this[1] = v;
 		}
 		public void Zero()
 		{
-			this[0] = this[1] = this[2] = 0;
+			this[0] = this[1] = 0;
 		}
 		public void Scale(double d)
 		{
 			this[0] *= d;
 			this[1] *= d;
-			this[2] *= d;
 		}
 
 		#endregion
@@ -96,37 +104,37 @@ namespace Warps
 		#region Operators
 
 		//additon/subtraction
-		public static Vect3 operator +(Vect3 a, Vect3 b)
+		public static Vect2 operator +(Vect2 a, Vect2 b)
 		{
 			Debug.Assert(a.Length == b.Length);
-			return new Vect3(a[0] + b[0], a[1] + b[1], a[2] + b[2]);
+			return new Vect2(a[0] + b[0], a[1] + b[1]);
 		}
-		public static Vect3 operator -(Vect3 a, Vect3 b)
+		public static Vect2 operator -(Vect2 a, Vect2 b)
 		{
 			Debug.Assert(a.Length == b.Length);
-			return new Vect3(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+			return new Vect2(a[0] - b[0], a[1] - b[1]);
 		}
 		//scaling
-		public static Vect3 operator *(Vect3 a, double d)
+		public static Vect2 operator *(Vect2 a, double d)
 		{
-			Debug.Assert(a.Length == 3);
-			return new Vect3(a[0] * d, a[1] * d, a[2] * d);
+			Debug.Assert(a.Length == 2);
+			return new Vect2(a[0] * d, a[1] * d);
 		}
-		public static Vect3 operator /(Vect3 a, double d)
+		public static Vect2 operator /(Vect2 a, double d)
 		{
-			Debug.Assert(a.Length == 3);
-			return new Vect3(a[0] / d, a[1] / d, a[2] / d);
+			Debug.Assert(a.Length == 2);
+			return new Vect2(a[0] / d, a[1] / d);
 		}
 
 		//equalities
 		readonly static double TOL = 1e-7;
-		public static bool operator ==(Vect3 a, Vect3 b)
+		public static bool operator ==(Vect2 a, Vect2 b)
 		{
-			if (System.Object.ReferenceEquals(a, null))
+			if( System.Object.ReferenceEquals(a, null) )
 				return System.Object.ReferenceEquals(b, null);//a and b are null, thus ==
 			return a.Equals(b);
 		}
-		public static bool operator !=(Vect3 a, Vect3 b)
+		public static bool operator !=(Vect2 a, Vect2 b)
 		{
 			return !(a == b);
 		}
@@ -134,36 +142,32 @@ namespace Warps
 		{
 			if (obj == null)
 				return false;
-			if (!(obj is Vect3))
+			if (!(obj is Vect2))
 				return false;
-			Vect3 b = obj as Vect3;
+			Vect2 b = obj as Vect2;
 			Debug.Assert(this.Length == b.Length);
-			return BLAS.IsEqual(this[0], b[0], TOL)
-				&& BLAS.IsEqual(this[1], b[1], TOL)
-				&& BLAS.IsEqual(this[2], b[2], TOL);
+			return BLAS.IsEqual(this[0], b[0], TOL) && BLAS.IsEqual(this[1], b[1], TOL);
 		}
 		public override int GetHashCode()
 		{
-			int x = (int)Math.Round(this[0] / TOL);//round to tolerance used by isequal
-			int y = (int)Math.Round(this[1] / TOL);
-			int z = (int)Math.Round(this[2] / TOL);
-			return x ^ y ^ z;
+			int u = (int)Math.Round(this[0] / TOL);//round to tolerance used by isequal
+			int v = (int)Math.Round(this[1] / TOL);
+			return u ^ v;
 		}
 
 		//conversions
-		//public static explicit operator double[](Vect3 v)
-		//{
-		//	return v.m_vec;
-		//}
-
+		public static explicit operator double[](Vect2 v)
+		{
+			return v.m_vec;
+		}
 		public double[] ToArray()
 		{
-			return new double[] { this[0], this[1], this[2] };
+			return new double[] { this[0], this[1] };
 		}
-		public double[] Array
-		{
-			get { return m_vec; }
-		}
+		//public double[] Array
+		//{
+		//	get { return m_vec; }
+		//}
 		#endregion
 
 		#region Magnitude
@@ -197,7 +201,7 @@ namespace Warps
 		/// </summary>
 		/// <param name="v">the target vector</param>
 		/// <returns>the distance between these two vectors</returns>
-		public double Distance(Vect3 v)
+		public double Distance(Vect2 v)
 		{
 			return Distance(this, v);
 		}
@@ -207,7 +211,7 @@ namespace Warps
 		/// <param name="a">the starting vector</param>
 		/// <param name="b">the target vector</param>
 		/// <returns>the distance between them</returns>
-		public static double Distance(Vect3 a, Vect3 b)
+		public static double Distance(Vect2 a, Vect2 b)
 		{
 			return (a - b).Magnitude;
 		}
@@ -219,7 +223,7 @@ namespace Warps
 		/// </summary>
 		/// <param name="v">the vector to dot with</param>
 		/// <returns>this dot v</returns>
-		public double Dot(Vect3 v)
+		public double Dot(Vect2 v)
 		{
 			return Dot(this, v);
 		}
@@ -228,7 +232,7 @@ namespace Warps
 		/// </summary>
 		/// <param name="v">the vector to cross with</param>
 		/// <returns>this x v</returns>
-		public Vect3 Cross(Vect3 v)
+		public double Cross(Vect2 v)
 		{
 			return Cross(this, v);
 		}
@@ -238,10 +242,10 @@ namespace Warps
 		/// <param name="a">first vector</param>
 		/// <param name="b">second vector</param>
 		/// <returns>a dot b</returns>
-		public static double Dot(Vect3 a, Vect3 b)
+		public static double Dot(Vect2 a, Vect2 b)
 		{
 			Debug.Assert(a.Length == b.Length);
-			return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+			return a[0] * b[0] + a[1] * b[1];
 		}
 		/// <summary>
 		/// Cross product of two vectors
@@ -249,44 +253,22 @@ namespace Warps
 		/// <param name="a">left hand vector</param>
 		/// <param name="b">right hand vector</param>
 		/// <returns>a x b</returns>
-		public static Vect3 Cross(Vect3 a, Vect3 b)
+		public static double Cross(Vect2 a, Vect2 b)
 		{
 			Debug.Assert(a.Length == b.Length);
-			return new Vect3(
-				a[1] * b[2] - a[2] * b[1], 
-				a[2] * b[0] - a[0] * b[2], 
-				a[0] * b[1] - a[1] * b[0]);
+			return a[0] * b[1] - a[1] * b[0];
 		}
 
-		/// <summary>
-		/// Rotate this vector about an axis by a specified angle
-		/// </summary>
-		/// <param name="axis">the axis of rotation</param>
-		/// <param name="rad">the angle in radians to rotate</param>
-		/// <returns>a new rotated vector</returns>
-		public Vect3 Rotate(Vect3 axis, double rad)
+		public Vect2 Rotate(double rad)
 		{
-			return Rotate(this, axis, rad);
+			return Rotate(this, rad);
 		}
-		/// <summary>
-		/// Rotate a vector about an axis by a specified angle
-		/// </summary>
-		/// <param name="v">the vector to rotate</param>
-		/// <param name="a">the axis of rotation</param>
-		/// <param name="rad">the angle in radians to rotate</param>
-		/// <returns>a new rotated vector</returns>
-		public static Vect3 Rotate(Vect3 v, Vect3 a, double rad)
+		public static Vect2 Rotate(Vect2 v, double rad)
 		{
-			Debug.Assert(a.Length == v.Length);
-			//http://inside.mines.edu/~gmurray/ArbitraryAxisRotation/
-			//rot = a(a*v)(1-cos) + v*cos + (aXv)sin
-			double dot = v.Dot(a);
-			double cos = Math.Cos(rad);
-			double sin = Math.Sin(rad);
-			return new Vect3(
-				a.x * dot * (1 - cos) + v.x * cos + (v.z * a.y - v.y * a.z) * sin,
-				a.y * dot * (1 - cos) + v.y * cos + (v.x * a.z - v.z * a.x) * sin,
-				a.z * dot * (1 - cos) + v.z * cos + (v.y * a.x - v.x * a.y) * sin);
+			Vect2 rot0 = new Vect2(Math.Cos(rad), -Math.Sign(rad)),
+				rot1 = new Vect2(Math.Sign(rad), Math.Cos(rad));
+
+			return new Vect2(v.Dot(rot0), v.Dot(rot1));
 		}
 
 		/// <summary>
@@ -294,7 +276,7 @@ namespace Warps
 		/// </summary>
 		/// <param name="B">the vector to determine the angle between</param>
 		/// <returns>The angle between this and B in radians</returns>
-		public double AngleTo(Vect3 B)
+		public double AngleTo(Vect2 B)
 		{
 			return Math.Acos(this.Dot(B) / (Magnitude * B.Magnitude));
 		}
@@ -307,17 +289,30 @@ namespace Warps
 		}
 		public string ToString(bool brackets)
 		{
-			Debug.Assert(m_vec.Length == 3);
+			Debug.Assert(m_vec.Length == 2);
 			if (brackets)
-				return String.Format("<{0}, {1}, {2}>", this[0], this[1], this[2]);
+				return String.Format("<{0}, {1}>", this[0].ToString("g3"), this[1].ToString("g3"));
 			else
-				return String.Format("{0}, {1}, {2}", this[0], this[1], this[2]);
+				return String.Format("{0}, {1}", this[0].ToString("g3"), this[1].ToString("g3"));
 		}
 		public string ToString(string frmt)
 		{
-			return String.Format("{0}, {1}, {2}", this[0].ToString(frmt), this[1].ToString(frmt), this[2].ToString(frmt));
+			return String.Format("{0}, {1}", this[0].ToString(frmt), this[1].ToString(frmt));
 		}
-
+		public bool FromString(string str)
+		{
+			bool bsuccess = false;
+			string[] splits = str.Split('<', '>', ',');
+			if (splits.Length == 2)
+			{
+				bsuccess = true;
+				for (int i = 0; i < 2; i++)
+				{
+					bsuccess &= double.TryParse(splits[i], out m_vec[i]);
+				}
+			}
+			return bsuccess;
+		}
 		#endregion
 	}
-}
+

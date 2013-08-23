@@ -44,6 +44,12 @@ namespace Warps
 			}
 		}
 
+		static MaterialDatabase m_MatDB = new MaterialDatabase(@"c:\Materials.csv");
+		public static MaterialDatabase Mats
+		{
+			get { return WarpFrame.m_MatDB; }
+		}
+
 		public WarpFrame()
 		{
 
@@ -434,11 +440,17 @@ namespace Warps
 		public bool AutoBuild
 		{
 			get { return !m_autoBtn.Checked; }
+			set
+			{
+				m_autoBtn.Checked = value;
+				m_autoBtn_CheckedChanged(this, null);
+			}
 		}
 		private void m_autoBtn_CheckedChanged(object sender, EventArgs e)
 		{
 			m_autoBtn.BackColor = AutoBuild ? ButtonSelected : ButtonUnSelected;
 			m_autoBtn.ForeColor = AutoBuild ? Color.White : Color.Black;
+			m_autoBtn.Invalidate();
 		}
 
 		private void m_buildBtn_Click(object sender, EventArgs e)
@@ -556,6 +568,10 @@ namespace Warps
 				if (parent != null)
 					track = new VariableGroupTracker(parent as VariableGroup);
 
+			}
+			else if (e.Value is GuideSurface)
+			{
+				track = new SurfaceTracker(e.Value as GuideSurface);
 			}
 			else// if (e.Value is Sail)
 				track = new SailTracker(EditMode);
@@ -733,88 +749,6 @@ namespace Warps
 
 		#endregion
 
-		private void helpToolStripButton_Click(object sender, EventArgs e)
-		{
-			if (ActiveSail != null)
-				clearAll_Click(null, null);
-			if (ActiveSail == null)
-			{
-				//LoadSail(@"C:\Users\Mikker\Desktop\small.obj");
-				//LoadSail(@"C:\Users\Mikker\Desktop\single.obj");
-				//View.Refresh();
-				//return;
-				if (ModifierKeys == Keys.Control)
-					LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\df.spi");
-				else
-					LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Main.spi");
-			}
-
-			CurveGroup warps = new CurveGroup("Warps", ActiveSail);
-			//warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(0.5,0.5), new Vect2(1, 0.6)));
-			warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(1, 1)));
-			warps.Add(new MouldCurve("v2", ActiveSail, new Vect2(0, 0), new Vect2(1, .6)));
-			warps.Add(new MouldCurve("v3", ActiveSail, new Vect2(0, 0), new Vect2(1,0)));
-
-			double scale = 3;
-			List<Vect3> rbfss = new List<Vect3>(6);
-			//luff
-			rbfss.Add(new Vect3( 0, 0.5, 1 * scale ));
-			rbfss.Add(new Vect3(  0, 1, 1 * scale ));
-			//leech
-			rbfss.Add(new Vect3(  1, 0, 1 * scale ));
-			rbfss.Add(new Vect3( 1, 0.5, 1 * scale ));
-
-			rbfss.Add(new Vect3(  1, .1, 1 * scale ));
-			rbfss.Add(new Vect3(  .6, .1, 1 * scale ));
-
-			rbfss.Add(new Vect3( 0, 0, 3 * scale ));
-			rbfss.Add(new Vect3(0.5, 0.5, 2.5 * scale));
-			rbfss.Add(new Vect3(0.7, 0.7, 2.0 * scale));
-			rbfss.Add(new Vect3(  .85, .9, 1.5 * scale ));
-			rbfss.Add(new Vect3(  1, 1, 1 * scale ));
-
-			GuideSurface surf = new GuideSurface("StructuralSurf", ActiveSail, rbfss);
-			MixedGroup guides = new MixedGroup("Guides", ActiveSail, "Combs");
-			guides.Add(surf);
-
-			Tapes.TapeGroup tapes = new Tapes.TapeGroup("Structural", warps.ToList(), surf, 1, .05, Utilities.DegToRad(3));
-
-			warps.Add(new MouldCurve("c1", ActiveSail, new Vect2(0, 0), new Vect2(1, 0)));
-			warps.Add(new MouldCurve("c2", ActiveSail, new Vect2(0, 1), new Vect2(1, 1)));
-
-			scale =10;
-			rbfss = new List<Vect3>(4);
-			//luff
-			rbfss.Add(new Vect3(0, 0, 1 * scale));
-			rbfss.Add(new Vect3(0, 1, 1 * scale));
-			//leech
-			rbfss.Add(new Vect3(1, 0, 1 * scale));
-			rbfss.Add(new Vect3(1, 1, 1 * scale));
-
-			surf = new GuideSurface("CompressiveSurf", ActiveSail, rbfss);
-			guides.Add(surf);
-			List<MouldCurve> cwarps = new List<MouldCurve>(2);
-			cwarps.Add(warps[warps.Count-2]);
-			cwarps.Add(warps[warps.Count-1]);
-			Tapes.TapeGroup cTapes = new Tapes.TapeGroup("Compressive", cwarps, surf, 3, .1, Utilities.DegToRad(7));
-
-			ActiveSail.Add(warps);
-			ActiveSail.Add(guides);
-			ActiveSail.Add(tapes);
-			ActiveSail.Add(cTapes);
-			ActiveSail.Rebuild();
-
-			UpdateViews(ActiveSail.CreateOuterCurves());
-			UpdateViews(warps);
-			UpdateViews(guides);
-			UpdateViews(tapes);
-			UpdateViews(cTapes);
-			View.ShowOnly(0, "Tapes", "Curves");
-			View.ShowOnly(1, "Combs");
-			//this.WindowState = FormWindowState.Maximized;
-			View.ZoomFit(true);
-			//View.Refresh();
-		}
 //		private void helpToolStripButton_Click(object sender, EventArgs e)
 //		{
 
@@ -1055,6 +989,86 @@ namespace Warps
 			View.Refresh();
 		}
 
+		//handles program-scope shortcut keys
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+		{
+			switch (keyData)
+			{
+				case Keys.S | Keys.Control://save existing file
+					SaveFile(false);
+					break;
+				case Keys.O | Keys.Control://load a new file
+				case Keys.L | Keys.Control://load a new file
+					OpenFile(3);
+					break;
+				case Keys.N | Keys.Control://create a new project from a .spi/.cof
+					OpenFile(1);
+					break;
+				case Keys.P | Keys.Control://write 3dl file on print
+					printToolStripButton_Click(null, null);
+					break;
+				case Keys.F1:
+				case Keys.F1 | Keys.Control :
+					helpToolStripButton_Click(null, null);
+					break;
+				case Keys.E | Keys.Control://toggle edit
+					EditMode = !EditMode;
+					break;
+				case Keys.B | Keys.Control://run build
+					m_buildBtn_Click(null, null);
+					break;
+				case Keys.A | Keys.Control://toggle autobuild
+					AutoBuild = !AutoBuild;
+					break;
+	
+			}
+			return base.ProcessCmdKey(ref msg, keyData);
+		}
+
+		#region Toolbar New/Open/Save
+
+		private void newToolStripButton_Click(object sender, EventArgs e)
+		{
+			OpenFile(1);
+		}
+		private void openToolStripButton_Click(object sender, EventArgs e)
+		{
+			OpenFile(3);
+		}
+		private void saveToolStripButton_Click(object sender, EventArgs e)
+		{
+			//Sail s;
+			//if (m_sails != null && m_sails.Count > 0)
+			//	s = m_sails[0];
+			//else
+			//	return;
+			SaveFile(sender == saveAsToolStripMenuItem);
+			//	m_tree.SaveScriptFile(sfd.FileName);
+		}
+		private void saveBinToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			//string path = Utilities.SaveFileDialog(".bin", "Save Membrain Bin File", null);
+			//if (path == null || path.Length == 0)
+			//	return;
+			if (ActiveSail == null)
+			{
+				//LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Main.sail");
+				MessageBox.Show("Open a project before saving bin");
+				return;
+			}
+
+			string path = ActiveSail.Mould.Label.Substring(0, ActiveSail.Mould.Label.Length - 4) + "_wrp.bin";
+			//ActiveSail.WriteBinFile(path);
+			Task.Factory.StartNew(() => ActiveSail.WriteBinFile(path));
+			return;
+#if DEBUG
+			clearAll_Click(null, null);
+			m_sail = new Sail();
+			ActiveSail.ReadBinFile(path);
+			AddSailtoView(ActiveSail);
+#endif
+		}
+
 		private void printToolStripButton_Click(object sender, EventArgs e)
 		{
 			//Write 3dl file
@@ -1063,20 +1077,57 @@ namespace Warps
 			dlg.DefaultExt = ".3dl";
 			dlg.AddExtension = true;
 			dlg.Filter = "3dl files (*.3dl)|*.3dl|All files (*.*)|*.*";
-			dlg.FileName = Path.GetFileNameWithoutExtension(ActiveSail.FilePath);
+			dlg.FileName = Path.GetFileNameWithoutExtension(ActiveSail.Mould.Label);
 			//dlg.InitialDirectory = Utilities.ExeDir;
 			if (dlg.ShowDialog() == DialogResult.OK)
 				Save3dlFile(dlg.FileName);
 
 		}
 
-		void Save3dlFile(string fullfilename)
+		private void clearAll_Click(object sender, EventArgs e)
+		{
+			if (m_sail == null || DialogResult.Yes == MessageBox.Show(string.Format("Are you sure you want to close\n{0}\nUnsaved changes will be lost.", m_sail.FilePath), Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+			{
+				Tree.ClearAll();
+				View.ClearAll();
+				ClearTracker();
+				if (m_sail != null)
+					m_sail.Layout.Clear();
+				m_sail = null;
+			}
+		}
+
+		private void SaveFile(bool saveAs)
+		{
+			if (ActiveSail == null)
+				return;
+			if (saveAs || ActiveSail.FilePath == null)
+			{
+				string path = Utilities.SaveFileDialog("wrp", "Save Script File?", ActiveSail.FilePath);
+				//SaveFileDialog sfd = new SaveFileDialog();
+				//sfd.DefaultExt = ".wrp";
+				//sfd.AddExtension = true;
+				//if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)'
+				if( path != null )
+				{
+#if DEBUG
+					logger.Instance.Log("saving file: " + path, LogPriority.Debug);
+#endif
+					ActiveSail.WriteScriptFile(path);
+				}
+			}
+			else
+				ActiveSail.WriteScriptFile(Path.ChangeExtension(Path.GetFullPath(ActiveSail.FilePath), "wrp"));
+		}
+		void Save3dlFile(string tdipath)
 		{
 			logger.Instance.Log("saving 3dl file...");
+			ActiveSail.Save3DLFile(tdipath);
+			return;
 			Task.Factory.StartNew(() =>
 			{
-				logger.Instance.Log("saving {0} to {1}...", Path.GetFileName(fullfilename), Path.GetDirectoryName(fullfilename));
-				using (StreamWriter sw = new StreamWriter(fullfilename))
+				logger.Instance.Log("saving {0} to {1}...", Path.GetFileName(tdipath), Path.GetDirectoryName(tdipath));
+				using (StreamWriter sw = new StreamWriter(tdipath))
 				{
 					//write header
 					//OUS102439-001, Fat26, EnergySolution ITA14313, Main ORCi, 10850 dpi, 3Dl 680, Capitani/NSI,//3DLayOut_Release 1.1.0.171
@@ -1151,107 +1202,105 @@ namespace Warps
 				logger.Instance.Log("saving done");
 			});
 		}
-
-		//handles program-scope shortcut keys
-		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-		{
-			switch (keyData)
-			{
-				case Keys.S | Keys.Control://save existing file
-					SaveFile();
-					break;
-				case Keys.O | Keys.Control://load a new file
-				case Keys.L | Keys.Control://load a new file
-					OpenFile(3);
-					break;
-				case Keys.N | Keys.Control://create a new project from a .spi/.cof
-					OpenFile(1);
-					break;
-				case Keys.P | Keys.Control://write 3dl file on print
-					printToolStripButton_Click(null, null);
-					break;
-				case Keys.F1:
-					helpToolStripButton_Click(null, null);
-					break;
-				case Keys.E | Keys.Control://toggle edit
-					EditMode = !EditMode;
-					break;
-	
-			}
-			return base.ProcessCmdKey(ref msg, keyData);
-		}
-
-		#region Toolbar New/Open/Save
-
-		private void newToolStripButton_Click(object sender, EventArgs e)
-		{
-			OpenFile(1);
-		}
-		private void openToolStripButton_Click(object sender, EventArgs e)
-		{
-			OpenFile(3);
-		}
-		private void saveToolStripButton_Click(object sender, EventArgs e)
-		{
-			//Sail s;
-			//if (m_sails != null && m_sails.Count > 0)
-			//	s = m_sails[0];
-			//else
-			//	return;
-			SaveFile();
-			//	m_tree.SaveScriptFile(sfd.FileName);
-		}
-
-		private void clearAll_Click(object sender, EventArgs e)
-		{
-			if (m_sail == null || DialogResult.Yes == MessageBox.Show(string.Format("Are you sure you want to close\n{0}\nUnsaved changes will be lost.", m_sail.FilePath), Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
-			{
-				Tree.ClearAll();
-				View.ClearAll();
-				ClearTracker();
-				if (m_sail != null)
-					m_sail.Layout.Clear();
-				m_sail = null;
-			}
-		}
-
-		private void SaveFile()
-		{
-			if (ActiveSail == null)
-				return;
-			SaveFileDialog sfd = new SaveFileDialog();
-			sfd.DefaultExt = ".wrp";
-			sfd.AddExtension = true;
-			if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-			{
-#if DEBUG
-				logger.Instance.Log("saving file: " + sfd.FileName, LogPriority.Debug);
-#endif
-				ActiveSail.WriteScriptFile(sfd.FileName);
-			}
-		}
-
-		private void saveBinToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			//string path = Utilities.SaveFileDialog(".bin", "Save Membrain Bin File", null);
-			//if (path == null || path.Length == 0)
-			//	return;
-			if (ActiveSail == null)
-			{
-				//LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Main.sail");
-				//MessageBox.Show("Open a project before saving bin");
-				return;
-			}
-
-			string path = ActiveSail.Mould.Label.Substring(0, ActiveSail.Mould.Label.Length - 5) + "_wrp.bin";
-			ActiveSail.WriteBinFile(path);
-			//Task.Factory.StartNew(() => ActiveSail.WriteBinFile(path));
-			clearAll_Click(null, null);
-			m_sail = new Sail();
-			ActiveSail.ReadBinFile(path);
-			AddSailtoView(ActiveSail);
-		}
-
+		
 		#endregion
+
+		private void helpToolStripButton_Click(object sender, EventArgs e)
+		{
+#if !DEBUG
+			return;
+#endif
+			//EquationEditorForm frm = new EquationEditorForm(null);
+			//frm.ShowDialog();
+
+			//InputEquationForm inp = new InputEquationForm();
+			//inp.ShowDialog();
+			//if (ActiveSail != null)
+			//	clearAll_Click(null, null);
+			if (ActiveSail == null)
+			{
+				//LoadSail(@"C:\Users\Mikker\Desktop\small.obj");
+				//LoadSail(@"C:\Users\Mikker\Desktop\single.obj");
+				//View.Refresh();
+				//return;
+				if (ModifierKeys == Keys.Control)
+					LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\df.spi");
+				else
+					LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\99821022-01.spi");
+					//LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Main.spi");
+			}
+
+			CurveGroup warps = new CurveGroup("Warps", ActiveSail);
+			//warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(0.5,0.5), new Vect2(1, 0.6)));
+			warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(1, 1)));
+			warps.Add(new MouldCurve("v2", ActiveSail, new Vect2(0, 0), new Vect2(1, .6)));
+			warps.Add(new MouldCurve("v3", ActiveSail, new Vect2(0, 0), new Vect2(1,0)));
+
+			double scale = 3;
+			List<Vect3> rbfss = new List<Vect3>(6);
+			//luff
+			rbfss.Add(new Vect3( 0, 0.5, 1 * scale ));
+			rbfss.Add(new Vect3(  0, 1, 1 * scale ));
+			//leech
+			rbfss.Add(new Vect3(  1, 0, 1 * scale ));
+			rbfss.Add(new Vect3( 1, 0.5, 1 * scale ));
+
+			rbfss.Add(new Vect3(  1, .1, 1 * scale ));
+			rbfss.Add(new Vect3(  .6, .1, 1 * scale ));
+
+			rbfss.Add(new Vect3( 0, 0, 3 * scale ));
+			rbfss.Add(new Vect3(0.5, 0.5, 2.5 * scale));
+			rbfss.Add(new Vect3(0.7, 0.7, 2.0 * scale));
+			rbfss.Add(new Vect3(  .85, .9, 1.5 * scale ));
+			rbfss.Add(new Vect3(  1, 1, 1 * scale ));
+
+			GuideSurface surf = new GuideSurface("StructuralSurf", ActiveSail, rbfss);
+			MixedGroup guides = new MixedGroup("Guides", ActiveSail, "Combs");
+			guides.Add(surf);
+
+			Tapes.TapeGroup tapes = new Tapes.TapeGroup("Structural", warps.ToList(), surf, 1, .05, Utilities.DegToRad(3));
+
+			warps.Add(new MouldCurve("c1", ActiveSail, new Vect2(0, 0), new Vect2(1, 0)));
+			warps.Add(new MouldCurve("c2", ActiveSail, new Vect2(0, 1), new Vect2(1, 1)));
+
+			scale =10;
+			rbfss = new List<Vect3>(4);
+			//luff
+			rbfss.Add(new Vect3(0, 0, 1 * scale));
+			rbfss.Add(new Vect3(0, 1, 1 * scale));
+			//leech
+			rbfss.Add(new Vect3(1, 0, 1 * scale));
+			rbfss.Add(new Vect3(1, 1, 1 * scale));
+
+			surf = new GuideSurface("CompressiveSurf", ActiveSail, rbfss);
+			//guides.Add(surf);
+			List<MouldCurve> cwarps = new List<MouldCurve>(2);
+			cwarps.Add(warps[warps.Count-2]);
+			cwarps.Add(warps[warps.Count-1]);
+			Tapes.TapeGroup cTapes = new Tapes.TapeGroup("Compressive", cwarps, surf, 3, .1, Utilities.DegToRad(7));
+
+			ActiveSail.Add(warps);
+			ActiveSail.Add(guides);
+			ActiveSail.Add(tapes);
+			//ActiveSail.Add(cTapes);
+			ActiveSail.Rebuild();
+
+			//UpdateViews(ActiveSail.CreateOuterCurves());
+			UpdateViews(warps);
+			UpdateViews(guides);
+			UpdateViews(tapes);
+			//UpdateViews(cTapes);
+			View.ShowOnly(0, "Default", "Curves");
+			View.ShowOnly(1, "Combs");
+			//this.WindowState = FormWindowState.Maximized;
+			View.ZoomFit(true);
+			//View.Refresh();
+		}
+
+		private void baxToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			ActiveSail.CreateBaxCurves();
+			ActiveSail.Rebuild();
+		}
 	}
 }

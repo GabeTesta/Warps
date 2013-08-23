@@ -323,11 +323,18 @@ namespace Warps
 		public static string ReadCString(System.IO.BinaryReader bin)
 		{
 			uint len = bin.ReadUInt32();
+			if (len == 0)
+				return null;
 			return new string(bin.ReadChars((int)len)).Trim();
 		}
 
 		public static void WriteCString(System.IO.BinaryWriter bin, string str)
 		{
+			if (str == null)
+			{
+				bin.Write((UInt32)0);
+				return;
+			}
 			bin.Write((UInt32)(str.Length));
 			bin.Write(str.ToCharArray());
 		}

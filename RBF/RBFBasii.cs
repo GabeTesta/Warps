@@ -19,6 +19,10 @@ namespace RBFBasis
 	/// </summary>
 	public class ThinPlateSpline : IBasisFunction
 	{
+		public IBasisFunction Clone()
+		{
+			return new ThinPlateSpline();
+		}
 		#region IBasisFunction Members
 
 		public double val(double r)
@@ -46,6 +50,10 @@ namespace RBFBasis
 
 	public class Gaussian : IBasisFunction
 	{
+		public IBasisFunction Clone()
+		{
+			return new Gaussian(B);
+		}
 		double B = 0.01;
 
 		public Gaussian(double beta)
@@ -80,6 +88,10 @@ namespace RBFBasis
 
 	public class Multiquadratic : IBasisFunction
 	{
+		public IBasisFunction Clone()
+		{
+			return new Multiquadratic(B);
+		}
 		double B = 0.5;
 
 		public Multiquadratic(double beta)
@@ -114,6 +126,11 @@ namespace RBFBasis
 
 	public class InversMultiquadratic : IBasisFunction
 	{
+		public IBasisFunction Clone()
+		{
+			return new InversMultiquadratic(B);
+		}
+
 		double B = 0.5;
 
 		public InversMultiquadratic(double beta)
@@ -142,6 +159,11 @@ namespace RBFBasis
 
 	public class PolyHarmonic : IBasisFunction
 	{
+		public IBasisFunction Clone()
+		{
+			return new PolyHarmonic(P);
+		}
+
 		uint P = 3;
 		public PolyHarmonic(uint power)
 		{

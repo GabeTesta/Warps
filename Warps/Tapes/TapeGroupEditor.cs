@@ -29,14 +29,17 @@ namespace Warps.Tapes
 			m_labelTextBox.Text = group.Label;
 
 			m_warpListView.Clear();
-			group.Warps.ForEach(wrp => 
-				AddRemoveWarp(wrp));
+			if (group.Warps != null)
+				group.Warps.ForEach(wrp =>
+					AddRemoveWarp(wrp));
 
 			SetGuide(group.DensityMap);
 
 			pixLength.Value = group.PixelLength;
 			chainTol.Value = group.ChainTolerance;
 			angleTol.Value = group.AngleTolerance;
+
+			m_stagger.Checked = group.Stagger;
 
 			tapeCount.Text = group.Count.ToString();
 			tapeLen.Text = group.TotalLength.ToString("f3");
@@ -58,6 +61,7 @@ namespace Warps.Tapes
 			group.PixelLength = pixLength.Value;
 			group.ChainTolerance = chainTol.Value;
 			group.AngleTolerance = angleTol.Value;
+			group.Stagger = m_stagger.Checked;
 		}
 
 		private void selectWarpButt_Click(object sender, EventArgs e)
@@ -97,7 +101,8 @@ namespace Warps.Tapes
 			if (m_guideListView.Items.Count > 0)
 				old = m_guideListView.Items[0].Name;
 			m_guideListView.Clear();
-			m_guideListView.Items.Add(guideSurface.Label, guideSurface.Label, guideSurface.GetType().ToString());
+			if (guideSurface != null)
+				m_guideListView.Items.Add(guideSurface.Label, guideSurface.Label, guideSurface.GetType().ToString());
 			return old;
 		}
 	}

@@ -46,9 +46,19 @@ namespace Warps.Controls
 				targetDPIEQB.Equation = YarGroup.TargetDenierEqu;
 			else
 				targetDPIEQB.Text = "";
+
+			FillMaterials();
+
 			fillEditorWithData();
 		}
 
+		void FillMaterials()
+		{
+			foreach (string s in WarpFrame.Mats.Materials)
+			{
+				m_yarnCombo.Items.Add(s);
+			}
+		}
 		YarnGroup m_group;
 		Sail m_sail = null;
 
@@ -77,6 +87,7 @@ namespace Warps.Controls
 			set { m_yarnCountOut.Text = value.ToString(); }
 		}
 
+		public string YarnMaterial { get { return m_yarnCombo.SelectedItem == null ? "" : m_yarnCombo.SelectedItem as string; } }
 		DualView m_view = null;
 
 		public DualView View
@@ -108,6 +119,10 @@ namespace Warps.Controls
 			AchievedYarnCount = YarGroup.Count;
 
 			populateDensityCurveLocationBox(YarGroup.DensityPos);
+
+			if( YarGroup.YarnMaterial != null )
+				if (m_yarnCombo.Items.Contains(YarGroup.YarnMaterial))
+					m_yarnCombo.SelectedItem = YarGroup.YarnMaterial;
 		}
 		public YarnGroup.Ending Ending
 		{

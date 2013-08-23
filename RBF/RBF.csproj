@@ -53,6 +53,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -73,6 +74,8 @@
     <Compile Include="RBFPolynomials.cs" />
     <Compile Include="RBFSpline.cs" />
     <Compile Include="RBFSurface.cs" />
+    <Compile Include="Vect2.cs" />
+    <Compile Include="Vect3.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

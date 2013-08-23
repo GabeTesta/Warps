@@ -63,6 +63,7 @@ namespace Warps
 				View.Remove(m_temp);
 			View.DeSelect(Curve);
 			//View.StopSelect();
+			View.DetachTracker(this);
 			View.Refresh();
 		}
 

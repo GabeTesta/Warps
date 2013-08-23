@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using devDept.Eyeshot;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
+
 namespace Warps
 {
 	/// <summary>
@@ -193,50 +194,81 @@ namespace Warps
 			return Utilities.Vect3ToPoint3D(x + c);
 		}
 
+		//public override bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt == null || txt.Count == 0)
+		//		return false;
+
+		//	List<IFitPoint> fits = new List<IFitPoint>();
+		//	string[] splits = txt[0].Split(':');
+		//	Label = "";
+		//	if (splits.Length > 0)//extract label
+		//		Label = splits[1];
+		//	if (splits.Length > 1)//incase label contains ":"
+		//		for (int i = 2; i < splits.Length; i++)
+		//			Label += ":" + splits[i];
+		//	Label = Label.Trim();
+
+		//	for (int nLine = 1; nLine < txt.Count; )
+		//	{
+		//		IList<string> lines = ScriptTools.Block(ref nLine, txt);
+		//		//nLine += lines.Count;
+
+		//		object cur = null;
+		//		splits = lines[0].Split(':');
+		//		if (splits.Length > 0)
+		//			cur = Utilities.CreateInstance(splits[0].Trim('\t'));
+		//		if (cur != null && cur is IFitPoint)
+		//		{
+		//			(cur as IFitPoint).ReadScript(Sail, lines);
+		//			fits.Add(cur as IFitPoint);
+		//		}
+		//		else if (cur != null && cur is Vect2)
+		//		{
+		//			m_combPnts.Add(new Vect2(lines));
+		//			//m_combPnts.Add(ParseVect2Lines(lines));
+		//		}
+		//	}
+		//	FitPoints = fits.ToArray();
+
+		//	FitComb(m_combPnts.ToArray());
+
+		//	if (AllFitPointsValid())
+		//		ReFit();
+
+		//	return true;
+		//}
+
 		public override bool ReadScript(Sail sail, IList<string> txt)
 		{
 			if (txt == null || txt.Count == 0)
 				return false;
 
-			List<IFitPoint> fits = new List<IFitPoint>();
-			string[] splits = txt[0].Split(':');
-			Label = "";
-			if (splits.Length > 0)//extract label
-				Label = splits[1];
-			if (splits.Length > 1)//incase label contains ":"
-				for (int i = 2; i < splits.Length; i++)
-					Label += ":" + splits[i];
-			Label = Label.Trim();
-
+			base.ReadScript(sail, txt);
+			string header;
+			string[] splits;
+			m_combPnts.Clear();
 			for (int nLine = 1; nLine < txt.Count; )
 			{
 				IList<string> lines = ScriptTools.Block(ref nLine, txt);
 				//nLine += lines.Count;
 
-				object cur = null;
-				splits = lines[0].Split(':');
-				if (splits.Length > 0)
-					cur = Utilities.CreateInstance(splits[0].Trim('\t'));
-				if (cur != null && cur is IFitPoint)
+				header = lines[0].Trim('\t');
+				if (!header.StartsWith("Comb"))
+					continue;
+				foreach (string line in lines)
 				{
-					(cur as IFitPoint).ReadScript(Sail, lines);
-					fits.Add(cur as IFitPoint);
+					Vect2 v = new Vect2();
+					if (v.FromString(line.Trim('\t')))
+						m_combPnts.Add(v);
+					//m_combPnts.Add(new Vect2(line.Trim('\t')));
 				}
-				else if (cur != null && cur is Vect2)
-				{
-					m_combPnts.Add(ParseVect2Lines(lines));
-				}
+				//m_combPnts.Add(ParseVect2Lines(lines));
 			}
-			FitPoints = fits.ToArray();
 
 			FitComb(m_combPnts.ToArray());
-
-			if (AllFitPointsValid())
-				ReFit();
-
 			return true;
 		}
-
 		private Vect2 ParseVect2Lines(IList<string> lines)
 		{
 			Vect2 ret = new Vect2();
@@ -259,10 +291,11 @@ namespace Warps
 			//     foreach (string s in fp.WriteScript())
 			//          script.Add("\t" + s);
 			//}
+			script.Add("\tComb:");
 			foreach (Vect2 v in CombPnts)
 			{
-				script.Add("\t" + v.GetType().Name);
-				script.Add(string.Format("\t\tCombVal: {0},{1}", v[0], v[1]));
+				//script.Add("\t" + v.GetType().Name);
+				script.Add(string.Format("\t\t{0}", v.ToString()));
 			}
 			
 

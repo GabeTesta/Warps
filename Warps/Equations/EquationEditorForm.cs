@@ -22,6 +22,7 @@ namespace Warps
 		{
 			InitializeComponent();
 			m_group = group;
+			if( m_group != null )
 			m_sail = group.Sail;
 			if (m_sail != null)
 			{

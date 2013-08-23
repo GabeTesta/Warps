@@ -104,10 +104,10 @@
     <Compile Include="Controls\ColorWheelForm.Designer.cs">
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\CrossPointEditor.cs">
+    <Compile Include="FitPoints\CrossPointEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\CrossPointEditor.Designer.cs">
+    <Compile Include="FitPoints\CrossPointEditor.Designer.cs">
       <DependentUpon>CrossPointEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\EquationBoxAuto.cs">
@@ -122,78 +122,89 @@
     <Compile Include="Controls\FlatUpDown.Designer.cs">
       <DependentUpon>FlatUpDown.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Forms\EqTextBox.cs">
+    <Compile Include="Equations\EqTextBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\Forms\EqTextBox.Designer.cs">
+    <Compile Include="Equations\EqTextBox.Designer.cs">
       <DependentUpon>EqTextBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\GuideEditor.cs">
+    <Compile Include="Curves\GuideEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\GuideEditor.Designer.cs">
+    <Compile Include="Curves\GuideEditor.Designer.cs">
       <DependentUpon>GuideEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\ImageComboBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\MouldCurveEditor.cs">
+    <Compile Include="Curves\MouldCurveEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\MouldCurveEditor.Designer.cs">
+    <Compile Include="Curves\MouldCurveEditor.Designer.cs">
       <DependentUpon>MouldCurveEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\PanelGroupEditor.cs">
+    <Compile Include="Panels\PanelGroupEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\PanelGroupEditor.Designer.cs">
+    <Compile Include="Panels\PanelGroupEditor.Designer.cs">
       <DependentUpon>PanelGroupEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\VariableEditor.cs">
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Surfaces\SurfEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\VariableEditor.Designer.cs">
+    <Compile Include="Surfaces\SurfEditor.Designer.cs">
+      <DependentUpon>SurfEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Equations\VariableEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Equations\VariableEditor.Designer.cs">
       <DependentUpon>VariableEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\InputEquationForm.cs">
+    <Compile Include="Equations\InputEquationForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Controls\InputEquationForm.Designer.cs">
+    <Compile Include="Equations\InputEquationForm.Designer.cs">
       <DependentUpon>InputEquationForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\EquationBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\IFitEditor.cs" />
-    <Compile Include="Controls\VariableGroupEditor.cs">
+    <Compile Include="FitPoints\IFitEditor.cs" />
+    <Compile Include="Equations\VariableGroupEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\VariableGroupEditor.Designer.cs">
+    <Compile Include="Equations\VariableGroupEditor.Designer.cs">
       <DependentUpon>VariableGroupEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\View\ColorEditor.cs">
+    <Compile Include="Controls\ColorEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\View\ColorEditor.Designer.cs">
+    <Compile Include="Controls\ColorEditor.Designer.cs">
       <DependentUpon>ColorEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\View\ColorMap.cs" />
-    <Compile Include="Controls\View\NsPlot.cs">
+    <Compile Include="Controls\ColorMap.cs" />
+    <Compile Include="Controls\NsPlot.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\YarnGroupEditor.cs">
+    <Compile Include="Yarns\YarnGroupEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\YarnGroupEditor.Designer.cs">
+    <Compile Include="Yarns\YarnGroupEditor.Designer.cs">
       <DependentUpon>YarnGroupEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Curves\ChainCurve.cs" />
-    <Compile Include="Curves\CrossPoint.cs" />
+    <Compile Include="FitPoints\CrossPoint.cs" />
     <Compile Include="Curves\CurveGroup.cs" />
-    <Compile Include="Controls\CurveGroupEditor.cs">
+    <Compile Include="Curves\CurveGroupEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\CurveGroupEditor.Designer.cs">
+    <Compile Include="Curves\CurveGroupEditor.Designer.cs">
       <DependentUpon>CurveGroupEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Curves\CurveW4L.cs">
@@ -204,7 +215,7 @@
     </Compile>
     <Compile Include="Curves\GuideComb.cs" />
     <Compile Include="Curves\IMouldCurve.cs" />
-    <Compile Include="Curves\OffsetPoint.cs" />
+    <Compile Include="FitPoints\OffsetPoint.cs" />
     <Compile Include="Curves\RigLine.cs" />
     <Compile Include="Curves\SegmentCurve.cs" />
     <Compile Include="Equations\Equation.cs" />
@@ -221,12 +232,7 @@
     <Compile Include="Panels\PanelCorner.cs" />
     <Compile Include="Panels\PanelGroup.cs" />
     <Compile Include="Panels\PanelGroupTracker.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="RebuildGroup.cs" />
+    <Compile Include="MixedGroup.cs" />
     <Compile Include="Surfaces\CofMould.cs" />
     <Compile Include="Surfaces\ComboMould.cs" />
     <Compile Include="Surfaces\RBFMesh.cs" />
@@ -241,30 +247,30 @@
     </Compile>
     <Compile Include="Tapes\TapeGroupTracker.cs" />
     <Compile Include="Trackers\CurveGroupTracker.cs" />
-    <Compile Include="Curves\CurvePoint.cs" />
-    <Compile Include="Controls\CurvePointEditor.cs">
+    <Compile Include="FitPoints\CurvePoint.cs" />
+    <Compile Include="FitPoints\CurvePointEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\CurvePointEditor.Designer.cs">
+    <Compile Include="FitPoints\CurvePointEditor.Designer.cs">
       <DependentUpon>CurvePointEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Trackers\CurveTracker.cs" />
-    <Compile Include="Controls\View\DualView.cs">
+    <Compile Include="Controls\DualView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\View\DualView.Designer.cs">
+    <Compile Include="Controls\DualView.Designer.cs">
       <DependentUpon>DualView.cs</DependentUpon>
     </Compile>
     <Compile Include="EventArgs.cs" />
-    <Compile Include="Curves\FixedPoint.cs" />
-    <Compile Include="Controls\FixedPointEditor.cs">
+    <Compile Include="FitPoints\FixedPoint.cs" />
+    <Compile Include="FitPoints\FixedPointEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\FixedPointEditor.Designer.cs">
+    <Compile Include="FitPoints\FixedPointEditor.Designer.cs">
       <DependentUpon>FixedPointEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Curves\Geodesic.cs" />
-    <Compile Include="Curves\IFitPoint.cs" />
+    <Compile Include="FitPoints\IFitPoint.cs" />
     <Compile Include="Interfaces\IGroup.cs" />
     <Compile Include="Interfaces\IRebuild.cs" />
     <Compile Include="Surfaces\ISurface.cs" />
@@ -273,11 +279,13 @@
     <Compile Include="Curves\MouldCurve.cs" />
     <Compile Include="Sail.cs" />
     <Compile Include="Trackers\SailTracker.cs" />
+    <Compile Include="Trackers\SurfaceTracker.cs" />
     <Compile Include="Trackers\VariableGroupTracker.cs" />
     <Compile Include="Trackers\VariableTracker.cs" />
     <Compile Include="Utilities\logger.cs" />
+    <Compile Include="Utilities\MaterialDatabase.cs" />
     <Compile Include="Utilities\ScriptTools.cs" />
-    <Compile Include="Curves\SlidePoint.cs" />
+    <Compile Include="FitPoints\SlidePoint.cs" />
     <Compile Include="Curves\SurfaceCurve.cs" />
     <Compile Include="Controls\TabTree.cs">
       <SubType>UserControl</SubType>
@@ -286,8 +294,6 @@
       <DependentUpon>TabTree.cs</DependentUpon>
     </Compile>
     <Compile Include="Utilities\Utilities.cs" />
-    <Compile Include="Utilities\Vect2.cs" />
-    <Compile Include="Utilities\Vect3.cs" />
     <Compile Include="WarpFrame.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -309,13 +315,13 @@
     <EmbeddedResource Include="Controls\ColorWheelForm.resx">
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CrossPointEditor.resx">
+    <EmbeddedResource Include="FitPoints\CrossPointEditor.resx">
       <DependentUpon>CrossPointEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CurveGroupEditor.resx">
+    <EmbeddedResource Include="Curves\CurveGroupEditor.resx">
       <DependentUpon>CurveGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CurvePointEditor.resx">
+    <EmbeddedResource Include="FitPoints\CurvePointEditor.resx">
       <DependentUpon>CurvePointEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\EquationBoxAuto.resx">
@@ -324,46 +330,49 @@
     <EmbeddedResource Include="Controls\FlatUpDown.resx">
       <DependentUpon>FlatUpDown.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\Forms\EqTextBox.resx">
+    <EmbeddedResource Include="Equations\EqTextBox.resx">
       <DependentUpon>EqTextBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\GuideEditor.resx">
+    <EmbeddedResource Include="Curves\GuideEditor.resx">
       <DependentUpon>GuideEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\MouldCurveEditor.resx">
+    <EmbeddedResource Include="Curves\MouldCurveEditor.resx">
       <DependentUpon>MouldCurveEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\PanelGroupEditor.resx">
+    <EmbeddedResource Include="Panels\PanelGroupEditor.resx">
       <DependentUpon>PanelGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\VariableEditor.resx">
+    <EmbeddedResource Include="Surfaces\SurfEditor.resx">
+      <DependentUpon>SurfEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Equations\VariableEditor.resx">
       <DependentUpon>VariableEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\InputEquationForm.resx">
+    <EmbeddedResource Include="Equations\InputEquationForm.resx">
       <DependentUpon>InputEquationForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\EquationBox.resx">
       <DependentUpon>EquationBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\VariableGroupEditor.resx">
+    <EmbeddedResource Include="Equations\VariableGroupEditor.resx">
       <DependentUpon>VariableGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\View\ColorEditor.resx">
+    <EmbeddedResource Include="Controls\ColorEditor.resx">
       <DependentUpon>ColorEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\View\DualView.resx">
+    <EmbeddedResource Include="Controls\DualView.resx">
       <DependentUpon>DualView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\FixedPointEditor.resx">
+    <EmbeddedResource Include="FitPoints\FixedPointEditor.resx">
       <DependentUpon>FixedPointEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\TabTree.resx">
       <DependentUpon>TabTree.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\View\NsPlot.resx">
+    <EmbeddedResource Include="Controls\NsPlot.resx">
       <DependentUpon>NsPlot.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\YarnGroupEditor.resx">
+    <EmbeddedResource Include="Yarns\YarnGroupEditor.resx">
       <DependentUpon>YarnGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Curves\CurveW4L.resx">
@@ -454,9 +463,9 @@
     <None Include="Resources\showonly.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Curves\curvept.PNG" />
-    <None Include="Curves\fixedpt.PNG" />
-    <None Include="Curves\slidept.PNG" />
+    <None Include="FitPoints\curvept.PNG" />
+    <None Include="FitPoints\fixedpt.PNG" />
+    <None Include="FitPoints\slidept.PNG" />
     <Content Include="icon.ico" />
     <None Include="Resources\crosspt.PNG" />
     <Content Include="Resources\curvept.PNG" />

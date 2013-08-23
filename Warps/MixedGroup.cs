@@ -8,6 +8,7 @@ namespace Warps
 {
 	public class MixedGroup : List<IRebuild>, IGroup
 	{
+		public MixedGroup() { }
 		public MixedGroup(string label, Sail s, string layer)
 		{
 			m_label = label;
@@ -87,12 +88,38 @@ namespace Warps
 
 		public List<string> WriteScript()
 		{
-			throw new NotImplementedException();
+			List<string> script = new List<string>();
+			script.Add(ScriptTools.Label(GetType().Name, Label));
+			this.ForEach(ir =>
+			{
+				IList<string> mcScript = ir.WriteScript();
+				foreach (string s in mcScript)
+					script.Add("\t" + s);
+			});
+			return script;
 		}
 
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
-			throw new NotImplementedException();
+			Label = ScriptTools.ReadLabel(txt[0]);
+			string[] splits;
+			for (int nLine = 1; nLine < txt.Count; )
+			{
+				IList<string> lines = ScriptTools.Block(ref nLine, txt);
+				//nLine += lines.Count - 1;
+
+				object cur = null;
+				splits = lines[0].Split(':');
+				if (splits.Length > 0)
+					cur = Utilities.CreateInstance(splits[0].Trim('\t'));
+				if (cur != null && cur is IRebuild)
+				{
+					(cur as IRebuild).ReadScript(Sail, lines);
+					Add(cur as IRebuild);
+					Sail.Add(this);//keep sail up to date for interdependent children
+				}
+			}
+			return true;
 		}
 
 		public bool Locked

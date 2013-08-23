@@ -33,17 +33,18 @@
 			this.m_warpListView = new System.Windows.Forms.ListView();
 			this.selectGuideButt = new System.Windows.Forms.Button();
 			this.m_guideListView = new System.Windows.Forms.ListView();
-			this.chainTol = new Warps.Controls.EquationBoxAuto();
-			this.pixLength = new Warps.Controls.EquationBoxAuto();
 			this.label4 = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
-			this.angleTol = new Warps.Controls.EquationBoxAuto();
 			this.outputGroup = new System.Windows.Forms.GroupBox();
 			this.tapeLen = new System.Windows.Forms.TextBox();
 			this.label2 = new System.Windows.Forms.Label();
 			this.tapeCount = new System.Windows.Forms.TextBox();
 			this.label5 = new System.Windows.Forms.Label();
+			this.m_stagger = new System.Windows.Forms.CheckBox();
+			this.angleTol = new Warps.Controls.EquationBoxAuto();
+			this.chainTol = new Warps.Controls.EquationBoxAuto();
+			this.pixLength = new Warps.Controls.EquationBoxAuto();
 			this.outputGroup.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -110,26 +111,6 @@
 			this.m_guideListView.UseCompatibleStateImageBehavior = false;
 			this.m_guideListView.View = System.Windows.Forms.View.List;
 			// 
-			// chainTol
-			// 
-			this.chainTol.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.chainTol.AutoFillVariables = null;
-			this.chainTol.Location = new System.Drawing.Point(3, 313);
-			this.chainTol.Name = "chainTol";
-			this.chainTol.Size = new System.Drawing.Size(169, 24);
-			this.chainTol.TabIndex = 28;
-			// 
-			// pixLength
-			// 
-			this.pixLength.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.pixLength.AutoFillVariables = null;
-			this.pixLength.Location = new System.Drawing.Point(3, 270);
-			this.pixLength.Name = "pixLength";
-			this.pixLength.Size = new System.Drawing.Size(169, 24);
-			this.pixLength.TabIndex = 27;
-			// 
 			// label4
 			// 
 			this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -159,16 +140,6 @@
 			this.label1.Size = new System.Drawing.Size(85, 13);
 			this.label1.TabIndex = 29;
 			this.label1.Text = "Angle Tolerance";
-			// 
-			// angleTol
-			// 
-			this.angleTol.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.angleTol.AutoFillVariables = null;
-			this.angleTol.Location = new System.Drawing.Point(3, 356);
-			this.angleTol.Name = "angleTol";
-			this.angleTol.Size = new System.Drawing.Size(169, 24);
-			this.angleTol.TabIndex = 28;
 			// 
 			// outputGroup
 			// 
@@ -224,10 +195,52 @@
 			this.label5.TabIndex = 0;
 			this.label5.Text = "Tape Count:";
 			// 
+			// m_stagger
+			// 
+			this.m_stagger.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.m_stagger.AutoSize = true;
+			this.m_stagger.Location = new System.Drawing.Point(109, 253);
+			this.m_stagger.Name = "m_stagger";
+			this.m_stagger.Size = new System.Drawing.Size(63, 17);
+			this.m_stagger.TabIndex = 4;
+			this.m_stagger.Text = "Stagger";
+			this.m_stagger.UseVisualStyleBackColor = true;
+			// 
+			// angleTol
+			// 
+			this.angleTol.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.angleTol.AutoFillVariables = null;
+			this.angleTol.Location = new System.Drawing.Point(3, 356);
+			this.angleTol.Name = "angleTol";
+			this.angleTol.Size = new System.Drawing.Size(169, 23);
+			this.angleTol.TabIndex = 28;
+			// 
+			// chainTol
+			// 
+			this.chainTol.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.chainTol.AutoFillVariables = null;
+			this.chainTol.Location = new System.Drawing.Point(3, 313);
+			this.chainTol.Name = "chainTol";
+			this.chainTol.Size = new System.Drawing.Size(169, 23);
+			this.chainTol.TabIndex = 28;
+			// 
+			// pixLength
+			// 
+			this.pixLength.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.pixLength.AutoFillVariables = null;
+			this.pixLength.Location = new System.Drawing.Point(3, 270);
+			this.pixLength.Name = "pixLength";
+			this.pixLength.Size = new System.Drawing.Size(169, 23);
+			this.pixLength.TabIndex = 27;
+			// 
 			// TapeGroupEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.m_stagger);
 			this.Controls.Add(this.outputGroup);
 			this.Controls.Add(this.angleTol);
 			this.Controls.Add(this.chainTol);
@@ -267,5 +280,6 @@
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.TextBox tapeCount;
 		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.CheckBox m_stagger;
 	}
 }

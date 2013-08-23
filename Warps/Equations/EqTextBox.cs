@@ -19,14 +19,12 @@ namespace Warps.Controls.Forms
 			m_fn.Paint += m_fn_Paint;
 		}
 
-		Sail m_sail;
 		Equation m_equation = new Equation();
 
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Sail Sail
 		{
-			get { return m_sail; }
-			set { m_sail = value; }
+			get { return WarpFrame.CurrentSail; }
 		}
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Equation Eqn
@@ -82,19 +80,21 @@ namespace Warps.Controls.Forms
 		private void m_text_Validating(object sender, CancelEventArgs e)
 		{
 			m_equation.EquationText = m_text.Text;
-			if (double.IsNaN(m_equation.Evaluate(m_sail)))
+			if (double.IsNaN(m_equation.Evaluate(Sail)))
 			{
 				//prompt user on fail
 				MessageBox.Show("Please enter a valid Equation");
-				m_text.Focus();
+				e.Cancel = true;
 			}
 			m_fn.BackColor = m_equation.IsNumber() ? BAK : FN;
 		}
 		Color BAK, FN = Color.SeaGreen;
 
+		public event EventHandler FnClicked;
 		private void m_fn_Click(object sender, EventArgs e)
 		{
-
+			if (FnClicked != null)
+				FnClicked(this, e);
 		}
 
 		void m_fn_Paint(object sender, PaintEventArgs e)

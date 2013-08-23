@@ -64,6 +64,7 @@ namespace RBFPolynomials
 	}
 	public class Paraboloid : IRBFPolynomial
 	{
+
 		public Paraboloid(RBFSurface surf)
 		{
 			m_surf = surf;
@@ -117,6 +118,7 @@ namespace RBFPolynomials
 	}
 	public class Conic : IRBFPolynomial
 	{
+
 		public Conic(RBFSurface surf)
 		{
 			m_surf = surf;
@@ -191,7 +193,7 @@ namespace RBFPolynomials
 	}
 	public class Plane : IRBFPolynomial
 	{
-
+	
 		public Plane(RBFSurface surf)
 		{
 			m_surf = surf;
@@ -247,6 +249,7 @@ namespace RBFPolynomials
 	////////////////////
 	public class Linear : IRBFPolynomial
 	{
+
 		public Linear(RBFCurve curve)
 		{
 			m_curve = curve;

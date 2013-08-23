@@ -35,6 +35,8 @@ namespace Warps
 		{
 			m_locked = true;
 			m_label = Utilities.ReadCString(bin);
+			YarnMaterial = Utilities.ReadCString(bin);
+			YarnDenier = bin.ReadDouble();
 			int nCnt = bin.ReadInt32();
 			YarnCurve yarn;
 			MouldCurve mc1, mc2;
@@ -66,7 +68,9 @@ namespace Warps
 		public void WriteBin(System.IO.BinaryWriter bin)
 		{
 			Utilities.WriteCString(bin, GetType().ToString());
-			Utilities.WriteCString(bin, m_label);
+			Utilities.WriteCString(bin, m_label);	
+			Utilities.WriteCString(bin, m_yarnMaterial);
+			bin.Write(YarnDenier);
 			bin.Write((Int32)Count);
 			ForEach(yar =>
 			{
@@ -80,7 +84,10 @@ namespace Warps
 
 		//IGroup
 		string m_label;
+		string m_yarnMaterial = "BaseYarn";
 		Sail m_sail;
+
+		public string YarnMaterial { get { return m_yarnMaterial; } set { m_yarnMaterial = value; } }
 
 		//Yarn Materials
 		//double m_targetDenier = 0;
@@ -139,6 +146,7 @@ namespace Warps
 		public double YarnDenier
 		{
 			get { return m_yarnDenier.Value; }
+			private set { m_yarnDenier.Value = value; }
 		}
 		public List<double> DensityPos
 		{
@@ -1357,5 +1365,36 @@ namespace Warps
 			double pB = GlobalToBracket(pYarn, ref nWrp);
 			return new YarnCurve(pB, Warps[nWrp-1], Warps[nWrp]);
 		}
+
+		/// <summary>
+		/// Returns the uv coords given a global p-value and yarn s-position.
+		/// </summary>
+		/// <param name="pG">global p value across group [0,1]</param>
+		/// <param name="sYar">position along yarn [0,1]</param>
+		/// <param name="uv">output uv coords</param>
+		public void uVal(double pG, double sYar, ref Vect2 uv)
+		{
+			int nWrp = -1;
+			double pB = GlobalToBracket(pG, ref nWrp);
+			Vect2 uv1 = new Vect2();
+			m_Warps[nWrp - 1].uVal(sYar, ref uv);
+			m_Warps[nWrp].uVal(sYar, ref uv1);
+
+			for (int i = 0; i < 2; i++)
+				uv[i] = BLAS.interpolate(pB, uv1[i], uv[i]);
+		}
+		/// <summary>
+		/// Returns the uv coords given a global p-value and yarn s-position.
+		/// </summary>
+		/// <param name="pG">global p value across group [0,1]</param>
+		/// <param name="sYar">position along yarn [0,1]</param>
+		/// <param name="uv">output uv coords</param>
+		/// <param name="xyz">output xyz coords</param>
+		public void xVal(double pG, double sYar, ref Vect2 uv, ref Vect3 xyz)
+		{
+			uVal(pG, sYar, ref uv);
+			Sail.Mould.xVal(uv, ref xyz);
+		}
+
 	}
 }

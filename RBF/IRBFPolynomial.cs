@@ -13,5 +13,6 @@ namespace RBFPolynomials
 		double this[int i] { get; set; }
 		//RBF.SurfaceRBF Surface { get; set; }
 		//RBF.RBFCurve Curve { get; set; }
+
 	}
 }

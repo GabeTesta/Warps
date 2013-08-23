@@ -40,9 +40,8 @@
 			// 
 			// label2
 			// 
-			this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(12, 78);
+			this.label2.Location = new System.Drawing.Point(12, 67);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(89, 13);
 			this.label2.TabIndex = 8;
@@ -50,29 +49,32 @@
 			// 
 			// CurveListBox
 			// 
-			this.CurveListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.CurveListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
 			this.CurveListBox.FormattingEnabled = true;
-			this.CurveListBox.Location = new System.Drawing.Point(12, 94);
+			this.CurveListBox.IntegralHeight = false;
+			this.CurveListBox.Location = new System.Drawing.Point(12, 83);
 			this.CurveListBox.Name = "CurveListBox";
-			this.CurveListBox.Size = new System.Drawing.Size(136, 95);
+			this.CurveListBox.Size = new System.Drawing.Size(136, 162);
 			this.CurveListBox.TabIndex = 7;
 			this.CurveListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.CurveListBox_MouseDoubleClick);
 			// 
 			// EquationListBox
 			// 
-			this.EquationListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.EquationListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
 			this.EquationListBox.FormattingEnabled = true;
-			this.EquationListBox.Location = new System.Drawing.Point(167, 94);
+			this.EquationListBox.IntegralHeight = false;
+			this.EquationListBox.Location = new System.Drawing.Point(167, 83);
 			this.EquationListBox.Name = "EquationListBox";
-			this.EquationListBox.Size = new System.Drawing.Size(136, 95);
+			this.EquationListBox.Size = new System.Drawing.Size(134, 162);
 			this.EquationListBox.TabIndex = 15;
 			this.EquationListBox.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.EquationListBox_MouseDoubleClick);
 			// 
 			// label1
 			// 
-			this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(164, 78);
+			this.label1.Location = new System.Drawing.Point(164, 67);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(103, 13);
 			this.label1.TabIndex = 16;
@@ -80,14 +82,14 @@
 			// 
 			// addButton
 			// 
-			this.addButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.addButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.addButton.BackColor = System.Drawing.Color.White;
 			this.addButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
 			this.addButton.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
 			this.addButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.addButton.Location = new System.Drawing.Point(263, 202);
+			this.addButton.Location = new System.Drawing.Point(252, 251);
 			this.addButton.Name = "addButton";
-			this.addButton.Size = new System.Drawing.Size(38, 23);
+			this.addButton.Size = new System.Drawing.Size(64, 23);
 			this.addButton.TabIndex = 19;
 			this.addButton.Text = "Use";
 			this.addButton.UseVisualStyleBackColor = false;
@@ -95,24 +97,25 @@
 			// 
 			// resultBox
 			// 
-			this.resultBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.resultBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.resultBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.resultBox.Enabled = false;
-			this.resultBox.Location = new System.Drawing.Point(235, 38);
+			this.resultBox.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.resultBox.Location = new System.Drawing.Point(167, 41);
 			this.resultBox.Name = "resultBox";
-			this.resultBox.Size = new System.Drawing.Size(76, 20);
+			this.resultBox.Size = new System.Drawing.Size(149, 20);
 			this.resultBox.TabIndex = 15;
 			this.resultBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
-			// button1
+			// CalculateButton
 			// 
-			this.CalculateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.CalculateButton.BackColor = System.Drawing.Color.White;
 			this.CalculateButton.FlatAppearance.BorderColor = System.Drawing.Color.Black;
 			this.CalculateButton.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
 			this.CalculateButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.CalculateButton.Location = new System.Drawing.Point(135, 38);
-			this.CalculateButton.Name = "button1";
+			this.CalculateButton.Location = new System.Drawing.Point(84, 37);
+			this.CalculateButton.Name = "CalculateButton";
 			this.CalculateButton.Size = new System.Drawing.Size(64, 23);
 			this.CalculateButton.TabIndex = 20;
 			this.CalculateButton.Text = "Calculate";
@@ -121,11 +124,12 @@
 			// 
 			// autoCompleteTextBox1
 			// 
-			this.autoCompleteTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.autoCompleteTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.autoCompleteTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.autoCompleteTextBox1.Location = new System.Drawing.Point(12, 12);
 			this.autoCompleteTextBox1.Name = "autoCompleteTextBox1";
-			this.autoCompleteTextBox1.Size = new System.Drawing.Size(299, 20);
+			this.autoCompleteTextBox1.Size = new System.Drawing.Size(304, 20);
 			this.autoCompleteTextBox1.TabIndex = 18;
 			this.autoCompleteTextBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			this.autoCompleteTextBox1.Values = null;
@@ -134,7 +138,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(313, 237);
+			this.ClientSize = new System.Drawing.Size(328, 284);
 			this.Controls.Add(this.CalculateButton);
 			this.Controls.Add(this.resultBox);
 			this.Controls.Add(this.autoCompleteTextBox1);

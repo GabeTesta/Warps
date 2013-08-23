@@ -169,6 +169,8 @@ namespace Warps
 		/// <param name="tag"></param>
 		private void Highlight(object tag)
 		{
+			if (tag == null)
+				return;
 			foreach (Entity e in ActiveView.Entities)
 			{
 				if (e.EntityData == tag && !e.Selected)
@@ -576,14 +578,6 @@ namespace Warps
 			ents[0].EntityData = ents[1].EntityData = e.EntityData;
 			ents[0].GroupIndex = ents[1].GroupIndex = e.GroupIndex;
 
-			if (e is Mesh)
-			{
-				e.ColorMethod = colorMethodType.byEntity;
-				Color baseColor = e.Color;
-				if (e.LayerIndex > 0 && e.LayerIndex < this[0].Layers.Count)
-					baseColor = this[0].Layers[e.LayerIndex].Color;
-				e.Color = Color.FromArgb(50, baseColor);
-			}
 			//AddLabels(labels);
 
 			return ents;

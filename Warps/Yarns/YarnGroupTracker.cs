@@ -58,8 +58,8 @@ namespace Warps.Yarns
 			get { return m_editMode; }
 			set
 			{
-				m_editMode = value && m_group.Locked;
-				toggleEditMode(value && m_group.Locked);
+				m_editMode = value;
+				toggleEditMode(value);
 			}
 		}
 
@@ -218,6 +218,7 @@ namespace Warps.Yarns
 			yarGroup.Guide = Edit.Guide;
 			yarGroup.DensityPos = Edit.sPos;
 			yarGroup.EndCondition = Edit.Ending;
+			yarGroup.YarnMaterial = Edit.YarnMaterial;
 			if (sender != null)
 				m_frame.Rebuild(yarGroup);//returns false if AutoBuild is off
 

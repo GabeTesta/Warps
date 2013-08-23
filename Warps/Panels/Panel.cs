@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
-
 using Warps.Curves;
 using System.Drawing;
 

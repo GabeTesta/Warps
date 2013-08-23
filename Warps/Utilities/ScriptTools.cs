@@ -56,7 +56,7 @@ namespace Warps
 			int nc = line.IndexOf(':');
 			if (nc == -1 || line.Length == 0)
 				return null;
-			return line.Substring(nc + 1).Trim(' ', '\t', '\n', '\r');		
+			return line.Substring(nc + 1).Trim(' ', '\t', '\n', '\r', '[', ']');		
 		}
 
 		public static int Depth(string line)

@@ -12,6 +12,9 @@ namespace RBFBasis
 		double dr(double r);
 		/* returns the value of the second derivative of this function with respect to the radius */
 		double ddr(double r);
+
+		IBasisFunction Clone();
+
 	}
 
 }

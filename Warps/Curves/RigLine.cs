@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using devDept.Geometry;
 
 namespace Warps
 {
@@ -38,7 +39,15 @@ namespace Warps
 				Add(v);
 			}
 		}
-
+		public void Transform(Transformation rot)
+		{
+			ForEach(vec =>
+				{
+					Point3D p = Utilities.Vect3ToPoint3D(vec);
+					p.TransformBy(rot);
+					vec.Set(p.ToArray());
+				});
+		}
 		internal devDept.Eyeshot.Entities.Entity CreateEntities()
 		{
 			devDept.Eyeshot.Entities.LinearPath path  = new devDept.Eyeshot.Entities.LinearPath(Count);
