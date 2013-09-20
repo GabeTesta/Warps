@@ -105,7 +105,7 @@
 			devDept.Eyeshot.Viewport viewport2 = new devDept.Eyeshot.Viewport(new System.Drawing.Point(0, 0), new System.Drawing.Size(242, 346), backgroundSettings2, camera2, toolBar2, new devDept.Eyeshot.Legend[] {
             legend2}, devDept.Eyeshot.displayType.Rendered, true, false, false, false, new devDept.Eyeshot.Grid[] {
             grid2}, originSymbol2, false, rotateSettings2, zoomSettings2, new devDept.Eyeshot.PanSettings(new devDept.Eyeshot.MouseButton(System.Windows.Forms.MouseButtons.Middle, devDept.Eyeshot.ModifierKeys.Ctrl), 25, true));
-			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.m_split = new System.Windows.Forms.SplitContainer();
 			this.LtoR = new System.Windows.Forms.Button();
 			this.m_btnLeft = new System.Windows.Forms.Button();
 			this.m_viewleft = new devDept.Eyeshot.SingleViewportLayout();
@@ -131,10 +131,10 @@
 			this.saveDualToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyDualToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-			this.splitContainer1.Panel1.SuspendLayout();
-			this.splitContainer1.Panel2.SuspendLayout();
-			this.splitContainer1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.m_split)).BeginInit();
+			this.m_split.Panel1.SuspendLayout();
+			this.m_split.Panel2.SuspendLayout();
+			this.m_split.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.m_viewleft)).BeginInit();
 			this.m_dualViewContextMenu.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.m_viewright)).BeginInit();
@@ -142,24 +142,24 @@
 			// 
 			// splitContainer1
 			// 
-			this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-			this.splitContainer1.Name = "splitContainer1";
+			this.m_split.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_split.Location = new System.Drawing.Point(0, 0);
+			this.m_split.Name = "splitContainer1";
 			// 
 			// splitContainer1.Panel1
 			// 
-			this.splitContainer1.Panel1.Controls.Add(this.LtoR);
-			this.splitContainer1.Panel1.Controls.Add(this.m_btnLeft);
-			this.splitContainer1.Panel1.Controls.Add(this.m_viewleft);
+			this.m_split.Panel1.Controls.Add(this.LtoR);
+			this.m_split.Panel1.Controls.Add(this.m_btnLeft);
+			this.m_split.Panel1.Controls.Add(this.m_viewleft);
 			// 
 			// splitContainer1.Panel2
 			// 
-			this.splitContainer1.Panel2.Controls.Add(this.RtoL);
-			this.splitContainer1.Panel2.Controls.Add(this.m_btnRight);
-			this.splitContainer1.Panel2.Controls.Add(this.m_viewright);
-			this.splitContainer1.Size = new System.Drawing.Size(532, 346);
-			this.splitContainer1.SplitterDistance = 286;
-			this.splitContainer1.TabIndex = 0;
+			this.m_split.Panel2.Controls.Add(this.RtoL);
+			this.m_split.Panel2.Controls.Add(this.m_btnRight);
+			this.m_split.Panel2.Controls.Add(this.m_viewright);
+			this.m_split.Size = new System.Drawing.Size(532, 346);
+			this.m_split.SplitterDistance = 286;
+			this.m_split.TabIndex = 0;
 			// 
 			// LtoR
 			// 
@@ -290,7 +290,7 @@
 			this.saveColorsToolStripMenuItem.Name = "saveColorsToolStripMenuItem";
 			this.saveColorsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.saveColorsToolStripMenuItem.Text = "Save Colors";
-			this.saveColorsToolStripMenuItem.Click += new System.EventHandler(this.saveColorsToolStripMenuItem_Click_1);
+			this.saveColorsToolStripMenuItem.Click += new System.EventHandler(this.saveColorsToolStripMenuItem_Click);
 			// 
 			// loadColorsToolStripMenuItem
 			// 
@@ -396,14 +396,14 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.splitContainer1);
+			this.Controls.Add(this.m_split);
 			this.Name = "DualView";
 			this.Size = new System.Drawing.Size(532, 346);
 			this.Load += new System.EventHandler(this.DualView_Load);
-			this.splitContainer1.Panel1.ResumeLayout(false);
-			this.splitContainer1.Panel2.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-			this.splitContainer1.ResumeLayout(false);
+			this.m_split.Panel1.ResumeLayout(false);
+			this.m_split.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.m_split)).EndInit();
+			this.m_split.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.m_viewleft)).EndInit();
 			this.m_dualViewContextMenu.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.m_viewright)).EndInit();
@@ -413,7 +413,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.SplitContainer splitContainer1;
+		private System.Windows.Forms.SplitContainer m_split;
 		private devDept.Eyeshot.SingleViewportLayout m_viewleft;
 		private devDept.Eyeshot.SingleViewportLayout m_viewright;
         private System.Windows.Forms.ContextMenuStrip m_dualViewContextMenu;

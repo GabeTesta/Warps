@@ -6,6 +6,7 @@ using System.Drawing;
 using devDept.Geometry;
 using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
+using Warps.Curves;
 
 namespace Warps
 {
@@ -24,10 +25,6 @@ namespace Warps
 		public string Label
 		{
 			//get { return m_cofPath == null ? "" : Path.GetFileNameWithoutExtension(m_cofPath); }
-			get { return m_cofPath; }
-		}
-		public string CofPath
-		{
 			get { return m_cofPath; }
 		}
 
@@ -506,8 +503,7 @@ namespace Warps
 		{
 			List<Entity> ents = new List<Entity>();
 			ents.Add(SurfaceTools.GetMesh(this, uvLims, bGauss));
-			List<Entity> grp;
-			if (!bGauss)//only add curves to non-gauss layer
+			if (!bGauss && uvLims == null)//only add curves to non-gauss layer
 			{
 				if (m_rigcurves != null)
 					foreach (RigLine rig in m_rigcurves)
@@ -515,14 +511,14 @@ namespace Warps
 						ents.Add(rig.CreateEntities());
 						ents[ents.Count - 1].EntityData = this;
 					}
-				if (m_moucurves != null)
-					foreach (IGroup g in m_moucurves)
-					{
-						grp = g.CreateEntities();
-						foreach (Entity e in grp)
-							e.EntityData = this;
-						ents.AddRange(grp);	
-					}
+				//if (m_moucurves != null)
+				//	foreach (IGroup g in m_moucurves)
+				//	{
+				//		grp = g.CreateEntities();
+				//		//foreach (Entity e in grp)
+				//		//	e.EntityData = this;
+				//		ents.AddRange(grp);	
+				//	}
 			}
 			return ents;
 			//m_entities.Add(SurfaceTools.GetMesh(this, true));
@@ -560,12 +556,14 @@ namespace Warps
 			return s;
 		}
 
+
+
 		TreeNode m_node;
 		public TreeNode WriteNode()
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Text = CofPath;
+			m_node.Text = Label;
 			m_node.Tag = this;
 			m_node.ToolTipText = m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
 			m_node.Nodes.Clear();
@@ -630,5 +628,19 @@ namespace Warps
 		//	return mesh;
 		//}
 
+
+		//#region XScript
+
+		//public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
+		//{
+		//	return NsXml.MakeElement(doc, GetType().Name, Label);
+		//}
+
+		//public void ReadXScript(Sail sail, System.Xml.XmlNode node)
+		//{
+		//	m_cofPath = NsXml.ReadLabel(node);
+		//}
+
+		//#endregion
 	}
 }

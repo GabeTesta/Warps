@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Warps.Curves;
 
 namespace Warps
 {
@@ -12,7 +13,7 @@ namespace Warps
 		public CurvePoint() : this(0, null, 0) { }
 
 		public CurvePoint(CurvePoint c)
-			: this(c.S, c.m_curve, c.m_sEqu) { }
+			: this(c.S, c.m_curve, new Equation(c.m_sEqu)) { }
 
 		public CurvePoint(IMouldCurve curve, double sCurve)
 			: this(0, curve, sCurve) { }
@@ -78,7 +79,7 @@ namespace Warps
 			get { return S_Equ.Value; }
 			set
 			{
-				if(S_Equ.IsNumber())
+				if(S_Equ.IsNumber)
 					S_Equ.Value = value;
 				else
 					throw new Exception(string.Format("Cannot set value [{0}] for non-numeric equation [{1}]", value, S_Equ.ToString()));
@@ -224,8 +225,6 @@ namespace Warps
 
 		#endregion
 
-		#region IRebuild Members
-
 		public bool Affected(List<IRebuild> connected)
 		{
 			if (connected == null) 
@@ -272,7 +271,6 @@ namespace Warps
 			//parents.Add(m_sEqu);
 			m_sEqu.GetParents(s, parents);
 		}
-
 
 		public bool Update(Sail s) {
 
@@ -330,7 +328,6 @@ namespace Warps
 			return script;
 		}
 
-		#endregion
 
 		public override string ToString()
 		{
@@ -343,5 +340,25 @@ namespace Warps
 				return m_curve != null;
 			}
 		}
+
+		#region IFitPoint Members
+
+
+		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
+		{
+			System.Xml.XmlNode node = NsXml.MakeNode(doc, GetType().Name);
+			NsXml.AddAttribute(node, "Curve", m_curve.Label);
+			node.AppendChild( m_sEqu.WriteXScript(doc));
+			return node;
+
+		}
+
+		public void ReadXScript(Sail s, System.Xml.XmlNode node)
+		{
+			m_curve = s.FindCurve(NsXml.ReadString(node, "Curve"));
+			m_sEqu.ReadXScript(s, node.FirstChild);
+		}
+
+		#endregion
 	}
 }

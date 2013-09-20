@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NCalc;
 using System.Windows.Forms;
+using Warps.Curves;
 
 namespace Warps
 {
@@ -55,7 +56,7 @@ namespace Warps
 			{
 				worked = double.TryParse(equation.EquationText, out result);
 				equation.m_result = result;
-				Logger.logger.Instance.LogErrorException(exx);
+				Logleton.TheLog.LogErrorException(exx);
 			}
 			finally
 			{

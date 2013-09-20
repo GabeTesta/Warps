@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using devDept.Eyeshot;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
+using System.Xml;
 
-namespace Warps
+namespace Warps.Curves
 {
 	/// <summary>
 	/// A MouldCurve with an additional Comb spline that allows for independant comb control
@@ -16,6 +17,13 @@ namespace Warps
 	public class GuideComb : MouldCurve
 	{
 		public GuideComb() { Label = "none"; uSplines = new Vect2[] { new Vect2(0, 0) }; }
+		public GuideComb(GuideComb clone)
+			:base(clone)
+		{
+			foreach (Vect2 v in clone.m_combPnts)
+				m_combPnts.Add(new Vect2(v));
+			FitComb(CombPnts);
+		}
 
 		/// <summary>
 		/// creates a new guidecomb optionally fit to the specified points and combheights
@@ -33,7 +41,29 @@ namespace Warps
 				FitComb(combs);
 		}
 
+		public bool IsEqual(GuideComb c)
+		{
+			if (c == null)
+				return false;
+			if (!base.IsEqual(c))
+				return false;
+			if (c.m_combPnts.Count != m_combPnts.Count)
+				return false;
+			for (int i = 0; i < m_combPnts.Count; i++)
+				if (c.m_combPnts[i] != m_combPnts[i])
+					return false;
+
+			return true;
+		}
+
+
+		public override void ReFit()
+		{
+			base.ReFit();
+			FitComb(null);
+		}
 		/// <summary>
+		/// 
 		/// fits the 1-D comb spline to a set of (s-pos, height) pairs
 		/// </summary>
 		/// <param name="combs">the array of points to fit to, minimum 5</param>
@@ -121,15 +151,17 @@ namespace Warps
 			List<Entity> e = base.CreateEntities(bFitPoints, TolAngle, out sPos);
 			if (sPos == null)
 				return e;
-			
-			e.AddRange(CreateCombEntity(sPos.ToArray(), false));
-			Vect2 u = new Vect2();
-			Vect3 xyz = new Vect3(), xup = new Vect3();
-			foreach (double s in SComb)
-			{
-				e.Add(CreateNormal(s, ref u, ref xyz, ref xup));
-			}
 
+			if (bFitPoints)
+			{
+				e.AddRange(CreateCombEntity(sPos.ToArray(), false));
+				Vect2 u = new Vect2();
+				Vect3 xyz = new Vect3(), xup = new Vect3();
+				foreach (double s in SComb)
+				{
+					e.Add(CreateNormal(s, ref u, ref xyz, ref xup));
+				}
+			}
 			return e;
 		}
 		LinearPath CreateNormal(double s, ref Vect2 uv, ref Vect3 xyz, ref Vect3 xup)
@@ -246,7 +278,7 @@ namespace Warps
 
 			base.ReadScript(sail, txt);
 			string header;
-			string[] splits;
+			//string[] splits;
 			m_combPnts.Clear();
 			for (int nLine = 1; nLine < txt.Count; )
 			{
@@ -300,6 +332,30 @@ namespace Warps
 			
 
 			return script;
+		}
+
+		public override XmlNode WriteXScript(XmlDocument doc)
+		{
+			XmlNode node = base.WriteXScript(doc);
+			XmlNode combs = node.AppendChild(NsXml.MakeNode(doc, "Comb"));
+			int nCmb = 0;
+			foreach (Vect2 pt in CombPnts)
+				combs.AppendChild(NsXml.MakeNode(doc, "P" + (++nCmb).ToString(), pt.ToString()));
+			return node;
+		}
+		public override void ReadXScript(Sail sail, XmlNode node)
+		{
+			base.ReadXScript(sail, node);
+			List<Vect2> combs = new List<Vect2>();
+			foreach (XmlNode child in node.ChildNodes)
+			{
+				if (child.Name == "Comb")
+				{
+					foreach (XmlNode pt in child)
+						combs.Add(new Vect2(NsXml.ReadLabel(pt)));
+				}
+			}
+			FitComb(combs.ToArray());
 		}
 	}
 }

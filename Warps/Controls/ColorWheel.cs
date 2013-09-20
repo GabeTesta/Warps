@@ -601,6 +601,17 @@ namespace Warps
 			return avg > 256 / 2 ? Color.Black : Color.GhostWhite;
 		}
 
+		public static Color[] CreateColorScale()
+		{
+			int nC = 8;
+			Color[] scale = new Color[nC];
+			for (int i = 0; i < nC; i++)
+			{
+				scale[i] = ColorMath.GetScaleColor(nC - 1, 0, i);
+			}
+			return scale;
+		}
+
 		/// <summary>
 		/// returns the color value for the specified colorscale given a scale value
 		/// </summary>
@@ -608,7 +619,7 @@ namespace Warps
 		/// <param name="min">the colorscale's min</param>
 		/// <param name="val">value to return the color for</param>
 		/// <returns>a color that represents the values position in the colorscale</returns>
-		public static System.Drawing.Color GetScaleColor(double max, double min, double val)
+		public static Color GetScaleColor(double max, double min, double val)
 		{
 			double del = (max - min) / 7;
 			double[] nodes = new double[8];

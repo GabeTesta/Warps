@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using devDept.Geometry;
 using devDept.Eyeshot.Entities;
 
-namespace Warps
+namespace Warps.Curves
 {
 	public interface IMouldCurve
 	{

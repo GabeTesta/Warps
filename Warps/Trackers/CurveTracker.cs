@@ -10,7 +10,7 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
-using Logger;
+using Warps.Curves;
 
 namespace Warps
 {
@@ -19,87 +19,13 @@ namespace Warps
 		public CurveTracker(MouldCurve curve)
 		{
 			m_curve = curve;
+			m_edit = new MouldCurveEditor();
 		}
 
-		public void Track(WarpFrame frame)
-		{
-			if (frame == null)
-				return;
-
-			m_frame = frame;
-
-			m_frame.EditorPanel = m_edit;
-			EditMode = frame.EditMode;
-
-			if (Tree != null)
-			{
-				Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
-				Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
-				Tree.AttachTracker(this);
-				//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
-			}
-
-			View.AttachTracker(this);
-			
-			if (Curve != null)
-				SelectCurve(Curve);
-		}
-		public void Cancel()
-		{
-			//m_frame.okButton.Click -= OnBuild;
-			//m_frame.cancelButton.Click -= OnCancel;
-			//m_frame.previewButton.Click -= OnPreview;
-
-			m_frame.EditorPanel = null;
-
-			Tree.KeyUp -= Tree_KeyUp;
-			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
-			//Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
-			Tree.DetachTracker(this);
-
-			View.DetachTracker(this);
-
-			if (m_temp != null)
-				View.Remove(m_temp);
-			View.DeSelect(Curve);
-			//View.StopSelect();
-			View.DetachTracker(this);
-			View.Refresh();
-		}
-
-		bool m_editMode = false;
-		public bool EditMode
-		{
-			get { return m_editMode; }
-			set 
-			{
-				if (m_curve.Locked && value)
-					return;
-
-				m_editMode = value;
-				//if (Edit != null)
-				//	Edit.Enabled = value;
-				if (m_edit != null)
-					m_edit.Enabled = value;
-
-				if (View != null)
-				{
-					View.EditMode = value;
-					View.DeSelectAllLayers();
-					//if (Curve != null)
-					//	SelectCurve(Curve);
-				}
-				//if (Tree != null)
-				//	Tree.EditMode = value;
-
-				//if (value == false)
-				//	Tree.DeSelect(m_curve);
-			}
-		}
+		#region Members
 
 		MouldCurve m_curve;
-		//CurveEditor m_edit;
-		MouldCurveEditor m_edit = new MouldCurveEditor();
+		MouldCurveEditor m_edit;
 		WarpFrame m_frame;
 
 		public MouldCurve Curve
@@ -107,10 +33,6 @@ namespace Warps
 			get { return m_curve; }
 			set { m_curve = value; }
 		}
-		//CurveEditor Edit
-		//{
-		//	get { return m_edit; }
-		//}
 		DualView View
 		{
 			get { return m_frame != null ? m_frame.View : null; }
@@ -128,33 +50,59 @@ namespace Warps
 		Entity[][] m_tents;
 		int m_index = -1;
 
+		#endregion
+
 		#region ITracker Members
 
-		public void OnAdd(object sender, EventArgs e) { }
-		public void OnDelete(object sender, EventArgs e)
+		public bool IsTracking { get { return !m_curve.IsEqual(m_temp); } }
+
+		public void Track(WarpFrame frame)
 		{
-			if (!EditMode)
+			if (frame == null)
 				return;
 
-			View.Remove(Curve);
-			CurveGroup g = Curve.Group as CurveGroup;
-			if (g != null)
+			m_frame = frame;
+
+			m_frame.EditorPanel = m_edit;
+			//EditMode = frame.EditMode;
+
+			if (Tree != null)
 			{
-				g.Remove(Curve);
-				m_frame.Rebuild(g);
+				Tree.AttachTracker(this);
+				//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
 			}
-			m_frame.Delete(Curve);
-			if (g != null)
-				Tree.SelectedTag = g;
+
+			View.AttachTracker(this);
+
+			if (Curve != null)
+				SelectCurve(Curve);
+		}
+		public void Cancel()
+		{
+			m_frame.EditorPanel = null;
+
+			Tree.DetachTracker(this);
+			View.DetachTracker(this);
+
+			if (m_temp != null)
+			{
+				View.Remove(m_temp, false);
+				m_temp = null;
+			}
+			if (m_tents != null)
+			{
+				View.RemoveRange(m_tents);
+				m_tents = null;
+			}
+			View.DeSelect(Curve);
+			//View.StopSelect();
+			View.DetachTracker(this);
+			View.Refresh();
 		}
 
-		public void OnCancel(object sender, EventArgs e)
-		{
-			Cancel();
-		}
 		public void OnBuild(object sender, EventArgs e)
 		{
-			if (m_temp == null || !EditMode)
+			if (m_temp == null)
 				return;
 			//Detach();
 			OnPreview(sender, null);
@@ -164,91 +112,24 @@ namespace Warps
 			Curve.Fit(m_temp);
 			Curve.Label = m_edit.Label;
 
-			if( sender != null )
+			if (sender != null)
 				m_frame.Rebuild(Curve);//returns false if AutoBuild is off
-			
+
 			//View.Refresh();
 		}
 		public void OnPreview(object sender, EventArgs e)
 		{
-			if (m_temp == null || !EditMode)
+			if (m_temp == null)
 				return;
 
-			ReadEditor();
+			m_edit.WriteCurve(m_temp);
 			UpdateViewCurve(true);
 		}
-		void ReadEditor()
+
+		public void ProcessSelection(object Tag)
 		{
-			m_edit.WriteCurve(m_temp);
-
-			//List<IFitPoint> pnts = new List<IFitPoint>();
-			//for (int i = 0; i < Edit.Count; i++)  
-			//{
-			//	object fit = null;
-			//	if (Edit[i] != null)
-			//		fit = Utilities.CreateInstance(Edit[i].FitType.Name);
-			//	if (fit != null && fit is IFitPoint)
-			//	{
-			//		pnts.Add(fit as IFitPoint);
-			//		pnts.Last().ReadEditor(Edit[i]);
-			//		pnts.Last().Update(Sail);
-			//	}
-			//}
-			//m_temp.FitPoints = pnts.ToArray();
-		}
-
-		public void OnSelect(object sender, EventArgs<IRebuild> e)
-		{
-			if (Curve != null)
-				return;//dont allow changing selection
-			object tag = null;
-			if (sender is SingleViewportLayout)
-				tag = View.SelectedTag;
-			else if (sender is TreeView)
-				tag = Tree.SelectedTag;
-
-			if (tag != null && tag is MouldCurve)
-			{
-				SelectCurve(tag as MouldCurve);
-			}
-		}
-
-		private void SelectCurve(MouldCurve cur)
-		{
-			if (cur == null)
-				return;
-			if (m_temp != null)
-				View.Remove(m_temp);
-
-			Curve = cur;
-
-			//IFitPoint[] pts = new IFitPoint[Curve.FitPoints.Length];
-			//for (int i = 0; i < pts.Length; i++)
-			//	pts[i] = Curve[i].Clone();
-
-			m_temp = new MouldCurve(cur);
-			m_temp.Label += "[preview]";
-			m_tents = View.AddRange(m_temp.CreateEntities(true));
-
-			foreach (Entity[] ents in m_tents)
-				foreach (Entity ee in ents)
-				{
-					ee.Color = Color.LightSkyBlue;
-					ee.ColorMethod = colorMethodType.byEntity;
-					if ( ee.LineWeight == 1 ) ee.LineWeight = 2.0f;
-					ee.LineWeightMethod = colorMethodType.byEntity;
-				}
-
-			m_edit.AutoFill = Sail.Watermark(Curve, Tree.SelectedTag as IGroup).ToList<object>();
-			m_edit.ReadCurve(m_temp);
-			m_edit.Label = Curve.Label;
-			m_edit.Refresh();
-
-			if (Tree.SelectedTag != Curve) 
-				Tree.SelectedTag = Curve;
-
-			View.Select(Curve);
-			View.Refresh();
+			//should attempt to pass on the selection to the active fitpoint editor
+			//ideally selecting the desired curve/equation from the tree/view instead of the dropdown
 		}
 
 		public void OnClick(object sender, MouseEventArgs e)
@@ -257,9 +138,9 @@ namespace Warps
 				return;
 			if (Control.ModifierKeys == Keys.Control)
 			{
-				if( m_index >= 0 )
+				if (m_index >= 0)
 				{
-					if( m_temp.RemovePoint(m_index) )
+					if (m_temp.RemovePoint(m_index))
 						UpdateViewCurve(true);
 				}
 				else
@@ -270,20 +151,16 @@ namespace Warps
 					//Point3D target = View.ActiveView.ScreenToWorld(mpt);
 					int i;
 					//if ( target != null && m_temp.InsertPoint(new Vect3(target.ToArray()), out i))
-					if ( m_temp.InsertPoint(mpt, View.ActiveView.WorldToScreen, out i) )
+					if (m_temp.InsertPoint(mpt, View.ActiveView.WorldToScreen, out i))
 						UpdateViewCurve(true);
-					
+
 				}
 
 			}
 		}
-
 		public void OnDown(object sender, MouseEventArgs e)
 		{
 			if (m_temp == null || e.Button != MouseButtons.Left)
-				return;
-
-			if (!EditMode)
 				return;
 
 			Point3D vert;
@@ -308,12 +185,9 @@ namespace Warps
 				}
 			}
 		}
-
 		public void OnMove(object sender, MouseEventArgs e)
 		{
 			if (m_temp == null || e.Button != MouseButtons.Left || m_index == -1)
-				return;
-			if (!EditMode)
 				return;
 			Transformer wts = View.ActiveView.WorldToScreen;
 			PointF mpt = new PointF(e.X, View.ActiveView.Height - e.Y);
@@ -324,62 +198,90 @@ namespace Warps
 			else
 				UpdateViewCurve(true);
 		}
-
 		public void OnUp(object sender, MouseEventArgs e)
 		{
 			if (m_temp == null)
 				return;
-			if (!EditMode)
-				return;
+
 			if (e.Button == MouseButtons.Left)
 			{
 				m_index = -1;
 			}
 		}
 
-		//public void OnCopy(object sender, EventArgs e)
-		//{
-		//	MouldCurve group = Tree.SelectedTag as MouldCurve;
-		//	//Lets say its my data format
-		//	if (group == null)
-		//		return;
-
-		//	Clipboard.Clear();
-
-		//	// Set data to clipboard
-
-		//	// typeof(MouldCurve).ToString() doesn't work here because its string is Warps.CurveGroup
-		//	// this is a problem for the clipboard for some reason
-
-		//	Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
-		//	m_frame.Status = String.Format("{0}:{1} Copied", group.GetType().Name, group.Label);
-		//}
-
+		public void OnAdd(object sender, EventArgs e) { }
+		public void OnDelete(object sender, EventArgs e)
+		{
+			View.Remove(Curve, true);
+			CurveGroup g = Curve.Group as CurveGroup;
+			if (g != null)
+			{
+				g.Remove(Curve);
+				m_frame.Rebuild(g);
+			}
+			m_frame.Delete(Curve);
+			if (g != null)
+				Tree.SelectedTag = g;
+		}
 		public void OnPaste(object sender, EventArgs e)
 		{
-			//the Curve tracker shouldn't do anything with pasted data
+			//this should parse w4l or wrp script
 		}
 
-		//public bool IsTracking(object obj)
-		//{
-		//	return obj == m_curve;
-		//}
+		#endregion
 
+		private void SelectCurve(MouldCurve cur)
+		{
+			if (cur == null)
+				return;
+			if (m_temp != null)
+				View.Remove(m_temp, false);
+
+			Curve = cur;
+
+			//IFitPoint[] pts = new IFitPoint[Curve.FitPoints.Length];
+			//for (int i = 0; i < pts.Length; i++)
+			//	pts[i] = Curve[i].Clone();
+
+			m_temp = new MouldCurve(cur);
+			//	m_temp.Label += "[preview]";
+			m_tents = View.AddRange(m_temp.CreateEntities(true));
+
+			foreach (Entity[] ents in m_tents)
+				foreach (Entity ee in ents)
+				{
+					//ee.Color = Color.LightSkyBlue;
+					//ee.ColorMethod = colorMethodType.byEntity;
+					//if (ee.LineWeight == 1) ee.LineWeight = 2.0f;
+					//ee.LineWeightMethod = colorMethodType.byEntity;
+				}
+
+			m_edit.AutoFill = Sail.Watermark(Curve, Tree.SelectedTag as IGroup).ToList<object>();
+			m_edit.ReadCurve(m_temp);
+			m_edit.Label = Curve.Label;
+			m_edit.Refresh();
+
+			if (Tree.SelectedTag != Curve)
+				Tree.SelectedTag = Curve;
+
+			View.Select(Curve);
+			View.Refresh();
+		}
 		void UpdateViewCurve(bool bEditor)
 		{
 			m_temp.ReFit();
 			List<Entity> verts = m_temp.CreateEntities(true);
-			if( verts != null && verts[0] != null && verts[1] != null )
-			foreach (Entity[] ents in m_tents)
-			{
-				for (int i = 0; i < 2; i++)
+			if (verts != null && verts[0] != null && verts[1] != null)
+				foreach (Entity[] ents in m_tents)
 				{
-					if (ents[i] is LinearPath)
-						ents[i].Vertices = verts[0].Vertices;
-					else if (ents[i] is PointCloud)
-						ents[i].Vertices = verts[1].Vertices;
+					for (int i = 0; i < 2; i++)
+					{
+						if (ents[i] is LinearPath)
+							ents[i].Vertices = verts[0].Vertices;
+						else if (ents[i] is PointCloud)
+							ents[i].Vertices = verts[1].Vertices;
+					}
 				}
-			}
 			View.Regen();
 			View.Refresh();
 			if (bEditor)
@@ -397,62 +299,5 @@ namespace Warps
 				//Edit.Update();
 			}
 		}
-
-		#endregion
-
-		#region TreePopup
-
-		void Tree_KeyUp(object sender, KeyEventArgs e)
-		{
-			// the modifier key CTRL is pressed by the time it gets here
-			switch (e.KeyCode)
-			{
-				//case Keys.C:
-					//OnCopy(Tree.SelectedTag, new EventArgs());
-				//	break;
-				case Keys.V:
-					OnPaste(Tree.SelectedTag, new EventArgs());
-					break;
-			}
-		}
-
-		//void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-		//{
-		//	logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
-
-		//	//if (e.ClickedItem.Text == "Copy")
-		//	//{
-		//	//	OnCopy(sender, new EventArgs());
-		//	//}
-		//	if (e.ClickedItem.Text == "Paste")
-		//	{
-		//		OnPaste(sender, new EventArgs());
-		//	}
-		//	else if (e.ClickedItem.Text == "Delete")
-		//	{
-		//		OnDelete(sender, new EventArgs());
-		//	}
-		//	else if (e.ClickedItem.Text == "Add")
-		//	{
-		//		OnAdd(sender, new EventArgs());
-		//	}
-		//}
-
-		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-		{
-			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
-			{
-				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
-					Tree.TreeContextMenu.Items[i].Enabled = Utilities.GetClipboardObjType() == typeof(MouldCurve);
-				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add"))
-					Tree.TreeContextMenu.Items[i].Enabled = false;
-				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
-					Tree.TreeContextMenu.Items[i].Enabled = EditMode;
-			}
-			Tree.TreeContextMenu.Show();
-		}
-
-
-		#endregion
 	}
 }

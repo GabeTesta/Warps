@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Warps;
 using Warps.Curves;
 using devDept.Eyeshot.Entities;
+using Warps.Yarns;
 
 namespace Warps.Tapes
 {
@@ -30,6 +31,20 @@ namespace Warps.Tapes
 			m_label = copy.Label;
 			m_sail = copy.Sail;
 			Fit(copy);
+		}
+
+		public bool IsEqual(TapeGroup g)
+		{
+			if (g == null)
+				return false;
+
+			return g.m_angleTol == this.m_angleTol
+				&& g.m_bStagger == this.m_bStagger
+				&& g.m_chainTol == this.m_chainTol
+				&& g.m_densitymap == this.m_densitymap
+				&& g.m_label == this.m_label
+				&& g.m_pixlen == this.m_pixlen
+				&& g.m_warps == this.m_warps;
 		}
 
 		public void WriteBin(System.IO.BinaryWriter bin) { }
@@ -435,15 +450,15 @@ namespace Warps.Tapes
 			return null;
 		}
 
-		public IRebuild FindItem(IRebuild obj)
+		public bool ContainsItem(IRebuild obj)
 		{
-			//nothing to search for in a yarn group
-			return null;
+			//nothing to search for in a tape group
+			return false;
 		}
 
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
 		{
-			if( tag == this )
+			if( object.ReferenceEquals(tag , this) )
 				return true;
 			//no IRebuilds in a yarn group either (except combs which we ignore)
 			return false;
@@ -599,7 +614,7 @@ namespace Warps.Tapes
 					{
 						if (irb is IGroup)
 						{
-							bupdate |= (irb as IGroup).FindItem(warp) != null;
+							bupdate |= (irb as IGroup).ContainsItem(warp);
 						}
 					}
 				}
@@ -643,5 +658,20 @@ namespace Warps.Tapes
 			//udpate treenode
 			WriteNode();
 		}
+
+		#region IRebuild Members
+
+
+		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
+		{
+			return NsXml.MakeNode(doc, this);
+		}
+
+		public void ReadXScript(Sail sail, System.Xml.XmlNode node)
+		{
+			Label = NsXml.ReadLabel(node);
+		}
+
+		#endregion
 	}
 }

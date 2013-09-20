@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Warps
+namespace Warps.Mixed
 {
 	public class MixedGroup : List<IRebuild>, IGroup
 	{
@@ -44,9 +44,24 @@ namespace Warps
 			return null;
 		}
 
-		public IRebuild FindItem(IRebuild obj)
+		public bool ContainsItem(IRebuild obj)
 		{
-			throw new NotImplementedException();
+			bool bfound = false;
+			this.ForEach(irb =>
+			{
+				if (obj == irb)
+				{
+					bfound = true;
+					return;
+				}
+				if (irb is IGroup) 
+					if ((irb as IGroup).ContainsItem(obj))
+					{
+						bfound = true;
+						return;
+					} 
+			});
+			return bfound;
 		}
 
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
@@ -187,6 +202,35 @@ namespace Warps
 		public bool Delete()
 		{
 			throw new NotImplementedException();
+		}
+
+		#endregion
+
+		#region IRebuild Members
+
+
+		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
+		{
+			System.Xml.XmlNode node = NsXml.MakeNode(doc, this);
+			foreach (IRebuild rbd in this)
+				node.AppendChild(rbd.WriteXScript(doc));
+
+			return node;
+		}
+
+		public void ReadXScript(Sail sail, System.Xml.XmlNode node)
+		{
+			Label = NsXml.ReadLabel(node);
+			Sail.Add(this);//keep sail up to date for interdependent children
+			foreach (System.Xml.XmlNode child in node)
+			{
+				object cur = Utilities.CreateInstance(child.Name);
+				if (cur != null && cur is IRebuild)
+				{
+					(cur as IRebuild).ReadXScript(Sail, child);
+					Add(cur as IRebuild);
+				}
+			}
 		}
 
 		#endregion

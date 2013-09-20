@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
+using Warps.Curves;
+using System.Xml;
 
 namespace Warps.Panels
 {
@@ -24,8 +26,81 @@ namespace Warps.Panels
 			ClothAlignment = alignment;
 		}
 
+		#region Members
+
+		//IGroup
+		Sail m_sail;
+		string m_label;
+
+		Equation m_Width;
+		List<IMouldCurve> m_bounds;
+		List<IMouldCurve> m_guides;
+		ClothOrientations m_clothAlignment = ClothOrientations.FILLS;
+
+
+		public double Width
+		{
+			get { return m_Width.Value; }
+			//set { m_Width = value; }
+		}
+
+		public Equation PanelWidth
+		{
+			get { return m_Width; }
+			set { m_Width = value; m_Width.Label = "PanelWidth"; }
+		}
+
+		public List<IMouldCurve> Bounds
+		{
+			get { return m_bounds; }
+			set { m_bounds = value; }
+		}
+		public List<IMouldCurve> Guides
+		{
+			get { return m_guides; }
+			set { m_guides = value; }
+		}
+		public ClothOrientations ClothAlignment
+		{
+			get { return m_clothAlignment; }
+			set { m_clothAlignment = value; }
+		}
+		public enum ClothOrientations
+		{
+			WARPS,
+			FILLS,
+			PERPS
+		}
+
+		#endregion
+
 		public void WriteBin(System.IO.BinaryWriter bin) { }
 
+		public bool IsEqual(PanelGroup temp)
+		{
+			if (temp == null)
+				return false;
+			if (Label != temp.Label)
+				return false;
+			if (m_Width != temp.m_Width)
+				return false;
+			if (ClothAlignment != temp.ClothAlignment)
+				return false;
+
+			if (Bounds.Count != temp.Bounds.Count)
+				return false;
+			for (int i = 0; i < Bounds.Count; i++)
+				if (Bounds[i] != temp.Bounds[i])
+					return false;
+
+			if (Guides.Count != temp.Guides.Count)
+				return false;
+			for (int i = 0; i < Guides.Count; i++)
+				if (Guides[i] != temp.Guides[i])
+					return false;
+
+			return true;
+		}
 
 		const int MAX_PANS = 50;
 
@@ -1234,53 +1309,6 @@ namespace Warps.Panels
 		//	return ends;
 		//}
 
-		#region Members
-
-		//IGroup
-		Sail m_sail;
-		string m_label;
-
-		Equation m_Width;
-		List<IMouldCurve> m_bounds;
-		List<IMouldCurve> m_guides;
-		ClothOrientations m_clothAlignment = ClothOrientations.FILLS;
-
-
-		public double Width
-		{
-			get { return m_Width.Value; }
-			//set { m_Width = value; }
-		}
-
-		public Equation PanelWidth
-		{
-			get { return m_Width; }
-			set { m_Width = value; m_Width.Label = "PanelWidth"; }
-		}
-
-		public List<IMouldCurve> Bounds
-		{
-			get { return m_bounds; }
-			set { m_bounds = value; }
-		}
-		public List<IMouldCurve> Guides
-		{
-			get { return m_guides; }
-			set { m_guides = value; }
-		}
-		public ClothOrientations ClothAlignment
-		{
-			get { return m_clothAlignment; }
-			set { m_clothAlignment = value; }
-		}
-		public enum ClothOrientations
-		{
-			WARPS,
-			FILLS,
-			PERPS
-		}
-
-		#endregion
 
 		#region IGroup Members
 
@@ -1309,12 +1337,12 @@ namespace Warps.Panels
 			return null;
 		}
 
-		public IRebuild FindItem(IRebuild item)
+		public bool ContainsItem(IRebuild item)
 		{
 			if (!(item is Panel))
-				return null;
+				return false;
 
-			return this.Find(pan => (item as Panel) == pan);
+			return this.Contains(item as Panel);
 		}
 
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
@@ -1378,14 +1406,15 @@ namespace Warps.Panels
 		{
 			if (txt == null || txt.Count == 0)
 				return false;
-			string[] splits = txt[0].Split(':');
-			Label = "";
-			if (splits.Length > 0)//extract label
-				Label = splits[1];
-			if (splits.Length > 1)//incase label contains ":"
-				for (int i = 2; i < splits.Length; i++)
-					Label += ":" + splits[i];
-			Label = Label.Trim();
+			Label = ScriptTools.ReadLabel(txt[0]);
+			string[] splits;// = txt[0].Split(':');
+			//Label = "";
+			//if (splits.Length > 0)//extract label
+			//	Label = splits[1];
+			//if (splits.Length > 1)//incase label contains ":"
+			//	for (int i = 2; i < splits.Length; i++)
+			//		Label += ":" + splits[i];
+			//Label = Label.Trim();
 
 			for (int nLine = 1; nLine < txt.Count; )
 			{
@@ -1541,6 +1570,39 @@ namespace Warps.Panels
 		{
 			return Label;
 		}
+
+		#region IRebuild Members
+
+
+		public XmlNode WriteXScript(XmlDocument doc)
+		{
+			XmlNode node = NsXml.MakeNode(doc, this);
+			node.AppendChild(m_Width.WriteXScript(doc));
+			NsXml.AddAttribute(node, "ClothAlignment", ClothAlignment.ToString());
+
+			NsXml.AddAttribute(node, "Bounds", m_bounds);
+			NsXml.AddAttribute(node, "Guides", m_guides);
+
+			return node;
+		}
+
+		public void ReadXScript(Sail sail, System.Xml.XmlNode node)
+		{
+			Label = NsXml.ReadLabel(node);
+			m_Width.ReadXScript(sail, node.FirstChild);
+
+			ClothAlignment = (ClothOrientations)Enum.Parse(typeof(ClothOrientations), NsXml.ReadString(node, "ClothAlignment"));
+
+			string[] curs = NsXml.ReadStrings(node, "Bounds");
+			foreach (string s in curs)
+				m_bounds.Add(sail.FindCurve(s));
+
+			curs = NsXml.ReadStrings(node, "Guides");
+			foreach (string s in curs)
+				m_guides.Add(sail.FindCurve(s));
+		}
+
+		#endregion
 	}
 
 	//struct GuideCross

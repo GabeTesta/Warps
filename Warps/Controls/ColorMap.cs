@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
-using Logger;
 
 namespace Warps
 {
@@ -35,7 +34,7 @@ namespace Warps
 						col = def == null || def.IsEmpty ? ColorMath.GetRandomColor() : def;
 
 					m_colors.Add(lbl, col);
-					logger.Instance.Log(string.Format("ColorMap: {0} added for type \"{1}\"", col, lbl));
+					Logleton.TheLog.Log(string.Format("ColorMap: {0} added for type \"{1}\"", col, lbl));
 				}
 				return m_colors[lbl];
 			}
@@ -125,8 +124,15 @@ namespace Warps
 							path = s;
 						}
 						m_lines = lines.ToArray();
+						//refresh the local color with the ini values
 						foreach (string s in this)
-							this[s] = IniColor(s);//refresh the local color with the ini values
+						{
+							Color cIni = IniColor(s);
+							if (cIni != Color.Empty)
+								this[s] = cIni;
+						//	this[s] = IniColor(s);
+
+						}
 					}
 				}
 				else
@@ -143,13 +149,12 @@ namespace Warps
 			}
 		}
 
-
 		/// <summary>
 		/// Stores the current color values to the specified file
 		/// </summary>
 		/// <param name="path">The file to write. If null a SaveFileDialog will prompt the user</param>
 		/// <returns>true if successful, false otherwise</returns>
-		public bool WriteIniFile(string path)
+		public string WriteIniFile(string path)
 		{
 			if (path != null)
 				m_path = path;
@@ -157,14 +162,24 @@ namespace Warps
 			{
 				m_path = Utilities.SaveFileDialog("txt", "Save Color.txt file", Utilities.ExeDir);
 				if (m_path == null)
-					return false;
+					return null;
 			}
 			using (StreamWriter ini = new StreamWriter(m_path))
 			{
-				foreach (KeyValuePair<string, Color> col in m_colors)
+				foreach (KeyValuePair<string, Color> col in m_colors)//write current colors to file
 					ini.WriteLine(String.Format("{0}: {1} {2} {3}", col.Key, col.Value.R, col.Value.G, col.Value.B));
+
+				if (m_lines != null)//write unparsed colors to file
+					foreach (string line in m_lines)
+						if (!HasParsedLine(line))
+							ini.WriteLine(line);
 			}
-			return true;
+			return m_path;
+		}
+		bool HasParsedLine(string line)
+		{
+			string[] txt = line.Split(':');
+			return txt != null && txt.Length == 2 && this.Contains(txt[0]);
 		}
 
 		#region IEnumerable<string> Members
@@ -184,5 +199,19 @@ namespace Warps
 		}
 
 		#endregion
+
+		//internal void ReadSettings(VAkos.ConfigSetting configSetting)
+		//{
+		//	foreach (VAkos.ConfigSetting stg in configSetting.Children())
+		//		ReadColor(stg);
+		//}
+
+		//private void ReadColor(VAkos.ConfigSetting stg)
+		//{
+		//	string label = stg["Label"].Value;
+		//	Color c = Color.FromArgb(stg["R"].intValue, stg["G"].intValue, stg["B"].intValue);
+		//	m_colors.Add(label, c);
+		//}
+
 	}
 }

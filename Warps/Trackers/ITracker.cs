@@ -10,36 +10,19 @@ namespace Warps
 	public interface ITracker
 	{
 		/// <summary>
-		/// Should attach tracker to the view/tree and populate the edit
+		/// Returns true if any changes have been made or the tracker is currently tracking something
+		/// </summary>
+		bool IsTracking { get; }
+
+		/// <summary>
+		/// Attaches the tracker to the view/tree and populates the editor
 		/// </summary>
 		/// <param name="frame">the warp frame to attach to, should always be "this"</param>
 		void Track(WarpFrame frame);
-
 		/// <summary>
-		/// Returns true if the tracker is enabled, false if readonly
+		/// Detaches the tracker from the view/tree and removes the editor
 		/// </summary>
-		bool EditMode { get; set; }
-
-		void OnSelect(object sender, EventArgs<IRebuild> e);
-		void OnClick(object sender, MouseEventArgs e);
-		void OnDown(object sender, MouseEventArgs e);
-		void OnMove(object sender, MouseEventArgs e);
-		void OnUp(object sender, MouseEventArgs e);
-
-		//void OnCopy(object sender, EventArgs e); MOVED TO TREE
-
-		void OnPaste(object sender, EventArgs e);
-
-		void OnDelete(object sender, EventArgs e);
-
-		void OnAdd(object sender, EventArgs e);
-
-		/// <summary>
-		/// test to see if tracker is already tracking what you want
-		/// </summary>
-		/// <param name="obj"></param>
-		/// <returns></returns>
-	//	bool IsTracking(object obj);
+		void Cancel();
 
 		/// <summary>
 		/// Called when the user clicks "Build" in the toolbar, should rebuild the editing objects and rebuild the sail if Autobuild
@@ -47,13 +30,24 @@ namespace Warps
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
 		void OnBuild(object sender, EventArgs e);
-		/// <summary>
-		/// Called when the user clicks "Cancel" in the toolbar, should remove all temporary tracker objects
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void OnCancel(object sender, EventArgs e);
 
 		void OnPreview(object sender, EventArgs e);
+
+		//void OnSelect(object sender, EventArgs<IRebuild> e);
+		void OnClick(object sender, MouseEventArgs e);
+		void OnDown(object sender, MouseEventArgs e);
+		void OnMove(object sender, MouseEventArgs e);
+		void OnUp(object sender, MouseEventArgs e);
+
+		void OnPaste(object sender, EventArgs e);
+		void OnDelete(object sender, EventArgs e);
+		void OnAdd(object sender, EventArgs e);
+
+		/// <summary>
+		/// Handles the selected item appropriately
+		/// </summary>
+		/// <param name="Tag">The newly selected object</param>
+		void ProcessSelection(object Tag);
+
 	}
 }

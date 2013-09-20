@@ -55,7 +55,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="devDept.EyeshotNurbs, Version=6.0.120.40, Culture=neutral, PublicKeyToken=5385d83d2fb4d7d9, processorArchitecture=MSIL">
+    <Reference Include="devDept.EyeshotNurbs, Version=6.0.381.40, Culture=neutral, PublicKeyToken=5385d83d2fb4d7d9, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\devDept Software\Eyeshot Nurbs 6.0\Bin40\devDept.EyeshotNurbs.dll</HintPath>
     </Reference>
@@ -104,6 +104,7 @@
     <Compile Include="Controls\ColorWheelForm.Designer.cs">
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DensityMesh.cs" />
     <Compile Include="FitPoints\CrossPointEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -143,6 +144,13 @@
     <Compile Include="Curves\MouldCurveEditor.Designer.cs">
       <DependentUpon>MouldCurveEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Mixed\MixedGroupEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Mixed\MixedGroupEditor.Designer.cs">
+      <DependentUpon>MixedGroupEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Trackers\MixedGroupTracker.cs" />
     <Compile Include="Panels\PanelGroupEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -192,6 +200,9 @@
     <Compile Include="Controls\NsPlot.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Utilities\NsXmlHelper.cs" />
+    <Compile Include="XMLConfig\ConfigSetting.cs" />
+    <Compile Include="XMLConfig\XmlConfig.cs" />
     <Compile Include="Yarns\YarnGroupEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -231,8 +242,8 @@
     <Compile Include="Panels\Panel.cs" />
     <Compile Include="Panels\PanelCorner.cs" />
     <Compile Include="Panels\PanelGroup.cs" />
-    <Compile Include="Panels\PanelGroupTracker.cs" />
-    <Compile Include="MixedGroup.cs" />
+    <Compile Include="Trackers\PanelGroupTracker.cs" />
+    <Compile Include="Mixed\MixedGroup.cs" />
     <Compile Include="Surfaces\CofMould.cs" />
     <Compile Include="Surfaces\ComboMould.cs" />
     <Compile Include="Surfaces\RBFMesh.cs" />
@@ -245,7 +256,7 @@
     <Compile Include="Tapes\TapeGroupEditor.Designer.cs">
       <DependentUpon>TapeGroupEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Tapes\TapeGroupTracker.cs" />
+    <Compile Include="Trackers\TapeGroupTracker.cs" />
     <Compile Include="Trackers\CurveGroupTracker.cs" />
     <Compile Include="FitPoints\CurvePoint.cs" />
     <Compile Include="FitPoints\CurvePointEditor.cs">
@@ -282,7 +293,7 @@
     <Compile Include="Trackers\SurfaceTracker.cs" />
     <Compile Include="Trackers\VariableGroupTracker.cs" />
     <Compile Include="Trackers\VariableTracker.cs" />
-    <Compile Include="Utilities\logger.cs" />
+    <Compile Include="Utilities\Logleton.cs" />
     <Compile Include="Utilities\MaterialDatabase.cs" />
     <Compile Include="Utilities\ScriptTools.cs" />
     <Compile Include="FitPoints\SlidePoint.cs" />
@@ -305,7 +316,7 @@
     <Compile Include="Yarns\DensityComb.cs" />
     <Compile Include="Yarns\YarnCurve.cs" />
     <Compile Include="Yarns\YarnGroup.cs" />
-    <Compile Include="Yarns\YarnGroupTracker.cs" />
+    <Compile Include="Trackers\YarnGroupTracker.cs" />
     <EmbeddedResource Include="Controls\AddGroup.resx">
       <DependentUpon>AddGroup.cs</DependentUpon>
     </EmbeddedResource>
@@ -338,6 +349,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Curves\MouldCurveEditor.resx">
       <DependentUpon>MouldCurveEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Mixed\MixedGroupEditor.resx">
+      <DependentUpon>MixedGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Panels\PanelGroupEditor.resx">
       <DependentUpon>PanelGroupEditor.cs</DependentUpon>

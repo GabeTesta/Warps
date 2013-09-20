@@ -7,6 +7,7 @@ using devDept.Eyeshot;
 using devDept.Geometry;
 using System.Drawing;
 using devDept.Eyeshot.Entities;
+using Warps.Curves;
 
 namespace Warps
 {
@@ -14,7 +15,7 @@ namespace Warps
 
 	public class GuideSurface : IRebuild
 	{
-		public GuideSurface() { }
+		public GuideSurface() : this("", WarpFrame.CurrentSail, new List<Vect3>() { new Vect3(0, 0, 1), new Vect3(1, 0, 1), new Vect3(0, 1, 1) }) { }
 		public GuideSurface(string label, Sail s, List<Vect3> fits)
 		{
 			m_sail = s;
@@ -25,8 +26,12 @@ namespace Warps
 		{
 			m_sail = copy.m_sail;
 			m_label = copy.m_label;
-			m_fits = new List<Vect3>(copy.m_fits);
-			m_surf = new RBF.RBFSurface(m_fits.ToArray());
+			if (copy.m_fits != null)
+				m_fits = new List<Vect3>(copy.m_fits);
+			else
+				m_fits = null;
+			if( m_fits != null)
+				m_surf = new RBF.RBFSurface(m_fits.ToArray());
 		}
 
 		Sail m_sail;
@@ -91,7 +96,7 @@ namespace Warps
 			ScriptTools.ReadLabel(txt[0]);
 			FitPoints = new List<Vect3>(txt.Count-1);
 			for (int i = 1; i < txt.Count; i++)
-				FitPoints.Add(Vect3.Parse(txt[i].Trim('\t')));
+				FitPoints.Add( new Vect3(txt[i].Trim('\t')));
 			ReFit();
 			return FitPoints.Count > 3;
 		}
@@ -386,7 +391,6 @@ namespace Warps
 			return true;
 		}
 
-
 		internal void DragHeight(int index, PointF mpt, Transformer wts)
 		{
 			Vect2 uv = new Vect2(FitPoints[index].x, FitPoints[index].y);
@@ -409,5 +413,34 @@ namespace Warps
 			Surf.Value(ref v.m_vec);
 			nor = xyz + (nor * v[2] * SCALE);
 		}
+
+		#region IRebuild Members
+
+
+		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
+		{
+			System.Xml.XmlNode script = NsXml.MakeNode(doc, this);
+			int nCmb = 0;
+			foreach (Vect3 pt in FitPoints)
+				script.AppendChild(NsXml.MakeNode(doc, "P" + (++nCmb).ToString(), pt.ToString(false)));
+			return script;
+		}
+
+		public void ReadXScript(Sail sail, System.Xml.XmlNode node)
+		{
+			Label = NsXml.ReadLabel(node);
+			List<Vect3> combs = new List<Vect3>();
+			foreach (System.Xml.XmlNode child in node.ChildNodes)
+			{
+				if (child.Name == "Comb")
+				{
+					foreach (System.Xml.XmlNode pt in child)
+						combs.Add(new Vect3(NsXml.ReadLabel(pt)));
+				}
+			}
+			Fit(combs);
+		}
+
+		#endregion
 	}
 }

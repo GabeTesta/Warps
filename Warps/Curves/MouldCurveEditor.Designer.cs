@@ -1,4 +1,4 @@
-﻿namespace Warps.Controls
+﻿namespace Warps.Curves
 {
 	partial class MouldCurveEditor
 	{

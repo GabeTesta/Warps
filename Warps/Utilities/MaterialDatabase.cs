@@ -8,94 +8,91 @@ namespace Warps
 {
 	public class MaterialDatabase 
 	{
-		public MaterialDatabase(string path)
+		public static class TableTypes
 		{
-			//ParseFile(path);
-			ParseYarns(path);
+			public static string Materials = "Material_Table";
+			public static string Beams = "Beam_Table";
+			public static string Spreaders = "Spreader_Table";
+			public static string Balls = "Ball_Table";
+			public static string Hinges = "Hinge_Table";
+			public static string Sheets = "Sheet_Table";
+			public static string Yarns = "Yarn_Table";
 		}
 
-		public List<double> this[string mat]
+		public MaterialDatabase(string path)
 		{
-			get { return m_materials[mat]; }
+			ParseFile(path);
+			//ParseYarns(path);
 		}
-		public double this[string mat, int index]
+
+		/// <summary>
+		/// returns the dictionary of materials for a given table
+		/// </summary>
+		/// <param name="table">the desired material's TableType</param>
+		/// <returns>the dictionary of materials, null if not found</returns>
+		public Dictionary<string, List<double>> this[string table]
 		{
-			get { return m_materials[mat][index]; }
+			get { return m_materials[table]; }
 		}
-		public List<string> Materials
+		/// <summary>
+		/// returns the material properties of a given material
+		/// </summary>
+		/// <param name="table">the desired material's TableType</param>
+		/// <param name="mat">the desired material's label</param>
+		/// <returns>the list of values</returns>
+		public List<double> this[string table, string mat]
+		{
+			get { return m_materials[table][mat]; }
+		}
+		/// <summary>
+		/// returns the material property of a given material
+		/// </summary>
+		/// <param name="table">the desired material's TableType</param>
+		/// <param name="mat">the desired material's label</param>
+		/// <param name="index">the desired property's index</param>
+		/// <returns>the value of the material's property</returns>
+		public double this[string table, string mat, int index]
+		{
+			get { return m_materials[table][mat][index]; }
+		}
+
+		/// <summary>
+		/// The list of available tables, a subset of the TableTypes options
+		/// </summary>
+		public List<string> Tables
 		{
 			get { return m_materials.Keys.ToList(); }
 		}
-
-		string m_label;
-
-		public string Label
+		/// <summary>
+		/// the list of materials of a given table
+		/// </summary>
+		/// <param name="table">the TableType to list</param>
+		/// <returns>a list of material labels, null if the TableType doesnt exist</returns>
+		public List<string> Materials(string table)
 		{
-			get { return m_label; }
-			set { m_label = value; }
+			return m_materials[table].Keys.ToList();
 		}
-		Dictionary<string, List<double>> m_materials = new Dictionary<string, List<double>>();
 
-		public Dictionary<string, List<double>> Mats
+		Dictionary<string, Dictionary<string, List<double>>> m_materials = new  Dictionary<string, Dictionary<string, List<double>>>();
+		public Dictionary<string,Dictionary<string, List<double>>> Mats
 		{
 			get { return m_materials; }
 		}
 
-		private void ParseYarns(string path)
+		string m_label;
+		public string Label
 		{
-			if( path == null || path.Length == 0)
-				throw new FileNotFoundException("No Material DB specified");
-
-			FileInfo file = new FileInfo(path);
-			if (!file.Exists)
-				throw new FileNotFoundException("Failed to find Material DB", file.FullName);
-
-			//create the node
-			Mats.Clear();
-			//store the path
-			Label = file.FullName;
-
-			string line;
-			using (StreamReader sr = new StreamReader(path) )
-			{
-				line = sr.ReadLine();
-				ReadYarnTable(sr, ref line);
-			}
-		}
-		private void ReadYarnTable(StreamReader sr, ref string line)
-		{
-			while (line != null && !line.StartsWith("Yarn_Table"))
-				line = sr.ReadLine();
-
-			if (line == null)
-				return;
-			double d;
-			string[] splits;
-			string[] header = line.Split(',');
-			List<double> beam;
-			while ((line = sr.ReadLine()) != null)
-			{
-				splits = line.Split(',');
-				if (splits.Length == 0 || splits[0].Length == 0)//blank line
-					continue;//skip over blanks
-				if (splits[0].Length > 8)//all mat-labels must be 8chars. if more then its a header line
-					return;//return on finding a new header
-
-				beam = new List<double>();
-				//convert to numbers and insert
-				for (int i = 1; i < 5; i++)//EIs
-					if (double.TryParse(splits[i].Trim(), out d))
-						beam.Add(d);
-				Mats[splits[0]] = beam;
-				//Mats.Add(splits[0], beam);
-			}
+			get { return m_label; }
+			//set { m_label = value; }
 		}
 
-
-		//private void ParseFile(string path)
+		//private void ParseYarns(string path)
 		//{
-		//	if( path == null || path.Length == 0)
-		//		throw new FileNotFoundException("No Material DB specified");
+		//	if (path == null || path.Length == 0)
+		//	{
+		//		path = Path.Combine(Utilities.ExeDir, "Materials.csv");
+		//		//throw new FileNotFoundException("No Material DB specified");
+		//	}
 
 		//	FileInfo file = new FileInfo(path);
 		//	if (!file.Exists)
@@ -107,23 +104,84 @@ namespace Warps
 		//	Label = file.FullName;
 
 		//	string line;
-		//	using (StreamReader sr = new StreamReader(file.OpenRead()))
+		//	using (StreamReader sr = new StreamReader(path) )
 		//	{
 		//		line = sr.ReadLine();
-		//		while (line != null && !line.StartsWith("Material_Table", StringComparison.InvariantCultureIgnoreCase))
-		//			line = sr.ReadLine();
-
-		//		ReadTable(sr, ref line, "Material_Table", 9);
-		//		ReadBattenTable(sr, ref line);
-		//		ReadTable(sr, ref line, "Beam_Table", 4);
-		//		ReadTable(sr, ref line, "Spreader_Table", 6);
-		//		ReadTable(sr, ref line, "Ball_Table", 8);
-		//		ReadTable(sr, ref line, "Hinge_Table", 8);
-		//		ReadTable(sr, ref line, "Sheet_Table", 4);
-		//		ReadWireTable(sr, ref line);
+		//		ReadYarnTable(sr, ref line);
 		//	}
 		//}
+		//private void ReadYarnTable(StreamReader sr, ref string line)
+		//{
+		//	while (line != null && !line.StartsWith("Yarn_Table"))
+		//		line = sr.ReadLine();
+
+		//	if (line == null)
+		//		return;
+
+		//	Mats[TableTypes.Yarns] = new Dictionary<string, List<double>>();
+		//	double d;
+		//	string[] splits;
+		//	string[] header = line.Split(',');
+		//	List<double> beam;
+		//	while ((line = sr.ReadLine()) != null)
+		//	{
+		//		splits = line.Split(',');
+		//		if (splits.Length == 0 || splits[0].Length == 0)//blank line
+		//			continue;//skip over blanks
+		//		if (splits[0].Length > 8)//all mat-labels must be 8chars. if more then its a header line
+		//			return;//return on finding a new header
+
+		//		beam = new List<double>();
+		//		//convert to numbers and insert
+		//		for (int i = 1; i < 5; i++)//EIs
+		//			if (double.TryParse(splits[i].Trim(), out d))
+		//				beam.Add(d);
+		//		Mats[TableTypes.Yarns][splits[0]] = beam;
+		//		//Mats.Add(splits[0], beam);
+		//	}
+		//}
+
+		private void ParseFile(string path)
+		{
+			if (path == null || path.Length == 0)
+			{
+				path = Path.Combine(Utilities.ExeDir, "Materials.csv");
+				//throw new FileNotFoundException("No Material DB specified");
+			}
+
+			FileInfo file = new FileInfo(path);
+			if (!file.Exists)
+				throw new FileNotFoundException("Failed to find Material DB", file.FullName);
+
+			//create the node
+			Mats.Clear();
+			//store the path
+			m_label = file.FullName;
+
+			string line;
+			using (StreamReader sr = new StreamReader(file.OpenRead()))
+			{
+				while ((line = sr.ReadLine()) != null)
+				{
+					if (line.StartsWith(TableTypes.Materials, StringComparison.InvariantCultureIgnoreCase))
+						ReadTable(sr, ref line, TableTypes.Materials, 9);
+					else if (line.StartsWith(TableTypes.Beams, StringComparison.InvariantCultureIgnoreCase))
+						ReadTable(sr, ref line, TableTypes.Beams, 4);
+					else if (line.StartsWith(TableTypes.Spreaders, StringComparison.InvariantCultureIgnoreCase))
+						ReadTable(sr, ref line, TableTypes.Spreaders, 6);
+					else if (line.StartsWith(TableTypes.Balls, StringComparison.InvariantCultureIgnoreCase))
+						ReadTable(sr, ref line, TableTypes.Balls, 8);
+					else if (line.StartsWith(TableTypes.Hinges, StringComparison.InvariantCultureIgnoreCase))
+						ReadTable(sr, ref line, TableTypes.Hinges, 8);
+					else if (line.StartsWith(TableTypes.Sheets, StringComparison.InvariantCultureIgnoreCase))
+						ReadTable(sr, ref line, TableTypes.Sheets, 4);
+					else if (line.StartsWith(TableTypes.Yarns, StringComparison.InvariantCultureIgnoreCase))
+						ReadTable(sr, ref line, TableTypes.Yarns, 2);
+				}
+			}
+		}
 		//Dictionary<string, Dictionary<string, double[]>> m_battens = new Dictionary<string, Dictionary<string, double[]>>();
+
 		//private void ReadBattenTable(StreamReader sr, ref string line)
 		//{
 		//	if (line == null)
@@ -145,7 +203,7 @@ namespace Warps
 
 		//		//create a subnode for the batten
 		//		batt = batts.FindAddNode(splits[0]);//straight batten (single-line) uses main batten node
-				
+
 		//		//taper'd batten (multi-line) subnode
 		//		if (splits.Length >= 5 && splits[4].Length > 0)
 		//			batt = batt.Add(splits[4]);
@@ -165,7 +223,8 @@ namespace Warps
 		//	string[] header = line.Split(',');
 		//	NsNode mats = FindAddNode(header[0].Length == 0 ? "Materials" : header[0]);
 		//	while ((line = sr.ReadLine()) != null)
-		//	{	splits = line.Split(',');
+		//	{
+		//		splits = line.Split(',');
 		//		if (splits.Length == 0 || splits[0].Length == 0)//blank line
 		//			continue;
 
@@ -206,34 +265,33 @@ namespace Warps
 		//	}
 		//}
 
-		//private void ReadTable(StreamReader sr, ref string line, string deflabel, int numEIs)
-		//{
-		//	if (line == null)
-		//		return;
-		//	//List<string[]> batts = new List<string[]>();
-		//	double d;
-		//	NsNode beam;
-		//	string[] splits;
-		//	string[] header = line.Split(',');
-		//	NsNode beams = FindAddNode(header[0].Length == 0 ? deflabel : header[0]);
+		private void ReadTable(StreamReader sr, ref string line, string TableType, int numEIs)
+		{
+			if (line == null)
+				return;
+			//List<string[]> batts = new List<string[]>();
+			Mats[TableType] = new Dictionary<string, List<double>>();
+			double d;
+			string[] splits;
+			string[] header = line.Split(',');
+			List<double> beam;
+			while ((line = sr.ReadLine()) != null)
+			{
+				splits = line.Split(',');
+				if (splits.Length == 0 || splits[0].Length == 0)//blank line
+					continue;//skip over blanks
+				if (splits[0].Length > 8)//all mat-labels must be 8chars. if more then its a header line
+					return;//return on finding a new header
 
-		//	while ((line = sr.ReadLine()) != null)
-		//	{
-		//		splits = line.Split(',');
-		//		if (splits.Length == 0 || splits[0].Length == 0)//blank line
-		//			continue;//skip over blanks
-		//		if (splits[0].Length > 8)//all mat-labels must be 8chars. if more then its a header line
-		//			return;//return on finding a new header
-
-		//		//create a subnode for the beam
-		//		beam = beams.FindAddNode(splits[0]);
-
-		//		//convert to numbers and insert
-		//		for (int i = 1; i < numEIs; i++)//EIs
-		//			if( double.TryParse(splits[i].Trim(), out d) )
-		//				beam.Add(new DoubleAttribute(beam, header[i].Trim(), d));
-		//	}
-		//}
+				beam = new List<double>();
+				//convert to numbers and insert
+				for (int i = 1; i < 5; i++)//EIs
+					if (double.TryParse(splits[i].Trim(), out d))
+						beam.Add(d);
+				Mats[TableType][splits[0]] = beam;
+				//Mats.Add(splits[0], beam);
+			}
+		}
 
 		//private void ReadWireTable(StreamReader sr, ref string line)
 		//{
@@ -271,5 +329,20 @@ namespace Warps
 		//	}
 		//}
 
+		public System.Windows.Forms.TreeNode WriteNode()
+		{
+			System.Windows.Forms.TreeNode tnTable, tnMat, tnRoot = new System.Windows.Forms.TreeNode(Path.GetFileName(Label));
+			tnRoot.Nodes.Add(Label);
+			foreach (KeyValuePair<string, Dictionary<string, List<double>>> table in m_materials)
+			{
+				tnTable = tnRoot.Nodes.Add(table.Key);
+				foreach (KeyValuePair<string, List<double>> mat in table.Value)
+				{
+					tnMat = tnTable.Nodes.Add(mat.Key);
+					mat.Value.ForEach(d => tnMat.Nodes.Add(d.ToString("g4")));
+				}
+			}
+			return tnRoot;
+		}
 	}
 }

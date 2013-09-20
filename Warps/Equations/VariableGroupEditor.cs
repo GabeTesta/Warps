@@ -93,19 +93,7 @@ namespace Warps.Controls
 					(m_flow.Controls[i] as VariableEditor).FocusEditBox();
 		}
 
-		public bool EditMode
-		{
-			get
-			{
-				return this.Enabled;
-			}
-			set
-			{
-				this.Enabled = value;
-				for (int i = 0; i < Count; i++)
-					this[i].EditMode = value;
-			}
-		}
+
 
 		private void button1_Click(object sender, EventArgs e)
 		{

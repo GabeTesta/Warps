@@ -72,6 +72,7 @@
 			this.m_seqtree.Size = new System.Drawing.Size(227, 361);
 			this.m_seqtree.TabIndex = 0;
 			this.m_seqtree.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.m_seqtree_ItemDrag);
+			this.m_seqtree.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.m_seqtree_BeforeSelect);
 			this.m_seqtree.DragDrop += new System.Windows.Forms.DragEventHandler(this.m_seqtree_DragDrop);
 			this.m_seqtree.DragEnter += new System.Windows.Forms.DragEventHandler(this.m_seqtree_DragEnter);
 			this.m_seqtree.DragOver += new System.Windows.Forms.DragEventHandler(this.m_seqtree_DragOver);
@@ -100,6 +101,8 @@
 			this.m_sortree.Name = "m_sortree";
 			this.m_sortree.Size = new System.Drawing.Size(227, 361);
 			this.m_sortree.TabIndex = 0;
+			this.m_sortree.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.m_seqtree_BeforeSelect);
+
 			// 
 			// TabTree
 			// 

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using devDept.Eyeshot.Entities;
+using System.Xml;
 
 namespace Warps
 {
@@ -15,6 +16,9 @@ namespace Warps
 
 		List<string> WriteScript();
 		bool ReadScript(Sail sail, IList<string> txt);
+
+		XmlNode WriteXScript(XmlDocument doc);
+		void ReadXScript(Sail sail, XmlNode node);
 
 		/// <summary>
 		/// if an IRebuild is locked, it cannot be editted/deleted/added to etc.

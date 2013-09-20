@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Warps
+namespace Warps.Curves
 {
 	internal static class SurfaceCurve
 	{
@@ -165,8 +165,10 @@ namespace Warps
 
 				c.FitPoints = points;
 				c.ReSpline(sFits, uFits);
+				c.SetUSplines(uFits);
+					
 		}
-		
+
 		/// <summary>
 		/// fit a curve to the specified points
 		/// requires S parameter specified for each point
@@ -208,6 +210,7 @@ namespace Warps
 
 			c.FitPoints = points;
 			c.ReSpline(sFits, uFits);
+			c.SetUSplines(uFits);
 		}
 	}
 }

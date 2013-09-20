@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Warps.Curves;
 
-namespace Warps
+namespace Warps.Yarns
 {
 	public class YarnCurve: IMouldCurve
 	{
@@ -14,6 +15,15 @@ namespace Warps
 			m_p = p;
 			m_Warps[0] = warp1;
 			m_Warps[1] = warp2;
+		}
+
+		public YarnCurve(YarnCurve clone)
+		{
+			m_h = clone.m_h;
+			m_p = clone.m_p;
+			m_length = clone.m_length;
+			m_Warps[0] = clone.m_Warps[0];
+			m_Warps[1] = clone.m_Warps[1];
 		}
 
 		internal MouldCurve[] m_Warps = new MouldCurve[2];

@@ -1,4 +1,4 @@
-﻿namespace Warps
+﻿namespace Warps.Curves
 {
 	partial class CurveGroupEditor
 	{

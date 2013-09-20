@@ -8,8 +8,10 @@ using System.Drawing;
 using devDept.Eyeshot;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
+using Warps.Curves;
+using System.Xml;
 
-namespace Warps
+namespace Warps.Yarns
 {
 	[System.Diagnostics.DebuggerDisplay("{Label} {m_end} Count={Count}", Name = "{Label}", Type = "{GetType()}")]
 	public class YarnGroup : List<YarnCurve>, IGroup
@@ -20,15 +22,20 @@ namespace Warps
 		{
 			Label = label;
 			Sail = s;
-			m_yarnDenier = new Equation("yarndenier", yarnDenier); // individual yarn denier (input)
+			YarnDenier = yarnDenier; // individual yarn denier (input)
 		}
 
 		public YarnGroup(string label, Sail s, Equation yarnDenier, Equation targetDPI)
 		{
 			Label = label;
 			Sail = s;
-			m_yarnDenier = yarnDenier; // individual yarn denier (input)
-			m_targetDenier = targetDPI;
+			YarnDenierEqu = yarnDenier; // individual yarn denier (input)
+			TargetDenierEqu = targetDPI;
+		}
+
+		public YarnGroup(YarnGroup clone)
+		{
+			Fit(clone);
 		}
 
 		public YarnGroup(System.IO.BinaryReader bin)
@@ -93,18 +100,30 @@ namespace Warps
 		//double m_targetDenier = 0;
 		//double m_yarnDenier = 0;
 
-		Equation m_yarnDenier = new Equation("yarndenier", 0.0);
-		Equation m_targetDenier = new Equation("targetdpi", 0.0);
+		Equation m_yarnDenier = new Equation("YarnDenier", 0.0);
+		Equation m_targetDpi = new Equation("TargetDPI", 0.0);
 
 		public Equation YarnDenierEqu
 		{
 			get { return m_yarnDenier; }
-			set { m_yarnDenier = value; m_yarnDenier.Label = "yarndenier"; }
+			set
+			{
+				if (value.IsNumber)
+					m_yarnDenier.Value = value.Value;
+				else
+					m_yarnDenier.EquationText = value.EquationText;
+			}
 		}	
 		public Equation TargetDenierEqu
 		{
-			get { return m_targetDenier; }
-			set { m_targetDenier = value; m_targetDenier.Label = "targetdpi"; }
+			get { return m_targetDpi; }
+			set
+			{
+				if (value.IsNumber)
+					m_targetDpi.Value = value.Value;
+				else
+					m_targetDpi.EquationText = value.EquationText;
+			}
 		}
 		public double AchievedDpi = 0;
 
@@ -134,11 +153,11 @@ namespace Warps
 		}
 		public double TargetDpi
 		{
-			get { return m_targetDenier.Value; }
+			get { return m_targetDpi.Value; }
 			private set
 			{
-				if (TargetDenierEqu.IsNumber())
-					m_targetDenier.Value = value;
+				if (TargetDenierEqu.IsNumber)
+					m_targetDpi.Value = value;
 				else
 					throw new Exception(string.Format("Yarn Group [{0}] cannot set nonnumeric TargetDPI [{1}] to [{2}]", Label, TargetDenierEqu.EquationText, value));
 			}
@@ -1122,8 +1141,13 @@ namespace Warps
 				TreeNode wrpnode;
 				foreach (MouldCurve wrp in m_Warps)
 				{
-					wrpnode = wrps.Nodes.Add(wrp.WriteNode().Text);
-					wrpnode.ImageKey = wrpnode.SelectedImageKey = wrp.GetType().Name;
+					if (wrp == null)
+						wrps.Nodes.Add("<null>");
+					else
+					{
+						wrpnode = wrps.Nodes.Add(wrp.WriteNode().Text);
+						wrpnode.ImageKey = wrpnode.SelectedImageKey = wrp.GetType().Name;
+					}
 				}
 			}
 			return m_node;
@@ -1145,7 +1169,8 @@ namespace Warps
 				//	new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter)};
 			}
 		}
-		public List<Entity> CreateEntities()
+		public List<Entity> CreateEntities() { return CreateEntities(false); }
+		public List<Entity> CreateEntities(bool bCombs)
 		{
 			List<Entity> yarns = new List<Entity>(Count);
 			List<Point3D> pnts;
@@ -1161,7 +1186,7 @@ namespace Warps
 				//yarns.Add(new PointCloud(pnts));
 				//yarns.Last().EntityData = this;
 			}
-			if( m_Combs != null )
+			if( bCombs && m_Combs != null )
 				foreach (DensityComb comb in m_Combs)
 				{
 					List<Entity> es = comb.CreateEntities().ToList();
@@ -1205,8 +1230,8 @@ namespace Warps
 					{
 						if (irb is IGroup)
 						{
-							bupdate |= (irb as IGroup).FindItem(warp) != null;
-							bupdate |= (irb as IGroup).FindItem(m_guide) != null;
+							bupdate |= (irb as IGroup).ContainsItem(warp);
+							bupdate |= (irb as IGroup).ContainsItem(m_guide);
 						}
 					}
 				}
@@ -1265,7 +1290,7 @@ namespace Warps
 				if (splits.Length > 0)
 				{
 					if (splits[0].ToLower().Contains("targetdpi"))
-						m_targetDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
+						m_targetDpi = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
 					else if (splits[0].ToLower().Contains("yarndenier"))
 						m_yarnDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
 					else if(splits[0].ToLower().Contains("ending"))
@@ -1302,7 +1327,7 @@ namespace Warps
 			List<string> script = new List<string>();
 			script.Add(GetType().Name + ": " + Label);
 			//script.Add("\tTargetDPI: ");
-			script.Add("\t" + m_targetDenier.ToScriptString());
+			script.Add("\t" + m_targetDpi.ToScriptString());
 			script.Add("\t" + m_yarnDenier.ToScriptString());
 			script.Add("\tScale: " + m_Scale);
 			script.Add("\tGuide: " + m_guide.Label);
@@ -1317,6 +1342,57 @@ namespace Warps
 			script.Add("\tEnding: " + EndCondition.ToString());
 
 			return script;
+		}
+
+		public XmlNode WriteXScript(XmlDocument doc)
+		{
+			XmlElement node = NsXml.MakeNode(doc, this);
+
+			node.AppendChild(m_yarnDenier.WriteXScript(doc));
+			node.AppendChild(m_targetDpi.WriteXScript(doc));
+
+			NsXml.AddAttribute(node, "Guide", Guide.Label);
+
+			StringBuilder sb = new StringBuilder();
+			m_Warps.ForEach(w => sb.Append(w.Label + ","));
+			NsXml.AddAttribute(node, "Warps", sb.ToString());
+
+			sb.Clear();
+			DensityPos.ForEach(dpi => sb.Append(dpi.ToString() + ","));
+			NsXml.AddAttribute(node, "DPIs", sb.ToString());
+
+			NsXml.AddAttribute(node, "Ending", EndCondition.ToString());
+			NsXml.AddAttribute(node, "Scale", m_Scale.ToString());
+
+			return node;
+		}
+
+		public void ReadXScript(Sail sail, XmlNode node)
+		{
+			Label = NsXml.ReadLabel(node);
+
+			m_yarnDenier.ReadXScript(sail, node.ChildNodes[0]);
+			m_targetDpi.ReadXScript(sail, node.ChildNodes[1]);
+
+			m_guide = sail.FindCurve(NsXml.ReadString(node, "Guide")) as GuideComb;
+			//VAkos.ConfigSetting warps = node["Warps"];
+			//warps.ChildrenNames(false).ForEach(lbl => m_Warps.Add(sail.FindCurve(lbl)));
+			Warps.Clear();
+			string[] dat = NsXml.ReadStrings(node, "Warps");// node.Attributes["Warps"].Value.Split(',');
+			foreach (string s in dat)
+				if (s == null || s == "" || s == " ") continue;
+				else Warps.Add(sail.FindCurve(s));
+
+			DensityPos.Clear();
+			dat = NsXml.ReadStrings(node, "DPIs");
+			foreach (string s in dat)
+				if (s ==null || s == "" || s == " ") continue;
+				else DensityPos.Add(Convert.ToDouble(s));
+
+			EndCondition = (Ending)Enum.Parse(typeof(Ending), node.Attributes["Ending"].Value);
+			m_Scale = NsXml.ReadDouble(node, "Scale");
+
+			Update(sail);
 		}
 
 		#endregion
@@ -1335,9 +1411,9 @@ namespace Warps
 			return null;
 		}
 
-		public IRebuild FindItem(IRebuild item)
+		public bool ContainsItem(IRebuild item)
 		{
-			return null;
+			return false;
 		}
 
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
@@ -1396,5 +1472,57 @@ namespace Warps
 			Sail.Mould.xVal(uv, ref xyz);
 		}
 
+		internal bool IsEqual(YarnGroup temp)
+		{
+			if (Label != temp.Label)
+				return false;
+			if (m_end != temp.m_end)
+				return false;
+			if (m_guide != temp.m_guide)
+				return false;
+
+			if (m_Scale != temp.m_Scale)
+				return false;
+			if (!m_targetDpi.IsEqual(temp.m_targetDpi))
+				return false;
+			if (!m_yarnDenier.IsEqual(temp.m_yarnDenier))
+				return false;
+			if (m_yarnMaterial != temp.m_yarnMaterial)
+				return false;
+
+			for (int i = 0; i < Warps.Count; i++)
+				if (Warps[i] != temp.Warps[i])
+					return false;
+
+			for (int i = 0; i < DensityPos.Count; i++)
+				if (DensityPos[i] != temp.DensityPos[i])
+					return false;
+
+			return true;
+		}
+
+		internal void Fit(YarnGroup clone)
+		{
+			m_label = clone.Label;
+			m_sail = clone.m_sail;
+			m_yarnMaterial = clone.YarnMaterial;
+			m_yarnDenier = new Equation(clone.m_yarnDenier);
+			m_targetDpi = new Equation(clone.m_targetDpi);
+			m_Scale = clone.m_Scale;
+			m_locked = clone.m_locked;
+			m_guide = clone.m_guide;
+			Warps.Clear();
+			Warps.AddRange(clone.Warps);
+			m_end = clone.m_end;
+			m_CombPos = new List<double>(clone.m_CombPos);
+			AchievedDpi = clone.AchievedDpi;
+			Clear();
+			clone.ForEach(yar => Add(new YarnCurve(yar)));
+			if (Count > 1)
+			{
+				CheckDpi(DensityPos);
+				WriteNode();
+			}
+		}
 	}
 }

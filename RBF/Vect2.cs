@@ -285,15 +285,17 @@ using System.Drawing;
 		#region ToString
 		public override string ToString()
 		{
-			return ToString(false);
+			return ToString(false, null);
 		}
-		public string ToString(bool brackets)
+		public string ToString(bool brackets, string frmt)
 		{
+			if (frmt == null)
+				frmt = "g";
 			Debug.Assert(m_vec.Length == 2);
 			if (brackets)
-				return String.Format("<{0}, {1}>", this[0].ToString("g3"), this[1].ToString("g3"));
+				return String.Format("<{0}, {1}>", this[0].ToString(frmt), this[1].ToString(frmt));
 			else
-				return String.Format("{0}, {1}", this[0].ToString("g3"), this[1].ToString("g3"));
+				return String.Format("{0}, {1}", this[0].ToString(frmt), this[1].ToString(frmt));
 		}
 		public string ToString(string frmt)
 		{

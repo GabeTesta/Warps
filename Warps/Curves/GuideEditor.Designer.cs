@@ -1,4 +1,4 @@
-﻿namespace Warps.Controls
+﻿namespace Warps.Curves
 {
 	partial class GuideEditor
 	{
@@ -28,10 +28,11 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			this.m_dgv = new System.Windows.Forms.DataGridView();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.m_nsPlot = new Warps.NsPlot();
-			this.m_curveEditor = new Warps.Controls.MouldCurveEditor();
+			this.m_curveEditor = new MouldCurveEditor();
 			((System.ComponentModel.ISupportInitialize)(this.m_dgv)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -48,6 +49,11 @@
 			this.m_dgv.Name = "m_dgv";
 			this.m_dgv.Size = new System.Drawing.Size(250, 125);
 			this.m_dgv.TabIndex = 0;
+			this.m_dgv.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.m_dgv_CellEndEdit);
+			this.m_dgv.CellLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.m_dgv_CellLeave);
+			this.m_dgv.CellValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.m_dgv_CellValidated);
+			this.m_dgv.RowValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.m_dgv_RowValidated);
+			this.m_dgv.Validated += new System.EventHandler(this.m_dgv_Validated);
 			// 
 			// splitContainer1
 			// 
@@ -96,6 +102,7 @@
 			// 
 			this.m_curveEditor.AutoFill = null;
 			this.m_curveEditor.AutoScroll = true;
+			this.m_curveEditor.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.m_curveEditor.Dock = System.Windows.Forms.DockStyle.Top;
 			this.m_curveEditor.Label = "";
 			this.m_curveEditor.Location = new System.Drawing.Point(0, 0);

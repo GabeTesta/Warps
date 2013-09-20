@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using devDept.Eyeshot.Entities;
-
+using Warps.Curves;
 namespace Warps
 {
 	public class ComboMould : ISurface
@@ -103,9 +103,12 @@ namespace Warps
 		{
 			List<Entity> ents = new List<Entity>();
 			ents.Add(SurfaceTools.GetMesh(this, uvLims, bGauss));
-			if (m_mould.RigCurves != null)
-				foreach (RigLine rl in m_mould.RigCurves)
-					ents.Add(rl.CreateEntities());
+			if (!bGauss && uvLims == null)//only add curves to non-gauss layer
+			{
+				if (m_mould.RigCurves != null)
+					foreach (RigLine rl in m_mould.RigCurves)
+						ents.Add(rl.CreateEntities());
+			}
 			return ents;
 			//m_entities.Add(SurfaceTools.GetMesh(this, true));
 			//m_entities.Last().LayerIndex 
@@ -126,7 +129,7 @@ namespace Warps
 		public List<string> WriteScript()
 		{
 			List<string> s = new List<string>();
-			s.Add(ScriptTools.Label(GetType().Name, Mould.CofPath));
+			s.Add(ScriptTools.Label(GetType().Name, Mould.Label));
 			return s;
 		}
 
@@ -136,10 +139,9 @@ namespace Warps
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
 			//m_node.Text = ScriptTools.Label(GetType().Name, Label);
-			m_node.Text = Label;
+			m_node.Text = System.IO.Path.GetFileName(Label);
 			m_node.Tag = this;
-			m_node.ImageKey = GetType().Name;
-			m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
 			m_node.Nodes.Clear();
 			m_node.Nodes.Add(Mould.WriteNode());
 			m_node.Nodes.Add(Extension.WriteNode());
@@ -158,9 +160,7 @@ namespace Warps
 			return Label;
 		}
 
-
 		#region ISurface Members
-
 
 		double[] m_colors = null;
 		public double[] ColorValues

@@ -10,8 +10,7 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
-using Logger;
-
+using Warps.Curves;
 namespace Warps.Tapes
 {
 	public class TapeGroupTracker : ITracker
@@ -24,6 +23,9 @@ namespace Warps.Tapes
 		WarpFrame m_frame;
 		TapeGroup m_group;
 		TapeGroupEditor m_edit;
+
+		TapeGroup m_temp;
+		Entity[][] m_tents;
 
 		TapeGroupEditor Edit
 		{
@@ -45,6 +47,8 @@ namespace Warps.Tapes
 
 		#region ITracker Members
 
+		public bool IsTracking { get { return m_edit.IsWarp || m_edit.IsGuide || !m_group.IsEqual(m_temp); } }
+
 		public void Track(WarpFrame frame)
 		{
 			m_frame = frame;
@@ -55,7 +59,7 @@ namespace Warps.Tapes
 			{
 				//m_edit.sail = Sail;
 				m_frame.EditorPanel = Edit;
-				EditMode = m_frame.EditMode;
+				//EditMode = m_frame.EditMode;
 
 				//if (Tree != null)
 				//{
@@ -74,8 +78,8 @@ namespace Warps.Tapes
 
 			SelectGroup(m_group);
 		}
-
-		private void Cancel()
+		
+		public void Cancel()
 		{
 			if( m_frame != null )
 				m_frame.EditorPanel = null;
@@ -85,16 +89,39 @@ namespace Warps.Tapes
 
 			if (View != null)
 			{
+				View.SetTrackerSelectionMode(null);
 				View.DetachTracker(this);
-				View.Remove(m_temp);
+				View.Remove(m_temp, false);
 				View.DeSelect(m_group);
 				View.StopSelect();
 				View.Refresh();
 			}
 		}
 
-		TapeGroup m_temp;
-		Entity[][] m_tents;
+		public void OnBuild(object sender, EventArgs e)
+		{
+			Edit.IsWarp = false;
+			Edit.IsGuide = false;
+
+			Preview();//update the temp curve
+			m_group.Fit(m_temp);//copy the temp group's data back
+			m_group.Label = m_temp.Label;//update the label
+			//Edit.WriteGroup(m_group);
+
+			if (sender != null)
+				m_frame.Rebuild(m_group);//returns false if AutoBuild is off
+
+			//Edit.ReadGroup(m_group);
+			//Edit.Refresh();
+			//View.Refresh();
+			//Tree.Refresh();
+		}
+
+		public void OnPreview(object sender, EventArgs e)
+		{
+			Preview();
+		}
+
 
 		private void Preview()
 		{
@@ -103,11 +130,12 @@ namespace Warps.Tapes
 			Edit.WriteGroup(m_temp);
 			UpdatePreview(true);
 		}
+
 		void UpdatePreview(bool bEditor)
 		{
 			m_temp.Update(Sail);
 			List<Entity> verts = m_temp.CreateEntities();
-			Parallel.ForEach(verts, e => { e.Color = Color.FromArgb(100,Color.LightSkyBlue); e.ColorMethod = colorMethodType.byEntity; });
+		//	Parallel.ForEach(verts, e => { e.Color = Color.FromArgb(100,Color.LightSkyBlue); e.ColorMethod = colorMethodType.byEntity; });
 			if (verts != null)
 			{
 				View.RemoveRange(m_tents);
@@ -130,7 +158,7 @@ namespace Warps.Tapes
 			if (tapes == null)
 				return;
 			if (m_temp != null)
-				View.Remove(m_temp);
+				View.Remove(m_temp, false);
 
 			m_group = tapes;
 			//copy the tape group
@@ -138,14 +166,14 @@ namespace Warps.Tapes
 			//add temporary entites to view
 			m_tents = View.AddRange(m_temp.CreateEntities());
 
-			foreach (Entity[] ents in m_tents)
-				foreach (Entity ee in ents)
-				{
-					ee.Color = Color.FromArgb(100, Color.LightSkyBlue);
-					ee.ColorMethod = colorMethodType.byEntity;
-					if (ee.LineWeight == 1) ee.LineWeight = 2.0f;
-					ee.LineWeightMethod = colorMethodType.byEntity;
-				}
+			//foreach (Entity[] ents in m_tents)
+			//	foreach (Entity ee in ents)
+			//	{
+			//		ee.Color = Color.FromArgb(100, Color.LightSkyBlue);
+			//		ee.ColorMethod = colorMethodType.byEntity;
+			//		if (ee.LineWeight == 1) ee.LineWeight = 2.0f;
+			//		ee.LineWeightMethod = colorMethodType.byEntity;
+			//	}
 
 			//m_edit.AutoFill = Sail.Watermark(tapes).ToList<object>();
 			m_edit.ReadGroup(m_temp);
@@ -159,59 +187,26 @@ namespace Warps.Tapes
 			View.Refresh();
 		}
 
-		bool m_editMode = false;
-		public bool EditMode
-		{
-			get { return m_editMode; }
-			set { m_editMode = value; toggleEditMode(value); }
-		}
+		//bool m_editMode = false;
+		//public bool EditMode
+		//{
+		//	get { return m_editMode; }
+		//	set { m_editMode = value; toggleEditMode(value); }
+		//}
 
-		void toggleEditMode(bool state)
-		{
-			View.EditMode = state;
-			m_edit.Enabled = state;
-			View.DeSelectAllLayers();
-			View.Select(m_group);
-			//View.SelectLayer(m_group);
-			if (m_group.Warps != null)
-				m_group.Warps.ForEach(curve => View.Select(curve));
+		//void toggleEditMode(bool state)
+		//{
+		//	View.EditMode = state;
+		//	m_edit.Enabled = state;
+		//	View.DeSelectAllLayers();
+		//	View.Select(m_group);
+		//	//View.SelectLayer(m_group);
+		//	if (m_group.Warps != null)
+		//		m_group.Warps.ForEach(curve => View.Select(curve));
 
-			View.Refresh();
-		}
+		//	View.Refresh();
+		//}
 
-		public void OnSelect(object sender, EventArgs<IRebuild> e)
-		{
-			if (e.Value == null)
-				return;
-
-			if (e.Value is TapeGroup)
-			{
-				if (m_group != null)
-					return;//dont allow changing selection
-
-				SelectGroup(e.Value as TapeGroup);
-			}
-			else if (e.Value is MouldCurve)
-			{
-				if (Edit.AddRemoveWarp(e.Value as MouldCurve))
-					View.Select(e.Value as MouldCurve);
-				else
-					View.DeSelect(e.Value as MouldCurve);
-			}
-			else if (e.Value is GuideSurface)
-			{
-				string old = Edit.SetGuide(e.Value as GuideSurface);
-				if (old != null)
-				{
-					GuideSurface s = Sail.FindItem(old) as GuideSurface;
-					if( s!= null )
-					View.DeSelect(s);
-				}
-			}
-
-
-
-		}
 
 		public void OnClick(object sender, MouseEventArgs e)
 		{
@@ -276,40 +271,33 @@ namespace Warps.Tapes
 			throw new NotImplementedException();
 		}
 
-		public void OnBuild(object sender, EventArgs e)
+		public void ProcessSelection(object Tag)
 		{
-			if (!EditMode)
-				return;
-
-			Preview();//update the temp curve
-			m_group.Fit(m_temp);//copy the temp group's data back
-			m_group.Label = m_temp.Label;//update the label
-			//Edit.WriteGroup(m_group);
-
-			if (sender != null)
-				m_frame.Rebuild(m_group);//returns false if AutoBuild is off
-
-			//Edit.ReadGroup(m_group);
-			//Edit.Refresh();
-			//View.Refresh();
-			Tree.Refresh();
-		}
-
-		public void OnCancel(object sender, EventArgs e)
-		{
-			Cancel();
-		}
-
-		public void OnPreview(object sender, EventArgs e)
-		{
-			Preview();
+			//add the selected item to the editor
+			if (Tag is MouldCurve && m_edit.IsWarp)
+			{
+				if (Edit.AddRemoveWarp(Tag as MouldCurve))
+					View.Select(Tag as MouldCurve);
+				else
+					View.DeSelect(Tag as MouldCurve);
+			}
+			else if (Tag is GuideSurface && m_edit.IsGuide)
+			{
+				string old = Edit.SetGuide(Tag as GuideSurface);
+				if (old != null)
+				{
+					GuideSurface s = Sail.FindItem(old) as GuideSurface;
+					if (s != null)
+						View.DeSelect(s);
+				}
+			}
 		}
 
 		#endregion
 
-		internal void SelectMode(string mode)
+		internal void OnSelectionMode(object sender, EventArgs<string> e)
 		{
-			View.SetTrackerSelectionMode(mode);
+			View.SetTrackerSelectionMode(e.Value);
 		}
 	}
 }

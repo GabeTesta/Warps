@@ -12,8 +12,12 @@ using System.Windows.Forms;
 
 namespace Warps
 {
+	public delegate Point3D Transformer(Point3D pt);
+
 	public static class Utilities
 	{
+		#region Exe Properties
+
 		/// <summary>
 		/// get the execution directory
 		/// </summary>
@@ -34,22 +38,64 @@ namespace Warps
 			get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
 		}
 
+		#endregion
+
+		#region Settings
+
+		static VAkos.Xmlconfig m_ConfigFile;
+		public static void OpenConfigFile(string path)
+		{
+			m_ConfigFile = new VAkos.Xmlconfig(Path.Combine(ExeDir, path), true);
+		}
+		public static void CloseSettingsFile()
+		{
+			m_ConfigFile.Commit();
+		}
+		public static VAkos.ConfigSetting Settings
+		{
+			get { return Utilities.m_ConfigFile.Settings; }
+		}
+
+		#endregion
+
+		#region Limits
+
+		/// <summary>
+		/// ensures a value is between limits
+		/// </summary>
+		/// <param name="low">the minimum inclusive limit</param>
+		/// <param name="val">in: the value to check, out: the limited value</param>
+		/// <param name="high">the maximium inclusive limit</param>
 		public static void LimitRange(int low, ref int val, int high)
 		{
 			if (val < low) val = low;
 			if (high < val) val = high;
 		}
+		/// <summary>
+		/// ensures a value is between limits
+		/// </summary>
+		/// <param name="low">the minimum inclusive limit</param>
+		/// <param name="val">the value to check</param>
+		/// <param name="high">the maximium inclusive limit</param>
 		public static void LimitRange(double low, ref double val, double high)
 		{
 			if (val < low) val = low;
 			if (high < val) val = high;
 		}
+		/// <summary>
+		/// ensures a value is between limits
+		/// </summary>
+		/// <param name="low">the minimum inclusive limit</param>
+		/// <param name="val">the value to check</param>
+		/// <param name="high">the maximium inclusive limit</param>
+		/// <returns>the limited value</returns>
 		public static double LimitRange(double low, double val, double high)
 		{
 			if (val < low) return low;
 			if (high < val) return high;
 			return val;
 		}
+
 
 		/// <summary>
 		/// test if  a value is between two others
@@ -62,6 +108,10 @@ namespace Warps
 		{
 			return a > b ? (b <= val && val <= a) : (a <= val && val <= b);
 		}
+
+		#endregion
+
+		#region Conversions
 
 		public static double DegToRad(double deg) { return deg * Math.PI / 180.0; }
 		public static double RadToDeg(double rad) { return rad * 180.0 / Math.PI; }
@@ -91,11 +141,16 @@ namespace Warps
 			return new PointRGB(xyz.x, xyz.y, xyz.z, c);
 		}
 
+		#endregion
+
+		#region CreateInstance
+
 		public static object CreateInstance(Type t, params object[] parameters)
 		{
 			List<Type> types = new List<Type>();
-			foreach (object param in parameters)
-				types.Add(param.GetType());
+			if (parameters != null)
+				foreach (object param in parameters)
+					types.Add(param.GetType());
 			ConstructorInfo ctor = t.GetConstructor(types.ToArray());
 			if (ctor != null)
 				return ctor.Invoke(parameters);
@@ -105,24 +160,41 @@ namespace Warps
 		{
 			return CreateInstance(stype, null);
 		}
-		public static object CreateInstance(string stype, params object[] paramteters)
+		public static object CreateInstance(string stype, params object[] parameters)
 		{
-			if (!stype.Contains("."))
-				stype = "Warps." + stype;
+			bool bShort = !stype.Contains(".");
+			//if (!stype.Contains("."))
+			//{
+			//	stype = "Warps." + stype;
+			//}
 			object o = null;
 			Assembly[] asms = AppDomain.CurrentDomain.GetAssemblies();
 			foreach (Assembly asm in asms)
 			{
-				//try
-				//{
-				if( paramteters != null )
-					o = asm.CreateInstance(stype, false, BindingFlags.CreateInstance, null,paramteters, null, null);
-
+				if (bShort)
+				{
+					try
+					{
+						Type[] typs = asm.GetTypes();
+						foreach (Type t in typs)
+							if (t.Name == stype)
+								return CreateInstance(t, parameters);
+					}
+					catch (Exception e) { Logleton.TheLog.Log(e.Message, Logleton.LogPriority.Debug); }
+				}
 				else
-					o = asm.CreateInstance(stype, false);
-				//o = asm.CreateInstance(stype, false, BindingFlags.CreateInstance, null, new object[] { }, null, null);
-				if (o != null)
-					return o;
+				{
+					//try
+					//{
+					if (parameters != null)
+						o = asm.CreateInstance(stype, false, BindingFlags.CreateInstance, null, parameters, null, null);
+
+					else
+						o = asm.CreateInstance(stype, true);
+					//o = asm.CreateInstance(stype, false, BindingFlags.CreateInstance, null, new object[] { }, null, null);
+					if (o != null)
+						return o;
+				}
 				//}
 				//catch (Exception e)
 				//{
@@ -131,6 +203,10 @@ namespace Warps
 			}
 			return null;
 		}
+
+		#endregion
+
+		#region FindTypes
 
 		public static List<Type> GetAllOf(Type baseType, bool bInclude)
 		{
@@ -145,7 +221,6 @@ namespace Warps
 			}
 			return atrs;
 		}
-
 		public static IEnumerable<Type> FindDerivedTypes(Assembly assembly, Type baseType, bool bInclude)
 		{
 			IEnumerable<Type> ret = null;
@@ -157,11 +232,135 @@ namespace Warps
 			catch (Exception ex)
 			{
 				string message = ex.Message;
-				Logger.logger.Instance.LogErrorException(ex); 
+				Logleton.TheLog.LogErrorException(ex);
 			}
 
 			return ret;
 		}
+
+		#endregion
+
+		#region Clipboard Serialization
+
+		/// <summary>
+		/// This function is required so we can push objects onto the clipboard
+		/// </summary>
+		/// <param name="objectToSerialize"></param>
+		/// <returns></returns>
+		public static string Serialize(object objectToSerialize)
+		{
+			string serialString = null;
+			using (System.IO.MemoryStream ms1 = new System.IO.MemoryStream())
+			{
+				BinaryFormatter b = new BinaryFormatter();
+				b.Serialize(ms1, objectToSerialize);
+				byte[] arrayByte = ms1.ToArray();
+				serialString = Convert.ToBase64String(arrayByte);
+			}
+			return serialString;
+		}
+
+		/// <summary>
+		/// This function is required so we can pop objects off the clipboard
+		/// </summary>
+		/// <param name="serializationString"></param>
+		/// <returns></returns>
+		public static object DeSerialize(string serializationString)
+		{
+			object deserialObject = null;
+			byte[] arrayByte = Convert.FromBase64String(serializationString);
+			using (System.IO.MemoryStream ms1 = new System.IO.MemoryStream(arrayByte))
+			{
+				BinaryFormatter b = new BinaryFormatter();
+				deserialObject = b.Deserialize(ms1);
+			}
+			return deserialObject;
+		}
+
+		public static Type GetClipboardObjType()
+		{
+			if (Clipboard.ContainsData(typeof(Curves.CurveGroup).Name))
+				return typeof(Curves.CurveGroup);
+			else if (Clipboard.ContainsData(typeof(Curves.MouldCurve).Name))
+				return typeof(Curves.MouldCurve);
+			else if (Clipboard.ContainsData(typeof(Curves.GuideComb).Name))
+				return typeof(Curves.GuideComb);
+			else if (Clipboard.ContainsData(typeof(Equation).Name))
+				return typeof(Equation);
+			else if (Clipboard.ContainsData(typeof(VariableGroup).Name))
+				return typeof(VariableGroup);
+			return null;
+
+		}
+
+
+		#endregion
+
+		#region File Dialogs
+
+		public static string[] OpenFileDlg(string extension, string title, string initialdir)
+		{
+			OpenFileDialog ofd = new OpenFileDialog();
+			if (title != null && title.Length > 0)
+				ofd.Title = title;
+			if (extension != null && extension.Length > 0)
+			{
+				ofd.Filter = string.Format("{0} files (*.{0})|*.{0}|All files (*.*)|*.*", extension.Trim('.'));
+				ofd.AddExtension = true;
+				ofd.FilterIndex = 0;
+			}
+			ofd.Multiselect = true;
+			if (initialdir != null && initialdir.Length > 0)
+				ofd.InitialDirectory = initialdir;
+
+			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				return ofd.FileNames;
+			return null;
+		}
+		public static string SaveFileDialog(string extension, string title, string initialdir)
+		{
+			SaveFileDialog ofd = new SaveFileDialog();
+			if (title != null && title.Length > 0)
+				ofd.Title = title;
+			if (extension != null && extension.Length > 0)
+			{
+				ofd.Filter = string.Format("{0} files (*.{0})|*.{0}|All files (*.*)|*.*", extension.Trim('.'));
+				ofd.AddExtension = true;
+				ofd.FilterIndex = 0;
+			}
+			if (initialdir != null && initialdir.Length > 0)
+				ofd.InitialDirectory = initialdir;
+
+			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				return ofd.FileName;
+			return null;
+		}
+
+		#endregion
+
+		#region C++ Serialization
+
+		public static string ReadCString(System.IO.BinaryReader bin)
+		{
+			uint len = bin.ReadUInt32();
+			if (len == 0)
+				return null;
+			return new string(bin.ReadChars((int)len)).Trim();
+		}
+		public static void WriteCString(System.IO.BinaryWriter bin, string str)
+		{
+			if (str == null)
+			{
+				bin.Write((UInt32)0);
+				return;
+			}
+			bin.Write((UInt32)(str.Length));
+			bin.Write(str.ToCharArray());
+		}
+
+		#endregion
+
+		#region Windows Functions
 
 		public static void CopyDirectory(DirectoryInfo source, DirectoryInfo destination)
 		{
@@ -181,8 +380,8 @@ namespace Warps
 				{
 					//try
 					//{
-						file.CopyTo(Path.Combine(destination.FullName,
-							file.Name));
+					file.CopyTo(Path.Combine(destination.FullName,
+						file.Name));
 					//}
 					//catch (Exception e)
 					//{
@@ -226,118 +425,11 @@ namespace Warps
 			}
 			catch (Exception e)
 			{
-				Logger.logger.Instance.LogErrorException(e); 
+				Logleton.TheLog.LogErrorException(e);
 				System.Windows.Forms.MessageBox.Show("File: [" + path + "]\n" + e.Message, "Failed to launch file");
 			}
 		}
 
-		/// <summary>
-		/// This function is required so we can push objects onto the clipboard
-		/// </summary>
-		/// <param name="objectToSerialize"></param>
-		/// <returns></returns>
-		public static string Serialize(object objectToSerialize)
-		{
-			string serialString = null;
-			using (System.IO.MemoryStream ms1 = new System.IO.MemoryStream())
-			{
-				BinaryFormatter b = new BinaryFormatter();
-				b.Serialize(ms1, objectToSerialize);
-				byte[] arrayByte = ms1.ToArray();
-				serialString = Convert.ToBase64String(arrayByte);
-			}
-			return serialString;
-		}
-
-		/// <summary>
-		/// This function is required so we can pop objects off the clipboard
-		/// </summary>
-		/// <param name="serializationString"></param>
-		/// <returns></returns>
-		public static object DeSerialize(string serializationString)
-		{
-			object deserialObject = null;
-			byte[] arrayByte = Convert.FromBase64String(serializationString);
-			using (System.IO.MemoryStream ms1 = new System.IO.MemoryStream(arrayByte))
-			{
-				BinaryFormatter b = new BinaryFormatter();
-				deserialObject = b.Deserialize(ms1);
-			}
-			return deserialObject;
-		}
-
-		public static string[] OpenFileDlg(string extension, string title, string initialdir)
-		{
-			OpenFileDialog ofd = new OpenFileDialog();
-			if(title != null && title.Length > 0 )
-				ofd.Title = title;
-			if (extension != null && extension.Length > 0)
-			{
-				ofd.Filter = string.Format("{0} files (*.{0})|*.{0}|All files (*.*)|*.*", extension.Trim('.'));
-				ofd.AddExtension = true;
-				ofd.FilterIndex = 0;
-			}
-			ofd.Multiselect = true;
-			if (initialdir != null && initialdir.Length > 0)
-				ofd.InitialDirectory = initialdir;
-
-			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-				return ofd.FileNames;
-			return null;
-		}
-		public static string SaveFileDialog(string extension, string title, string initialdir)
-		{
-			SaveFileDialog ofd = new SaveFileDialog();
-			if (title != null && title.Length > 0)
-				ofd.Title = title;
-			if (extension != null && extension.Length > 0)
-			{
-				ofd.Filter = string.Format("{0} files (*.{0})|*.{0}|All files (*.*)|*.*", extension.Trim('.'));
-				ofd.AddExtension = true;
-				ofd.FilterIndex = 0;
-			}
-			if (initialdir != null && initialdir.Length > 0)
-				ofd.InitialDirectory = initialdir;
-
-			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-				return ofd.FileName;
-			return null;
-		}
-
-		public static Type GetClipboardObjType()
-		{
-			if (Clipboard.ContainsData(typeof(CurveGroup).Name))
-				return typeof(CurveGroup);
-			else if (Clipboard.ContainsData(typeof(MouldCurve).Name))
-				return typeof(MouldCurve);
-			else if (Clipboard.ContainsData(typeof(GuideComb).Name))
-				return typeof(GuideComb);
-			else if (Clipboard.ContainsData(typeof(Equation).Name))
-				return typeof(Equation);
-			else if (Clipboard.ContainsData(typeof(VariableGroup).Name))
-				return typeof(VariableGroup);
-			return null;
-
-		}
-
-		public static string ReadCString(System.IO.BinaryReader bin)
-		{
-			uint len = bin.ReadUInt32();
-			if (len == 0)
-				return null;
-			return new string(bin.ReadChars((int)len)).Trim();
-		}
-
-		public static void WriteCString(System.IO.BinaryWriter bin, string str)
-		{
-			if (str == null)
-			{
-				bin.Write((UInt32)0);
-				return;
-			}
-			bin.Write((UInt32)(str.Length));
-			bin.Write(str.ToCharArray());
-		}
+		#endregion
 	}
-
 }

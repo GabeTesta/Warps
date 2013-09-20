@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
 using System.Windows.Forms;
+using System.Xml;
 
-namespace Warps
+namespace Warps.Curves
 {
 	//[Serializable()]
 	[System.Diagnostics.DebuggerDisplay("{Label} Count={Count}", Name = "{Label}", Type = "{GetType()}")]
@@ -23,7 +24,8 @@ namespace Warps
 		public CurveGroup(System.IO.BinaryReader bin, Sail sail)
 		{
 			m_sail = sail;
-			m_layer = m_label = Utilities.ReadCString(bin);
+			m_layer = "Spiral Curves";
+			m_label = Utilities.ReadCString(bin);
 //#if DEBUG
 //			m_layer = "Mould";
 //#endif
@@ -238,7 +240,7 @@ namespace Warps
 				if (cur != null && cur is MouldCurve)
 				{
 					(cur as MouldCurve).Sail = Sail;
-					(cur as MouldCurve).ReadScript(Sail, lines);
+					(cur as IRebuild).ReadScript(Sail, lines);
 					Add(cur as MouldCurve);
 					Sail.Add(this);
 				}
@@ -329,12 +331,12 @@ namespace Warps
 			return this[label];
 		}
 
-		public IRebuild FindItem(IRebuild item)
+		public bool ContainsItem(IRebuild item)
 		{
 			if (!(item is MouldCurve))
-				return null;
+				return false;
 
-			return this.Find(cur => (item as MouldCurve) == cur);
+			return this.Contains(item as MouldCurve);
 		}
 
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
@@ -358,5 +360,32 @@ namespace Warps
 			return Label;
 		}
 
+
+		#region IRebuild Members
+
+		public XmlNode WriteXScript(XmlDocument doc)
+		{
+			XmlElement node = NsXml.MakeNode(doc, this);
+			this.ForEach(mc=> node.AppendChild(mc.WriteXScript(doc)));
+			return node;
+		}
+
+		public void ReadXScript(Sail sail, XmlNode node)
+		{
+			Label = NsXml.ReadLabel(node);
+			Sail.Add(this);//must pre-add group so curves can reference eachother
+			foreach (XmlNode child in node.ChildNodes)
+			{
+				object cur = Utilities.CreateInstance(child.Name);
+				if (cur != null && cur is MouldCurve)
+				{
+					(cur as MouldCurve).Sail = Sail;
+					(cur as IRebuild).ReadXScript(Sail, child);
+					Add(cur as MouldCurve);
+				}
+			}
+		}
+
+		#endregion
 	}
 }

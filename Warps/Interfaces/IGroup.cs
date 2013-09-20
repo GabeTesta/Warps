@@ -13,7 +13,7 @@ namespace Warps
 		Sail Sail { get; set; }
 
 		IRebuild FindItem(string label);
-		IRebuild FindItem(IRebuild obj);
+		bool ContainsItem(IRebuild obj);
 
 		int Count { get; }
 

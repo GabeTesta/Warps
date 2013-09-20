@@ -10,9 +10,8 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
-using Logger;
 
-namespace Warps
+namespace Warps.Curves
 {
 	public class CurveGroupTracker : ITracker
 	{
@@ -25,150 +24,7 @@ namespace Warps
 			m_edit.importCurve.Click += importCurve_Click;
 		}
 
-
-		public void Track(WarpFrame frame)
-		{
-			m_frame = frame;
-
-			if (m_frame != null && m_group != null)
-			{
-				m_frame.EditorPanel = Edit;
-				EditMode = m_frame.EditMode;
-				m_edit.AfterSelect += m_frame.m_tree_AfterSelect;
-
-
-				//m_frame.okButton.Click += OnBuild;
-				//m_frame.cancelButton.Click += OnCancel;
-				//m_frame.previewButton.Click += OnPreview;
-
-				if (Tree != null)
-				{
-					Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
-					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
-					Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
-				}
-
-				ReselectView();
-			}
-		}
-
-		private void ReselectView()
-		{
-			View.DeSelectAllLayers();
-			View.SelectLayer(m_group);
-			foreach (MouldCurve curve in m_group)
-				View.Select(curve);
-			View.Refresh();
-		}
-
-		void delCur_Click(object sender, EventArgs e)
-		{
-			if (!EditMode || Edit == null || Edit.SelectedCurve == null)
-				return;
-			MouldCurve cur = Edit.SelectedCurve;
-			if (MessageBox.Show(string.Format("Are you sure you want to delete [{0}]", cur.Label), "Delete Curve?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
-				return;
-
-			View.Remove(cur);
-			m_group.Remove(cur);
-			m_frame.Delete(cur);
-		}
-
-		public void Cancel()
-		{
-			View.DeSelectAllLayers();
-			foreach (MouldCurve curve in m_group)
-				View.DeSelect(curve);
-
-			View.Refresh();
-
-			Tree.KeyUp -= Tree_KeyUp; // handle ctrl-c ctrl-v	
-			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
-			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
-
-			if (m_curveTracker != null)
-			{
-				m_curveTracker.Cancel();
-				m_curveTracker = null;
-			}
-		}
-
-		bool m_editMode = false;
-
-		public bool EditMode
-		{
-			get { return m_editMode; }
-			set
-			{
-				if (m_group.Locked && value)
-					return;
-
-				Edit.Enabled = value;
-
-				m_editMode = value;
-				if (View != null)
-				{
-					View.EditMode = value;
-					ReselectView();
-				}
-			}
-		}
-
-		// handle copy pasting from keyboard here
-		void Tree_KeyUp(object sender, KeyEventArgs e)
-		{
-			// the modifier key CTRL is pressed by the time it gets here
-			switch (e.KeyCode)
-			{
-				//case Keys.C:
-				//	OnCopy(Tree.SelectedTag, new EventArgs());
-				//	break;
-				case Keys.V:
-					OnPaste(Tree.SelectedTag, new EventArgs());
-					break;
-			}
-		}
-
-		#region TreePopup
-
-		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-		{
-			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
-			{
-				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
-					Tree.TreeContextMenu.Items[i].Enabled = (Utilities.GetClipboardObjType() == typeof(CurveGroup) || Utilities.GetClipboardObjType() == typeof(MouldCurve));
-				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add") || Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
-					Tree.TreeContextMenu.Items[i].Enabled = EditMode;
-			}
-
-			Tree.TreeContextMenu.Show();
-		}
-
-		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-		{
-			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
-
-			//if (e.ClickedItem.Text == "Copy")
-			//{
-			//	OnCopy(sender, new EventArgs());
-			//}
-			if (e.ClickedItem.Text == "Paste")
-			{
-				OnPaste(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Delete")
-			{
-				OnDelete(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Add")
-			{
-				OnAdd(sender, new EventArgs());
-			}
-		}
-
-		
-
-		#endregion
+		#region Members
 
 		CurveTracker m_curveTracker = null;
 
@@ -190,6 +46,86 @@ namespace Warps
 		Sail sail
 		{
 			get { return m_frame != null ? m_frame.ActiveSail : null; }
+		}
+
+		#endregion
+
+		#region ITracker
+
+		public bool IsTracking { get { return false; } }
+
+		public void Track(WarpFrame frame)
+		{
+			m_frame = frame;
+
+			if (m_frame != null && m_group != null)
+			{
+				m_frame.EditorPanel = Edit;
+				//EditMode = m_frame.EditMode;
+				m_edit.AfterSelect += m_frame.OnSelectionChanging;
+
+				if (Tree != null)
+				{
+					Tree.AttachTracker(this);
+					//Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
+					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
+					//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+				}
+
+				ReselectView();
+			}
+		}
+
+		public void Cancel()
+		{
+			View.DeSelectAllLayers();
+			foreach (MouldCurve curve in m_group)
+				View.DeSelect(curve);
+
+			View.Refresh();
+
+			Tree.DetachTracker(this);
+			//Tree.KeyUp -= Tree_KeyUp; // handle ctrl-c ctrl-v	
+			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
+			//Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
+
+			if (m_curveTracker != null)
+			{
+				m_curveTracker.Cancel();
+				m_curveTracker = null;
+			}
+		}
+
+		public void OnBuild(object sender, EventArgs e)
+		{
+			if (Edit.Label != m_group.Label)
+			{
+				m_group.Label = Edit.Label;
+				m_frame.Rebuild(m_group);
+			}
+			if (m_curveTracker != null)
+			{
+				//if tracker exists
+				// add curve to group
+				// call rebuild with the group
+				// should update the tree and view
+
+				//passing a null sender will skip the rebuild call
+				m_curveTracker.OnBuild(null, e);//create the curve from the fitpoints
+				m_group.Add(m_curveTracker.Curve);//add it to the group
+				m_frame.Rebuild(m_group);//rebuild the objects and update the views
+				m_curveTracker.Cancel();//destory the temporary curve tracker
+				Edit.ReadGroup(m_group);//refresh the editor
+				m_frame.EditorPanel = Edit;//restore the curve group editor that was displaced by the curve editor
+				Edit.Refresh();
+				ReselectView();
+			}
+		}
+
+		public void OnPreview(object sender, EventArgs e)
+		{
+			if (m_curveTracker != null)
+				m_curveTracker.OnPreview(sender, e);
 		}
 
 		public void OnAdd(object sender, EventArgs e)
@@ -220,7 +156,6 @@ namespace Warps
 				}
 			}
 		}
-
 		public void OnDelete(object sender, EventArgs e)
 		{
 			// HERE WE DELETE
@@ -233,7 +168,7 @@ namespace Warps
 			// View entity keep previous state, color invalid byEntity, when fixed, byLayer
 
 			for (int i = 0; i < m_group.Count; i++)
-				View.Remove(m_group[i]);
+				View.Remove(m_group[i], true);
 
 			m_group.Clear();
 
@@ -242,97 +177,6 @@ namespace Warps
 			//m_frame.Rebuild(null);
 
 		}
-
-		void importCurve_Click(object sender, EventArgs e)
-		{
-			Warps.Curves.CurveW4L dlg = new Curves.CurveW4L();
-			if (dlg.ShowDialog(null) == System.Windows.Forms.DialogResult.OK)
-			{
-				MouldCurve cur = dlg.ParseScript();
-				m_curveTracker = new CurveTracker(cur);
-				m_curveTracker.Track(m_frame);
-			}
-		}
-
-		public void OnCancel(object sender, EventArgs e)
-		{
-			Cancel();
-		}
-
-		public void OnBuild(object sender, EventArgs e)
-		{
-			if (!EditMode)
-				return;
-
-			if (Edit.Label != m_group.Label)
-			{
-				m_group.Label = Edit.Label;
-				m_frame.Rebuild(m_group);
-			}
-
-			if (m_curveTracker != null)
-			{
-				//if tracker exists
-				// add curve to group
-				// call rebuild with the group
-				// should update the tree and view
-
-				//passing a null sender will skip the rebuild call
-				m_curveTracker.OnBuild(null, e);//create the curve from the fitpoints
-				m_group.Add(m_curveTracker.Curve);//add it to the group
-				m_frame.Rebuild(m_group);//rebuild the objects and update the views
-				m_curveTracker.Cancel();//destory the temporary curve tracker
-				Edit.ReadGroup(m_group);//refresh the editor
-				m_frame.EditorPanel = Edit;//restore the curve group editor that was displaced by the curve editor
-				Edit.Refresh();
-				ReselectView();
-			}
-
-		}
-
-		public void OnSelect(object sender, EventArgs<IRebuild> e)
-		{
-			//throw new NotImplementedException();
-		}
-
-		public void OnClick(object sender, MouseEventArgs e)
-		{
-			//throw new NotImplementedException();
-		}
-
-		public void OnDown(object sender, MouseEventArgs e)
-		{
-			//throw new NotImplementedException();
-		}
-
-		public void OnMove(object sender, MouseEventArgs e)
-		{
-			//throw new NotImplementedException();
-		}
-
-		public void OnUp(object sender, MouseEventArgs e)
-		{
-			//throw new NotImplementedException();
-		}
-
-		public void OnPreview(object sender, EventArgs e)
-		{
-
-			if (m_curveTracker != null)
-				m_curveTracker.OnPreview(sender, e);
-		}
-
-		//public void OnCopy(object sender, EventArgs e)
-		//{
-		//	//Lets say its my data format
-		//	Clipboard.Clear();
-		//	//Set data to clipboard
-		//	Clipboard.SetData(m_group.GetType().Name, Utilities.Serialize(m_group.WriteScript()));
-		//	//Get data from clipboard
-		//	m_frame.Status = String.Format("{0}:{1} Copied", m_group.GetType().Name, m_group.Label);
-		//	m_frame.ClearTracker();//clear tracker so user can select sail and paste it
-		//}
-
 		public void OnPaste(object sender, EventArgs e)
 		{
 			//mouldcurves and guidecombs should be pasted into here
@@ -373,13 +217,87 @@ namespace Warps
 					m_frame.Status = String.Format("{0}:{1} Pasted into {2}:{3} From Clipboard", cur.GetType().Name, (cur as MouldCurve).Label, group.GetType().Name, group.Label);
 				}
 			}
-			catch (Exception ex) { Logger.logger.Instance.LogErrorException(ex); return; }
+			catch (Exception ex) { Logleton.TheLog.LogErrorException(ex); return; }
 			m_frame.Rebuild(group);
 		}
 
-		public bool IsTracking(object obj)
+		public void OnClick(object sender, MouseEventArgs e)
 		{
-			return obj == m_group;
+			//throw new NotImplementedException();
 		}
+		public void OnDown(object sender, MouseEventArgs e)
+		{
+			//throw new NotImplementedException();
+		}
+		public void OnMove(object sender, MouseEventArgs e)
+		{
+			//throw new NotImplementedException();
+		}
+		public void OnUp(object sender, MouseEventArgs e)
+		{
+			//throw new NotImplementedException();
+		}
+
+		public void ProcessSelection(object Tag)
+		{
+
+		}
+
+		#endregion
+
+		#region Import/Delete Curve
+
+		void delCur_Click(object sender, EventArgs e)
+		{
+			if (Edit == null || Edit.SelectedCurve == null)
+				return;
+			MouldCurve cur = Edit.SelectedCurve;
+			if (MessageBox.Show(string.Format("Are you sure you want to delete [{0}]", cur.Label), "Delete Curve?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+				return;
+
+			View.Remove(cur, true);
+			m_group.Remove(cur);
+			Edit.ReadGroup(m_group);
+			m_frame.Delete(cur);
+		}
+		void importCurve_Click(object sender, EventArgs e)
+		{
+			Warps.Curves.CurveW4L dlg = new Curves.CurveW4L();
+			if (dlg.ShowDialog(null) == System.Windows.Forms.DialogResult.OK)
+			{
+				MouldCurve cur = dlg.ParseScript();
+				m_curveTracker = new CurveTracker(cur);
+				m_curveTracker.Track(m_frame);
+			}
+		}
+
+		#endregion
+
+		private void ReselectView()
+		{
+			View.DeSelectAllLayers();
+			View.SelectLayer(m_group);
+			foreach (MouldCurve curve in m_group)
+				View.Select(curve);
+			View.Refresh();
+		}
+
+		#region TreePopup
+
+		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+		{
+			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
+			{
+				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
+					Tree.TreeContextMenu.Items[i].Enabled = (Utilities.GetClipboardObjType() == typeof(CurveGroup) || Utilities.GetClipboardObjType() == typeof(MouldCurve));
+				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add") || Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
+					Tree.TreeContextMenu.Items[i].Enabled = true;
+			}
+
+			Tree.TreeContextMenu.Show();
+		}
+
+
+		#endregion
 	}
 }

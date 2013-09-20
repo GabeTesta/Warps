@@ -43,7 +43,7 @@ namespace Warps
 			CofMould cof = new CofMould(sail, cofpath);
 			//m_label = "RBF " + cof.Label;
 			m_label = cofpath;
-			m_path = cof.CofPath;
+			m_path = cof.Label;
 			Fit(cof);
 			m_Groups = cof.Groups;
 		}

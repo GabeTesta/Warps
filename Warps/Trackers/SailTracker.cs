@@ -10,97 +10,19 @@ using devDept.Eyeshot.Entities;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
-using Logger;
 
 namespace Warps
 {
 	public class SailTracker : ITracker
 	{
-		public SailTracker(bool mode)
+		public SailTracker()
 		{
-		}
-
-		public void Track(WarpFrame frame)
-		{
-			m_frame = frame;
-
-			if (m_frame != null)
-			{
-				m_frame = frame;
-				m_frame.EditorPanel = null;
-
-				if (Tree != null)
-				{
-					Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
-					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
-					Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
-				}
-
-				View.DeSelectAllLayers();
-				View.AttachTracker(this);
-			}
-			//View.ShowAll();
-		}
-
-		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-		{
-			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
-
-			//if (e.ClickedItem.Text == "Copy")
-			//{
-			//	OnCopy(sender, new EventArgs());
-			//}
-			if (e.ClickedItem.Text == "Paste")
-			{
-				OnPaste(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Delete")
-			{
-				OnDelete(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Add")
-			{
-				OnAdd(sender, new EventArgs());
-			}
-		}
-
-		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-		{
-			//for (int i = 0; i < Tree.ContextMenuStrip.Items.Count; i++)
-			//	if (Tree.ContextMenuStrip.Items[i].Text == "Paste Group")
-			//		Tree.ContextMenuStrip.Items[i].Enabled = ClipboardContainsCurve();
-			Tree.TreeContextMenu.Show();
-			//Tree.ContextMenuStrip.Items["Paste Curve"].Enabled = ClipboardContainsCurve();
-		}
-
-		// handle copy pasting from keyboard here
-		void Tree_KeyUp(object sender, KeyEventArgs e)
-		{
-			// the modifier key CTRL is pressed by the time it gets here
-			switch (e.KeyCode)
-			{
-				//case Keys.C:
-				//	OnCopy(Tree.SelectedTag, new EventArgs());
-				//	break;
-				case Keys.V:
-					OnPaste(Tree.SelectedTag, new EventArgs());
-					break;
-			}
 		}
 
 		WarpFrame m_frame;
-
 		Sail Sail
 		{
 			get { return m_frame != null ? m_frame.ActiveSail : null; }
-		}
-
-		bool m_editMode = false;
-
-		public bool EditMode
-		{
-			get { return m_editMode; }
-			set { m_editMode = value; }
 		}
 
 		DualView View
@@ -114,18 +36,35 @@ namespace Warps
 
 		#region ITracker Stuff
 
-		public void OnCancel(object sender, EventArgs e)
+		public bool IsTracking { get { return false; } }
+
+		public void Track(WarpFrame frame)
 		{
-			Tree.KeyUp -= Tree_KeyUp;
-			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
-			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
+			m_frame = frame;
+
+			if (m_frame != null)
+			{
+				m_frame = frame;
+				m_frame.EditorPanel = null;
+
+				Tree.AttachTracker(this);
+				View.AttachTracker(this);
+			}
 		}
+
+		public void Cancel()
+		{
+			Tree.DetachTracker(this);
+			View.DetachTracker(this);
+		}
+
+		public void OnBuild(object sender, EventArgs e) { }
+
+		public void OnPreview(object sender, EventArgs e) { }
 
 		public void OnAdd(object sender, EventArgs e) { }
 
 		public void OnDelete(object sender, EventArgs e) { }
-
-		public void OnBuild(object sender, EventArgs e) { }
 
 		public void OnSelect(object sender, EventArgs<IRebuild> e) { }
 
@@ -136,8 +75,6 @@ namespace Warps
 		public void OnMove(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
 		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e) { }
-
-		public void OnPreview(object sender, EventArgs e) { }
 
 	//	public void OnCopy(object sender, EventArgs e) { }
 
@@ -173,7 +110,10 @@ namespace Warps
 			}
 		}
 
-		#endregion ITracker Stuff
+		public void ProcessSelection(object Tag)
+		{
+		}
 
+		#endregion
 	}
 }

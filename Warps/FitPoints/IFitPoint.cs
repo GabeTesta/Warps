@@ -4,12 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
+
 namespace Warps
 {
 	public interface IFitPoint
 	{
 		bool ReadScript(Sail sail, IList<string> txt);
 		List<string> WriteScript();
+
+		XmlNode WriteXScript(XmlDocument doc);
+		void ReadXScript(Sail s, XmlNode node);
 
 		double S { get; set; }
 		Vect2 UV { get; set; }

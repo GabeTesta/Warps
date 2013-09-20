@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Warps.Yarns;
+using Warps.Curves;
 
 namespace Warps.Controls
 {
@@ -31,200 +32,67 @@ namespace Warps.Controls
 			m_guideListView.LargeImageList = imgList2;
 			m_guideListView.StateImageList = imgList2;
 
-			YarGroup = group;
-			sail = YarGroup.Sail;
+			targetDPIEQB.Prep(group.Sail, group);
+			yarnDenierEQB.Prep(group.Sail, group);
 
-			targetDPIEQB.Prep(m_sail, YarGroup);
-			yarnDenierEQB.Prep(m_sail, YarGroup);
-			if (YarGroup.YarnDenierEqu != null)
-				yarnDenierEQB.Equation = YarGroup.YarnDenierEqu;
-			else
-				yarnDenierEQB.Text = "";
-			//yarnDenierEQB.Text = YarGroup.YarnDenierEqu != null ? YarGroup.YarnDenierEqu.EquationText : "0";
-			//targetDPIEQB.Text = YarGroup.TargetDenierEqu != null ? YarGroup.TargetDenierEqu.EquationText : "0";
-			if (YarGroup.TargetDenierEqu != null)
-				targetDPIEQB.Equation = YarGroup.TargetDenierEqu;
-			else
-				targetDPIEQB.Text = "";
+			m_endingList.DataSource = System.Enum.GetValues(typeof(YarnGroup.Ending));
+			m_yarnCombo.DataSource = WarpFrame.Mats.Materials(MaterialDatabase.TableTypes.Yarns);
 
-			FillMaterials();
-
-			fillEditorWithData();
+			BAK = selectWarpButt.BackColor;
 		}
-
-		void FillMaterials()
-		{
-			foreach (string s in WarpFrame.Mats.Materials)
-			{
-				m_yarnCombo.Items.Add(s);
-			}
-		}
-		YarnGroup m_group;
-		Sail m_sail = null;
-
-		public Sail sail
-		{
-			get { return m_sail; }
-			set
-			{
-				m_sail = value;
-			}
-		}
-
-		public YarnGroup YarGroup
-		{
-			get { return m_group; }
-			set { m_group = value; }
-		}
-
-		public double AchievedDPI
-		{
-			set { m_achievedDPI.Text = value.ToString("n"); }
-		}
-
-		public int AchievedYarnCount
-		{
-			set { m_yarnCountOut.Text = value.ToString(); }
-		}
-
-		public string YarnMaterial { get { return m_yarnCombo.SelectedItem == null ? "" : m_yarnCombo.SelectedItem as string; } }
+		Color BAK, SEL = Color.SeaGreen;
 		DualView m_view = null;
-
 		public DualView View
 		{
 			get { return m_view; }
 			set { m_view = value; }
 		}
 
-		List<Vect2> m_guideCombVals = new List<Vect2>();
+		#region Properties
 
-		public string GroupLabel
+		public string Label
 		{
 			get { return m_labelTextBox.Text; }
 			set { m_labelTextBox.Text = value; }
 		}
 
-		public void fillEditorWithData()
+		public List<MouldCurve> WarpCurves
 		{
-			m_labelTextBox.Text = YarGroup.Label;
-			populateWarpBox();
-			if (YarGroup.Guide != null)
-				m_guideListView.Items.Add(YarGroup.Guide.Label, m_group.Guide.Label, "GuideComb");
-
-			m_endingList.DataSource = null;
-			m_endingList.DataSource = System.Enum.GetValues(typeof(YarnGroup.Ending));
-			Ending = YarGroup.EndCondition;
-			//outputs
-			AchievedDPI = YarGroup.AchievedDpi;
-			AchievedYarnCount = YarGroup.Count;
-
-			populateDensityCurveLocationBox(YarGroup.DensityPos);
-
-			if( YarGroup.YarnMaterial != null )
-				if (m_yarnCombo.Items.Contains(YarGroup.YarnMaterial))
-					m_yarnCombo.SelectedItem = YarGroup.YarnMaterial;
-		}
-		public YarnGroup.Ending Ending
-		{
-			get { return (YarnGroup.Ending)m_endingList.SelectedValue; }
-			set { m_endingList.Text = value.ToString(); }
-		}
-		private void populateDensityCurveLocationBox(List<double> spos)
-		{
-			if (spos == null)
-				m_densityLocTextBox.Text = "";
-			List<string> sdens = new List<string>(spos.Count);
-			spos.ForEach(s => sdens.Add(s.ToString("0.000")));
-			m_densityLocTextBox.Text = string.Join("; ", sdens);
-			//m_densityLocTextBox.Text = string.Join(", ", spos);
-		}
-
-		public void populateWarpBox()
-		{
-			m_warpListView.Items.Clear();
-			YarGroup.Warps.ForEach(wrp => 
-				m_warpListView.Items.Add(wrp.Label, wrp.Label, wrp.GetType().Name));
-			//availableCurves.ForEach(cur => m_warpSelectionCheckbox.Items.Add(cur, m_group.Warps.Contains(cur)));
-		}
-
-		public bool AddRemoveWarp(MouldCurve curve)
-		{
-			if (!m_selectingWarp)
-				return false;
-
-			if (m_warpListView.Items.ContainsKey(curve.Label))
+			get
 			{
-				m_warpListView.Items.RemoveByKey(curve.Label);
-				m_warpListView.Refresh();
-				return false;
+				List<MouldCurve> ret = new List<MouldCurve>();
+				//	if (YarGroup.Sail != null && m_warpListView.Items.Count > 0)
+				if (m_warpListView.Items.Count > 0)
+				{
+					for (int i = 0; i < m_warpListView.Items.Count; i++)
+						ret.Add(WarpFrame.CurrentSail.FindCurve(m_warpListView.Items[i].Name));
+				}
+				return ret;
 			}
-			else
-			{
-				m_warpListView.Items.Add(curve.Label, curve.Label, curve.GetType().Name);
-				m_warpListView.Refresh();
-				return true;
-			}
-		}
-		public void AddGuide(GuideComb guide)
-		{
-			if (!m_selectingGuide)
-				return;
-
-			m_guideListView.Items.Clear();
-
-			m_guideListView.Items.Add(guide.Label, guide.Label, "GuideComb");
-
-			m_guideListView.Refresh();
-		}
-
-		public void Done()
-		{
-			m_selectingWarp = false;
-
-			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
-
-			m_selectingGuide = false;
-			selectGuideButt.BackColor = m_selectingGuide ? Color.Green : Color.White;
-		}
-
-		public bool EditMode
-		{
-
-			get { return this.Enabled; }
-
 			set
 			{
-				this.Enabled = value;
-				outputGroup.Enabled = false; // always false
+				m_warpListView.Items.Clear();
+				value.ForEach(wrp =>
+					m_warpListView.Items.Add(wrp.Label, wrp.Label, wrp.GetType().Name));
 			}
 		}
-
-		bool m_selectingWarp = false;
-		bool m_selectingGuide = false;
-		private void button1_Click(object sender, EventArgs e)
+		public GuideComb Guide
 		{
-			m_selectingWarp = !m_selectingWarp;
+			get
+			{
+				//if (m_group.Sail != null && m_guideListView.Items.Count > 0)
+				//	return YarGroup.Sail.FindCurve(m_guideListView.Items[0].Name) as GuideComb;
+				if (m_guideListView.Items.Count > 0)
+					return WarpFrame.CurrentSail.FindCurve(m_guideListView.Items[0].Name) as GuideComb;
 
-			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
-
-			m_selectingGuide = false;
-			selectGuideButt.BackColor = m_selectingGuide ? Color.Green : Color.White;
-
-
-			View.SetTrackerSelectionMode(m_selectingWarp ? "warps" : null);
-		}
-
-		private void selectGuideButt_Click(object sender, EventArgs e)
-		{
-			m_selectingGuide = !m_selectingGuide;
-
-			selectGuideButt.BackColor = m_selectingGuide ? Color.Green : Color.White;
-
-			m_selectingWarp = false;
-
-			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
-
-			View.SetTrackerSelectionMode(m_selectingGuide ? "guides" : null);
+				return null;
+			}
+			set
+			{
+				m_guideListView.Clear();
+				if( value != null)
+					m_guideListView.Items.Add(value.Label, value.Label, "GuideComb");
+			}
 		}
 
 		public Equation YarnDenierEqu
@@ -233,44 +101,24 @@ namespace Warps.Controls
 			{
 				return yarnDenierEQB.Equation;
 			}
+			set
+			{
+				yarnDenierEQB.Equation = value;
+			}
 		}
-
 		public Equation TargetDPIEqu
 		{
 			get
 			{
 				return targetDPIEQB.Equation;
 			}
-		}
-
-		public GuideComb Guide
-		{
-			get
+			set
 			{
-				if (m_group.Sail != null && m_guideListView.Items.Count > 0)
-					return YarGroup.Sail.FindCurve(m_guideListView.Items[0].Name) as GuideComb;
-
-				return null;
+				targetDPIEQB.Equation = value;
 			}
 		}
 
-		public List<MouldCurve> SelectedWarps
-		{
-			get
-			{
-				List<MouldCurve> ret = new List<MouldCurve>();
-				if (YarGroup.Sail != null && m_warpListView.Items.Count > 0)
-				{
-					for (int i = 0; i < m_warpListView.Items.Count; i++)
-						ret.Add(YarGroup.Sail.FindCurve(m_warpListView.Items[i].Name));
-
-				}
-
-				return ret;
-			}
-		}
-
-		public List<double> sPos
+		public List<double> DensityPos
 		{
 			get
 			{
@@ -288,40 +136,152 @@ namespace Warps.Controls
 			}
 			set
 			{
-				populateDensityCurveLocationBox(value);
+				if (value == null)
+					m_densityLocTextBox.Text = "";
+				List<string> sdens = new List<string>(value.Count);
+				value.ForEach(s => sdens.Add(s.ToString("0.000")));
+				m_densityLocTextBox.Text = string.Join("; ", sdens);
 			}
+		}
+
+		public YarnGroup.Ending Ending
+		{
+			get { return (YarnGroup.Ending)m_endingList.SelectedValue; }
+			set { m_endingList.Text = value.ToString(); }
+		}
+		public string YarnMaterial
+		{
+			get { return m_yarnCombo.SelectedItem == null ? "" : m_yarnCombo.SelectedItem as string; }
+			set { m_yarnCombo.SelectedItem = value; }
+		}
+
+		public double AchievedDPI
+		{
+			set { m_achievedDPI.Text = value.ToString("n"); }
+		}
+		public int AchievedYarnCount
+		{
+			set { m_yarnCountOut.Text = value.ToString(); }
+		}
+		
+		#endregion
+
+		#region Read/WriteGroup
+		
+		internal void ReadGroup(YarnGroup m_temp)
+		{
+			Label = m_temp.Label;
+
+			WarpCurves = m_temp.Warps;
+			Guide = m_temp.Guide;
+
+			YarnDenierEqu = m_temp.YarnDenierEqu;
+			TargetDPIEqu = m_temp.TargetDenierEqu;
+
+			DensityPos = m_temp.DensityPos;
+			Ending = m_temp.EndCondition;
+
+
+			YarnMaterial = m_temp.YarnMaterial;
+		}
+
+		internal void WriteGroup(YarnGroup Group)
+		{
+			Group.Label = Label;
+
+			Group.Warps = WarpCurves;
+			Group.Guide = Guide;
+
+			Group.YarnDenierEqu = YarnDenierEqu;
+			Group.TargetDenierEqu = TargetDPIEqu;
+
+			Group.DensityPos = DensityPos;
+			Group.EndCondition = Ending;
+
+			Group.YarnMaterial = YarnMaterial;
+		}
+
+ 
+		#endregion		
+		
+		#region Warps/Guide
+
+		public bool IsWarp
+		{
+			get { return selectWarpButt.BackColor == SEL; }
+			set { selectWarpButt.BackColor = value ? SEL : BAK; }
+		}
+		public bool IsGuide
+		{
+			get { return selectGuideButt.BackColor == SEL; }
+			set { selectGuideButt.BackColor = value ? SEL : BAK; }
+		}
+
+		public bool AddRemoveWarp(MouldCurve curve)
+		{
+			if (!IsWarp)
+				return false;
+
+			if (m_warpListView.Items.ContainsKey(curve.Label))
+			{
+				m_warpListView.Items.RemoveByKey(curve.Label);
+				m_warpListView.Refresh();
+				return false;
+			}
+			else
+			{
+				m_warpListView.Items.Add(curve.Label, curve.Label, curve.GetType().Name);
+				m_warpListView.Refresh();
+				return true;
+			}
+		}
+		public bool AddGuide(GuideComb guide)
+		{
+			if (!IsGuide)
+				return false;
+
+			m_guideListView.Items.Clear();
+			m_guideListView.Items.Add(guide.Label, guide.Label, "GuideComb");
+			m_guideListView.Refresh();
+
+			return true;
+		}
+
+		private void selectGuideButt_Click(object sender, EventArgs e)
+		{
+			IsGuide = !IsGuide;
+			IsWarp = false;
+			//View.SetTrackerSelectionMode(IsGuide ? "guides" : null);
+			View.ShowTypes(IsGuide ? typeof(GuideComb): null);
+		}
+		private void selectWarpsButt_Click(object sender, EventArgs e)
+		{
+			IsWarp = !IsWarp;
+			IsGuide = false;
+			View.ShowTypes(IsWarp ? typeof(MouldCurve) : null);
+			//View.SetTrackerSelectionMode(IsWarp ? "warps" : null);
 		}
 
 		private void m_warpListView_DoubleClick(object sender, EventArgs e)
 		{
 			if (m_warpListView.SelectedIndices.Count > 0)
 			{
-				foreach (var v in m_warpListView.SelectedIndices)
-					m_warpListView.Items.RemoveAt(Convert.ToInt32(v));
+				foreach (int v in m_warpListView.SelectedIndices)
+					m_warpListView.Items.RemoveAt(v);
 				m_warpListView.Refresh();
 			}
 		}
-
 		private void m_guideListView_DoubleClick(object sender, EventArgs e)
 		{
 			if (m_guideListView.SelectedIndices.Count > 0)
 			{
-				foreach (var v in m_guideListView.SelectedIndices)
-					m_guideListView.Items.RemoveAt(Convert.ToInt32(v));
+				foreach (int v in m_guideListView.SelectedIndices)
+					m_guideListView.Items.RemoveAt(v);
 				m_guideListView.Refresh();
 			}
 		}
 
-		public List<MouldCurve> Curves
-		{
-			get
-			{
-				List<MouldCurve> ret = new List<MouldCurve>();
-				ret.AddRange(SelectedWarps);
-				if(Guide!=null)
-					ret.Add(Guide);
-				return ret;
-			}
-		}
+		#endregion
+
 	}
 }

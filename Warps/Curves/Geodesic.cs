@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra.Double;
 using MathNet.Numerics.LinearAlgebra.Double.Factorization;
 
-namespace Warps
+namespace Warps.Curves
 {
 	internal static class Geodesic
 	{

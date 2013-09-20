@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Warps.Curves;
+using System.Xml;
 
 namespace Warps
 {
@@ -193,6 +195,30 @@ namespace Warps
 		public bool ValidFitPoint
 		{
 			get { return m_Curves != null && m_Curves.Length == 2 && m_Curves[0] != null && m_Curves[1] != null; }
+		}
+
+		#endregion
+
+		#region IFitPoint Members
+
+		public XmlNode WriteXScript(System.Xml.XmlDocument doc)
+		{
+			XmlNode node = NsXml.MakeNode(doc, GetType().Name);
+			NsXml.AddAttribute(node, "Curve1", m_Curves[0].Label);
+			NsXml.AddAttribute(node, "Curve2", m_Curves[1].Label);
+			return node;
+		}
+
+		public void ReadXScript(Sail s, System.Xml.XmlNode node)
+		{
+			m_Curves[0] = s.FindCurve(NsXml.ReadString(node, "Curve1"));
+			m_Curves[1] = s.FindCurve(NsXml.ReadString(node, "Curve2"));
+
+			if (m_Curves[0] == null || m_Curves[1] == null)
+				throw new ArgumentException(string.Format("Cannot find CrossPoint curve: {0}",
+					m_Curves[0] == null ?
+					NsXml.ReadString(node, "Curve1") :
+					NsXml.ReadString(node, "Curve2")));
 		}
 
 		#endregion

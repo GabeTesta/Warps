@@ -8,27 +8,33 @@ using System.Collections;
 using System.Threading;
 using Warps;
 
-namespace Logger
-{
-	public enum LogPriority
-	{
-		Message,
-		Warning,
-		Error,
-		Debug
-	};
+
 
 	/// <summary>
 	/// ThreadSafe Singleton Logger Implementation
 	/// </summary>
-	public class logger
+	public class Logleton
 	{
-		private static volatile logger instance;
+		private static volatile Logleton instance;
 		private static object syncRoot = new Object();
 
-		private logger() { }
+		private Logleton() { }
 
-		public static logger Instance
+		/// <summary>
+		/// Logger enum for specifying message style
+		/// </summary>
+		public enum LogPriority
+		{
+			Message,
+			Warning,
+			Error,
+			Debug
+		};
+
+		/// <summary>
+		/// ThreadSafe singleton instance of the Logger class
+		/// </summary>
+		public static Logleton TheLog
 		{
 			get
 			{
@@ -38,7 +44,7 @@ namespace Logger
 					{
 						if (instance == null)
 						{
-							instance = new logger();
+							instance = new Logleton();
 							m_tsEntriesI = Queue.Synchronized(m_EntriesInput);
 							//logger.Instance.Cleanup(20);
 							//logger.Instance.Path = Directory.GetCurrentDirectory() + "\\Logs\\" + now;
@@ -61,8 +67,8 @@ namespace Logger
 		/// <param name="fileName">name of the log file (timeStamp will be appended)</param>
 		public void CreateLogLocal(string fileName){
 			string now = string.Format( fileName + "-{0:yyyy-MM-dd_hh-mm-ss-tt}.log", DateTime.Now);
-			logger.Instance.Cleanup(Directory.GetCurrentDirectory() + "\\Logs\\", System.IO.Path.GetFileNameWithoutExtension(fileName), 20);
-			logger.Instance.Path = Directory.GetCurrentDirectory() + "\\Logs\\" + now;
+			Logleton.TheLog.Cleanup(Directory.GetCurrentDirectory() + "\\Logs\\", System.IO.Path.GetFileNameWithoutExtension(fileName), 20);
+			Logleton.TheLog.Path = Directory.GetCurrentDirectory() + "\\Logs\\" + now;
 		}
 
 		/// <summary>
@@ -72,8 +78,8 @@ namespace Logger
 		public void CreateLogAt(string fullFileName)
 		{
 			string now = string.Format(System.IO.Path.GetFileName(fullFileName) + "-{0:yyyy-MM-dd_hh-mm-ss-tt}.log", DateTime.Now);
-			logger.Instance.Cleanup(System.IO.Path.GetFullPath(fullFileName) + "\\Logs\\", System.IO.Path.GetFileNameWithoutExtension(fullFileName), 20);
-			logger.Instance.Path = System.IO.Path.GetFullPath(fullFileName) + "\\Logs\\" + now;
+			Logleton.TheLog.Cleanup(System.IO.Path.GetFullPath(fullFileName) + "\\Logs\\", System.IO.Path.GetFileNameWithoutExtension(fullFileName), 20);
+			Logleton.TheLog.Path = System.IO.Path.GetFullPath(fullFileName) + "\\Logs\\" + now;
 		}
 
 		/// <summary>
@@ -309,7 +315,7 @@ namespace Logger
 
 	public class Entry
 	{
-		public Entry(string msg, LogPriority priority)
+		public Entry(string msg, Logleton.LogPriority priority)
 		{
 			m_msg = msg;
 			m_time = DateTime.Now;
@@ -318,13 +324,13 @@ namespace Logger
 
 		private readonly string m_msg;
 		private DateTime m_time;
-		private LogPriority m_priority;
+		private Logleton.LogPriority m_priority;
 
 		public override string ToString()
 		{
 			return string.Format("[{0}] {1}: {2}", m_time.ToLongTimeString(), m_priority.ToString(), m_msg);
 		}
-		public LogPriority Priority
+		public Logleton.LogPriority Priority
 		{
 			get { return m_priority; }
 		}
@@ -337,5 +343,3 @@ namespace Logger
 			get { return m_time; }
 		}
 	}
-}
-

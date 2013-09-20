@@ -4,12 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Warps.Curves;
+using System.Xml;
 
 namespace Warps
 {
 	public class Equation: IRebuild
 	{
 		public Equation() { m_label = ""; m_text = null; Value = 0; }
+		public Equation(Equation clone)
+		{
+			m_label = clone.Label;
+			m_result = clone.m_result;
+			m_locked = clone.m_locked;
+			m_text = clone.m_text;
+		}
 		public Equation(string equationText) : this(null, equationText) { }
 		public Equation(double value)
 		{
@@ -35,9 +44,9 @@ namespace Warps
 
 		System.Windows.Forms.TreeNode m_node = null;
 
-		public bool IsNumber()
+		public bool IsNumber
 		{
-			return m_text == null;
+			get { return m_text == null; }
 		}
 
 		public string Label
@@ -85,7 +94,7 @@ namespace Warps
 
 		public double Evaluate(Sail s)
 		{
-			if (IsNumber())
+			if (IsNumber)
 				return Value;
 
 			if (s == null) 
@@ -226,6 +235,20 @@ namespace Warps
 		{
 			return WriteScript("");
 		}
+
+		public XmlNode WriteXScript(XmlDocument doc)
+		{
+			XmlNode ele = NsXml.MakeNode(doc, this);
+			NsXml.AddAttribute(ele, "EquationText", IsNumber ? Value.ToString() : EquationText);
+			return ele;
+		}
+		public void ReadXScript(Sail sail, XmlNode node)
+		{
+			Label = NsXml.ReadLabel(node);
+			EquationText = NsXml.ReadString(node, "EquationText");
+			Update(sail);
+		}
+
 		public TreeNode WriteNode()
 		{
 			if (m_node == null)
@@ -288,6 +311,17 @@ namespace Warps
 			EquationText = edit.EquationText;
 			Evaluate(edit.sail);
 		}
+
+
+		internal bool IsEqual(Equation equation)
+		{
+			if (equation == null)
+				return false;
+			if (IsNumber)
+				return equation.IsNumber && Value == equation.Value;
+			return equation.EquationText == EquationText;
+		}
+
 
 	}
 }

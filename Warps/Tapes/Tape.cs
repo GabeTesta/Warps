@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
 using Warps;
+using Warps.Curves;
 
 namespace Warps.Tapes
 {

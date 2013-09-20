@@ -9,14 +9,13 @@ using System.Drawing;
 using devDept.Eyeshot;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
+using System.Xml;
 
-namespace Warps
+namespace Warps.Curves
 {
-	public delegate Point3D Transformer(Point3D pt);
-
 	public class MouldCurve : IRebuild, IMouldCurve
 	{
-		public MouldCurve()
+		public MouldCurve(): this("", WarpFrame.CurrentSail,new Vect2(0,0.5), new Vect2(1,0.5))
 		{ }
 		public MouldCurve(string label, Sail sail)
 		{
@@ -313,15 +312,49 @@ namespace Warps
 
 		#endregion
 
+		public bool IsEqual(MouldCurve c)
+		{
+			if (c == null)
+				return false;
+
+			if (c.m_label != m_label)
+				return false;
+
+			if (c.m_bGirths.Length != m_bGirths.Length)
+				return false;
+			for (int i = 0; i < m_bGirths.Length; i++)
+				if (c.m_bGirths[i] != m_bGirths[i])
+					return false;
+
+			if (c.m_uSplines.Length != m_uSplines.Length)
+				return false;
+			for (int i = 0; i < m_uSplines.Length; i++)
+				if (c.m_uSplines[i] != m_uSplines[i])
+					return false;
+
+			if (c.m_sSplines.Length != m_sSplines.Length)
+				return false;
+			for (int i = 0; i < m_sSplines.Length; i++)
+				if (c.m_sSplines[i] != m_sSplines[i])
+					return false;
+
+			return true;
+		}
+
 		#region Fitting
 
-		public void ReFit()
+		public virtual void ReFit()
 		{
+			m_Length = -1;//reset length
 			Fit(FitPoints);
 		}
 		public void Fit(MouldCurve clone)
 		{
-			Fit(clone.FitPoints.ToArray(), clone.GirthSegments.ToArray());
+			FitPoints = new IFitPoint[clone.FitPoints.Length];
+			int i =0;
+			foreach(IFitPoint fp in clone.FitPoints)
+				FitPoints[i++] = fp.Clone();
+			Fit(FitPoints, clone.GirthSegments.Clone() as bool[]);
 		}
 		public void Fit(Vect2 uStart, Vect2 uEnd)
 		{
@@ -401,6 +434,12 @@ namespace Warps
 			//store arrays for debugging
 			m_sSplines = sFits.Clone() as double[];
 
+		}
+		public void SetUSplines(double[][] uFits)
+		{
+			m_uSplines = new Vect2[uFits[0].Length];
+			for (int i = 0; i < uFits[0].Length; i++)
+				m_uSplines[i] = new Vect2(uFits[0][i], uFits[1][i]);
 		}
 
 		double[] m_sSplines;
@@ -719,6 +758,7 @@ namespace Warps
 				if (header == "Girth Segments")
 				{
 					ReadGirthsScript(lines);
+					break;//quit after reading girths
 					
 				}
 				else//fit points
@@ -962,6 +1002,7 @@ namespace Warps
 					pnts.Add(new Point3D(xyz.ToArray()));
 				}
 				PointCloud pc = new PointCloud(pnts, 8f);
+				pc.LineWeightMethod = colorMethodType.byEntity;
 				pc.EntityData = this;
 				entities.Add(pc);
 			}
@@ -1284,5 +1325,48 @@ namespace Warps
 			return FitPoints.Contains(p);
 		}
 
+
+		#region IRebuild Members
+
+
+		public virtual XmlNode WriteXScript(XmlDocument doc)
+		{
+			XmlNode node = NsXml.MakeNode(doc, this);
+			foreach (IFitPoint fp in FitPoints)
+			{
+				node.AppendChild(fp.WriteXScript(doc));
+				//node.AppendChild(NsXml.MakeNode(doc, fp.GetType().Name, fp.ToString()));
+			}
+			NsXml.AddAttribute(node, "Girths", GirthSegments);
+
+			return node;
+		}
+
+		public virtual void ReadXScript(Sail sail, XmlNode node)
+		{
+			Label = NsXml.ReadLabel(node);
+			List<IFitPoint> points = new List<IFitPoint>(node.ChildNodes.Count);
+
+			//read the girth segments
+			string[] girs = NsXml.ReadStrings(node, "Girths");
+			m_bGirths = new bool[girs.Length];
+			for (int nGir = 0; nGir < girs.Length; nGir++)
+				bool.TryParse(girs[nGir], out m_bGirths[nGir]);
+
+			//read each fitpoint
+			foreach (XmlNode child in node.ChildNodes)
+			{
+				IFitPoint fp = Utilities.CreateInstance(child.Name) as IFitPoint;
+				if (fp != null)
+				{
+					fp.ReadXScript(Sail, child);
+					points.Add(fp);
+				}
+			}
+			FitPoints = points.ToArray();
+			ReFit();
+		}
+
+		#endregion
 	}
 }

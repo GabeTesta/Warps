@@ -32,9 +32,12 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WarpFrame));
 			this.m_vertsplit = new System.Windows.Forms.SplitContainer();
 			this.m_horizsplit = new System.Windows.Forms.SplitContainer();
+			this.m_tree = new Warps.TabTree();
+			this.m_cancel = new System.Windows.Forms.Button();
 			this.previewButton = new System.Windows.Forms.Button();
 			this.editPanel = new System.Windows.Forms.Panel();
 			this.okButton = new System.Windows.Forms.Button();
+			this.m_dualView = new Warps.DualView();
 			this.m_toolstrip = new System.Windows.Forms.ToolStrip();
 			this.newToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.openToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -57,18 +60,14 @@
 			this.m_autoBtn = new System.Windows.Forms.ToolStripButton();
 			this.m_buildBtn = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-			this.m_editButton = new System.Windows.Forms.ToolStripButton();
-			this.cancelButton = new System.Windows.Forms.ToolStripButton();
-			this.m_statusStrip = new System.Windows.Forms.StatusStrip();
-			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
-			this.m_statusProgress = new System.Windows.Forms.ToolStripProgressBar();
-			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-			this.m_tree = new Warps.TabTree();
-			this.m_dualView = new Warps.DualView();
 			this.m_defGeo = new System.Windows.Forms.ToolStripDropDownButton();
 			this.outerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.innerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.baxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_statusStrip = new System.Windows.Forms.StatusStrip();
+			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
+			this.m_statusProgress = new System.Windows.Forms.ToolStripProgressBar();
+			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
 			this.m_vertsplit.Panel1.SuspendLayout();
 			this.m_vertsplit.Panel2.SuspendLayout();
@@ -101,6 +100,7 @@
 			this.m_vertsplit.Size = new System.Drawing.Size(1022, 523);
 			this.m_vertsplit.SplitterDistance = 405;
 			this.m_vertsplit.TabIndex = 0;
+			this.m_vertsplit.TabStop = false;
 			// 
 			// m_horizsplit
 			// 
@@ -115,12 +115,36 @@
 			// 
 			// m_horizsplit.Panel2
 			// 
+			this.m_horizsplit.Panel2.Controls.Add(this.m_cancel);
 			this.m_horizsplit.Panel2.Controls.Add(this.previewButton);
 			this.m_horizsplit.Panel2.Controls.Add(this.editPanel);
 			this.m_horizsplit.Panel2.Controls.Add(this.okButton);
 			this.m_horizsplit.Size = new System.Drawing.Size(405, 523);
 			this.m_horizsplit.SplitterDistance = 205;
 			this.m_horizsplit.TabIndex = 0;
+			this.m_horizsplit.TabStop = false;
+			// 
+			// m_tree
+			// 
+			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_tree.Location = new System.Drawing.Point(0, 0);
+			this.m_tree.Name = "m_tree";
+			this.m_tree.SelectedTag = null;
+			this.m_tree.Size = new System.Drawing.Size(205, 523);
+			this.m_tree.TabIndex = 0;
+			// 
+			// m_cancel
+			// 
+			this.m_cancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.m_cancel.BackColor = System.Drawing.Color.White;
+			this.m_cancel.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SteelBlue;
+			this.m_cancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.m_cancel.Location = new System.Drawing.Point(58, 497);
+			this.m_cancel.Name = "m_cancel";
+			this.m_cancel.Size = new System.Drawing.Size(75, 23);
+			this.m_cancel.TabIndex = 3;
+			this.m_cancel.Text = "Cancel";
+			this.m_cancel.UseVisualStyleBackColor = false;
 			// 
 			// previewButton
 			// 
@@ -160,6 +184,16 @@
 			this.okButton.Text = "Apply";
 			this.okButton.UseVisualStyleBackColor = false;
 			// 
+			// m_dualView
+			// 
+			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_dualView.EditMode = false;
+			this.m_dualView.Location = new System.Drawing.Point(0, 0);
+			this.m_dualView.Name = "m_dualView";
+			this.m_dualView.Size = new System.Drawing.Size(613, 523);
+			this.m_dualView.TabIndex = 0;
+			this.m_dualView.TabStop = false;
+			// 
 			// m_toolstrip
 			// 
 			this.m_toolstrip.Dock = System.Windows.Forms.DockStyle.None;
@@ -182,12 +216,10 @@
             this.m_autoBtn,
             this.m_buildBtn,
             this.toolStripSeparator3,
-            this.m_editButton,
-            this.cancelButton,
             this.m_defGeo});
 			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
 			this.m_toolstrip.Name = "m_toolstrip";
-			this.m_toolstrip.Size = new System.Drawing.Size(627, 25);
+			this.m_toolstrip.Size = new System.Drawing.Size(480, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
 			// 
@@ -337,7 +369,7 @@
 			this.m_addCurve.Size = new System.Drawing.Size(69, 22);
 			this.m_addCurve.Text = "Add Group";
 			this.m_addCurve.ToolTipText = "Add group to project";
-			this.m_addCurve.Click += new System.EventHandler(this.m_addCurve_Click);
+			this.m_addCurve.Click += new System.EventHandler(this.AddGroup_Click);
 			// 
 			// toolStripSeparator1
 			// 
@@ -371,27 +403,37 @@
 			this.toolStripSeparator3.Name = "toolStripSeparator3";
 			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
 			// 
-			// m_editButton
+			// m_defGeo
 			// 
-			this.m_editButton.CheckOnClick = true;
-			this.m_editButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_editButton.ForeColor = System.Drawing.Color.Black;
-			this.m_editButton.Image = ((System.Drawing.Image)(resources.GetObject("m_editButton.Image")));
-			this.m_editButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_editButton.Name = "m_editButton";
-			this.m_editButton.Size = new System.Drawing.Size(31, 22);
-			this.m_editButton.Text = "Edit";
-			this.m_editButton.ToolTipText = "Toggle Edit Mode";
-			this.m_editButton.CheckedChanged += new System.EventHandler(this.m_editButton_CheckedChanged);
+			this.m_defGeo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.m_defGeo.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.outerToolStripMenuItem,
+            this.innerToolStripMenuItem,
+            this.baxToolStripMenuItem});
+			this.m_defGeo.Image = ((System.Drawing.Image)(resources.GetObject("m_defGeo.Image")));
+			this.m_defGeo.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_defGeo.Name = "m_defGeo";
+			this.m_defGeo.Size = new System.Drawing.Size(113, 22);
+			this.m_defGeo.Text = "Default Geometry";
 			// 
-			// cancelButton
+			// outerToolStripMenuItem
 			// 
-			this.cancelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.cancelButton.Image = ((System.Drawing.Image)(resources.GetObject("cancelButton.Image")));
-			this.cancelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.cancelButton.Name = "cancelButton";
-			this.cancelButton.Size = new System.Drawing.Size(47, 22);
-			this.cancelButton.Text = "Cancel";
+			this.outerToolStripMenuItem.Name = "outerToolStripMenuItem";
+			this.outerToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
+			this.outerToolStripMenuItem.Text = "Outer";
+			// 
+			// innerToolStripMenuItem
+			// 
+			this.innerToolStripMenuItem.Name = "innerToolStripMenuItem";
+			this.innerToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
+			this.innerToolStripMenuItem.Text = "Inner";
+			// 
+			// baxToolStripMenuItem
+			// 
+			this.baxToolStripMenuItem.Name = "baxToolStripMenuItem";
+			this.baxToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
+			this.baxToolStripMenuItem.Text = "Bax";
+			this.baxToolStripMenuItem.Click += new System.EventHandler(this.baxToolStripMenuItem_Click);
 			// 
 			// m_statusStrip
 			// 
@@ -438,56 +480,6 @@
 			// 
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
 			// 
-			// m_tree
-			// 
-			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_tree.Location = new System.Drawing.Point(0, 0);
-			this.m_tree.Name = "m_tree";
-			this.m_tree.SelectedTag = null;
-			this.m_tree.Size = new System.Drawing.Size(205, 523);
-			this.m_tree.TabIndex = 0;
-			// 
-			// m_dualView
-			// 
-			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_dualView.EditMode = false;
-			this.m_dualView.Location = new System.Drawing.Point(0, 0);
-			this.m_dualView.Name = "m_dualView";
-			this.m_dualView.Size = new System.Drawing.Size(613, 523);
-			this.m_dualView.TabIndex = 0;
-			// 
-			// m_defGeo
-			// 
-			this.m_defGeo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_defGeo.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.outerToolStripMenuItem,
-            this.innerToolStripMenuItem,
-            this.baxToolStripMenuItem});
-			this.m_defGeo.Image = ((System.Drawing.Image)(resources.GetObject("m_defGeo.Image")));
-			this.m_defGeo.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_defGeo.Name = "m_defGeo";
-			this.m_defGeo.Size = new System.Drawing.Size(113, 22);
-			this.m_defGeo.Text = "Default Geometry";
-			// 
-			// outerToolStripMenuItem
-			// 
-			this.outerToolStripMenuItem.Name = "outerToolStripMenuItem";
-			this.outerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.outerToolStripMenuItem.Text = "Outer";
-			// 
-			// innerToolStripMenuItem
-			// 
-			this.innerToolStripMenuItem.Name = "innerToolStripMenuItem";
-			this.innerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.innerToolStripMenuItem.Text = "Inner";
-			// 
-			// baxToolStripMenuItem
-			// 
-			this.baxToolStripMenuItem.Name = "baxToolStripMenuItem";
-			this.baxToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.baxToolStripMenuItem.Text = "Bax";
-			this.baxToolStripMenuItem.Click += new System.EventHandler(this.baxToolStripMenuItem_Click);
-			// 
 			// WarpFrame
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -496,6 +488,7 @@
 			this.Controls.Add(this.toolStripContainer1);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "WarpFrame";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
 			this.Text = "Warps";
 			this.m_vertsplit.Panel1.ResumeLayout(false);
 			this.m_vertsplit.Panel2.ResumeLayout(false);
@@ -545,9 +538,7 @@
 	   private System.Windows.Forms.ToolStripButton m_autoBtn;
 	   private System.Windows.Forms.ToolStripButton m_buildBtn;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-	   private System.Windows.Forms.ToolStripButton m_editButton;
 	   private System.Windows.Forms.ToolStripButton toolStripButton1;
-	   private System.Windows.Forms.ToolStripButton cancelButton;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
 	   private System.Windows.Forms.ToolStripProgressBar m_statusProgress;
 	   private System.Windows.Forms.ToolStripDropDownButton saveToolStripButton;
@@ -560,6 +551,7 @@
 	   private System.Windows.Forms.ToolStripMenuItem outerToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripMenuItem innerToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripMenuItem baxToolStripMenuItem;
+	   public System.Windows.Forms.Button m_cancel;
 	}
 }
 

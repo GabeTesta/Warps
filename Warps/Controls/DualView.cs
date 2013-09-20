@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using devDept.Eyeshot.Labels;
+using Warps.Curves;
 
 namespace Warps
 {
@@ -20,11 +21,11 @@ namespace Warps
 		public DualView()
 		{
 			InitializeComponent();
-			PopulateColors();
+			//LoadColors();
 
 			for (int i = 0; i < 2; i++)
 			{
-				this[i].Unlock("EYENBS-6216-4FJGA-JUE2S-L8MPA");
+				this[i].Unlock("EYENBS-621M-0505K-8XJMF-P818Q");
 				this[i].Rendered.EnvironmentMapping = false;
 				this[i].Rendered.PlanarReflections = false;
 
@@ -57,12 +58,16 @@ namespace Warps
 				this[i].OriginSymbol.Size = 0;
 				//this[i].OriginSymbol.Visible = false;
 
-				//set user defined colors
-				this[i].Background.TopColor = Colors["Background", this[i].Background.TopColor];
-				this[i].Background.BottomColor = Colors["Backgrad", this[i].Background.BottomColor];
+				////set user defined colors
+				//this[i].Background.TopColor = Colors["Background", this[i].Background.TopColor];
+				//this[i].Background.BottomColor = Colors["Backgrad", this[i].Background.BottomColor];
 				
-				this[i].Grid.MajorLineColor = Colors["GridLines"];
-				this[i].SelectionColor = Colors["Selection", this[i].SelectionColor];
+				//this[i].Grid.MajorLineColor = Colors["GridLines"];
+				//this[i].SelectionColor = Colors["Selection", this[i].SelectionColor];
+
+				//this[i].Layers[0].Color = Color.FromArgb(100, Colors["Default", Color.LightSkyBlue]);
+				//this[i].Layers[0].LineWeight = 2.0f;
+
 				//enable parallel processing for entity regen
 				this[i].Entities.Parallel = true;
 
@@ -75,7 +80,6 @@ namespace Warps
 				this[i].SelectionChanged += DualView_SelectionChanged;
 				this[i].MouseMove += DualView_MouseMove;
 
-
 				this[i].Groups.Add(new List<int>());
 
 				this[i].Legends[0].Visible = false;
@@ -84,7 +88,7 @@ namespace Warps
 				this[i].Legends[0].Subtitle = null;
 				this[i].Legends[0].FormatString = "{0:f3}";
 				//this[i].Legends[0].ColorTable = Legend.RedToBlue17;
-				this[i].Legends[0].ColorTable = CreateColorScale();
+				this[i].Legends[0].ColorTable = ColorMath.CreateColorScale();
 				//this[i].Legends[0].Position = new System.Drawing.Point(0, -(this[i].Legends[0].TitleFont.Height * 2));
 				this[i].Legends[0].SetRange(0, 10);
 				this[i].Legends[0].ItemSize = new Size(15, (int)Math.Ceiling(this[i].Height / 33.0));
@@ -93,145 +97,34 @@ namespace Warps
 			//this[0].ProgressBar.HideCancelButton = false;
 			//this[0].ProgressBar.Visible = true;
 			CreateContextMenu();
-			splitContainer1.SplitterDistance = (int)((splitContainer1.ClientRectangle.Width - splitContainer1.SplitterWidth) / 2.0);
+			m_split.SplitterDistance = (int)((m_split.ClientRectangle.Width - m_split.SplitterWidth) / 2.0);
 		}
 
-		Color[] CreateColorScale()
+		internal void ReadConfigFile()
 		{
-			int nC = 8;
-			Color[] scale = new Color[nC];
-			for (int i = 0; i < nC; i++)
-			{
-				scale[i] = ColorMath.GetScaleColor(nC-1, 0, i);
-			}
-			return scale;
+			string layers = Utilities.Settings["View/Left/Layers", "Default,Mould"];
+			string[] splits = layers.Split(',');
+			ShowLayers(0, splits);
+			layers = Utilities.Settings["View/Right/Layers", "Default,Mould,Curves,Yarns,Panels,Tapes"];
+			splits = layers.Split(',');
+			ShowLayers(1, splits);
+
+			LoadColors(Utilities.Settings["ColorTable", null]);
 		}
-		public void SetColorScale(Mesh m)
+
+		bool IsConfigVisible(int nView, string layer)
 		{
-			ISurface s = m.EntityData as ISurface;
-			if (s == null || s.ColorValues == null)
-				return;
-		//	double max = -1e9, min = 1e9;
-		//for (int i = 0; i < s.ColorValues.Length; i++)
-		//	{
-		//		max = Math.Max(max, s.ColorValues[i]);
-		//		min = Math.Min(min, s.ColorValues[i]);
-		//	}
-			double ave, max, min, stddev = BLAS.StandardDeviation(s.ColorValues, out ave, out max, out min);	
-			Color[] scale = CreateColorScale();
-			for (int i = 0; i < 2; i++)
-			{
-				this[i].Legends[0].ColorTable = scale;
-				this[i].Legends[0].Max = ave + 2 * stddev;
-				this[i].Legends[0].Min = ave - 2 * stddev;
-				this[i].Legends[0].FormatString = max < .001 ? "{0:e4}" : max < .01 ? "{0:f5}" : max < .1 ? "{0:f4}" : max < 1 ? "{0:f3}" : "{0:f2}";
-				this[i].Legends[0].ItemSize = new Size(15, (int)Math.Floor((double)this[i].Height / (double)(scale.Length+1)));
-				this[i].Legends[0].Position = new System.Drawing.Point(0, -this[i].Legends[0].ItemSize.Height);
-
-			}
-
+			string layers = Utilities.Settings["View/" + ( nView == 0 ? "Left" : "Right") + "/Layers", ""];
+			if (layers == "")
+				return true;//default on?
+			string[] splits = layers.Split(',');
+			return splits.Contains(layer);
 		}
 
 
-		object prevMousedOverObj = null;
-		System.Drawing.Point mousePnt = System.Drawing.Point.Empty;
-		void DualView_MouseMove(object sender, MouseEventArgs e)
+		public SplitContainer Splitter
 		{
-			mousePnt = e.Location;
-			if (ActiveView.ActionMode == actionType.SelectVisibleByPick)
-			{
-				int underMouse = ActiveView.GetEntityUnderMouseCursor(mousePnt);
-
-				if (-1 < underMouse && underMouse < ActiveView.Entities.Count)
-				{
-					if (prevMousedOverObj != null)
-						UnHighLight(prevMousedOverObj);
-
-					if (ActiveView.Entities[underMouse].EntityData is YarnGroup)
-						return;
-
-					Highlight(ActiveView.Entities[underMouse].EntityData);
-					ActiveView.Refresh();
-					prevMousedOverObj = ActiveView.Entities[underMouse].EntityData;
-				}
-				else if (prevMousedOverObj != null)
-				{
-					UnHighLight(prevMousedOverObj);
-					prevMousedOverObj = null;
-				}
-
-			}
-		}
-
-		/// <summary>
-		/// highlight an object in the view from mouseover
-		/// </summary>
-		/// <param name="tag"></param>
-		private void Highlight(object tag)
-		{
-			if (tag == null)
-				return;
-			foreach (Entity e in ActiveView.Entities)
-			{
-				if (e.EntityData == tag && !e.Selected)
-				{
-					if (e.EntityData == tag)
-					{
-						if (!(e is PointCloud))
-						{
-							e.LineWeightMethod = colorMethodType.byEntity;
-							e.LineWeight = 2.0f;
-						}
-						e.ColorMethod = colorMethodType.byEntity;
-						e.Color = Color.FromArgb(255, ActiveView.Layers[e.LayerIndex].Color);
-					//	break;
-					}
-				}
-			}
-
-
-			foreach (devDept.Eyeshot.Labels.Label e in ActiveView.Labels)
-			{
-				if (e is OutlinedText)
-				{
-					if ((e as OutlinedText).Text.Contains(tag.ToString()))
-					{
-						if (!e.Selected)
-							e.Visible = true;
-					}
-				}
-			}
-		}
-
-		private void UnHighLight(object tag)
-		{
-			int entIndex = -1;
-			foreach (Entity e in ActiveView.Entities)
-			{
-				if (e.EntityData == tag && !e.Selected)
-				{
-					if (!(e is PointCloud))
-					{
-						e.LineWeightMethod = colorMethodType.byLayer;
-						e.ColorMethod = colorMethodType.byLayer;
-					}
-					entIndex = ActiveView.Entities.IndexOf(e);
-				}
-			}
-
-			if (entIndex == -1)
-				return;
-			foreach (devDept.Eyeshot.Labels.Label e in ActiveView.Labels)
-			{
-				if (e is OutlinedText)
-				{
-					if ((e as OutlinedText).Text.Contains(tag.ToString()))
-					{
-						e.Visible = ActiveView.Entities[entIndex].Selected;
-					}
-				}
-			}
-
+			get { return m_split; }
 		}
 
 		public int ActiveViewIndex
@@ -265,24 +158,31 @@ namespace Warps
 			return view == m_viewleft ? m_viewright : view == m_viewright ? m_viewleft : null;
 		}
 
-
-		public void Select(object tag)
+		public List<string> ActiveLayers(int nView)
+		{
+			List<string> layers = new List<string>();
+			foreach (Layer l in this[nView].Layers)
+				if (l.Visible)
+					layers.Add(l.Name);
+			return layers;
+		}
+		public void Select(IRebuild tag)
 		{
 			for (int i = 0; i < 2; i++)
 			{
 				foreach (Entity e in this[i].Entities)
-				{
 					if (e.EntityData == tag)
 						e.Selected = true;
-				}
 
-				foreach (devDept.Eyeshot.Labels.Label e in this[i].Labels)
+
+				if (tag.EntityLabel != null)
+				foreach (devDept.Eyeshot.Labels.Label lbl in tag.EntityLabel)
 				{
-					if (e is OutlinedText)
-					{
-						if ((e as OutlinedText).Text.Contains(tag.ToString()))
+					if (!(lbl is OutlinedText))
+						continue;
+					foreach (devDept.Eyeshot.Labels.Label e in this[i].Labels)
+						if (e is OutlinedText && (e as OutlinedText).Text == (lbl as OutlinedText).Text)
 							e.Visible = true;
-					}
 				}
 			}
 		}
@@ -297,12 +197,24 @@ namespace Warps
 					e.Visible = false;
 			}
 		}
-		public void DeSelect(object tag)
+		public void DeSelect(IRebuild tag)
 		{
 			for (int i = 0; i < 2; i++)
+			{
 				foreach (Entity e in this[i].Entities)
 					if (e.EntityData == tag)
 						e.Selected = false;
+				
+				if( tag.EntityLabel != null )
+				foreach(devDept.Eyeshot.Labels.Label lbl in tag.EntityLabel )
+				{
+					if( !(lbl is OutlinedText ) ) 
+						continue;
+					foreach (devDept.Eyeshot.Labels.Label e in this[i].Labels)
+						if(e is OutlinedText && (e as OutlinedText).Text == (lbl as OutlinedText).Text)
+							e.Visible =  false;
+				}
+			}
 		}
 
 		/// <summary>
@@ -323,42 +235,6 @@ namespace Warps
 			//				e.Selected = true;
 			//}
 		}
-		public void Remove(object tag)
-		{
-			for (int i = 0; i < 2; i++)
-			{
-				List<Entity> ents = new List<Entity>();
-				List<devDept.Eyeshot.Labels.Label> labels = new List<devDept.Eyeshot.Labels.Label>();
-				foreach (Entity e in this[i].Entities)
-					if (e.EntityData == tag)
-						ents.Add(e);
-
-				foreach (devDept.Eyeshot.Labels.Label e in this[i].Labels)
-					if (e is OutlinedText)
-						if ((e as OutlinedText).Text.Contains(tag.ToString()))
-							labels.Add(e);
-
-				for (int j = 0; j < ents.Count(); j++)
-					if (!this[i].Entities.Remove(ents[j]))
-						ents[j].Color = Color.CadetBlue;
-
-				for (int j = 0; j < labels.Count; j++)
-					if (!this[i].Labels.Remove(labels[j]))
-						labels[j].Color = Color.CadetBlue;
-
-				//this[i].Refresh();
-			}
-			//Regen();
-			//Refresh();
-		}
-		public void RemoveRange(Entity[][] temps)
-		{
-			int i;
-			foreach (Entity[] temp in temps)
-				for (i = 0; i < 2; i++)
-					this[i].Entities.Remove(temp[i]);
-		}
-
 
 		Vector3D CameraDirection
 		{
@@ -374,23 +250,13 @@ namespace Warps
 
 		public void VisibilityToggled(object sender, EventArgs<IRebuild> args)
 		{
-			ToggleLayer(args.Value);
-		}
-
-		void DualView_SelectionChanged(object sender, EventArgs e)
-		{
-			int underMouse = ActiveView.GetEntityUnderMouseCursor(mousePnt);
-
-			if (underMouse > -1)
-			{
-				if (SelectionChanged != null)
-					SelectionChanged(this, new EventArgs<IRebuild>(ActiveView.Entities[underMouse].EntityData as IRebuild));
-			}
+			ToggleVisibility(args.Value);
+			//ToggleLayer(args.Value);
 		}
 
 		public void AttachTracker(ITracker tracker)
 		{
-			SelectionChanged += tracker.OnSelect;
+			//SelectionChanged += tracker.OnSelect;
 
 			for (int i = 0; i < 2; i++)
 			{
@@ -403,7 +269,7 @@ namespace Warps
 		}
 		public void DetachTracker(ITracker tracker)
 		{
-			SelectionChanged -= tracker.OnSelect;
+			//SelectionChanged -= tracker.OnSelect;
 			for (int i = 0; i < 2; i++)
 			{
 				//this[i].SelectionChanged -= tracker.OnSelect;
@@ -427,11 +293,6 @@ namespace Warps
 			this[1].ActionMode = restore;
 		}
 
-		internal void SetActionMode(actionType actionType)
-		{
-			ActiveView.ActionMode = actionType;
-		}
-
 		/// <summary>
 		/// allows trackers to setup the view for actions.
 		/// I could have done this with an enum but it seemed like more 
@@ -442,6 +303,7 @@ namespace Warps
 		{
 			if (type == null)
 			{
+				StopSelect();
 				RestoreVisState();
 				Refresh();
 				return;
@@ -464,7 +326,7 @@ namespace Warps
 						if (!(irb is MouldCurve) || (irb is GuideComb))
 							ActiveView.Entities[i].Visible = false;
 					}
-					SetActionMode(devDept.Eyeshot.actionType.SelectVisibleByPick);
+					StartSelect();
 					Refresh();
 					break;
 
@@ -482,7 +344,7 @@ namespace Warps
 						if (!(irb is GuideComb))
 							ActiveView.Entities[i].Visible = false;
 					}
-					SetActionMode(devDept.Eyeshot.actionType.SelectVisibleByPick);
+					StartSelect();
 					Refresh();
 					break;
 				case "guidesurface":
@@ -498,16 +360,40 @@ namespace Warps
 						if (!(irb is GuideSurface))
 							ActiveView.Entities[i].Visible = false;
 					}
-					SetActionMode(devDept.Eyeshot.actionType.SelectVisibleByPick);
+					StartSelect();
 					Refresh();
 					break;
 
 				default:
 					RestoreVisState();
-					SetActionMode(devDept.Eyeshot.actionType.None);
+					StopSelect();
 					Refresh();
 					break;
 			}
+		}
+
+		public void ShowTypes(params Type[] types)
+		{
+			if (types == null)
+			{
+				RestoreVisState();
+				StopSelect();
+				Refresh();
+			}
+			//hide everything that isn't a warp
+			RestoreVisState();
+			SaveVisState();
+
+			for (int i = 0; i < ActiveView.Entities.Count; i++)
+			{
+				if (!(ActiveView.Entities[i].EntityData is IRebuild))
+					continue;
+
+				IRebuild irb = ActiveView.Entities[i].EntityData as IRebuild;
+				ActiveView.Entities[i].Visible = types.Contains(irb.GetType());
+			}
+			StartSelect();
+			Refresh();
 		}
 		Dictionary<IRebuild, bool[]> m_visSelOld = new Dictionary<IRebuild, bool[]>();
 		private void SaveVisState()
@@ -541,13 +427,38 @@ namespace Warps
 		#region Add Functions (Layers & Entities)
 
 		/// <summary>
+		/// Adds an IRebuild object to the views, optionally adding the labels as well
+		/// </summary>
+		/// <param name="g">the object to add</param>
+		/// <param name="bLabels">true to add labels</param>
+
+		public void Add(IRebuild g, bool bLabels)
+		{
+			List<Entity> groupEntities = g.CreateEntities();
+
+			if (groupEntities == null)
+				return;
+
+			int layerIndex = AddLayer(g.Layer);
+
+			for (int i = 0; i < groupEntities.Count; i++)
+			{
+				if (groupEntities[i].LayerIndex == 0)
+					groupEntities[i].LayerIndex = layerIndex;
+				Add(groupEntities[i]);
+			}
+			if (bLabels)
+				AddLabels(g.EntityLabel);
+		}
+
+		/// <summary>
 		/// Add Layer to the views
 		/// </summary>
 		/// <param name="layer">layer label</param>
 		/// <param name="c">Color</param>
 		/// <param name="visible">visibility value</param>
 		/// <returns>index of new layer</returns>
-		public int AddLayer(string layer, Color c, bool visible)
+		public int AddLayer(string layer)
 		{
 			int n1, n2;
 
@@ -555,15 +466,14 @@ namespace Warps
 
 			if (!this[0].Layers.Contains(lay) && !this[1].Layers.Contains(lay))
 			{
-				n1 = this[0].Layers.Add(new Layer(layer, Colors[layer], visible));
-				n2 = this[1].Layers.Add(new Layer(layer, Colors[layer], !visible));
+				n1 = this[0].Layers.Add(new Layer(layer, Colors[layer], IsConfigVisible(0, layer)));
+				n2 = this[1].Layers.Add(new Layer(layer, Colors[layer], IsConfigVisible(1, layer)));
 			}
 			else
 				return this[0].Layers.IndexOf(lay);
 
 			return n1 == n2 ? n1 : -1;
 		}
-
 
 		/// <summary>
 		/// Add a single entity
@@ -583,6 +493,29 @@ namespace Warps
 			return ents;
 		}
 
+		public Entity[][] AddRange(IEnumerable<Entity> e)
+		{
+			return AddRange(e, null);
+			//Entity[][] ents = new Entity[e.Count()][];
+			//int i = 0;
+			//foreach (Entity ent in e)
+			//{
+			//	ents[i++] = Add(ent);
+			//}
+			//return ents;
+		}
+		public Entity[][] AddRange(IEnumerable<Entity> e, devDept.Eyeshot.Labels.Label[] label)
+		{
+			Entity[][] ents = new Entity[e.Count()][];
+			int i = 0;
+			foreach (Entity ent in e)
+			{
+				ents[i++] = Add(ent);
+			}
+			if(label != null)
+			AddLabels(label);
+			return ents;
+		}
 		private void AddLabels(devDept.Eyeshot.Labels.Label[] labels)
 		{
 			if (labels != null)
@@ -595,67 +528,7 @@ namespace Warps
 				}
 			}
 		}
-		public Entity[][] AddRange(IEnumerable<Entity> e)
-		{
-			Entity[][] ents = new Entity[e.Count()][];
-			int i = 0;
-			foreach (Entity ent in e)
-			{
-				ents[i++] = Add(ent);
-			}
-			return ents;
-		}
-		public Entity[][] AddRange(IEnumerable<Entity> e, devDept.Eyeshot.Labels.Label[] label)
-		{
-			Entity[][] ents = new Entity[e.Count()][];
-			int i = 0;
-			foreach (Entity ent in e)
-			{
-				ents[i++] = Add(ent);
-			}
-			AddLabels(label);
-			return ents;
-		}
-		public void ZoomFit()
-		{
-			ZoomFit(false);
-		}
-		public void ZoomFit(bool bZ)
-		{
-			if (bZ)
-			{
-				this[0].SetView(viewType.Top);
-				this[1].SetView(viewType.Top);
-			}
-			for (int i = 0; i < 1; i++)
-			{
-				this[i].ZoomFit();
-				this[i].ZoomOut(50);
-				this[i].Grid.Max = this[i].BoundingBox.Max;
-				this[i].Grid.Min = this[i].BoundingBox.Min;
-			}
-			LtoR_Click(null, null);//match zooms
-			Refresh();
-		}
 
-		public void Add(IRebuild g)
-		{
-			List<Entity> groupEntities = g.CreateEntities();
-			devDept.Eyeshot.Labels.Label[] groupLabels = g.EntityLabel;
-
-			if (groupEntities == null)
-				return;
-
-			int layerIndex = AddLayer(g.Layer, Color.Black, true);
-
-			for (int i = 0; i < groupEntities.Count; i++)
-			{
-				if (groupEntities[i].LayerIndex == 0)
-					groupEntities[i].LayerIndex = layerIndex;
-				Add(groupEntities[i]);
-			}
-			AddLabels(groupLabels);
-		}
 		//public void Add(IGroup g)
 		//{
 		//	Entity[] groupEntities = g.CreateEntities();
@@ -674,19 +547,56 @@ namespace Warps
 		//	}
 		//}
 
-		public Entity[][] Add(MouldCurve curve)
-		{
-			IRebuild g = curve.Group;
-			int layerIndex = AddLayer(g.Label, Color.Black, true);
-			List<Entity> es = curve.CreateEntities().ToList();
-			devDept.Eyeshot.Labels.Label[] labels = curve.EntityLabel;
+		//public Entity[][] Add(MouldCurve curve)
+		//{
+		//	IRebuild g = curve.Group;
+		//	int layerIndex = AddLayer(g.Label,true);
+		//	List<Entity> es = curve.CreateEntities().ToList();
+		//	devDept.Eyeshot.Labels.Label[] labels = curve.EntityLabel;
 
-			foreach (Entity e in es)
-				e.LayerIndex = layerIndex;
-			if (labels == null)
-				return AddRange(es);
-			return AddRange(es, labels);
+		//	foreach (Entity e in es)
+		//		e.LayerIndex = layerIndex;
+		//	if (labels == null)
+		//		return AddRange(es);
+		//	return AddRange(es, labels);
+		//}
+
+		public void Remove(IRebuild tag, bool bLabels)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				List<Entity> ents = new List<Entity>();
+				List<devDept.Eyeshot.Labels.Label> labels = new List<devDept.Eyeshot.Labels.Label>();
+				foreach (Entity e in this[i].Entities)
+					if (e.EntityData == tag)
+						ents.Add(e);
+				if (bLabels)
+					foreach (devDept.Eyeshot.Labels.Label e in this[i].Labels)
+						if (e is OutlinedText)
+							if ((e as OutlinedText).Text.Contains(tag.ToString()))
+								labels.Add(e);
+
+				for (int j = 0; j < ents.Count(); j++)
+					if (!this[i].Entities.Remove(ents[j]))
+						ents[j].Color = Color.CadetBlue;
+
+				for (int j = 0; j < labels.Count; j++)
+					if (!this[i].Labels.Remove(labels[j]))
+						labels[j].Color = Color.CadetBlue;
+				//this[i].Refresh();
+			}
+			//Regen();
+			//Refresh();
 		}
+
+		public void RemoveRange(Entity[][] temps)
+		{
+			int i;
+			foreach (Entity[] temp in temps)
+				for (i = 0; i < 2; i++)
+					this[i].Entities.Remove(temp[i]);
+		}
+
 
 		#endregion Add Functions (Layers & Entities)
 
@@ -698,46 +608,64 @@ namespace Warps
 			get { return m_colors; }
 		}
 
-		private void PopulateColors()
+		public void LoadColors(string path)
 		{
-			string path = System.IO.Path.Combine(Utilities.ExeDir, "colors.txt");
+			if( path == null )
+				path = System.IO.Path.Combine(Utilities.ExeDir, "colors.txt");
 
 			if (System.IO.File.Exists(path))
 			{
-				Logger.logger.Instance.Log("loading color.txt file from " + Utilities.ExeDir);
+				Logleton.TheLog.Log("loading color.txt file from " + Utilities.ExeDir);
 				Colors.ReadIniFile(path);
+				for (int i = 0; i < 2; i++)
+				{
+					//set user defined colors
+					this[i].Background.TopColor = Colors["Background", this[i].Background.TopColor];
+					this[i].Background.BottomColor = Colors["Backgrad", this[i].Background.BottomColor];
+
+					this[i].Grid.MajorLineColor = Colors["GridLines"];
+					this[i].SelectionColor = Colors["Selection", this[i].SelectionColor];
+
+					this[i].Layers[0].Color = Color.FromArgb(100, Colors["Default", Color.LightSkyBlue]);
+					this[i].Layers[0].LineWeight = 2.0f;
+					for (int nL = 1; nL < this[i].Layers.Count; nL++)
+						this[i].Layers[nL].Color = Colors[this[i].Layers[nL].Name];
+				}
 			}
 			else
 			{
-				Logger.logger.Instance.Log("No color.txt file found at " + Utilities.ExeDir);
+				Logleton.TheLog.Log("No color.txt file found at " + Utilities.ExeDir);
 			}
+
 		}
 
-		private void SaveColors()
+		public string SaveColors()
 		{
 			//string path = Colors.IniPath;//store existing path for cancel
 			//Colors.IniPath = null;//prompt user for new save location
 			string path = null;
 			if (!Colors.HasIniFile)
 				path = System.IO.Path.Combine(Utilities.ExeDir, "colors.txt");
-			Colors.WriteIniFile(path);
+			return Colors.WriteIniFile(path);
 			//if (!Colors.WriteIniFile(null))
 			//Colors.IniPath = path;//retore previous path
 		}
 
-		private void saveColorsToolStripMenuItem_Click(object sender, EventArgs e)
+		public void SetColorScale(Mesh m)
 		{
-			SaveFileDialog dlg = new SaveFileDialog();
-			dlg.DefaultExt = ".txt";
-			dlg.AddExtension = true;
-			dlg.Filter = "text files (*.txt)|*.txt|All files (*.*)|*.*";
-			dlg.InitialDirectory = Utilities.ExeDir;
-			if (dlg.ShowDialog() == DialogResult.OK)
+			ISurface s = m.EntityData as ISurface;
+			if (s == null || s.ColorValues == null)
+				return;
+			double ave, max, min, stddev = BLAS.StandardDeviation(s.ColorValues, out ave, out max, out min);
+			Color[] scale = ColorMath.CreateColorScale();
+			for (int i = 0; i < 2; i++)
 			{
-				Colors.WriteIniFile(dlg.FileName);
-#if DEBUG
-				Utilities.HandleProcess(dlg.FileName, null);
-#endif
+				this[i].Legends[0].ColorTable = scale;
+				this[i].Legends[0].Max = ave + 2 * stddev;
+				this[i].Legends[0].Min = ave - 2 * stddev;
+				this[i].Legends[0].FormatString = max < .001 ? "{0:e4}" : max < .01 ? "{0:f5}" : max < .1 ? "{0:f4}" : max < 1 ? "{0:f3}" : "{0:f2}";
+				this[i].Legends[0].ItemSize = new Size(15, (int)Math.Floor((double)this[i].Height / (double)(scale.Length + 1)));
+				this[i].Legends[0].Position = new System.Drawing.Point(0, -this[i].Legends[0].ItemSize.Height);
 			}
 		}
 
@@ -907,6 +835,9 @@ namespace Warps
 				IEnumerable<Layer> layers = this[i].Layers.Where(ly => e.ValueT.Contains(ly.Name));
 				foreach (Layer l in layers)
 					l.Color = e.ValueP;
+				if (e.ValueT.Contains("Default"))
+					this[i].Layers[0].Color = Color.FromArgb(100, e.ValueP);//keep default layer's transparency
+
 				//Layer l = this[i].Layers.FirstOrDefault(ly => ly.Name == e.ValueT);
 				//if (l != null)
 				//{
@@ -927,7 +858,7 @@ namespace Warps
 			//cwf.Location = MousePosition;
 			//cwf.Show(this);
 		}
-		private void saveColorsToolStripMenuItem_Click_1(object sender, EventArgs e)
+		private void saveColorsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			SaveColors();
 		}
@@ -991,7 +922,7 @@ namespace Warps
 					}
 					break;
 				case Keys.P:
-					view.ActionMode = view.ActionMode != actionType.SelectVisibleByPick ? actionType.SelectVisibleByPick : actionType.None;
+					view.ActionMode = view.ActionMode != actionType.SelectByPick ? actionType.SelectByPick : actionType.None;
 					break;
 
 				case Keys.Z:
@@ -1080,16 +1011,16 @@ namespace Warps
 			switch (b.Text)
 			{
 				case ">>":
-					if (splitContainer1.Panel1Collapsed)
-						splitContainer1.Panel1Collapsed = false;
+					if (m_split.Panel1Collapsed)
+						m_split.Panel1Collapsed = false;
 					else
-						splitContainer1.Panel2Collapsed = true;
+						m_split.Panel2Collapsed = true;
 					break;
 				case "<<":
-					if (splitContainer1.Panel2Collapsed)
-						splitContainer1.Panel2Collapsed = false;
+					if (m_split.Panel2Collapsed)
+						m_split.Panel2Collapsed = false;
 					else
-						splitContainer1.Panel1Collapsed = true;
+						m_split.Panel1Collapsed = true;
 					break;
 			}
 		}
@@ -1106,6 +1037,158 @@ namespace Warps
 		}
 
 		#endregion View Handlers
+
+		#region MouseOverHighlighting
+
+		IRebuild m_mousePrev = null;
+		bool m_prevSel = false;
+		void DualView_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (sender != ActiveView || ActiveView.ActionMode != actionType.SelectByPick)
+				return;
+
+			int underMouse = ActiveView.GetEntityUnderMouseCursor(e.Location);
+
+			if (-1 < underMouse && underMouse < ActiveView.Entities.Count)
+			{
+				if (m_mousePrev != null)
+					Highlight(m_mousePrev, m_prevSel);
+
+				m_mousePrev = ActiveView.Entities[underMouse].EntityData as IRebuild;
+				m_prevSel = ActiveView.Entities[underMouse].Selected;
+				Highlight(ActiveView.Entities[underMouse].EntityData as IRebuild, true);
+				ActiveView.Refresh();
+			}
+			else if (m_mousePrev != null)
+			{
+				Highlight(m_mousePrev, m_prevSel);
+				m_mousePrev = null;
+			}
+		}
+		void DualView_SelectionChanged(object sender, EventArgs e)
+		{
+			int underMouse = ActiveView.GetEntityUnderMouseCursor( ActiveView.PointToClient(MousePosition));
+
+			if (underMouse > -1)
+			{
+				if (SelectionChanged != null)
+					SelectionChanged(this, new EventArgs<IRebuild>(ActiveView.Entities[underMouse].EntityData as IRebuild));
+			}
+		}
+		/// <summary>
+		/// highlight an object in the view from mouseover
+		/// </summary>
+		/// <param name="tag"></param>
+		private void Highlight(IRebuild tag, bool bHighLight)
+		{
+			if (tag == null)
+				return;
+			foreach (Entity e in ActiveView.Entities)
+				if (e.EntityData == tag)
+					e.Selected = bHighLight;
+
+			foreach (devDept.Eyeshot.Labels.Label lbl in ActiveView.Labels)
+			{
+				if (lbl is OutlinedText)
+					if ((lbl as OutlinedText).Text.Contains(tag.ToString()))
+						lbl.Visible = bHighLight;
+			}
+		}
+		//void DualView_MouseMove(object sender, MouseEventArgs e)
+		//{
+		//	mousePnt = e.Location;
+		//	if (ActiveView.ActionMode == actionType.SelectVisibleByPick)
+		//	{
+		//		int underMouse = ActiveView.GetEntityUnderMouseCursor(mousePnt);
+
+		//		if (-1 < underMouse && underMouse < ActiveView.Entities.Count)
+		//		{
+		//			if (prevMousedOverObj != null)
+		//				UnHighLight(prevMousedOverObj);
+
+		//			if (ActiveView.Entities[underMouse].EntityData is YarnGroup)
+		//				return;
+
+		//			Highlight(ActiveView.Entities[underMouse].EntityData);
+		//			ActiveView.Refresh();
+		//			prevMousedOverObj = ActiveView.Entities[underMouse].EntityData;
+		//		}
+		//		else if (prevMousedOverObj != null)
+		//		{
+		//			UnHighLight(prevMousedOverObj);
+		//			prevMousedOverObj = null;
+		//		}
+
+		//	}
+		//}
+
+		//private void Highlight(object tag)
+		//{
+		//	if (tag == null)
+		//		return;
+		//	foreach (Entity e in ActiveView.Entities)
+		//	{
+		//		if (e.EntityData == tag && !e.Selected)
+		//		{
+		//			if (e.EntityData == tag)
+		//			{
+		//				if (!(e is PointCloud))
+		//				{
+		//					e.LineWeightMethod = colorMethodType.byEntity;
+		//					e.LineWeight = 2.0f;
+		//				}
+		//				e.ColorMethod = colorMethodType.byEntity;
+		//				e.Color = Color.FromArgb(255, ActiveView.Layers[e.LayerIndex].Color);
+		//			//	break;
+		//			}
+		//		}
+		//	}
+
+
+		//	foreach (devDept.Eyeshot.Labels.Label e in ActiveView.Labels)
+		//	{
+		//		if (e is OutlinedText)
+		//		{
+		//			if ((e as OutlinedText).Text.Contains(tag.ToString()))
+		//			{
+		//				if (!e.Selected)
+		//					e.Visible = true;
+		//			}
+		//		}
+		//	}
+		//}
+		//private void UnHighLight(object tag)
+		//{
+		//	int entIndex = -1;
+		//	foreach (Entity e in ActiveView.Entities)
+		//	{
+		//		if (e.EntityData == tag && !e.Selected)
+		//		{
+		//			if (!(e is PointCloud))
+		//			{
+		//				e.LineWeightMethod = colorMethodType.byLayer;
+		//				e.ColorMethod = colorMethodType.byLayer;
+		//			}
+		//			entIndex = ActiveView.Entities.IndexOf(e);
+		//		}
+		//	}
+
+		//	if (entIndex == -1)
+		//		return;
+		//	foreach (devDept.Eyeshot.Labels.Label e in ActiveView.Labels)
+		//	{
+		//		if (e is OutlinedText)
+		//		{
+		//			if ((e as OutlinedText).Text.Contains(tag.ToString()))
+		//			{
+		//				e.Visible = ActiveView.Entities[entIndex].Selected;
+		//			}
+		//		}
+		//	}
+
+		//}
+
+		#endregion
 
 		#region Eyeshot Toolbars
 
@@ -1142,6 +1225,27 @@ namespace Warps
 			this[1].Entities.Regen();
 			Refresh();
 		}
+		public void ZoomFit()
+		{
+			ZoomFit(false);
+		}
+		public void ZoomFit(bool bZ)
+		{
+			if (bZ)
+			{
+				this[0].SetView(viewType.Top);
+				this[1].SetView(viewType.Top);
+			}
+			for (int i = 0; i < 1; i++)
+			{
+				this[i].ZoomFit();
+				this[i].ZoomOut(50);
+				this[i].Grid.Max = this[i].BoundingBox.Max;
+				this[i].Grid.Min = this[i].BoundingBox.Min;
+			}
+			LtoR_Click(null, null);//match zooms
+			Refresh();
+		}
 
 		//internal void HideLayer(IRebuild p)
 		//{
@@ -1174,16 +1278,16 @@ namespace Warps
 		internal void ShowOnly(IRebuild obj)
 		{
 			HideAll();
-			ToggleLayer(obj);
+			ToggleVisibility(obj);
+			//ToggleLayer(obj);
 		}
 
-		public void ShowOnly(int nView, params object[] layers)
+		public void ShowLayers(int nView, params string[] layers)
 		{
 			this[nView % 2].Layers.TurnAllOff();
-			foreach(object o  in layers )
-				if (o is String)
-				{
-					Layer l = this[nView % 2].Layers.FirstOrDefault(ly => ly.Name == o as string);
+			foreach(string s in layers)
+			{
+					Layer l = this[nView % 2].Layers.FirstOrDefault(ly => ly.Name == s);
 					if( l != null )
 						l.Visible = true;
 				}
@@ -1192,43 +1296,33 @@ namespace Warps
 		internal void ToggleLayer(IRebuild p)
 		{
 			Entity e;
+			e = ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == p);
 
-			//if (p is IMouldCurve) //same as default else case
-			//{
-			//	e = ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == p);
+			if (e == null)
+				return;
 
-			//	if (e == null)
-			//		return;
-
-			//	this[0].Layers[e.LayerIndex].Visible = !this[0].Layers[e.LayerIndex].Visible;
-			//	this[1].Layers[e.LayerIndex].Visible = !this[1].Layers[e.LayerIndex].Visible;
-			//}
-			if (p is CurveGroup)
-			{
-				foreach (IRebuild ir in (p as CurveGroup))
-				{
-					e = ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == ir);
-
-					if (e == null)
-						return;
-
-					this[0].Layers[e.LayerIndex].Visible = !this[0].Layers[e.LayerIndex].Visible;
-					this[1].Layers[e.LayerIndex].Visible = !this[1].Layers[e.LayerIndex].Visible;
-					break;
-				}
-			}
-			else
-			{
-				e = ActiveView.Entities.FirstOrDefault(ent => ent.EntityData == p);
-
-				if (e == null)
-					return;
-
-				this[0].Layers[e.LayerIndex].Visible = !this[0].Layers[e.LayerIndex].Visible;
-				this[1].Layers[e.LayerIndex].Visible = !this[1].Layers[e.LayerIndex].Visible;
-			}
+			this[0].Layers[e.LayerIndex].Visible = !this[0].Layers[e.LayerIndex].Visible;
+			this[1].Layers[e.LayerIndex].Visible = !this[1].Layers[e.LayerIndex].Visible;
 
 			Refresh();
+		}
+
+		public void ToggleVisibility(IRebuild rbd)
+		{
+			List<Entity> ents = rbd.CreateEntities();
+			List<object> eds = new List<object>();
+			ents.ForEach(e =>
+			{
+				if (!eds.Contains(e.EntityData))
+					eds.Add(e.EntityData);
+			});
+
+			for (int i = 0; i < 2; i++)
+			{
+				foreach (Entity e in this[i].Entities)
+					if (eds.Contains(e.EntityData))
+						e.Visible = !e.Visible;
+			}
 		}
 
 		internal void Invalidate(IRebuild item)
@@ -1273,7 +1367,7 @@ namespace Warps
 
 		internal void DeSelectAllLayers()
 		{
-			for (int i = 0; i < ActiveView.Layers.Count; i++)
+			for (int i = 1; i < ActiveView.Layers.Count; i++)
 			{
 				this[0].Layers[i].Color = Color.FromArgb(EditMode ? opacityLevel : 255, this[0].Layers[i].Color);
 				this[1].Layers[i].Color = Color.FromArgb(EditMode ? opacityLevel : 255, this[1].Layers[i].Color);
@@ -1311,16 +1405,13 @@ namespace Warps
 
 		internal Layer GetLayer(IRebuild group)
 		{
-			return ActiveView.Layers.FirstOrDefault(ly => ly.Name == group.Label);
+			return ActiveView.Layers.FirstOrDefault(ly => ly.Name == group.Layer);
 		}
 		internal Layer GetLayer(string name)
 		{
 			return ActiveView.Layers.FirstOrDefault(ly => ly.Name == name);
 		}
-		internal Layer GetLayer(ISurface surface)
-		{
-			return ActiveView.Layers.FirstOrDefault(ly => ly.Name == surface.Label);
-		}
+
 		bool m_editMode = false;
 
 		public bool EditMode
@@ -1329,15 +1420,14 @@ namespace Warps
 			set { m_editMode = value; }
 		}
 
-		internal void ToggleGroup(int p)
-		{
-			for (int i = 0; i < 2; i++)
-			{
-				foreach (int nE in this[i].Groups[p])
-					this[i].Entities[nE].Visible = !this[i].Entities[nE].Visible;
-			}
-
-		}
+		//internal void ToggleGroup(int p)
+		//{
+		//	for (int i = 0; i < 2; i++)
+		//	{
+		//		foreach (int nE in this[i].Groups[p])
+		//			this[i].Entities[nE].Visible = !this[i].Entities[nE].Visible;
+		//	}
+		//}
 
 		internal void ClearAll()
 		{

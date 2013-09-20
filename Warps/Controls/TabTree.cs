@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Logger;
+using Warps.Curves;
+using Warps.Tapes;
+using Warps.Yarns;
+using Warps.Panels;
 
 namespace Warps
 {
@@ -21,8 +24,8 @@ namespace Warps
 			this.DoubleBuffered = true;
 			SeqTree.ShowNodeToolTips = true;
 			SorTree.ShowNodeToolTips = true;
-			SeqTree.AfterSelect += Tree_AfterSelect;
-			SorTree.AfterSelect += Tree_AfterSelect;
+			//SeqTree.AfterSelect += Tree_AfterSelect;
+			//SorTree.AfterSelect += Tree_AfterSelect;
 
 			BuildContextMenu();
 
@@ -66,7 +69,7 @@ namespace Warps
 			TreeContextMenu.Items.Add("Copy", null, OnCopy);
 			TreeContextMenu.Items.Add("Paste");
 			TreeContextMenu.Items.Add(new ToolStripSeparator());
-			TreeContextMenu.Items.Add("Visible", null, OnVisibleToggleClick);
+			TreeContextMenu.Items.Add("Show/Hide", null, OnVisibleToggleClick);
 
 			SeqTree.ContextMenuStrip = TreeContextMenu;
 			//SorTree.ContextMenuStrip = TreeContextMenu;
@@ -83,7 +86,7 @@ namespace Warps
 			IRebuild group = SelectedTag as IRebuild;
 			if (group == null)
 			{
-				logger.Instance.Log("{0}:{1} failed to copy", SelectedTag.GetType().Name, SelectedTag.ToString());
+				Logleton.TheLog.Log("{0}:{1} failed to copy", SelectedTag.GetType().Name, SelectedTag.ToString());
 				return;
 			}
 			//Lets say its my data format
@@ -91,17 +94,20 @@ namespace Warps
 			//Set data to clipboard
 			Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
 
-			logger.Instance.Log("{0}:{1} copied to clipboard", group.GetType().Name, group.Label);
+			Logleton.TheLog.Log("{0}:{1} copied to clipboard", group.GetType().Name, group.Label);
 		}
 
 		public void AttachTracker(ITracker tracker)
 		{
-			AfterSelect += tracker.OnSelect;
+			//AfterSelect += tracker.OnSelect;
+			//BeforeSelect += tracker.OnSelecting;
+
 			TreeContextMenu.Items[0].Click += tracker.OnAdd;
 			TreeContextMenu.Items[1].Click += tracker.OnDelete;
 
 			//TreeContextMenu.Items[3].Click += tracker.OnCopy;//handled here
 			TreeContextMenu.Items[4].Click += tracker.OnPaste;
+
 
 			//SeqTree.AfterSelect += tracker.OnSelect;
 			//SorTree.AfterSelect += tracker.OnSelect;
@@ -109,7 +115,8 @@ namespace Warps
 
 		public void DetachTracker(ITracker tracker)
 		{
-			AfterSelect -= tracker.OnSelect;
+			//AfterSelect -= tracker.OnSelect;
+			//BeforeSelect -= tracker.OnSelecting;
 			TreeContextMenu.Items[0].Click -= tracker.OnAdd;
 			TreeContextMenu.Items[1].Click -= tracker.OnDelete;
 
@@ -313,21 +320,28 @@ namespace Warps
 
 		#endregion
 
-		public event ObjectSelected AfterSelect;
+		//public event ObjectSelected AfterSelect;
+		public event TreeViewCancelEventHandler BeforeSelect;
 
 		public event VisibilityToggled VisibilityToggle;
 
-		void Tree_AfterSelect(object sender, TreeViewEventArgs e, bool bypassActionType)
+		internal void Select(IRebuild grp)
 		{
-			object tag = FindTag(e.Node);
-			if ((e.Action != TreeViewAction.Unknown || bypassActionType) && AfterSelect != null)
-				AfterSelect(this, new EventArgs<IRebuild>(tag as IRebuild));
+			SelectedTag = grp;
+			if (ActiveTree.SelectedNode != null)
+				RaiseBeforeSelect(new TreeViewCancelEventArgs(ActiveTree.SelectedNode, false, TreeViewAction.Unknown));
 		}
+		//void Tree_AfterSelect(object sender, TreeViewEventArgs e, bool bypassActionType)
+		//{
+		//	object tag = FindTag(e.Node);
+		//	if ((e.Action != TreeViewAction.Unknown || bypassActionType) && AfterSelect != null)
+		//		AfterSelect(this, new EventArgs<IRebuild>(tag as IRebuild));
+		//}
 
-		void Tree_AfterSelect(object sender, TreeViewEventArgs e)
-		{
-			Tree_AfterSelect(sender, e, false);
-		}
+		//void Tree_AfterSelect(object sender, TreeViewEventArgs e)
+		//{
+		//	Tree_AfterSelect(sender, e, false);
+		//}
 
 		#region Save
 
@@ -418,14 +432,19 @@ namespace Warps
 			List<TreeNode> foundNodes = new List<TreeNode>();
 			TreeNode last = FindAllNodesBeginningWith(key.ToString(), null, ref foundNodes);
 
+			TreeNode prev = ActiveTree.SelectedNode;
 			TreeNode found = FindNodeBeginningWith(key.ToString(), null, foundNodes);
 			if (found != null)
 			{
 				found.EnsureVisible();
 				ActiveTree.SelectedNode = found;
-
-				Tree_AfterSelect(this, new TreeViewEventArgs(found), true);
-
+				TreeViewCancelEventArgs cancel = new TreeViewCancelEventArgs(found, false, TreeViewAction.ByKeyboard);
+				RaiseBeforeSelect(cancel);
+				if (cancel.Cancel)
+				{
+					ActiveTree.SelectedNode = prev;
+					prev.EnsureVisible();
+				}
 			}
 		}
 
@@ -913,7 +932,7 @@ namespace Warps
 				int childDepth = 0;
 				TheIndexOf(irb, null, ref childDepth);
 				if (trgt is IGroup) // if the target is a group that contains a child, return false because we want to insert
-					if ((trgt as IGroup).FindItem(irb) != null)
+					if ((trgt as IGroup).ContainsItem(irb))
 					{
 						belowMe = irb;
 						return false;
@@ -1006,7 +1025,7 @@ namespace Warps
 				draggedItemChildren.ForEach(irb =>
 				{
 					if ((grp is IGroup))
-						if ((grp as IGroup).FindItem(irb) != null)
+						if ((grp as IGroup).ContainsItem(irb))
 							removeMe.Add(irb);
 
 				});
@@ -1069,5 +1088,17 @@ namespace Warps
 		{
 			ActiveTree.EndUpdate();
 		}
+
+		private void m_seqtree_BeforeSelect(object sender, TreeViewCancelEventArgs e)
+		{
+			if (e.Action != TreeViewAction.Unknown)
+				RaiseBeforeSelect(e);
+		}
+		private void RaiseBeforeSelect(TreeViewCancelEventArgs e)
+		{
+			if (BeforeSelect != null)
+				BeforeSelect(this, e);
+		}
+
 	}
 }

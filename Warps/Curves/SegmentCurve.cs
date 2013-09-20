@@ -130,7 +130,7 @@ namespace Warps.Curves
 
 		public override string ToString()
 		{
-			return m_curve == null ? "nullSegment" : string.Format("{0} {1}", m_curve.Label, m_sLimit.ToString(true));
+			return m_curve == null ? "nullSegment" : string.Format("{0} {1}", m_curve.Label, m_sLimit.ToString(true, "g3"));
 		}
 
 		#endregion

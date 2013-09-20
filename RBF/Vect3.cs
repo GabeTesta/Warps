@@ -64,6 +64,10 @@ using System.Diagnostics;
 		{
 			Zero();
 		}
+		public Vect3(string xyz)
+		{
+			FromString(xyz);
+		}
 
 		#endregion
 
@@ -330,13 +334,6 @@ using System.Diagnostics;
 				}
 			}
 			return bsuccess;
-		}
-		public static Vect3 Parse(string vstring)
-		{
-			string[] vals = vstring.Split(',');
-			if (vals.Length != 3)
-				throw new FormatException(string.Format("Invalid format for Vect3:\n", vstring));
-			return new Vect3(double.Parse(vals[0]), double.Parse(vals[1]), double.Parse(vals[2]));
 		}
 
 		#endregion

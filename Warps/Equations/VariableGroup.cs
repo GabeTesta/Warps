@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Warps.Controls;
+using System.Xml;
 
 namespace Warps
 {
@@ -255,14 +256,14 @@ namespace Warps
 			return this[label];
 		}
 
-		public IRebuild FindItem(IRebuild item)
+		public bool ContainsItem(IRebuild item)
 		{
 			if (!(item is Equation))
-				return null;
+				return false;
 
-			if (this.ContainsKey((item as Equation).Label))
-				return this[(item as Equation).Label];
-			return null;
+			return this.ContainsKey((item as Equation).Label);
+			//	return this[(item as Equation).Label];
+			//return null;
 		}
 
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
@@ -314,5 +315,35 @@ namespace Warps
 		{
 			return Label;
 		}
+
+		#region IRebuild Members
+
+
+		public XmlNode WriteXScript(XmlDocument doc)
+		{
+			XmlNode node = NsXml.MakeNode(doc, this);
+			foreach (KeyValuePair<string, Equation> entry in this)
+			{
+				node.AppendChild(entry.Value.WriteXScript(doc));
+			}
+			return node;
+		}
+
+		public void ReadXScript(Sail sail, System.Xml.XmlNode node)
+		{
+			Label = NsXml.ReadLabel(node);
+
+			foreach (XmlNode child in node.ChildNodes)
+			{
+				Equation equ = Utilities.CreateInstance(child.Name) as Equation;
+				if (equ != null )
+				{
+					(equ as Equation).ReadXScript(Sail, child);
+					Add(equ as Equation);
+				}
+			}
+		}
+
+		#endregion
 	}
 }

@@ -45,6 +45,8 @@ namespace Warps.Trackers
 		}
 		#region ITracker Members
 
+		public bool IsTracking { get { return false; } }
+
 		public void Track(WarpFrame frame)
 		{
 			if (frame == null)
@@ -52,7 +54,6 @@ namespace Warps.Trackers
 
 			m_frame = frame;
 			m_frame.EditorPanel = Edit;
-			EditMode = frame.EditMode;
 
 			Tree.AttachTracker(this);
 			View.AttachTracker(this);
@@ -77,7 +78,7 @@ namespace Warps.Trackers
 			if (View != null)
 			{
 				if (m_temp != null)
-					View.Remove(m_temp);
+					View.Remove(m_temp, false);
 				View.DeSelect(Surf);
 				View.StopSelect();
 				View.Refresh();
@@ -94,7 +95,7 @@ namespace Warps.Trackers
 			if (surf == null)
 				return;
 			if (m_temp != null)
-				View.Remove(m_temp);
+				View.Remove(m_temp, false);
 
 			Surf = surf;
 
@@ -150,23 +151,6 @@ namespace Warps.Trackers
 			}
 		}
 
-		public bool EditMode
-		{
-			get
-			{
-				return true;
-			}
-			set
-			{
-				//throw new NotImplementedException();
-			}
-		}
-
-		public void OnSelect(object sender, EventArgs<IRebuild> e)
-		{
-			throw new NotImplementedException();
-		}
-
 		public void OnClick(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			if (m_temp == null || e.Button != MouseButtons.Left)
@@ -196,9 +180,6 @@ namespace Warps.Trackers
 		public void OnDown(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			if (m_temp == null || e.Button != MouseButtons.Left)
-				return;
-
-			if (!EditMode)
 				return;
 
 			if (sender is ViewportLayout)
@@ -248,8 +229,6 @@ namespace Warps.Trackers
 		{
 			if (m_temp == null || e.Button != MouseButtons.Left || m_index == -1)
 				return;
-			if (!EditMode)
-				return;
 			Transformer wts = View.ActiveView.WorldToScreen;
 			PointF mpt = new PointF(e.X, View.ActiveView.Height - e.Y);
 			if (bHeight)
@@ -269,8 +248,6 @@ namespace Warps.Trackers
 		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			if (m_temp == null)
-				return;
-			if (!EditMode)
 				return;
 			if (e.Button == MouseButtons.Left)
 			{
@@ -295,9 +272,6 @@ namespace Warps.Trackers
 
 		public void OnBuild(object sender, EventArgs e)
 		{
-			if (!EditMode)
-				return;
-
 			Preview();//update the temp curve
 			Surf.Fit(m_temp.FitPoints);//copy the temp group's data back
 			Surf.Label = m_temp.Label;//update the label
@@ -312,14 +286,14 @@ namespace Warps.Trackers
 			Tree.Refresh();
 		}
 
-		public void OnCancel(object sender, EventArgs e)
-		{
-			Cancel();
-		}
-
 		public void OnPreview(object sender, EventArgs e)
 		{
 			Preview();
+		}
+
+		public void ProcessSelection(object Tag)
+		{
+
 		}
 
 		#endregion
@@ -329,5 +303,6 @@ namespace Warps.Trackers
 			Edit.WriteSurf(m_temp);
 			UpdatePreview(false);
 		}
+
 	}
 }

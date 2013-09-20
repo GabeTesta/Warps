@@ -15,6 +15,8 @@ namespace Warps.Controls
 		public VariableEditor()
 		{
 			InitializeComponent();
+			m_resultTB.ReadOnly = true; // always false
+
 		}
 
 		//public VariableEditor(string label, string EqText)
@@ -108,17 +110,7 @@ namespace Warps.Controls
 			}
 		}
 
-		public bool EditMode
-		{
 
-			get { return this.Enabled; }
-
-			set
-			{
-				this.Enabled = value;
-				m_resultTB.Enabled = false; // always false
-			}
-		}
 
 
 	}

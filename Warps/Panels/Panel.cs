@@ -650,5 +650,18 @@ namespace Warps.Panels
 
 		#endregion
 
+		#region IRebuild Members
+
+		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void ReadXScript(Sail sail, System.Xml.XmlNode node)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
 	}
 }

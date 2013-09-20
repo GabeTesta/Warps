@@ -8,8 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Warps.Panels;
+using Warps.Curves;
 
-namespace Warps.Controls
+namespace Warps.Panels
 {
 	public partial class PanelGroupEditor : UserControl
 	{
@@ -33,37 +34,21 @@ namespace Warps.Controls
 			m_guideListView.StateImageList = imageList;
 
 			PanGroup = group;
-			sail = PanGroup.Sail;
 
-			widthEQB.Prep(m_sail, PanGroup);
+			widthEQB.Prep(WarpFrame.CurrentSail, PanGroup);
 			widthEQB.Text = PanGroup.PanelWidth != null ? PanGroup.PanelWidth.EquationText : "1.0";
-
+			outputGroup.Enabled = false;
 			fillEditorWithData();
+
+			BAK = selectWarpButt.BackColor;
+			selectWarpButt.Tag = "Warps";
+			selectGuideButt.Tag = "GuideSurface";
 		}
+		Color BAK, SEL = Color.SeaGreen;
 
-		public bool EditMode
-		{
-
-			get { return this.Enabled; }
-
-			set
-			{
-				this.Enabled = value;
-				outputGroup.Enabled = false; // always false
-			}
-		}
 
 		PanelGroup m_group;
-		Sail m_sail = null;
-
-		public Sail sail
-		{
-			get { return m_sail; }
-			set
-			{
-				m_sail = value;
-			}
-		}
+		DualView m_view = null;
 
 		public PanelGroup PanGroup
 		{
@@ -71,29 +56,17 @@ namespace Warps.Controls
 			set { m_group = value; }
 		}
 
-		DualView m_view = null;
-
 		public DualView View
 		{
 			get { return m_view; }
 			set { m_view = value; }
 		}
 
-		public List<IMouldCurve> Guides
+		public string GroupLabel
 		{
-			get
-			{
-				List<IMouldCurve> ret = new List<IMouldCurve>();
-				if (m_group.Sail != null && m_guideListView.Items.Count > 0)
-				{
-					for (int i = 0; i < m_guideListView.Items.Count; i++)
-						ret.Add(PanGroup.Sail.FindCurve(m_guideListView.Items[i].Name));
-				}
-
-				return ret;
-			}
+			get { return m_labelTextBox.Text; }
+			set { m_labelTextBox.Text = value; }
 		}
-
 		public List<IMouldCurve> SelectedBounds
 		{
 			get
@@ -109,7 +82,20 @@ namespace Warps.Controls
 				return ret;
 			}
 		}
+		public List<IMouldCurve> Guides
+		{
+			get
+			{
+				List<IMouldCurve> ret = new List<IMouldCurve>();
+				if (m_group.Sail != null && m_guideListView.Items.Count > 0)
+				{
+					for (int i = 0; i < m_guideListView.Items.Count; i++)
+						ret.Add(PanGroup.Sail.FindCurve(m_guideListView.Items[i].Name));
+				}
 
+				return ret;
+			}
+		}
 		public List<IMouldCurve> Curves
 		{
 			get
@@ -121,7 +107,6 @@ namespace Warps.Controls
 				return ret;
 			}
 		}
-
 		public Equation PanelWidth
 		{
 			get
@@ -129,17 +114,10 @@ namespace Warps.Controls
 				return widthEQB.Equation;
 			}
 		}
-
 		public PanelGroup.ClothOrientations Orientation
 		{
 			get { return (PanelGroup.ClothOrientations)m_orientationList.SelectedValue; }
 			set { m_orientationList.Text = value.ToString(); }
-		}
-
-		public string GroupLabel
-		{
-			get { return m_labelTextBox.Text; }
-			set { m_labelTextBox.Text = value; }
 		}
 
 		public void fillEditorWithData()
@@ -168,12 +146,23 @@ namespace Warps.Controls
 		}
 
 
-		public bool m_selectingWarp = false;
-		public bool m_selectingGuide = false;
+
+		public bool IsWarp
+		{
+			get { return selectWarpButt.BackColor == SEL; }
+			set { selectWarpButt.BackColor = value ? SEL : BAK; }
+
+		}
+
+		public bool IsGuide
+		{
+			get { return selectGuideButt.BackColor == SEL; }
+			set { selectGuideButt.BackColor = value ? SEL : BAK; }
+		}
 
 		public bool AddRemoveWarp(MouldCurve curve)
 		{
-			if (!m_selectingWarp)
+			if (!IsWarp)
 				return false;
 
 			if (m_warpListView.Items.ContainsKey(curve.Label))
@@ -192,7 +181,7 @@ namespace Warps.Controls
 
 		public bool AddRemoveGuide(MouldCurve guide)
 		{
-			if (!m_selectingGuide)
+			if (!IsGuide)
 				return false;
 			if (m_guideListView.Items.ContainsKey(guide.Label))
 			{
@@ -210,40 +199,20 @@ namespace Warps.Controls
 
 		private void selectWarpButt_Click(object sender, EventArgs e)
 		{
-			m_selectingWarp = !m_selectingWarp;
+			IsWarp = !IsWarp;
+			IsGuide = false;
 
-			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
-
-			m_selectingGuide = false;
-			selectGuideButt.BackColor = m_selectingGuide ? Color.Green : Color.White;
-
-
-			View.SetTrackerSelectionMode(m_selectingWarp ? "warps" : null);
+			View.SetTrackerSelectionMode(IsWarp ? "warps" : null);
 		}
 
 		private void selectGuideButt_Click(object sender, EventArgs e)
 		{
-			m_selectingGuide = !m_selectingGuide;
+			IsGuide = !IsGuide;
+			IsWarp = false;
 
-			selectGuideButt.BackColor = m_selectingGuide ? Color.Green : Color.White;
-
-			m_selectingWarp = false;
-
-			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
-
-			View.SetTrackerSelectionMode(m_selectingGuide ? "warps" : null);
+			View.SetTrackerSelectionMode(IsGuide ? "warps" : null);
 		}
-
-		public void Done()
-		{
-			m_selectingWarp = false;
-
-			selectWarpButt.BackColor = m_selectingWarp ? Color.Green : Color.White;
-
-			m_selectingGuide = false;
-			selectGuideButt.BackColor = m_selectingGuide ? Color.Green : Color.White;
-		}
-		
+	
 	}
 
 	

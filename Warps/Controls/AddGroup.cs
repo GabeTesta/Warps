@@ -58,15 +58,6 @@ namespace Warps.Controls
 					m_type.SelectedIndex = 0;
 			}
 		}
-		public IGroup CreateGroup()
-		{
-			if (Type == null)
-				return null;
-			IGroup grp = Utilities.CreateInstance(Type) as IGroup;
-			if (grp != null)
-				grp.Label = Label;
-			return grp;
-		}
 
 		public IRebuild CreateIRebuild()
 		{

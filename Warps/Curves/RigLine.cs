@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using devDept.Geometry;
 
-namespace Warps
+namespace Warps.Curves
 {
 	public class RigLine: List<Vect3>
 	{
@@ -53,6 +53,7 @@ namespace Warps
 			devDept.Eyeshot.Entities.LinearPath path  = new devDept.Eyeshot.Entities.LinearPath(Count);
 			for (int i = 0; i < Count; i++)
 				path.Vertices[i] = new devDept.Geometry.Point3D(this[i][0], this[i][1], this[i][2]);
+			path.LayerIndex = 1;
 			return path;
 		}
 

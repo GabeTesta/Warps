@@ -7,8 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Warps.Controls;
 
-namespace Warps.Controls
+namespace Warps.Curves
 {
 	public partial class MouldCurveEditor : UserControl
 	{

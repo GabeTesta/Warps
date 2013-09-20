@@ -65,7 +65,7 @@ namespace Warps.Controls.Forms
 
 		private void m_text_Enter(object sender, EventArgs e)
 		{
-			if (m_equation != null && !m_equation.IsNumber())
+			if (m_equation != null && !m_equation.IsNumber)
 				m_text.Text = m_equation.EquationText;
 		}
 
@@ -86,7 +86,7 @@ namespace Warps.Controls.Forms
 				MessageBox.Show("Please enter a valid Equation");
 				e.Cancel = true;
 			}
-			m_fn.BackColor = m_equation.IsNumber() ? BAK : FN;
+			m_fn.BackColor = m_equation.IsNumber ? BAK : FN;
 		}
 		Color BAK, FN = Color.SeaGreen;
 

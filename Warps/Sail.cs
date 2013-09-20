@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 using Warps.Yarns;
-using Logger;
 using devDept.Eyeshot;
 using devDept.Geometry;
+using Warps.Curves;
+using System.Xml;
 
 namespace Warps
 {
@@ -30,6 +31,7 @@ namespace Warps
 		{
 			get { return m_path; }
 		}
+		public string Label { get { return Path.GetFileNameWithoutExtension(FilePath); } }
 		public ISurface Mould
 		{
 			get { return m_mould; }
@@ -55,11 +57,13 @@ namespace Warps
 
 		public void ReadFile(string path)
 		{
+			m_path = path;
 			switch (Path.GetExtension(path).ToLower())
 			{
 				case ".wrp":
-					ReadScriptFile(path);
-					m_path = path;
+				case ".xml":
+					ReadXScript(path);
+					//ReadScriptFile(path);
 					break;
 				case ".obj":
 					ReadOBJFile(path);
@@ -68,13 +72,11 @@ namespace Warps
 				case ".bin":
 					ReadBinFile(path);
 					break;
+				//case ".xml":
+				//	ReadXScript(path);
+				//	break;
 				default:
 					CreateMould(path);//read the file
-
-					//#if DEBUG
-					//					CreateInnerCurves();
-					//#endif
-					m_path = path;
 					break;
 			}
 		}
@@ -82,7 +84,6 @@ namespace Warps
 		private void ReadOBJFile(string path)
 		{
 			m_type = SurfaceType.OBJ;
-			m_path = path;
 			CreateMould(m_path);
 		}
 
@@ -101,7 +102,7 @@ namespace Warps
 		{
 			Task.Factory.StartNew(() =>
 			{
-				logger.Instance.Log("saving {0} to {1}...", Path.GetFileName(tdipath), Path.GetDirectoryName(tdipath));
+				Logleton.TheLog.Log("saving {0} to {1}...", Path.GetFileName(tdipath), Path.GetDirectoryName(tdipath));
 				//DateTime now = DateTime.Now;
 				using (StreamWriter sw = new StreamWriter(tdipath))
 				{
@@ -349,6 +350,53 @@ namespace Warps
 					}
 			}
 		}
+
+
+		public XmlDocument WriteXScript(string path)
+		{
+			XmlDocument doc = NsXml.MakeDoc("Warps");
+			XmlNode sail = doc.DocumentElement.AppendChild(NsXml.MakeNode(doc, GetType().Name, Label));
+			//NsXml.AddAttribute(mould, "Path", path);
+			NsXml.AddAttribute(sail, "Count", Layout.Count.ToString());
+			XmlNode mould = sail.AppendChild(NsXml.MakeNode(doc, Mould.GetType().Name, Mould.Label));
+			Mould.Groups.ForEach(grp => mould.AppendChild(grp.WriteXScript(doc)));
+			
+			Layout.ForEach(grp => sail.AppendChild(grp.WriteXScript(doc)));
+			if(path != null )
+				doc.Save(path);
+			return doc;
+		}
+		public void ReadXScript(string path)
+		{
+			XmlDocument doc = NsXml.LoadDoc(path);
+			if (doc == null)
+			{
+				ReadScriptFile(path);//try to read it as a script file
+				return;
+			}
+			XmlNode sail = doc.DocumentElement.FirstChild;
+
+			if (sail.HasChildNodes && updateStatus != null)
+				updateStatus(-sail.ChildNodes.Count, path);
+
+			//construct the mould
+			CreateMould(sail.FirstChild.Name, NsXml.ReadLabel(sail.FirstChild));
+			for (int nGrp = 1; nGrp < sail.ChildNodes.Count; nGrp++)
+			{
+				object grp = Utilities.CreateInstance(sail.ChildNodes[nGrp].Name);
+				if (grp != null && grp is IGroup)
+				{
+					(grp as IGroup).Sail = this;
+					m_layout.Add(grp as IGroup);
+
+					if (updateStatus != null)
+						updateStatus(Layout.Count, "Loading " + NsXml.ReadString(sail.ChildNodes[nGrp], "Label"));
+
+					(grp as IGroup).ReadXScript(this, sail.ChildNodes[nGrp]);
+				}
+			}
+		}
+
 		public override string ToString()
 		{
 			return Mould.ToString();
@@ -497,7 +545,7 @@ namespace Warps
 		{
 			if (m_node == null)
 				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Text = m_path;
+			m_node.Text = Path.GetFileName(m_path);
 			m_node.Tag = this;
 			m_node.ImageKey = m_node.SelectedImageKey = 	m_node.ToolTipText = GetType().Name;
 			m_node.Nodes.Clear();
@@ -783,7 +831,7 @@ namespace Warps
 
 		#endregion
 
-		#region Default Geometry Shit
+		#region Default Geometry
 
 		void CreateSpokes()
 		{
@@ -987,7 +1035,7 @@ namespace Warps
 			{
 				if (CurveTools.CrossPoint(Luff, bat, ref uv1, ref xyz, ref sPos, 20, false))
 					if (CurveTools.CrossPoint(Leech, bat, ref uv2, ref xyz, ref sPos, 20, false))
-						baxxs.Add(new MouldCurve(bat.Label.Replace("Bat", "Bax"), this, uv1, uv2));
+						baxxs.Add(new MouldCurve(bat.Label.Replace("Bat", "Bax"), this, uv2, uv1));
 			}
 			Add(baxxs);
 			return baxxs;

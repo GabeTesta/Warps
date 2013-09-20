@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
-using Logger;
 
 namespace Warps
 {
@@ -29,7 +28,6 @@ namespace Warps
 			if (m_frame != null)
 			{
 				m_frame.EditorPanel = Edit;
-				EditMode = m_frame.EditMode;
 				if (Tree != null)
 				{
 					Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
@@ -65,13 +63,6 @@ namespace Warps
 			m_edit.Equations = m_group.ToArray();
 		}
 
-		bool m_editMode = false;
-
-		public bool EditMode
-		{
-			get { return m_editMode; }
-			set { m_editMode = value; m_edit.EditMode = value; }
-		}
 
 		EquationEditorForm m_eqEditor = null;
 
@@ -103,7 +94,7 @@ namespace Warps
 
 		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
-			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
+			Logleton.TheLog.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
 
 			if (e.ClickedItem.Text == "Paste")
 			{
@@ -177,14 +168,9 @@ namespace Warps
 
 		}
 
-		public void OnCancel(object sender, EventArgs e)
-		{
-			Cancel();
-		}
-
 		public void OnBuild(object sender, EventArgs e)
 		{
-			if (Edit == null || !EditMode)
+			if (Edit == null )
 				return;
 
 			List<Equation> eqs = new List<Equation>();
@@ -206,7 +192,7 @@ namespace Warps
 			m_group.Clear();
 			eqs.ForEach(eq => m_group.Add(eq));
 
-			m_frame.Rebuild(changed);
+			m_frame.Rebuilds(changed);
 			//changed.ForEach(eq => m_frame.Rebuild(eq));
 			//m_frame.Rebuild(m_group);
 			if (changed.Count > 0)
@@ -303,15 +289,21 @@ namespace Warps
 
 		}
 
-		public bool IsTracking(object obj)
-		{
-			return obj == m_group;
-		}
-
 		internal void HighlightEquation(Equation equation)
 		{
 			if (m_edit != null)
 				m_edit.HighlightEquation(equation);
 		}
+
+		#region ITracker Members
+
+		public bool IsTracking { get { return false; } }
+
+		public void ProcessSelection(object Tag)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
 	}
 }

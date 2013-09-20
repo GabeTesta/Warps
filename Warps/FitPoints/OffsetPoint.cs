@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using Warps.Curves;
+using System.Xml;
 namespace Warps
 {
 	class OffsetPoint: IFitPoint
@@ -176,6 +177,28 @@ namespace Warps
 		public bool ValidFitPoint
 		{
 			get { return m_curve != null;  }
+		}
+
+		#endregion
+
+		#region IFitPoint Members
+
+
+		public XmlNode WriteXScript(XmlDocument doc)
+		{
+			XmlNode node = NsXml.MakeNode(doc, GetType().Name);
+			NsXml.AddAttribute(node, "S-Curve", m_sCurve.ToString());
+			NsXml.AddAttribute(node, "Curve", m_curve.Label);
+			NsXml.AddAttribute(node, "Offset", m_xOffset.ToString());
+
+			return node;
+		}
+
+		public void ReadXScript(Sail s, XmlNode node)
+		{
+			m_sCurve = NsXml.ReadDouble(node, "S-Curve");
+			m_curve = s.FindCurve(NsXml.ReadString(node, "Curve"));
+			m_xOffset = NsXml.ReadDouble(node, "Offset");
 		}
 
 		#endregion

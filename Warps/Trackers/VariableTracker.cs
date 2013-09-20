@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 using Warps.Controls;
-using Logger;
 
 namespace Warps
 {
@@ -35,17 +34,9 @@ namespace Warps
 			}
 		}
 
-		bool m_editMode = false;
-
-		public bool EditMode
-		{
-			get { return m_editMode; }
-			set { m_editMode = value; }
-		}
 
 		WarpFrame m_frame;
 		Equation m_equ;
-		//Testing.EquationTester m_eqEditor = null;
 
 		DualView View
 		{
@@ -79,7 +70,7 @@ namespace Warps
 				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add"))
 					Tree.TreeContextMenu.Items[i].Enabled = false;
 				if(Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
-					Tree.TreeContextMenu.Items[i].Enabled = EditMode;
+					Tree.TreeContextMenu.Items[i].Enabled = true;
 					
 			}
 			Tree.TreeContextMenu.Show();
@@ -87,7 +78,7 @@ namespace Warps
 
 		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
-			logger.Instance.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
+			Logleton.TheLog.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
 
 			//if (e.ClickedItem.Text == "Copy")
 			//{
@@ -111,7 +102,7 @@ namespace Warps
 
 		public void OnDelete(object sender, EventArgs e) { }
 
-		public void OnCancel(object sender, EventArgs e)
+		public void Cancel()
 		{
 			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
 			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
@@ -152,10 +143,16 @@ namespace Warps
 
 		}
 
-		public bool IsTracking(object obj)
+
+		#region ITracker Members
+
+		public bool IsTracking { get { return false; } }
+
+		public void ProcessSelection(object Tag)
 		{
-			return obj == m_equ;
+			//throw new NotImplementedException();
 		}
 
+		#endregion
 	}
 }

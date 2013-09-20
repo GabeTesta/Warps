@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using NPlot;
 using Warps;
 
-namespace Warps.Controls
+namespace Warps.Curves
 {
 	public partial class GuideEditor : UserControl
 	{
@@ -25,18 +25,30 @@ namespace Warps.Controls
 				m_nsPlot.MouseDown += tracker.OnDown;
 				m_nsPlot.MouseMove += tracker.OnMove;
 				m_nsPlot.MouseUp += tracker.OnUp;
+				CombUpdated += tracker.OnCombUpdated;
 			}
 			//InitializePlotterComponents();
 		}
+
+		event EventHandler<EventArgs<Vect2[]>> CombUpdated;
 
 		private void InitializeGrid()
 		{
 			m_dgv.Rows.Clear();
 			m_dgv.Columns.Add("S", "Pos");
-			m_dgv.Columns[m_dgv.Columns.Count - 1].Width = 50;
+			m_dgv.Columns[m_dgv.Columns.Count - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+			m_dgv.Columns[m_dgv.Columns.Count - 1].FillWeight = 50;
+			m_dgv.Columns[m_dgv.Columns.Count - 1].DefaultCellStyle.Format = "f4";
+			m_dgv.Columns[m_dgv.Columns.Count - 1].ValueType = typeof(double);
+			m_dgv.Columns[m_dgv.Columns.Count - 1].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 			m_dgv.Columns.Add("P", "DPI");
-			m_dgv.Columns[m_dgv.Columns.Count - 1].Width = 50;
+			m_dgv.Columns[m_dgv.Columns.Count - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+			m_dgv.Columns[m_dgv.Columns.Count - 1].FillWeight = 50;
+			m_dgv.Columns[m_dgv.Columns.Count - 1].DefaultCellStyle.Format = "f4";
+			m_dgv.Columns[m_dgv.Columns.Count - 1].ValueType = typeof(double);
+			m_dgv.Columns[m_dgv.Columns.Count - 1].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
+			m_dgv.Font = new System.Drawing.Font("Consolas", 8f);
 			m_dgv.RowHeadersVisible = false;
 		}
 	
@@ -204,6 +216,37 @@ namespace Warps.Controls
 		{
 			m_curveEditor.ReadCurve(comb);
 			CombPnts = comb.CombPnts;
+		}
+
+		private void m_dgv_CellValidated(object sender, DataGridViewCellEventArgs e)
+		{
+		}
+
+		private void m_dgv_Validated(object sender, EventArgs e)
+		{
+
+		}
+
+		private void m_dgv_CellLeave(object sender, DataGridViewCellEventArgs e)
+		{
+
+		}
+
+		private void m_dgv_RowValidated(object sender, DataGridViewCellEventArgs e)
+		{
+
+		}
+		void SortComb()
+		{
+			if (CombUpdated != null)
+				CombUpdated(this, new EventArgs<Vect2[]>(CombPnts));
+			UpdatePlot();
+		}
+
+		private void m_dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+		{
+			BeginInvoke(new MethodInvoker(SortComb));
+
 		}
 	}
 }

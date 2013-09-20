@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Warps
+namespace Warps.Curves
 {
 	public partial class CurveGroupEditor : UserControl
 	{

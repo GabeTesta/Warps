@@ -8,7 +8,9 @@ using Warps.Yarns;
 using devDept.Eyeshot;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
-namespace Warps
+using Warps.Curves;
+
+namespace Warps.Yarns
 {
 	[System.Diagnostics.DebuggerDisplay("{Label} {DPI}", Name = "{Label}", Type = "{GetType()}")]
 	public class DensityComb : GuideComb
@@ -49,7 +51,7 @@ namespace Warps
 					xyz.Set(xprev);
 					//find the spacing to the next yarn
 					if (!CurveTools.xClosest(m_Group[i + 1], ref s1, ref uv, ref xyz, ref d, 1e-6, true))
-						Logger.logger.Instance.Log("xClosest failed in DensityComb");
+						Logleton.TheLog.Log("xClosest failed in DensityComb");
 						//throw new Exception("xClosest failed in DensityComb");
 					h = xyz.Distance(xprev);
 					//store the spacing and x-distance

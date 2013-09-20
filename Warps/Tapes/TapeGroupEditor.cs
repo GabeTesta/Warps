@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Warps.Curves;
 
 namespace Warps.Tapes
 {
@@ -15,15 +16,16 @@ namespace Warps.Tapes
 		public TapeGroupEditor(TapeGroupTracker tracker)
 		{
 			InitializeComponent();
-			m_tracker = tracker;
 			tapeLen.ReadOnly = true;
 			tapeCount.ReadOnly = true;
 			BAK = selectWarpButt.BackColor;
 			selectWarpButt.Tag = "Warps";
 			selectGuideButt.Tag = "GuideSurface";
+			SelectionMode += tracker.OnSelectionMode;
 		}
 		Color BAK, SEL = Color.SeaGreen;
-		TapeGroupTracker m_tracker;
+		event EventHandler<EventArgs<string>> SelectionMode;
+
 		public void ReadGroup(TapeGroup group)
 		{
 			m_labelTextBox.Text = group.Label;
@@ -63,19 +65,23 @@ namespace Warps.Tapes
 			group.AngleTolerance = angleTol.Value;
 			group.Stagger = m_stagger.Checked;
 		}
-
+		void SetSelectionMode(string mode)
+		{
+			if (SelectionMode != null)
+				SelectionMode(this, new EventArgs<string>(mode));
+		}
 		private void selectWarpButt_Click(object sender, EventArgs e)
 		{
 			Button b = sender as Button;
 			if (b.BackColor == SEL)
 			{
 				b.BackColor = BAK;
-				m_tracker.SelectMode(null);
+				SetSelectionMode(null);
 			}
 			else
 			{
 				b.BackColor = SEL;
-				m_tracker.SelectMode(b.Tag as string);
+				SetSelectionMode(b.Tag as string);
 			}
 		}
 
@@ -105,5 +111,17 @@ namespace Warps.Tapes
 				m_guideListView.Items.Add(guideSurface.Label, guideSurface.Label, guideSurface.GetType().ToString());
 			return old;
 		}
+
+		public bool IsWarp
+		{
+			get { return selectWarpButt.BackColor == SEL; }
+			set { selectWarpButt.BackColor = value ? SEL : BAK; }
+		}
+		public bool IsGuide
+		{
+			get { return selectGuideButt.BackColor == SEL; }
+			set { selectGuideButt.BackColor = value ? SEL : BAK; }
+		}
+
 	}
 }

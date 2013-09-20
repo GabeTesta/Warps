@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,11 +13,12 @@ using devDept.Eyeshot;
 using devDept.Geometry;
 using devDept.Eyeshot.Entities;
 using Warps.Controls;
-using Logger;
+using Warps.Trackers;
+using Warps.Curves;
 using Warps.Yarns;
 using Warps.Panels;
-using Warps.Trackers;
-using System.Threading;
+using Warps.Tapes;
+using System.Xml;
 
 namespace Warps
 {
@@ -44,19 +46,21 @@ namespace Warps
 			}
 		}
 
-		static MaterialDatabase m_MatDB = new MaterialDatabase(@"c:\Materials.csv");
+		static MaterialDatabase m_MatDB;// = new MaterialDatabase(@"c:\Materials.csv");
 		public static MaterialDatabase Mats
 		{
 			get { return WarpFrame.m_MatDB; }
 		}
 
-		public WarpFrame()
+		public WarpFrame(params string[] args)
 		{
-
+			
 			InitializeComponent();
+
+			//ReadConfigFile();
 #if DEBUG
-			logger.Instance.CreateLogLocal("Warps");
-			logger.Instance.Log("new instance loaded", LogPriority.Debug);
+			Logleton.TheLog.CreateLogLocal("Warps");
+			Logleton.TheLog.Log("new instance loaded", Logleton.LogPriority.Debug);
 #endif
 			//set background color from existing icon
 			//ButtonUnSelected = m_modCurve.BackColor;
@@ -70,26 +74,109 @@ namespace Warps
 
 			EditorPanel = null;//collapse edit panel
 
-			//toggle edit mode to ensure coloring
-			m_editButton.Checked = false;
-			m_editButton.Checked = true;//disable edit mode
-
 			//toggle auto mode to ensure coloring
-			m_autoBtn.Checked = true;
-			m_autoBtn.Checked = false;//enable automode
+			//m_autoBtn.Checked = true;
+			//m_autoBtn.Checked = false;//enable automode
 
-			m_tree.AfterSelect += m_tree_AfterSelect;
-			View.SelectionChanged += m_tree_AfterSelect;
-			cancelButton.Click += cancelButton_Click;
+			m_tree.BeforeSelect += OnSelectionChanging;
+			View.SelectionChanged += OnSelectionChanging;
+			m_cancel.Click += cancelButton_Click;
 
 			Tree.VisibilityToggle += View.VisibilityToggled;
 
-			m_horizsplit.SplitterDistance = m_horizsplit.ClientRectangle.Width - 250;
+			//m_horizsplit.SplitterDistance = m_horizsplit.ClientRectangle.Width - 250;
+			//try
+			//{
+			//	m_MatDB = new MaterialDatabase(@"c:\Materials.csv");
+			//}
+			//catch (Exception e) { MessageBox.Show(e.Message); }
+			if (args != null && args.Length > 0 && args[0] != null)
+				LoadSail(args[0]);
+
 		}
 
 		public string Title
 		{ set { Text = "Warps " + Version + ((value != null && value != "") ? " - " + value : ""); } } // display the version number in the title bar
 		public string Version { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); } }
+		protected override void OnLoad(EventArgs e)
+		{
+			base.OnLoad(e);
+
+			ReadConfigFile();
+
+			if (m_sail != null)
+				View.ZoomFit(true);
+
+			if (Mats != null)//show the material db in the tree
+				Tree.SorTree.Nodes.Add(Mats.WriteNode());
+		}
+
+		private void ReadConfigFile()
+		{
+			Utilities.OpenConfigFile("Warps.xml");
+
+			//m_ConfigFile = new VAkos.Xmlconfig(Path.Combine(Utilities.ExeDir, "Warps.xml"), true);
+			this.SuspendLayout();
+
+			Top = Utilities.Settings["WarpFrame/Location/Top", 0];
+			Left = Utilities.Settings["WarpFrame/Location/Left", 0];
+
+			Width = Utilities.Settings["WarpFrame/Width", 1000];
+			Height = Utilities.Settings["WarpFrame/Height", 700];
+
+			m_horizsplit.SplitterDistance = Utilities.Settings["Splitters/Tree", 250];
+			m_vertsplit.SplitterDistance = Utilities.Settings["Splitters/Edit", 500];
+
+			AutoBuild = Utilities.Settings["AutoBuild", true];
+
+			View.ReadConfigFile();
+			//SetLayers();
+
+			m_MatDB = new MaterialDatabase(Utilities.Settings["MaterialTable", null]);
+
+			this.ResumeLayout(true);
+			this.PerformLayout();
+		}
+		//private void SetLayers()
+		//{
+		//	string layers = Utilities.Settings["View/Left/Layers", "Default,Mould"];
+		//	string[] splits = layers.Split(',');
+		//	View.ShowLayers(0, splits);
+		//	layers = Utilities.Settings["View/Right/Layers", "Default,Mould,Curves,Yarns,Panels,Tapes"];
+		//	splits = layers.Split(',');
+		//	View.ShowLayers(1, splits);
+		//}
+
+		protected override void OnClosing(CancelEventArgs e)
+		{
+			base.OnClosing(e);
+
+			Utilities.Settings["WarpFrame/Location/Top"].intValue = Top;
+			Utilities.Settings["WarpFrame/Location/Left"].intValue = Left;
+
+
+			Utilities.Settings["WarpFrame/Width"].intValue = Width;
+			Utilities.Settings["WarpFrame/Height"].intValue = Height;
+
+			Utilities.Settings["Splitters/Tree"].intValue = m_horizsplit.SplitterDistance;
+			Utilities.Settings["Splitters/Edit"].intValue = m_vertsplit.SplitterDistance;
+
+			Utilities.Settings["AutoBuild"].boolValue = AutoBuild;
+
+
+			StringBuilder lyrs = new StringBuilder();
+			View.ActiveLayers(0).ForEach(l => lyrs.AppendFormat("{0},", l));
+			Utilities.Settings["View/Left/Layers"].Value = lyrs.ToString();
+			lyrs.Clear();
+			View.ActiveLayers(1).ForEach(l => lyrs.AppendFormat("{0},", l));
+			Utilities.Settings["View/Right/Layers"].Value = lyrs.ToString();
+
+			Utilities.Settings["MaterialTable"].Value = m_MatDB.Label;
+			Utilities.Settings["ColorTable"].Value = View.SaveColors();
+
+			Utilities.CloseSettingsFile();
+		}
+
 		public string Status
 		{
 			get { return m_statusText.Text; }
@@ -148,7 +235,7 @@ namespace Warps
 		public static string[] OpenFileDlg(int extension)
 		{
 			OpenFileDialog ofd = new OpenFileDialog();
-			ofd.Filter = "spiral files (*.spi)|*.spi|cof files (*.cof)|*.cof|warp files (*.wrp)|*.wrp|binary files|*_wrp.bin|All files (*.*)|*.*";
+			ofd.Filter = "spiral files (*.spi)|*.spi|cof files (*.cof)|*.cof|warp files (*.wrp)|*.wrp|xml files (*.xml)|*.xml|binary files|*_wrp.bin|All files (*.*)|*.*";
 			ofd.Multiselect = true;
 			ofd.FilterIndex = Math.Min(extension, 3);
 			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -156,12 +243,15 @@ namespace Warps
 			return null;
 		}
 
+
 		void LoadSail(string path)
 		{
 			if (m_sail != null)
 				clearAll_Click(null, null);
+
 			Status = String.Format("Loading {0}", path);
 
+			m_sail = new Sail();
 			m_sail = new Sail();
 			m_sail.updateStatus += UpdateStatusStrip;
 			m_sail.ReadFile(path);
@@ -178,7 +268,9 @@ namespace Warps
 			Status = String.Format("{0} Loaded Successfully", m_sail.FilePath);
 			Title = m_sail.FilePath; // display the version number in the title bar
 			m_statusProgress.Visible = false;
-
+	
+			//SetLayers();
+			View.Refresh();
 		}
 
 		void LoadSailAsync(string path)
@@ -225,12 +317,13 @@ namespace Warps
 
 		private void AddSailtoView(Sail s)
 		{
-			int nlayer = View.AddLayer("Mould", Color.Beige, true);
-			s.Mould.CreateEntities(null, false).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
+			int nlayer = View.AddLayer("Rig");
+			nlayer = View.AddLayer("Mould");
+			s.Mould.CreateEntities(null, false).ForEach(ent => { if( ent.LayerIndex == 0 )ent.LayerIndex = nlayer; View.Add(ent); });
 
 			//if (s.m_type != SurfaceType.OBJ)
 			//{
-			nlayer = View.AddLayer("Gauss", Color.Black, false);
+			nlayer = View.AddLayer("Gauss");
 			s.Mould.CreateEntities(null, true).ForEach(ent =>
 			{
 				ent.LayerIndex = nlayer; View.Add(ent);
@@ -239,7 +332,7 @@ namespace Warps
 			});
 			
 
-			nlayer = View.AddLayer("Extension", Color.BurlyWood, false);
+			nlayer = View.AddLayer("Extension");
 			s.Mould.CreateEntities(new double[,] { { -.2, 1.2 }, { -.2, 1.2 } }, false).ForEach(ent => { ent.LayerIndex = nlayer; View.Add(ent); });
 			//}
 
@@ -248,14 +341,17 @@ namespace Warps
 				s.Mould.Groups.ForEach(group => UpdateViews(group));
 
 			s.Layout.ForEach(group => UpdateViews(group));
-			View.ZoomFit(true);
+			//View.ShowLayers(0, "Mould", "Default");
+			//View.ShowLayers(1, "Mould", "Yarns", "Curves", "Tapes");
+			if( View.Created )
+				View.ZoomFit(true);
 		}
 
 		#endregion
 
 		#region Rebuild
 
-		public bool Rebuild(List<IRebuild> tags)
+		public bool Rebuilds(List<IRebuild> tags)
 		{
 			if (tags != null)
 			{
@@ -385,11 +481,11 @@ namespace Warps
 
 		public void UpdateViews(IRebuild item)
 		{
-			View.Remove(item);
+			View.Remove(item, true);
 
 			Tree.BeginUpdate();
 
-			View.Add(item);
+			View.Add(item, true);
 			item.WriteNode();
 
 			//if (item is IGroup)
@@ -430,7 +526,7 @@ namespace Warps
 				Tree.Remove(tag);
 				ActiveSail.Remove(tag);
 				View.Refresh();
-				EditMode = false;
+				//EditMode = false;
 				return connected.Count;
 			}
 
@@ -442,7 +538,7 @@ namespace Warps
 			get { return !m_autoBtn.Checked; }
 			set
 			{
-				m_autoBtn.Checked = value;
+				m_autoBtn.Checked = !value;//invert for better display
 				m_autoBtn_CheckedChanged(this, null);
 			}
 		}
@@ -479,8 +575,7 @@ namespace Warps
 
 		#endregion
 
-
-		private void m_addCurve_Click(object sender, EventArgs e)
+		private void AddGroup_Click(object sender, EventArgs e)
 		{
 			if (ActiveSail == null)
 				return;
@@ -488,11 +583,12 @@ namespace Warps
 			dlg.Name = "enter name";
 			if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 			{
-				IGroup grp = dlg.CreateGroup();
+				IGroup grp = dlg.CreateIRebuild() as IGroup;
 				if (grp != null)
 				{
 					ActiveSail.Add(grp);
 					ActiveSail.Rebuild();
+					Tree.Select(grp);
 				}
 			}
 		}
@@ -520,187 +616,217 @@ namespace Warps
 		#region Tracker
 
 		//entry point for trackers
-		public void m_tree_AfterSelect(object sender, EventArgs<IRebuild> e)
+		public void OnSelectionChanging(object sender, EventArgs ea)
 		{
-			if ((sender == Tree || sender == View) && m_Tracker != null && m_Tracker.EditMode)
-				return; //dont do anything if we are already edit-tracking
+		//	if ((sender == Tree || sender == View) && m_Tracker != null && m_Tracker.EditMode)
+		//		return; //dont do anything if we are already edit-tracking
+
+			object Tag = ea is EventArgs<IRebuild> ? (ea as EventArgs<IRebuild>).Value : ea is TreeViewCancelEventArgs ? (ea as TreeViewCancelEventArgs).Node.Tag : null;
+			if (m_Tracker!= null && m_Tracker.IsTracking)//pass the selection on to the tracker when actively tracking something (warps, guides, etc)
+			{
+				if (ea is TreeViewCancelEventArgs)
+					(ea as TreeViewCancelEventArgs).Cancel = true;//cancel the tree selection change if tracking
+				m_Tracker.ProcessSelection(Tag);
+				return;
+			}
 
 			Status = "";
 			View.DeSelectAll();
-
+			
 			ITracker track = null;
-
-			if (e.Value is MouldCurve)
+			if (Tag == null)
+				return;
+			else if (Tag is MouldCurve)
 			{
-				if (e.Value is GuideComb)
-					track = new GuideCombTracker(e.Value as GuideComb);
+				if (Tag is GuideComb)
+					track = new GuideCombTracker(Tag as GuideComb);
 				else
-					track = new CurveTracker(e.Value as MouldCurve);
+					track = new CurveTracker(Tag as MouldCurve);
 			}
-			else if (e.Value is IGroup)
+			else if (Tag is IGroup)
 			{
-				switch (e.Value.GetType().Name)
+				switch (Tag.GetType().Name)
 				{
 					case "CurveGroup":
-						track = new CurveGroupTracker(e.Value as CurveGroup);
+						track = new CurveGroupTracker(Tag as CurveGroup);
 						break;
 
 					case "VariableGroup":
-						track = new VariableGroupTracker(e.Value as VariableGroup);
+						track = new VariableGroupTracker(Tag as VariableGroup);
 						break;
 
 					case "YarnGroup":
-						track = new YarnGroupTracker(e.Value as YarnGroup);
+						track = new YarnGroupTracker(Tag as YarnGroup);
 						break;
 
 					case "PanelGroup":
-						track = new PanelGroupTracker(e.Value as PanelGroup);
+						track = new PanelGroupTracker(Tag as PanelGroup);
 						break;
 
 					case "TapeGroup":
-						track = new Tapes.TapeGroupTracker(e.Value as Tapes.TapeGroup);
+						track = new Tapes.TapeGroupTracker(Tag as Tapes.TapeGroup);
+						break;
+
+					case "MixedGroup":
+						track = new Mixed.MixedGroupTracker(Tag as Mixed.MixedGroup);
 						break;
 				}
 			}
-			else if (e.Value is Equation)
+			else if (Tag is Equation)
 			{
-				IGroup parent = ActiveSail.FindGroup(e.Value);
+				IGroup parent = ActiveSail.FindGroup(Tag as Equation);
 				if (parent != null)
 					track = new VariableGroupTracker(parent as VariableGroup);
 
 			}
-			else if (e.Value is GuideSurface)
+			else if (Tag is GuideSurface)
 			{
-				track = new SurfaceTracker(e.Value as GuideSurface);
+				track = new SurfaceTracker(Tag as GuideSurface);
 			}
-			else// if (e.Value is Sail)
-				track = new SailTracker(EditMode);
+			
+			//else// if (e.Value is Sail)
+			//	track = new SailTracker();
 
 
 			if (track != null)
 			{
-#if DEBUG
-				Logger.logger.Instance.Log(String.Format("Creating new {0} from {1}", track.GetType().Name, e.Value == null ? "null" : e.Value.GetType().Name), LogPriority.Debug);
-#endif
+				Logleton.TheLog.Log(String.Format("Creating new {0} from {1}", track.GetType().Name, Tag == null ? "null" : Tag.GetType().Name), Logleton.LogPriority.Debug);
 				PostTracker(track);
 			}
 
 		}
 
-		public bool EditMode
-		{
-			get { return !m_editButton.Checked; }
-			set
-			{
-				m_editButton.Checked = !value;
-				//m_editButton_CheckedChanged(this, new EventArgs());
-			}
-		}
-		private void m_editButton_CheckedChanged(object sender, EventArgs e)
-		{
-			m_editButton.BackColor = EditMode ? ButtonSelected : ButtonUnSelected;
-			m_editButton.ForeColor = EditMode ? Color.White : Color.Black;
+		//public bool EditMode
+		//{
+		//	get { return !m_editButton.Checked; }
+		//	set
+		//	{
+		//		m_editButton.Checked = !value;
+		//		//m_editButton_CheckedChanged(this, new EventArgs());
+		//	}
+		//}
+		//private void m_editButton_CheckedChanged(object sender, EventArgs e)
+		//{
+		//	m_editButton.BackColor = EditMode ? ButtonSelected : ButtonUnSelected;
+		//	m_editButton.ForeColor = EditMode ? Color.White : Color.Black;
 
-			if (m_Tracker != null)
-			{
-				SuspendLayout();
-				ITracker tracker = m_Tracker;
-				ClearTracker();
-				tracker.EditMode = EditMode;
-				PostTracker(tracker);
-				ResumeLayout(true);
-			}
+		//	if (m_Tracker != null)
+		//	{
+		//		SuspendLayout();
+		//		ITracker tracker = m_Tracker;
+		//		ClearTracker();
+		//		tracker.EditMode = EditMode;
+		//		PostTracker(tracker);
+		//		ResumeLayout(true);
+		//	}
 
-			//cancelButton.Enabled = EditMode;
+		//	//cancelButton.Enabled = EditMode;
 
-			//okButton.Enabled = EditMode;
-			//previewButton.Enabled = EditMode;
+		//	//okButton.Enabled = EditMode;
+		//	//previewButton.Enabled = EditMode;
 
-			//if (m_Tracker != null)
-			//{
-			//	m_Tracker.EditMode = EditMode;
-			//	if (EditMode)
-			//	{
-			//		okButton.Click += m_Tracker.OnBuild;
-			//		cancelButton.Click += m_Tracker.OnCancel;
-			//		previewButton.Click += m_Tracker.OnPreview;
-			//	}
-			//	else
-			//	{
-			//		okButton.Click -= m_Tracker.OnBuild;
-			//		cancelButton.Click -= m_Tracker.OnCancel;
-			//		previewButton.Click -= m_Tracker.OnPreview;
-			//	}
-			//}
-		}
+		//	//if (m_Tracker != null)
+		//	//{
+		//	//	m_Tracker.EditMode = EditMode;
+		//	//	if (EditMode)
+		//	//	{
+		//	//		okButton.Click += m_Tracker.OnBuild;
+		//	//		cancelButton.Click += m_Tracker.OnCancel;
+		//	//		previewButton.Click += m_Tracker.OnPreview;
+		//	//	}
+		//	//	else
+		//	//	{
+		//	//		okButton.Click -= m_Tracker.OnBuild;
+		//	//		cancelButton.Click -= m_Tracker.OnCancel;
+		//	//		previewButton.Click -= m_Tracker.OnPreview;
+		//	//	}
+		//	//}
+		//}
+
 		private void cancelButton_Click(object sender, EventArgs e)
 		{
 			ClearTracker();
 		}
-		private void PostTracker(ITracker tracker)
-		{
-			if (EditMode)
-				EditTracker(tracker);
-			else
-				ReadonlyTracker(tracker);
-		}
 
 		ITracker m_Tracker;
-		ITracker EditTracker(ITracker tracker)
+
+		private void PostTracker(ITracker tracker)
 		{
 			if (tracker == null)
-				return null;
+				return;
 
-			if (m_Tracker != null && m_Tracker.EditMode)
+			if (m_Tracker != null)
 				ClearTracker();
 
-			Status = "Editing " + tracker.GetType().Name;
+			Status = "Tracking " + tracker.ToString();
 			m_Tracker = tracker;//post the new tracker
 
 			m_Tracker.Track(this);
+
 			okButton.Click += m_Tracker.OnBuild;
-			//cancelButton.Click += m_Tracker.OnCancel;
 			previewButton.Click += m_Tracker.OnPreview;
 
-			return m_Tracker;//return it
+			//if (EditMode)
+			//	EditTracker(tracker);
+			//else
+			//	ReadonlyTracker(tracker);
 		}
-		ITracker ReadonlyTracker(ITracker tracker)
-		{
-			if (tracker == null)
-				return null;
 
-			if (m_Tracker != null && m_Tracker.EditMode)
-				return m_Tracker;//dont overwrite an existing edit-mode tracker
+		//ITracker EditTracker(ITracker tracker)
+		//{
+		//	if (tracker == null)
+		//		return null;
 
-			if (m_Tracker != null)//cancel any exising readonly-tracker
-				ClearTracker();
+		//	if (m_Tracker != null && m_Tracker.EditMode)
+		//		ClearTracker();
 
-			Status = "Inspecting " + tracker.GetType().Name;
-			m_Tracker = tracker;//post the new tracker
-			m_Tracker.Track(this);
-			return m_Tracker;//return it
-		}
+		//	Status = "Editing " + tracker.GetType().Name;
+		//	m_Tracker = tracker;//post the new tracker
+
+		//	m_Tracker.Track(this);
+		//	okButton.Click += m_Tracker.OnBuild;
+		//	//cancelButton.Click += m_Tracker.OnCancel;
+		//	previewButton.Click += m_Tracker.OnPreview;
+
+		//	return m_Tracker;//return it
+		//}
+		//ITracker ReadonlyTracker(ITracker tracker)
+		//{
+		//	if (tracker == null)
+		//		return null;
+
+		//	if (m_Tracker != null && m_Tracker.EditMode)
+		//		return m_Tracker;//dont overwrite an existing edit-mode tracker
+
+		//	if (m_Tracker != null)//cancel any exising readonly-tracker
+		//		ClearTracker();
+
+		//	Status = "Inspecting " + tracker.GetType().Name;
+		//	m_Tracker = tracker;//post the new tracker
+		//	m_Tracker.Track(this);
+		//	return m_Tracker;//return it
+		//}
 		internal void ClearTracker()
 		{
-			if (m_Tracker == null)
+			if (m_Tracker == null )
 			{
-				EditorPanel = null;
+				if( EditorPanel!= null)
+					EditorPanel = null;
 				return;
 			}
 
 			if (m_Tracker != null)
-				m_Tracker.OnCancel(null, null);//clear any existing tracker
+			{
+				m_Tracker.Cancel();//clear any existing tracker
 
-			okButton.Click -= m_Tracker.OnBuild;
-			//cancelButton.Click -= m_Tracker.OnCancel;
-			previewButton.Click -= m_Tracker.OnPreview;
+				okButton.Click -= m_Tracker.OnBuild;
+				previewButton.Click -= m_Tracker.OnPreview;
+			}
 
 			m_Tracker = null;
-			EditorPanel = null;
 			View.EditMode = false;//force all items to be opaque
 			View.DeSelectAll();
 			View.DeSelectAllLayers();
-			View.EditMode = EditMode;
 			View.Refresh();
 		}
 
@@ -722,30 +848,13 @@ namespace Warps
 					if (m_horizsplit.Panel2Collapsed)
 						m_horizsplit.Panel2Collapsed = false;
 				}
-				else
-					m_horizsplit.Panel2Collapsed = true;
+				//else
+				//	m_horizsplit.Panel2Collapsed = true;
 
 				editPanel.ResumeLayout();
 
 			}
 		}
-
-		#region Ok/Cancel/Preview Buttons
-
-		//private void okButton_MouseEnter(object sender, EventArgs e)
-		//{
-		//	//(sender as Button).ForeColor = Color.White;
-		//	if (sender == okButton)
-		//		okButton.BackColor = Color.SeaGreen;
-		//	else if (sender == previewButton)
-		//		previewButton.BackColor = Color.LightSkyBlue;
-		//}
-		//private void okButton_MouseLeave(object sender, EventArgs e)
-		//{
-		//	if (sender is Button) (sender as Button).BackColor = Color.White;
-		//}
-
-		#endregion
 
 		#endregion
 
@@ -983,7 +1092,7 @@ namespace Warps
 //			//ActiveSail.Rebuild(null);
 //		}
 
-		void LuYar_YarnsUpdated(object sender, EventArgs<YarnGroup> e)
+		void YarnsUpdated(object sender, EventArgs<YarnGroup> e)
 		{
 			UpdateViews(e.Value);
 			View.Refresh();
@@ -1011,9 +1120,9 @@ namespace Warps
 				case Keys.F1 | Keys.Control :
 					helpToolStripButton_Click(null, null);
 					break;
-				case Keys.E | Keys.Control://toggle edit
-					EditMode = !EditMode;
-					break;
+				//case Keys.E | Keys.Control://toggle edit
+				//	EditMode = !EditMode;
+				//	break;
 				case Keys.B | Keys.Control://run build
 					m_buildBtn_Click(null, null);
 					break;
@@ -1033,7 +1142,27 @@ namespace Warps
 		}
 		private void openToolStripButton_Click(object sender, EventArgs e)
 		{
+//#if DEBUG
+//			string[] files = Utilities.OpenFileDlg("xml", "Open Yarn xml", null);
+//			if( files != null )
+//			{
+//				XmlDocument doc = new XmlDocument();
+//				doc.Load(files[0]);
+
+//				//VAkos.Xmlconfig yarns = new VAkos.Xmlconfig(files[0], false);
+//				foreach(XmlNode group in doc.DocumentElement.ChildNodes)
+//				{
+//					IGroup grp = Utilities.CreateInstance(group.Name) as IGroup;
+//					if (grp is YarnGroup)
+//					{
+//						(grp as YarnGroup).ReadXScript(ActiveSail, group);
+//						ActiveSail.Add(grp);
+//					}
+//				}
+//			}
+//#else
 			OpenFile(3);
+//#endif
 		}
 		private void saveToolStripButton_Click(object sender, EventArgs e)
 		{
@@ -1061,18 +1190,30 @@ namespace Warps
 			//ActiveSail.WriteBinFile(path);
 			Task.Factory.StartNew(() => ActiveSail.WriteBinFile(path));
 			return;
-#if DEBUG
-			clearAll_Click(null, null);
-			m_sail = new Sail();
-			ActiveSail.ReadBinFile(path);
-			AddSailtoView(ActiveSail);
-#endif
+//#if DEBUG
+//			clearAll_Click(null, null);
+//			m_sail = new Sail();
+//			ActiveSail.ReadBinFile(path);
+//			AddSailtoView(ActiveSail);
+//#endif
 		}
 
 		private void printToolStripButton_Click(object sender, EventArgs e)
 		{
+//#if DEBUG
+//			XmlDocument doc = NsXml.MakeDoc("Yarns");
+//			ActiveSail.Layout.ForEach(grp =>
+//			{
+//				if (grp is YarnGroup)
+//				{
+//					XmlElement ele = (grp as YarnGroup).WriteXScript(doc);
+//					doc.DocumentElement.AppendChild(ele);
+//				}
+//			});
+//#endif
+
 			//Write 3dl file
-			logger.Instance.Log("Saving project to 3dl file");
+			Logleton.TheLog.Log("Saving project to 3dl file");
 			SaveFileDialog dlg = new SaveFileDialog();
 			dlg.DefaultExt = ".3dl";
 			dlg.AddExtension = true;
@@ -1080,8 +1221,12 @@ namespace Warps
 			dlg.FileName = Path.GetFileNameWithoutExtension(ActiveSail.Mould.Label);
 			//dlg.InitialDirectory = Utilities.ExeDir;
 			if (dlg.ShowDialog() == DialogResult.OK)
+			{
 				Save3dlFile(dlg.FileName);
-
+//#if DEBUG
+//				doc.Save(Path.ChangeExtension(dlg.FileName, "xml"));
+//#endif
+			}
 		}
 
 		private void clearAll_Click(object sender, EventArgs e)
@@ -1108,99 +1253,99 @@ namespace Warps
 				//sfd.DefaultExt = ".wrp";
 				//sfd.AddExtension = true;
 				//if (sfd.ShowDialog() == System.Windows.Forms.DialogResult.OK)'
-				if( path != null )
+				if (path != null)
 				{
-#if DEBUG
-					logger.Instance.Log("saving file: " + path, LogPriority.Debug);
-#endif
-					ActiveSail.WriteScriptFile(path);
+					Logleton.TheLog.Log("saving file: " + path, Logleton.LogPriority.Debug);
+				//	ActiveSail.WriteScriptFile(path);
+					ActiveSail.WriteXScript(path);
 				}
 			}
 			else
-				ActiveSail.WriteScriptFile(Path.ChangeExtension(Path.GetFullPath(ActiveSail.FilePath), "wrp"));
+				ActiveSail.WriteXScript(Path.ChangeExtension(Path.GetFullPath(ActiveSail.FilePath), "wrp"));
+				//ActiveSail.WriteScriptFile(Path.ChangeExtension(Path.GetFullPath(ActiveSail.FilePath), "wrp"));
 		}
 		void Save3dlFile(string tdipath)
 		{
-			logger.Instance.Log("saving 3dl file...");
+			Logleton.TheLog.Log("saving 3dl file...");
 			ActiveSail.Save3DLFile(tdipath);
 			return;
-			Task.Factory.StartNew(() =>
-			{
-				logger.Instance.Log("saving {0} to {1}...", Path.GetFileName(tdipath), Path.GetDirectoryName(tdipath));
-				using (StreamWriter sw = new StreamWriter(tdipath))
-				{
-					//write header
-					//OUS102439-001, Fat26, EnergySolution ITA14313, Main ORCi, 10850 dpi, 3Dl 680, Capitani/NSI,//3DLayOut_Release 1.1.0.171
-					sw.WriteLine("{0} //Warps v{1}", ActiveSail.ToString(), Utilities.CurVersion);
-					foreach (YarnGroup yar in ActiveSail.Layout.FindAll(grp => grp is YarnGroup))
-					{
-						List<List<double>> sPos;
-						List<List<Point3D>> ents = yar.CreateYarnPaths(out sPos);
+			//Task.Factory.StartNew(() =>
+			//{
+			//	logger.Instance.Log("saving {0} to {1}...", Path.GetFileName(tdipath), Path.GetDirectoryName(tdipath));
+			//	using (StreamWriter sw = new StreamWriter(tdipath))
+			//	{
+			//		//write header
+			//		//OUS102439-001, Fat26, EnergySolution ITA14313, Main ORCi, 10850 dpi, 3Dl 680, Capitani/NSI,//3DLayOut_Release 1.1.0.171
+			//		sw.WriteLine("{0} //Warps v{1}", ActiveSail.ToString(), Utilities.CurVersion);
+			//		foreach (YarnGroup yar in ActiveSail.Layout.FindAll(grp => grp is YarnGroup))
+			//		{
+			//			List<List<double>> sPos;
+			//			List<List<Point3D>> ents = yar.CreateYarnPaths(out sPos);
 
-						Vect2 uv = new Vect2(); Vect3 xyz = new Vect3();
-						for (int i = 0; i < ents.Count; i++)
-						{
-							//FOOT   1.0000   FT_IN  0.0000  spacing  0.0853    48 offsets on yarn #1
-							sw.WriteLine("{0}   {1:0.0000}   {2}  {3:0.0000}  {4}  {5:0.0000}    {6} offsets on yarn #{7}"
-									, yar[i].m_Warps[1].Label, 1.0, yar[i].m_Warps[0].Label, 0, "spacing", 0, ents[i].Count - 1, i);
+			//			Vect2 uv = new Vect2(); Vect3 xyz = new Vect3();
+			//			for (int i = 0; i < ents.Count; i++)
+			//			{
+			//				//FOOT   1.0000   FT_IN  0.0000  spacing  0.0853    48 offsets on yarn #1
+			//				sw.WriteLine("{0}   {1:0.0000}   {2}  {3:0.0000}  {4}  {5:0.0000}    {6} offsets on yarn #{7}"
+			//						, yar[i].m_Warps[1].Label, 1.0, yar[i].m_Warps[0].Label, 0, "spacing", 0, ents[i].Count - 1, i);
 
-							for (int j = 0; j < ents[i].Count; j++)
-							{
-								yar[i].uVal(sPos[i][j], ref uv);
+			//				for (int j = 0; j < ents[i].Count; j++)
+			//				{
+			//					yar[i].uVal(sPos[i][j], ref uv);
 
-								sw.WriteLine(" {0:#0.00000} {1:#0.00000}    {2}  {3:#0.000000}  {4:#0.000000}  {5:#0.000000}  {6:#0.000000}  {7:#0.000000}  {8:#0.000000}  {9:#0.000000}",
-									uv[0], uv[1], j
-									, ents[i][j].X, ents[i][j].Y, ents[i][j].Z
-									, 0, 0, 0
-									, 0);
-								//0.98647-0.00093    0  3.726569 -0.020588  0.007790  0.155863  0.003351  0.987773  0.000000
-							}
-						}
-					}
-					//read the yarn points from the entities
-					//out s, uv, xyz
-					//just use 100 points for now
-					//createlinearpath
-					//this will be what we used eventually
-					//List<Entity> CreateEntities(bool bFitPoints, double TolAngle, out double[] sPos)
-					//for now use 1/100 evenly spaced sPos
+			//					sw.WriteLine(" {0:#0.00000} {1:#0.00000}    {2}  {3:#0.000000}  {4:#0.000000}  {5:#0.000000}  {6:#0.000000}  {7:#0.000000}  {8:#0.000000}  {9:#0.000000}",
+			//						uv[0], uv[1], j
+			//						, ents[i][j].X, ents[i][j].Y, ents[i][j].Z
+			//						, 0, 0, 0
+			//						, 0);
+			//					//0.98647-0.00093    0  3.726569 -0.020588  0.007790  0.155863  0.003351  0.987773  0.000000
+			//				}
+			//			}
+			//		}
+			//		//read the yarn points from the entities
+			//		//out s, uv, xyz
+			//		//just use 100 points for now
+			//		//createlinearpath
+			//		//this will be what we used eventually
+			//		//List<Entity> CreateEntities(bool bFitPoints, double TolAngle, out double[] sPos)
+			//		//for now use 1/100 evenly spaced sPos
 
-					/*
-					-we need the header to tokenize the layout version
-						tokenized with "//"
+			//		/*
+			//		-we need the header to tokenize the layout version
+			//			tokenized with "//"
 	  
-					- we tokenize each yarns header to get the count
-						currently written on index 6 (int count = atoi(tmp[6].c_str()))
+			//		- we tokenize each yarns header to get the count
+			//			currently written on index 6 (int count = atoi(tmp[6].c_str()))
 	   
-					///function that parses each line of the yarn.3dl file
-					void	YarnGantPass::SplitLine(std::string line)
-					{
-						std::vector<std::string> shifter;
-						std::vector<int> widths;
-						widths.push_back(8);
-						widths.push_back(8);
-						widths.push_back(5);
-						widths.push_back(10);
-						widths.push_back(10);
-						widths.push_back(10);
-						widths.push_back(10);
-						widths.push_back(10);
-						widths.push_back(10);
-						widths.push_back(10);
+			//		///function that parses each line of the yarn.3dl file
+			//		void	YarnGantPass::SplitLine(std::string line)
+			//		{
+			//			std::vector<std::string> shifter;
+			//			std::vector<int> widths;
+			//			widths.push_back(8);
+			//			widths.push_back(8);
+			//			widths.push_back(5);
+			//			widths.push_back(10);
+			//			widths.push_back(10);
+			//			widths.push_back(10);
+			//			widths.push_back(10);
+			//			widths.push_back(10);
+			//			widths.push_back(10);
+			//			widths.push_back(10);
 
-						shifter = Tokenize(line, widths);
+			//			shifter = Tokenize(line, widths);
 
-						AddUV(atof(shifter[0].c_str()),atof(shifter[1].c_str()));
-						AddXYZ(atof(shifter[3].c_str()),atof(shifter[4].c_str()),atof(shifter[5].c_str()));
-					}
+			//			AddUV(atof(shifter[0].c_str()),atof(shifter[1].c_str()));
+			//			AddXYZ(atof(shifter[3].c_str()),atof(shifter[4].c_str()),atof(shifter[5].c_str()));
+			//		}
 					 
-					  OUS102439-001, Fat26, EnergySolution ITA14313, Main ORCi, 10850 dpi, 3Dl 680, Capitani/NSI,//3DLayOut_Release 1.1.0.171
-					  FOOT   1.0000   FT_IN  0.0000  spacing  0.0853    48 offsets on yarn #1
-					  0.98647-0.00093    0  3.726569 -0.020588  0.007790  0.155863  0.003351  0.987773  0.000000
-					 */
-				}
-				logger.Instance.Log("saving done");
-			});
+			//		  OUS102439-001, Fat26, EnergySolution ITA14313, Main ORCi, 10850 dpi, 3Dl 680, Capitani/NSI,//3DLayOut_Release 1.1.0.171
+			//		  FOOT   1.0000   FT_IN  0.0000  spacing  0.0853    48 offsets on yarn #1
+			//		  0.98647-0.00093    0  3.726569 -0.020588  0.007790  0.155863  0.003351  0.987773  0.000000
+			//		 */
+			//	}
+			//	logger.Instance.Log("saving done");
+			//});
 		}
 		
 		#endregion
@@ -1229,72 +1374,83 @@ namespace Warps
 					LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\99821022-01.spi");
 					//LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Main.spi");
 			}
+			if (ActiveSail.Layout.Count > 0)
+			{
+				DensityMesh dpi = new DensityMesh();
+				DateTime start = DateTime.Now;
+				dpi.MeshSail(ActiveSail);
+				TimeSpan mesh = DateTime.Now - start;
+				List<Entity> ents = dpi.CreateEntities();
+				View.AddRange(ents);
+				View.Refresh();
+				MessageBox.Show(mesh.TotalMilliseconds.ToString("f0"));
+			}
+			else
+			{
+				CurveGroup warps = new CurveGroup("Warps", ActiveSail);
+				//warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(0.5,0.5), new Vect2(1, 0.6)));
+				warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(1, 1)));
+				warps.Add(new MouldCurve("v2", ActiveSail, new Vect2(0, 0), new Vect2(1, .6)));
+				warps.Add(new MouldCurve("v3", ActiveSail, new Vect2(0, 0), new Vect2(1, 0)));
 
-			CurveGroup warps = new CurveGroup("Warps", ActiveSail);
-			//warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(0.5,0.5), new Vect2(1, 0.6)));
-			warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(1, 1)));
-			warps.Add(new MouldCurve("v2", ActiveSail, new Vect2(0, 0), new Vect2(1, .6)));
-			warps.Add(new MouldCurve("v3", ActiveSail, new Vect2(0, 0), new Vect2(1,0)));
+				double scale = 3;
+				List<Vect3> rbfss = new List<Vect3>(6);
+				//luff
+				rbfss.Add(new Vect3(0, 0.5, 1 * scale));
+				rbfss.Add(new Vect3(0, 1, 1 * scale));
+				//leech
+				rbfss.Add(new Vect3(1, 0, 1 * scale));
+				rbfss.Add(new Vect3(1, 0.5, 1 * scale));
 
-			double scale = 3;
-			List<Vect3> rbfss = new List<Vect3>(6);
-			//luff
-			rbfss.Add(new Vect3( 0, 0.5, 1 * scale ));
-			rbfss.Add(new Vect3(  0, 1, 1 * scale ));
-			//leech
-			rbfss.Add(new Vect3(  1, 0, 1 * scale ));
-			rbfss.Add(new Vect3( 1, 0.5, 1 * scale ));
+				rbfss.Add(new Vect3(1, .1, 1 * scale));
+				rbfss.Add(new Vect3(.6, .1, 1 * scale));
 
-			rbfss.Add(new Vect3(  1, .1, 1 * scale ));
-			rbfss.Add(new Vect3(  .6, .1, 1 * scale ));
+				rbfss.Add(new Vect3(0, 0, 3 * scale));
+				rbfss.Add(new Vect3(0.5, 0.5, 2.5 * scale));
+				rbfss.Add(new Vect3(0.7, 0.7, 2.0 * scale));
+				rbfss.Add(new Vect3(.85, .9, 1.5 * scale));
+				rbfss.Add(new Vect3(1, 1, 1 * scale));
 
-			rbfss.Add(new Vect3( 0, 0, 3 * scale ));
-			rbfss.Add(new Vect3(0.5, 0.5, 2.5 * scale));
-			rbfss.Add(new Vect3(0.7, 0.7, 2.0 * scale));
-			rbfss.Add(new Vect3(  .85, .9, 1.5 * scale ));
-			rbfss.Add(new Vect3(  1, 1, 1 * scale ));
+				GuideSurface surf = new GuideSurface("StructuralSurf", ActiveSail, rbfss);
+				Mixed.MixedGroup guides = new Mixed.MixedGroup("Guides", ActiveSail, "Combs");
+				guides.Add(surf);
 
-			GuideSurface surf = new GuideSurface("StructuralSurf", ActiveSail, rbfss);
-			MixedGroup guides = new MixedGroup("Guides", ActiveSail, "Combs");
-			guides.Add(surf);
+				Tapes.TapeGroup tapes = new Tapes.TapeGroup("Structural", warps.ToList(), surf, 1, .05, Utilities.DegToRad(3));
 
-			Tapes.TapeGroup tapes = new Tapes.TapeGroup("Structural", warps.ToList(), surf, 1, .05, Utilities.DegToRad(3));
+				warps.Add(new MouldCurve("c1", ActiveSail, new Vect2(0, 0), new Vect2(1, 0)));
+				warps.Add(new MouldCurve("c2", ActiveSail, new Vect2(0, 1), new Vect2(1, 1)));
 
-			warps.Add(new MouldCurve("c1", ActiveSail, new Vect2(0, 0), new Vect2(1, 0)));
-			warps.Add(new MouldCurve("c2", ActiveSail, new Vect2(0, 1), new Vect2(1, 1)));
+				scale = 10;
+				rbfss = new List<Vect3>(4);
+				//luff
+				rbfss.Add(new Vect3(0, 0, 1 * scale));
+				rbfss.Add(new Vect3(0, 1, 1 * scale));
+				//leech
+				rbfss.Add(new Vect3(1, 0, 1 * scale));
+				rbfss.Add(new Vect3(1, 1, 1 * scale));
 
-			scale =10;
-			rbfss = new List<Vect3>(4);
-			//luff
-			rbfss.Add(new Vect3(0, 0, 1 * scale));
-			rbfss.Add(new Vect3(0, 1, 1 * scale));
-			//leech
-			rbfss.Add(new Vect3(1, 0, 1 * scale));
-			rbfss.Add(new Vect3(1, 1, 1 * scale));
+				surf = new GuideSurface("CompressiveSurf", ActiveSail, rbfss);
+				//guides.Add(surf);
+				List<MouldCurve> cwarps = new List<MouldCurve>(2);
+				cwarps.Add(warps[warps.Count - 2]);
+				cwarps.Add(warps[warps.Count - 1]);
+				Tapes.TapeGroup cTapes = new Tapes.TapeGroup("Compressive", cwarps, surf, 3, .1, Utilities.DegToRad(7));
 
-			surf = new GuideSurface("CompressiveSurf", ActiveSail, rbfss);
-			//guides.Add(surf);
-			List<MouldCurve> cwarps = new List<MouldCurve>(2);
-			cwarps.Add(warps[warps.Count-2]);
-			cwarps.Add(warps[warps.Count-1]);
-			Tapes.TapeGroup cTapes = new Tapes.TapeGroup("Compressive", cwarps, surf, 3, .1, Utilities.DegToRad(7));
+				ActiveSail.Add(warps);
+				ActiveSail.Add(guides);
+				ActiveSail.Add(tapes);
+				//ActiveSail.Add(cTapes);
+				ActiveSail.Rebuild();
 
-			ActiveSail.Add(warps);
-			ActiveSail.Add(guides);
-			ActiveSail.Add(tapes);
-			//ActiveSail.Add(cTapes);
-			ActiveSail.Rebuild();
-
-			//UpdateViews(ActiveSail.CreateOuterCurves());
-			UpdateViews(warps);
-			UpdateViews(guides);
-			UpdateViews(tapes);
-			//UpdateViews(cTapes);
-			View.ShowOnly(0, "Default", "Curves");
-			View.ShowOnly(1, "Combs");
-			//this.WindowState = FormWindowState.Maximized;
-			View.ZoomFit(true);
-			//View.Refresh();
+				//UpdateViews(ActiveSail.CreateOuterCurves());
+				UpdateViews(warps);
+				UpdateViews(guides);
+				UpdateViews(tapes);
+				//UpdateViews(cTapes);
+				//this.WindowState = FormWindowState.Maximized;
+				View.ZoomFit(true);
+				//View.Refresh();
+			}
 		}
 
 		private void baxToolStripMenuItem_Click(object sender, EventArgs e)

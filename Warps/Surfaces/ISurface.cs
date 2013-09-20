@@ -36,6 +36,9 @@ namespace Warps
 		List<string> WriteScript();
 		bool ReadScript(Sail sail, IList<string> txt);
 
+		//XmlNode WriteXScript(XmlDocument doc);
+		//void ReadXScript(Sail sail, XmlNode node);
+
 		List<devDept.Eyeshot.Entities.Entity> CreateEntities(double[,] uvLims, bool bGauss);
 		double[] ColorValues { get; set; }
 

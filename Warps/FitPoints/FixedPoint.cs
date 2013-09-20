@@ -10,7 +10,7 @@ namespace Warps
 	class FixedPoint : IFitPoint
 	{
 		public FixedPoint() : this(0, 0) { }
-		public FixedPoint(FixedPoint f) : this(f.U, f.V) { m_s = f[0]; }
+		public FixedPoint(FixedPoint f) : this(new Equation(f.U), new Equation(f.V)) { m_s = f[0]; }
 
 		public FixedPoint(Vect2 uv)	:this(0, uv){}
 		public FixedPoint(double s, Vect2 uv) : this(s, uv[0], uv[1]) { }
@@ -111,11 +111,11 @@ namespace Warps
 						S = value;
 						break;
 					case 1:
-						if (U.IsNumber())
+						if (U.IsNumber)
 							U.Value = value;
 						break;
 					case 2:
-						if (V.IsNumber())
+						if (V.IsNumber)
 							V.Value = value;
 						break;
 				}
@@ -242,31 +242,33 @@ namespace Warps
 		{
 			if (connected != null)
 			{
-				bool bupdate = false;
-				connected.ForEach(element =>
-				{
-					if (element is MouldCurve)
-					{
-						if (U.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower())
-							|| V.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower()))
-							bupdate = true;
-					}
-					else if (element is Equation)
-					{
-						if (U.EquationText.ToLower().Contains((element as Equation).Label.ToLower())
-							|| V.EquationText.ToLower().Contains((element as Equation).Label.ToLower()))
-							bupdate = true;
-					}
-					else if (element is VariableGroup)
-					{
-						foreach (KeyValuePair<string, Equation> e in element as VariableGroup)
-						{
-							if (U.EquationText.ToLower().Contains(e.Key.ToLower())
-							|| V.EquationText.ToLower().Contains(e.Key.ToLower()))
-								bupdate = true;
-						}
-					}
-				});
+				bool bupdate = true;
+				bupdate &= U.Affected(connected);
+				bupdate &= V.Affected(connected);
+				//connected.ForEach(element =>
+				//{
+				//	//if (element is MouldCurve)
+				//	//{
+				//	//	if (U.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower())
+				//	//		|| V.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower()))
+				//	//		bupdate = true;
+				//	//}
+				//	//else if (element is Equation)
+				//	//{
+				//	//	if (U.EquationText.ToLower().Contains((element as Equation).Label.ToLower())
+				//	//		|| V.EquationText.ToLower().Contains((element as Equation).Label.ToLower()))
+				//	//		bupdate = true;
+				//	//}
+				//	//else if (element is VariableGroup)
+				//	//{
+				//	//	foreach (KeyValuePair<string, Equation> e in element as VariableGroup)
+				//	//	{
+				//	//		if (U.EquationText.ToLower().Contains(e.Key.ToLower())
+				//	//		|| V.EquationText.ToLower().Contains(e.Key.ToLower()))
+				//	//			bupdate = true;
+				//	//	}
+				//	//}
+				//});
 				return bupdate;
 			}
 
@@ -330,5 +332,24 @@ namespace Warps
 			set { }
 		}
 
+
+		#region IFitPoint Members
+
+
+		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
+		{
+			System.Xml.XmlNode node = NsXml.MakeNode(doc, GetType().Name);
+			node.AppendChild(m_uEqu.WriteXScript(doc));
+			node.AppendChild(m_vEqu.WriteXScript(doc));
+			return node;
+		}
+
+		public void ReadXScript(Sail s, System.Xml.XmlNode node)
+		{
+			m_uEqu.ReadXScript(s, node.ChildNodes[0]);
+			m_vEqu.ReadXScript(s, node.ChildNodes[1]);
+		}
+
+		#endregion
 	}
 }
