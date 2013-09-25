@@ -275,16 +275,16 @@ namespace Warps
 
 			ScriptTools.ModifyScriptToShowCopied(ref result);
 
-			VariableGroup group = (VariableGroup)Tree.SelectedTag;
+			//VariableGroup group = (VariableGroup)Tree.SelectedTag;
 
-			if (group == null)
+			if (m_group == null)
 				return;
 
 			Equation eq = new Equation();
 			//eq.sail = group.Sail;
-			eq.ReadScript(group.Sail, result);
+			eq.ReadScript(m_group.Sail, result);
 			//eq.Evaluate();
-			group.Add(eq);
+			m_group.Add(eq);
 			m_frame.Rebuild(m_group);
 
 		}

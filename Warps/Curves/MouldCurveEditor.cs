@@ -148,10 +148,10 @@ namespace Warps.Curves
 			box.IntegralHeight = false;
 			box.TabStop = false;
 
-			box.Items.Add(new DropDownImage("Point", Warps.Properties.Resources.fixedpt, typeof(FixedPoint)));
-			box.Items.Add(new DropDownImage("Curve", Warps.Properties.Resources.curvept, typeof(CurvePoint)));
-			box.Items.Add(new DropDownImage("Slide", Warps.Properties.Resources.slidept, typeof(SlidePoint)));
-			box.Items.Add(new DropDownImage("Cross", Warps.Properties.Resources.crosspt, typeof(CrossPoint)));
+			box.Items.Add(new DropDownImage("Point", Warps.Properties.Resources.FitFixed, typeof(FixedPoint)));
+			box.Items.Add(new DropDownImage("Curve", Warps.Properties.Resources.FitCurve, typeof(CurvePoint)));
+			box.Items.Add(new DropDownImage("Slide", Warps.Properties.Resources.FitSlide, typeof(SlidePoint)));
+			box.Items.Add(new DropDownImage("Cross", Warps.Properties.Resources.FitCross, typeof(CrossPoint)));
 
 			foreach (DropDownImage img in box.Items)
 			{

@@ -106,9 +106,9 @@ namespace Warps
 			return String.Format("{0}\n#:{1}", GetType().Name, Count);
 		}
 
-		public devDept.Eyeshot.Labels.Label[] EntityLabel
+		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
-			get { return null; }
+			get { return new List<devDept.Eyeshot.Labels.Label>(); }
 		}
 		public List<devDept.Eyeshot.Entities.Entity> CreateEntities()
 		{
@@ -268,15 +268,15 @@ namespace Warps
 
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
 		{
-			if (tag is Equation)
+			if (this == tag)
+				return true;
+			else if (tag is Equation)
 				for (int nEq = 0; nEq < this.Count; nEq++)
 				{
 					if (this[nEq].Equals(tag))
 						return true;
 					rets.Add(this[nEq]);
 				}
-			else if (this == tag)
-				return true;
 			else
 				rets.AddRange(this.Values);
 			return false;
@@ -291,6 +291,8 @@ namespace Warps
 		/// <returns></returns>
 		internal int IndexOf(Equation equation)
 		{
+			if (equation == null)
+				return -1;
 			for (int i = 0; i < this.Keys.Count; i++)
 				if (this.Keys.ElementAt(i) == equation.Label)
 					return i;
@@ -332,7 +334,7 @@ namespace Warps
 		public void ReadXScript(Sail sail, System.Xml.XmlNode node)
 		{
 			Label = NsXml.ReadLabel(node);
-
+			m_sail = sail;
 			foreach (XmlNode child in node.ChildNodes)
 			{
 				Equation equ = Utilities.CreateInstance(child.Name) as Equation;
@@ -342,6 +344,41 @@ namespace Warps
 					Add(equ as Equation);
 				}
 			}
+		}
+
+		#endregion
+
+		#region TreeDragging Members
+
+		public bool CanInsert(IRebuild item)
+		{
+			return item is Equation;
+		}
+
+		public void Insert(IRebuild item, IRebuild target)
+		{
+			int nTar = IndexOf(target as Equation);
+			int nIrb = IndexOf(item as Equation);
+			if (nIrb >= 0)//item is already in this group: reorder
+				Remove(item);
+			if (!Utilities.IsBetween(0, nTar, Count))
+				nTar = Count;
+			Insert(nTar, item as Equation);
+		}
+
+		public bool Remove(IRebuild item)
+		{
+			return base.Remove(item.Label);
+		}
+
+		#endregion
+
+		#region Flattening Members
+
+		public void FlatLayout(List<IRebuild> flat)
+		{
+			foreach (var cur in Values)
+				flat.Add(cur);
 		}
 
 		#endregion

@@ -25,6 +25,9 @@ namespace Warps.Curves
 			FitComb(CombPnts);
 		}
 
+		public GuideComb(string label, Sail sail)
+			: base(label, sail)	{ }
+
 		/// <summary>
 		/// creates a new guidecomb optionally fit to the specified points and combheights
 		/// </summary>
@@ -33,7 +36,7 @@ namespace Warps.Curves
 		/// <param name="fits">optional array of fitpoints, geodesic if 2, otherwise spline</param>
 		/// <param name="combs">optonal array of comb heights, minimum 5</param>
 		public GuideComb(string label, Sail sail, IFitPoint[] fits, Vect2[] combs)
-			:base(label, sail, fits)
+			:base(label, sail)
 		{
 			if (fits != null)
 				Fit(fits);

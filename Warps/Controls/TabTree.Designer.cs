@@ -71,11 +71,12 @@
 			this.m_seqtree.Name = "m_seqtree";
 			this.m_seqtree.Size = new System.Drawing.Size(227, 361);
 			this.m_seqtree.TabIndex = 0;
-			this.m_seqtree.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.m_seqtree_ItemDrag);
+			this.m_seqtree.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.OnItemDrag);
 			this.m_seqtree.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.m_seqtree_BeforeSelect);
-			this.m_seqtree.DragDrop += new System.Windows.Forms.DragEventHandler(this.m_seqtree_DragDrop);
-			this.m_seqtree.DragEnter += new System.Windows.Forms.DragEventHandler(this.m_seqtree_DragEnter);
-			this.m_seqtree.DragOver += new System.Windows.Forms.DragEventHandler(this.m_seqtree_DragOver);
+			this.m_seqtree.DragDrop += new System.Windows.Forms.DragEventHandler(this.OnDragDrop);
+			this.m_seqtree.DragEnter += new System.Windows.Forms.DragEventHandler(this.OnDragEnter);
+			this.m_seqtree.DragOver += new System.Windows.Forms.DragEventHandler(this.OnDragOver);
+			this.m_seqtree.DragLeave += new System.EventHandler(this.OnDragLeave);
 			this.m_seqtree.KeyDown += new System.Windows.Forms.KeyEventHandler(this.m_seqtree_KeyDown);
 			this.m_seqtree.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.m_seqtree_KeyPress);
 			this.m_seqtree.KeyUp += new System.Windows.Forms.KeyEventHandler(this.m_seqtree_KeyUp);
@@ -102,7 +103,6 @@
 			this.m_sortree.Size = new System.Drawing.Size(227, 361);
 			this.m_sortree.TabIndex = 0;
 			this.m_sortree.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.m_seqtree_BeforeSelect);
-
 			// 
 			// TabTree
 			// 

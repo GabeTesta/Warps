@@ -504,7 +504,7 @@ namespace Warps
 			//}
 			//return ents;
 		}
-		public Entity[][] AddRange(IEnumerable<Entity> e, devDept.Eyeshot.Labels.Label[] label)
+		public Entity[][] AddRange(IEnumerable<Entity> e, List<devDept.Eyeshot.Labels.Label> label)
 		{
 			Entity[][] ents = new Entity[e.Count()][];
 			int i = 0;
@@ -516,7 +516,7 @@ namespace Warps
 			AddLabels(label);
 			return ents;
 		}
-		private void AddLabels(devDept.Eyeshot.Labels.Label[] labels)
+		private void AddLabels(List<devDept.Eyeshot.Labels.Label> labels)
 		{
 			if (labels != null)
 			{

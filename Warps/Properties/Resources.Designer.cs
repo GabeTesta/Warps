@@ -61,6 +61,26 @@ namespace Warps.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon boat {
+            get {
+                object obj = ResourceManager.GetObject("boat", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ContourSurf {
+            get {
+                object obj = ResourceManager.GetObject("ContourSurf", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap copy {
@@ -73,9 +93,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap crosspt {
+        internal static System.Drawing.Bitmap curve {
             get {
-                object obj = ResourceManager.GetObject("crosspt", resourceCulture);
+                object obj = ResourceManager.GetObject("curve", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -83,29 +103,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap CurveControlPointsIcon {
+        internal static System.Drawing.Bitmap curvegroup {
             get {
-                object obj = ResourceManager.GetObject("CurveControlPointsIcon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap curvepath {
-            get {
-                object obj = ResourceManager.GetObject("curvepath", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap curvept {
-            get {
-                object obj = ResourceManager.GetObject("curvept", resourceCulture);
+                object obj = ResourceManager.GetObject("curvegroup", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -163,9 +163,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap fixedpt {
+        internal static System.Drawing.Bitmap exclaim {
             get {
-                object obj = ResourceManager.GetObject("fixedpt", resourceCulture);
+                object obj = ResourceManager.GetObject("exclaim", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -173,9 +173,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap glyphicons_097_vector_path_line {
+        internal static System.Drawing.Bitmap FitCross {
             get {
-                object obj = ResourceManager.GetObject("glyphicons_097_vector_path_line", resourceCulture);
+                object obj = ResourceManager.GetObject("FitCross", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -183,9 +183,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap glyphicons_098_vector_path_curve {
+        internal static System.Drawing.Bitmap FitCurve {
             get {
-                object obj = ResourceManager.GetObject("glyphicons_098_vector_path_curve", resourceCulture);
+                object obj = ResourceManager.GetObject("FitCurve", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -193,9 +193,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap glyphicons_190_circle_plus {
+        internal static System.Drawing.Bitmap FitFixed {
             get {
-                object obj = ResourceManager.GetObject("glyphicons_190_circle_plus", resourceCulture);
+                object obj = ResourceManager.GetObject("FitFixed", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -203,9 +203,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap glyphicons_191_circle_minus {
+        internal static System.Drawing.Bitmap FitOffset {
             get {
-                object obj = ResourceManager.GetObject("glyphicons_191_circle_minus", resourceCulture);
+                object obj = ResourceManager.GetObject("FitOffset", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -213,9 +213,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap glyphicons_192_circle_remove {
+        internal static System.Drawing.Bitmap FitSlide {
             get {
-                object obj = ResourceManager.GetObject("glyphicons_192_circle_remove", resourceCulture);
+                object obj = ResourceManager.GetObject("FitSlide", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -223,39 +223,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap glyphicons_193_circle_ok {
+        internal static System.Drawing.Bitmap folder {
             get {
-                object obj = ResourceManager.GetObject("glyphicons_193_circle_ok", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap glyphicons_196_circle_exclamation_mark {
-            get {
-                object obj = ResourceManager.GetObject("glyphicons_196_circle_exclamation_mark", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap glyphicons_223_chevron_right {
-            get {
-                object obj = ResourceManager.GetObject("glyphicons_223_chevron-right", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap glyphicons_224_chevron_left {
-            get {
-                object obj = ResourceManager.GetObject("glyphicons_224_chevron-left", resourceCulture);
+                object obj = ResourceManager.GetObject("folder", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -273,9 +243,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap icon_sail {
+        internal static System.Drawing.Bitmap main {
             get {
-                object obj = ResourceManager.GetObject("icon_sail", resourceCulture);
+                object obj = ResourceManager.GetObject("main", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -283,9 +253,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap panel {
+        internal static System.Drawing.Bitmap minus {
             get {
-                object obj = ResourceManager.GetObject("panel", resourceCulture);
+                object obj = ResourceManager.GetObject("minus", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -293,9 +263,19 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap panelGroup {
+        internal static System.Drawing.Bitmap ok {
             get {
-                object obj = ResourceManager.GetObject("panelGroup", resourceCulture);
+                object obj = ResourceManager.GetObject("ok", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PanelGroup {
+            get {
+                object obj = ResourceManager.GetObject("PanelGroup", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -313,6 +293,46 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap plus {
+            get {
+                object obj = ResourceManager.GetObject("plus", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap remove {
+            get {
+                object obj = ResourceManager.GetObject("remove", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon rig {
+            get {
+                object obj = ResourceManager.GetObject("rig", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap sail {
+            get {
+                object obj = ResourceManager.GetObject("sail", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap showonly {
             get {
                 object obj = ResourceManager.GetObject("showonly", resourceCulture);
@@ -323,29 +343,9 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap SlidePoint {
+        internal static System.Drawing.Bitmap TapeGroup {
             get {
-                object obj = ResourceManager.GetObject("SlidePoint", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap slidept {
-            get {
-                object obj = ResourceManager.GetObject("slidept", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap SmallEye {
-            get {
-                object obj = ResourceManager.GetObject("SmallEye", resourceCulture);
+                object obj = ResourceManager.GetObject("TapeGroup", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -373,9 +373,19 @@ namespace Warps.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap YarnGroup {
+        internal static System.Drawing.Bitmap wire {
             get {
-                object obj = ResourceManager.GetObject("YarnGroup", resourceCulture);
+                object obj = ResourceManager.GetObject("wire", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap yarngrp {
+            get {
+                object obj = ResourceManager.GetObject("yarngrp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

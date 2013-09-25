@@ -105,7 +105,7 @@ namespace Warps
 			{
 				TreeNode point = new TreeNode(string.Format("{0:0.0000} [{1}]", S, UV.ToString("0.0000")));
 				point.ImageKey = point.SelectedImageKey = GetType().Name;
-				TreeNode tmp = new TreeNode(string.Format("S-Cur: {0:0.0000}", m_sCurve));
+				TreeNode tmp = new TreeNode(string.Format("Position: {0:0.0000}", m_sCurve));
 				tmp.ImageKey = tmp.SelectedImageKey = "empty";
 				point.Nodes.Add(tmp);
 

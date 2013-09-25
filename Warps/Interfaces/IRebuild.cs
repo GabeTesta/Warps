@@ -28,7 +28,7 @@ namespace Warps
 
 		TreeNode WriteNode();
 		List<Entity> CreateEntities();
-		devDept.Eyeshot.Labels.Label[] EntityLabel { get; }
+		List<devDept.Eyeshot.Labels.Label> EntityLabel { get; }
 
 		/// <summary>
 		/// checks the updated list and adds itself if any of it's parents are in the list

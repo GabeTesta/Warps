@@ -121,68 +121,29 @@
   <data name="EqNum" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EqNum.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="glyphicons_224_chevron-left" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\glyphicons_224_chevron-left.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="VariableGroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\VariableGroup.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="glyphicons_190_circle_plus" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="plus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_190_circle_plus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="paste" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\paste.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="glyphicons_193_circle_ok" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="ok" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_193_circle_ok.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="copy" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\copy.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="YarnGroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\YarnGroup.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="panel" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\panel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="glyphicons_192_circle_remove" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="remove" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_192_circle_remove.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Warps" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Warps.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="CurveControlPointsIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\CurveControlPointsIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="SmallEye" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SmallEye.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="curvept" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\FitPoints\curvept.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="glyphicons_196_circle_exclamation_mark" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="exclaim" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_196_circle_exclamation_mark.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="glyphicons_223_chevron-right" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\glyphicons_223_chevron-right.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="fixedpt" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\FitPoints\fixedpt.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="glyphicons_191_circle_minus" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="minus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_191_circle_minus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="slidept" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\FitPoints\slidept.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="empty" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\empty.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="SlidePoint" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SlidePoint.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="icon_sail" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\icon_sail.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="equation" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\equation.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -190,28 +151,70 @@
   <data name="showonly" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\showonly.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="glyphicons_097_vector_path_line" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="wire" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_097_vector_path_line.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="EqText" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EqText.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="glyphicons_098_vector_path_curve" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="curve" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\glyphicons_098_vector_path_curve.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GuideComb" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\GuideComb.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="curvepath" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="curvegroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\curvepath.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="panelGroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\panelGroup.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="EndCondition" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\EndCondition.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="crosspt" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\crosspt.PNG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ContourSurf" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ContourSurf.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="empty" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\empty.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="folder" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\glyphicons_144_folder_open.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="TapeGroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TapeGroup.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FitCross" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cross.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FitCurve" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\curve.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FitOffset" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\offset.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FitSlide" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slide.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FitFixed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\fixed.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="boat" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\boat.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="yarngrp" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\yarngrp.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sail" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\sail.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PanelGroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\PanelGroup.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="VariableGroup" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\VariableGroup.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="main" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\main.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rig" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\rig.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

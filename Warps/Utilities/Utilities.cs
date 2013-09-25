@@ -227,7 +227,7 @@ namespace Warps
 
 			try
 			{
-				ret = assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t != baseType);
+				ret = assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t != baseType && !t.IsInterface);//don't include interfaces since we cannot create them
 			}
 			catch (Exception ex)
 			{
@@ -431,5 +431,16 @@ namespace Warps
 		}
 
 		#endregion
+
+		public static void Insert<T>(List<T> group, IRebuild item, IRebuild target) where T : class
+		{
+			int nTar = group.IndexOf(target as T);//increment 1 to insert after the item
+			int nIrb = group.IndexOf(item as T);
+			if (nIrb >= 0)//item is already in this group: reorder
+				group.Remove(item as T);
+			if (!Utilities.IsBetween(0, nTar, group.Count))
+				nTar = 0;//insert at head to avoid breaking sequence group.Count;
+			group.Insert(nTar, item as T);
+		}
 	}
 }

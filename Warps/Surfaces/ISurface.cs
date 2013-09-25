@@ -7,6 +7,7 @@ using devDept.Eyeshot;
 using devDept.Geometry;
 using devDept.Eyeshot.Entities;
 using System.Drawing;
+using Warps.Curves;
 
 namespace Warps
 {
@@ -309,6 +310,107 @@ namespace Warps
 		//	return d;
 		//}
 
+
+		public static Mesh GetMesh(ISurface surf, double[,] uvLims, bool bGauss)
+		{
+			if (uvLims != null)//extension surface, ignore OUTER
+				return SurfaceTools.GetUVMesh(surf, uvLims, bGauss);
+
+			//find OUTER
+			MouldCurve luff = WarpFrame.CurrentSail.FindCurve("Luff");
+			MouldCurve leech = WarpFrame.CurrentSail.FindCurve("Leech");
+			MouldCurve head = WarpFrame.CurrentSail.FindCurve("Head");
+			MouldCurve foot = WarpFrame.CurrentSail.FindCurve("Foot");
+
+			//make trimmed mesh
+			if (luff != null && leech != null && foot != null && head != null)
+				return SurfaceTools.GetMesh(surf, luff, head, leech, foot);
+			else
+				return SurfaceTools.GetUVMesh(surf, uvLims, bGauss);
+		}
+		static Mesh GetMesh(ISurface surf, IMouldCurve luff, IMouldCurve head, MouldCurve leech, IMouldCurve foot)
+		{
+
+
+			Vect2 st = new Vect2();
+			Vect2 uv = new Vect2();
+			Vect3 xyz = new Vect3();
+			int FITEDGES = 50;
+			List<double[]> sts = new List<double[]>(FITEDGES * 4);
+			List<double[]> uvs = new List<double[]>(FITEDGES * 4);
+
+
+			for (int i = 0; i < FITEDGES; i++)//run along foot and head
+			{
+				st[0] = BLAS.interpolant(i, FITEDGES);
+				st[1] = 0; //foot
+				foot.uVal(st[0], ref uv);
+				sts.Add(st.ToArray());
+				uvs.Add(uv.ToArray());
+
+				st[1] = 1; //head
+				head.uVal(st[0], ref uv);
+				sts.Add(st.ToArray());
+				uvs.Add(uv.ToArray());
+			}
+
+			List<double> kinks = leech.GetKinkPositions();
+			int nSeg = FITEDGES / (kinks.Count - 1) + 1;
+
+			//for (int j = 1; j < FITEDGES - 1; j++)//only do internals for lu/le to avoid duplicate corners
+			//{
+				for (int seg = 0; seg < kinks.Count - 1; seg++)//only do internals for lu/le to avoid duplicate corners
+				{
+					for (int j = 1; j <=nSeg; j++)
+					{
+						st[1] = BLAS.interpolate(j, nSeg, kinks[seg + 1], kinks[seg]);
+
+						if (BLAS.IsEqual(st[1], 1, 1e-9))
+							break;//avoid duplicate corners
+
+						st[0] = 0; //luff
+						luff.uVal(st[1], ref uv);
+						sts.Add(st.ToArray());
+						uvs.Add(uv.ToArray());
+
+						st[0] = 1; //leech
+						leech.uVal(st[1], ref uv);
+						sts.Add(st.ToArray());
+						uvs.Add(uv.ToArray());
+					}
+				}
+
+			RBF.RBFNetwork ntw = new RBF.RBFNetwork();
+			ntw.Fit(sts, uvs);
+
+			//calc new segment count for meshing
+			nSeg = MESHV / (kinks.Count-1) + 1;
+
+			Vect3[,] mesh = new Vect3[MESHU, nSeg * (kinks.Count-1)];
+			//populate internal nodes
+			for (int i = 0; i < MESHU; i++)
+			{
+				st[0] = BLAS.interpolant(i, MESHU);
+				for (int seg = 0; seg < kinks.Count - 1; seg++)
+				{
+					for (int j = 0; j < nSeg; j++)
+					{
+						st[1] = BLAS.interpolate(j, nSeg + 1, kinks[seg + 1], kinks[seg]);
+						ntw.Value(st.m_vec, ref uv.m_vec);
+						mesh[i, j + seg * nSeg] = new Vect3();
+						surf.xVal(uv, ref mesh[i, j + seg * nSeg]);
+					}
+				}
+				//do headpoint
+				st[1] = 1;
+				ntw.Value(st.m_vec, ref uv.m_vec);
+				mesh[i, mesh.GetLength(1)-1] = new Vect3();
+				surf.xVal(uv, ref mesh[i, mesh.GetLength(1) - 1]);
+			}
+
+			return GetMesh(mesh, null);
+		}
+
 		/// <summary>
 		/// constructs a mesh representation of a surface using MESHROWS and MESHCOLS for resoultion
 		/// </summary>
@@ -316,7 +418,7 @@ namespace Warps
 		/// <param name="uvLims">(optional)the uv limits to mesh, uvLim[0,x] = uLim, uvLim[1,x] = vLim</param>
 		/// <param name="bGauss">true for gaussian colormap, false for by-layer coloring</param>
 		/// <returns>a mesh of either MulticolorPlain or ColorPlain type</returns>
-		public static Mesh GetMesh(ISurface s, double[,] uvLims, bool bGauss)
+		static Mesh GetUVMesh(ISurface s, double[,] uvLims, bool bGauss)
 		{
 			int rows = MESHU, cols = MESHV;
 			//Mesh mesh = new Mesh(meshNatureType.RichPlain);

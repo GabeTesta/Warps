@@ -524,6 +524,7 @@ namespace Warps
 			//m_entities.Add(SurfaceTools.GetMesh(this, true));
 			//m_entities.Last().LayerIndex 
 		}
+
 		double[] m_colors = null;
 		public double[] ColorValues
 		{
@@ -556,8 +557,6 @@ namespace Warps
 			return s;
 		}
 
-
-
 		TreeNode m_node;
 		public TreeNode WriteNode()
 		{
@@ -565,15 +564,21 @@ namespace Warps
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Text = Label;
 			m_node.Tag = this;
-			m_node.ToolTipText = m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = GetType().Name;
+			m_node.ImageKey = m_node.SelectedImageKey = "Main";
 			m_node.Nodes.Clear();
 			if( m_moucurves != null )
 			foreach (IGroup g in m_moucurves)
 				m_node.Nodes.Add(g.WriteNode());
 			var tn = m_node.Nodes.Add("Rig Curves");
+			tn.ImageKey = tn.SelectedImageKey = "Rig";
 			if( m_rigcurves != null )
-			foreach (RigLine rig in m_rigcurves)
-				tn.Nodes.Add(rig.ToString());
+				foreach (RigLine rig in m_rigcurves)
+				{
+					var wire = tn.Nodes.Add(rig.ToString(), rig.ToString(), "Wire");
+					wire.SelectedImageKey = wire.ImageKey;
+					wire.Tag = rig;
+				}
 			return m_node;
 		}
 

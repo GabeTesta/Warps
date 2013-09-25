@@ -141,7 +141,8 @@ namespace Warps
 			//m_node.Text = ScriptTools.Label(GetType().Name, Label);
 			m_node.Text = System.IO.Path.GetFileName(Label);
 			m_node.Tag = this;
-			m_node.ToolTipText = m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
+			m_node.ToolTipText = GetType().Name;
+			m_node.ImageKey = m_node.SelectedImageKey = "Main";
 			m_node.Nodes.Clear();
 			m_node.Nodes.Add(Mould.WriteNode());
 			m_node.Nodes.Add(Extension.WriteNode());

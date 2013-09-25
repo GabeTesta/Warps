@@ -15,14 +15,15 @@ namespace Warps.Mixed
 		public MixedGroupEditor()
 		{
 			InitializeComponent();
+			m_listView.LargeImageList = m_listView.SmallImageList = WarpFrame.Images;
 		}
 
 		public void ReadGroup(MixedGroup grp)
 		{
 			m_labelTextBox.Text = grp.Label;
-			m_listBox.Items.Clear();
+			m_listView.Items.Clear();
 			foreach (IRebuild rb in grp)
-				m_listBox.Items.Add(rb);
+				m_listView.Items.Add(rb.ToString(), rb.GetType().Name);
 		}
 		public void WriteGroup(MixedGroup grp)
 		{
@@ -33,10 +34,10 @@ namespace Warps.Mixed
 
 		private void m_listBox_DoubleClick(object sender, EventArgs e)
 		{
-			if (m_listBox.SelectedItem == null || !(m_listBox.SelectedItem is IRebuild))
+			if (m_listView.SelectedItems == null || !(m_listView.SelectedItems[0] is IRebuild))
 				return;
 			if (AfterSelect != null)
-				AfterSelect(this, new EventArgs<IRebuild>(m_listBox.SelectedItem as IRebuild));
+				AfterSelect(this, new EventArgs<IRebuild>(m_listView.SelectedItems[0] as IRebuild));
 		}
 	}
 }

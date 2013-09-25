@@ -285,12 +285,12 @@ namespace Warps.Trackers
 
 			m_tents = View.AddRange(m_temp.CreateEntities(true));
 
-			foreach (Entity[] ents in m_tents)
-				foreach (Entity ee in ents)
-				{
-					ee.Color = Color.LightSkyBlue;
-					ee.ColorMethod = colorMethodType.byEntity;
-				}
+			//foreach (Entity[] ents in m_tents)
+			//	foreach (Entity ee in ents)
+			//	{
+			//		ee.Color = Color.LightSkyBlue;
+			//		ee.ColorMethod = colorMethodType.byEntity;
+			//	}
 
 			Edit.AutoFill = Sail.Watermark(Comb).ToList<object>();
 			Edit.ReadComb(m_temp);
@@ -404,7 +404,7 @@ namespace Warps.Trackers
 					x = 1;
 
 				m_temp.CombPnts[m_index].u = Utilities.LimitRange(0, x, 1);//unit-length
-				m_temp.CombPnts[m_index].v = Utilities.LimitRange(0, y, 1);//unit-length
+				m_temp.CombPnts[m_index].v = Utilities.LimitRange(0, y, 10);//unit-length
 
 				m_temp.FitComb(null);
 				UpdateViewCurve(true);

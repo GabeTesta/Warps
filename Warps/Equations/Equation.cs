@@ -110,11 +110,11 @@ namespace Warps
 			return null;
 		}
 
-		public devDept.Eyeshot.Labels.Label[] EntityLabel
+		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
 			get
 			{
-				return null;
+				return new List<devDept.Eyeshot.Labels.Label>();
 			}
 		}
 

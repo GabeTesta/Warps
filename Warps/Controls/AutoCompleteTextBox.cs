@@ -25,7 +25,7 @@ namespace Warps.Controls
 			_listBox.DrawItem += _listBox_DrawItem;
 
 			_images.Images.Add("Equation", Warps.Properties.Resources.equation);
-			_images.Images.Add("MouldCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
+			_images.Images.Add("MouldCurve", Warps.Properties.Resources.curve);
 		}
 
 		void _listBox_DrawItem(object sender, DrawItemEventArgs e)

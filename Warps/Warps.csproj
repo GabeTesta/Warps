@@ -11,6 +11,21 @@
     <AssemblyName>Warps</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,7 +47,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationIcon>boat.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -86,11 +101,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BSpline.cs" />
-    <Compile Include="Controls\AddGroup.cs">
+    <Compile Include="Controls\AddItemDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Controls\AddGroup.Designer.cs">
-      <DependentUpon>AddGroup.cs</DependentUpon>
+    <Compile Include="Controls\AddItemDialog.Designer.cs">
+      <DependentUpon>AddItemDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\AutoCompleteTextBox.cs">
       <SubType>Component</SubType>
@@ -150,17 +165,17 @@
     <Compile Include="Mixed\MixedGroupEditor.Designer.cs">
       <DependentUpon>MixedGroupEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Trackers\MixedGroupTracker.cs" />
     <Compile Include="Panels\PanelGroupEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Panels\PanelGroupEditor.Designer.cs">
       <DependentUpon>PanelGroupEditor.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Surfaces\SurfEditor.cs">
       <SubType>UserControl</SubType>
@@ -201,6 +216,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Utilities\NsXmlHelper.cs" />
+    <Compile Include="WarpAbout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WarpAbout.Designer.cs">
+      <DependentUpon>WarpAbout.cs</DependentUpon>
+    </Compile>
     <Compile Include="XMLConfig\ConfigSetting.cs" />
     <Compile Include="XMLConfig\XmlConfig.cs" />
     <Compile Include="Yarns\YarnGroupEditor.cs">
@@ -317,8 +338,8 @@
     <Compile Include="Yarns\YarnCurve.cs" />
     <Compile Include="Yarns\YarnGroup.cs" />
     <Compile Include="Trackers\YarnGroupTracker.cs" />
-    <EmbeddedResource Include="Controls\AddGroup.resx">
-      <DependentUpon>AddGroup.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\AddItemDialog.resx">
+      <DependentUpon>AddItemDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\AutoCompleteTextBox.resx">
       <DependentUpon>AutoCompleteTextBox.cs</DependentUpon>
@@ -386,6 +407,9 @@
     <EmbeddedResource Include="Controls\NsPlot.resx">
       <DependentUpon>NsPlot.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="WarpAbout.resx">
+      <DependentUpon>WarpAbout.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Yarns\YarnGroupEditor.resx">
       <DependentUpon>YarnGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -444,12 +468,6 @@
     <None Include="Resources\glyphicons_098_vector_path_curve.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\CurveControlPointsIcon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\icon_sail.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\curvepath.png" />
   </ItemGroup>
   <ItemGroup>
@@ -457,12 +475,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\glyphicons_097_vector_path_line.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\glyphicons_224_chevron-left.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\glyphicons_223_chevron-right.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\SmallEye.png" />
@@ -477,17 +489,20 @@
     <None Include="Resources\showonly.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\yarngrp.bmp" />
+    <None Include="Resources\TapeGroup.bmp" />
     <None Include="FitPoints\curvept.PNG" />
     <None Include="FitPoints\fixedpt.PNG" />
     <None Include="FitPoints\slidept.PNG" />
-    <Content Include="icon.ico" />
-    <None Include="Resources\crosspt.PNG" />
-    <Content Include="Resources\curvept.PNG" />
+    <None Include="Resources\ContourSurf.bmp" />
+    <None Include="Resources\cross.bmp" />
+    <None Include="Resources\curve.bmp" />
     <None Include="Resources\EndCondition.png" />
-    <Content Include="Resources\fixedpt.PNG" />
-    <None Include="Resources\panel.png" />
+    <None Include="Resources\fixed.bmp" />
     <None Include="Resources\panelGroup.png" />
-    <Content Include="Resources\slidept.PNG" />
+    <None Include="Resources\glyphicons_144_folder_open.png" />
+    <None Include="Resources\offset.bmp" />
+    <None Include="Resources\slide.bmp" />
     <None Include="Resources\Warps.png" />
     <None Include="Resources\GuideComb.png" />
     <None Include="Resources\EqText.png" />
@@ -495,7 +510,34 @@
     <None Include="Resources\VariableGroup.png" />
     <None Include="Resources\equation.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="boat.ico" />
+    <None Include="Resources\main.JPG" />
+    <None Include="Resources\main.bmp" />
+    <Content Include="rig.ico" />
+    <None Include="Resources\comb.bmp" />
+    <None Include="Resources\VariableGroup.bmp" />
+    <None Include="Resources\PanelGroup.bmp" />
+    <None Include="Resources\sail.jpg" />
+    <None Include="Resources\boat.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

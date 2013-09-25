@@ -521,23 +521,31 @@ namespace Warps.Tapes
 			if (m_warps != null)
 			{
 				TreeNode wrps = m_node.Nodes.Add("Warps");
+				wrps.Tag = this;
 				wrps.ImageKey = wrps.SelectedImageKey = "Warps";
 				TreeNode wrpnode;
 				foreach (MouldCurve wrp in m_warps)
 				{
-					wrpnode = wrps.Nodes.Add(wrp.WriteNode().Text);
-					wrpnode.ImageKey = wrpnode.SelectedImageKey = wrp.GetType().Name;
+					//clone wardp node
+					wrpnode = wrp.WriteNode().Clone() as TreeNode;
+					wrpnode.Nodes.Clear();//remove its children
+					wrps.Nodes.Add(wrpnode);
+					//wrpnode = wrps.Nodes.Add(wrp.WriteNode().Text);
+					//wrpnode.ImageKey = wrpnode.SelectedImageKey = wrp.GetType().Name;
 				}
 			}
 
 			if (DensityMap != null)
 			{
-				TreeNode dens = m_node.Nodes.Add("Density Map");
-				dens.Nodes.Add(DensityMap.WriteNode().Clone() as TreeNode);
+				//TreeNode dens = m_node.Nodes.Add("Density Map");
+				//dens.ImageKey = dens.SelectedImageKey = "Surface";
+
+				m_node.Nodes.Add(DensityMap.WriteNode().Clone() as TreeNode);
 			}
 
 			TreeNode tapes = m_node.Nodes.Add("Tapes: " + Count.ToString());
 			tapes.ImageKey = tapes.SelectedImageKey = "Result";
+			tapes.Tag = this;
 			for (int i = 0; i < Count; i++)
 				tapes.Nodes.Add(String.Format(Label + "[{0}] {1}",
 					i.ToString(Count > 99 ? "000" : Count > 9 ? "00" : "0"), //index
@@ -586,9 +594,9 @@ namespace Warps.Tapes
 			return m;
 		}
 
-		public devDept.Eyeshot.Labels.Label[] EntityLabel
+		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
-			get { return null; }
+			get { return new List<devDept.Eyeshot.Labels.Label>(); }
 		}
 
 		public void GetConnected(List<IRebuild> updated)
@@ -599,7 +607,14 @@ namespace Warps.Tapes
 
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
+			foreach (var w in Warps)
+			{
+				parents.Add(w);
+				w.GetParents(s, parents);
+			}
+			parents.Add(DensityMap);
+			DensityMap.GetParents(s, parents);	
 		}
 
 		public bool Affected(List<IRebuild> connected)
@@ -630,6 +645,8 @@ namespace Warps.Tapes
 			//LayoutPixelsSync(s);
 			//double tic = DateTime.Now.Ticks - std.Ticks;
 			//std = DateTime.Now;
+			if (Sail == null)
+				Sail = s;
 			LayoutPixels(s);
 			//double t2 = DateTime.Now.Ticks - std.Ticks;
 			//double ratio = t2 / tic;
@@ -670,6 +687,42 @@ namespace Warps.Tapes
 		public void ReadXScript(Sail sail, System.Xml.XmlNode node)
 		{
 			Label = NsXml.ReadLabel(node);
+			m_sail = sail;
+		}
+
+		#endregion
+
+		#region TreeDragging Members
+
+		public bool CanInsert(IRebuild item)
+		{
+			return false;
+		}
+
+		public void Insert(IRebuild item, IRebuild target)
+		{
+			throw new NotImplementedException("Cannot Insert into TapeGroup");
+			//int nTar = IndexOf(target as MouldCurve);
+			//int nIrb = IndexOf(item as MouldCurve);
+			//if (nIrb >= 0)//item is already in this group: reorder
+			//	Remove(item);
+			//Insert(nTar, item as MouldCurve);
+		}
+
+		public bool Remove(IRebuild item)
+		{
+			throw new NotImplementedException("Cannot Remove from TapeGroup");
+			//Remove(item as MouldCurve);
+		}
+
+		#endregion
+
+
+		#region Flattening Members
+
+		public void FlatLayout(List<IRebuild> flat)
+		{
+			//ForEach(cur => flat.Add(cur));
 		}
 
 		#endregion

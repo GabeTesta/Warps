@@ -26,6 +26,11 @@ namespace Warps.Curves
 		//public MouldCurve(string label, Sail sail, Vect2 uv1, Vect2 uv2)
 		//	: this(label, sail, new IFitPoint[] { new FixedPoint(uv1), new FixedPoint(uv2) }) { }
 
+		public MouldCurve(string label, Sail sail, params IFitPoint[] fits)
+			:this(label, sail)
+		{
+			Fit(fits);
+		}
 		public MouldCurve(string label, Sail sail, params Vect2[] uvs)
 			:this(label, sail)
 		{
@@ -122,12 +127,12 @@ namespace Warps.Curves
 		//	}
 		//	sSubs.Add(sE);
 		//}
-		public MouldCurve(string label, Sail sail, IFitPoint[] fits)
-			:this(label, sail)
-		{
-			if (fits != null)
-				Fit(fits);
-		}
+		//public MouldCurve(string label, Sail sail, IFitPoint[] fits)
+		//	:this(label, sail)
+		//{
+		//	if (fits != null)
+		//		Fit(fits);
+		//}
 
 		/// <summary>
 		/// ctor for reading curves from cof file
@@ -288,6 +293,19 @@ namespace Warps.Curves
 		{
 			if (0 <= nSeg && nSeg < GirthSegments.Length)
 				GirthSegments[nSeg] = bGirth;
+		}
+
+		public List<double> GetKinkPositions()
+		{
+			List<double> kinks = new List<double>();
+			kinks.Add(0); //endpoint
+			for (int i = 1; i < FitPoints.Length - 1; i++)
+			{
+				if (FitPoints[i].S == FitPoints[i - 1].S && FitPoints[i].S == FitPoints[i + 1].S)//tripple points
+					kinks.Add(FitPoints[i].S);
+			}
+			kinks.Add(1);//endpoing
+			return kinks;
 		}
 
 		/// <summary>
@@ -810,6 +828,49 @@ namespace Warps.Curves
 
 			return script;
 		}
+		
+		#region Xml Script 
+
+		public virtual XmlNode WriteXScript(XmlDocument doc)
+		{
+			XmlNode node = NsXml.MakeNode(doc, this);
+			foreach (IFitPoint fp in FitPoints)
+			{
+				node.AppendChild(fp.WriteXScript(doc));
+				//node.AppendChild(NsXml.MakeNode(doc, fp.GetType().Name, fp.ToString()));
+			}
+			NsXml.AddAttribute(node, "Girths", GirthSegments);
+
+			return node;
+		}
+
+		public virtual void ReadXScript(Sail sail, XmlNode node)
+		{
+			Label = NsXml.ReadLabel(node);
+			Sail = sail;
+			List<IFitPoint> points = new List<IFitPoint>(node.ChildNodes.Count);
+
+			//read the girth segments
+			string[] girs = NsXml.ReadStrings(node, "Girths");
+			m_bGirths = new bool[girs.Length];
+			for (int nGir = 0; nGir < girs.Length; nGir++)
+				bool.TryParse(girs[nGir], out m_bGirths[nGir]);
+
+			//read each fitpoint
+			foreach (XmlNode child in node.ChildNodes)
+			{
+				IFitPoint fp = Utilities.CreateInstance(child.Name) as IFitPoint;
+				if (fp != null)
+				{
+					fp.ReadXScript(Sail, child);
+					points.Add(fp);
+				}
+			}
+			FitPoints = points.ToArray();
+			ReFit();
+		}
+
+		#endregion
 
 		#endregion
 
@@ -1009,14 +1070,14 @@ namespace Warps.Curves
 			return entities;
 		}
 
-		public virtual devDept.Eyeshot.Labels.Label[] EntityLabel
+		public virtual List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
 			get
 			{
 				List<devDept.Eyeshot.Labels.Label> ret = new List<devDept.Eyeshot.Labels.Label>();
 				ret.Add(new devDept.Eyeshot.Labels.OutlinedText(GetLabelPoint3D(0.5), Label,
 					new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter));
-				return ret.ToArray();
+				return ret;
 			}
 		}
 
@@ -1324,49 +1385,5 @@ namespace Warps.Curves
 		{
 			return FitPoints.Contains(p);
 		}
-
-
-		#region IRebuild Members
-
-
-		public virtual XmlNode WriteXScript(XmlDocument doc)
-		{
-			XmlNode node = NsXml.MakeNode(doc, this);
-			foreach (IFitPoint fp in FitPoints)
-			{
-				node.AppendChild(fp.WriteXScript(doc));
-				//node.AppendChild(NsXml.MakeNode(doc, fp.GetType().Name, fp.ToString()));
-			}
-			NsXml.AddAttribute(node, "Girths", GirthSegments);
-
-			return node;
-		}
-
-		public virtual void ReadXScript(Sail sail, XmlNode node)
-		{
-			Label = NsXml.ReadLabel(node);
-			List<IFitPoint> points = new List<IFitPoint>(node.ChildNodes.Count);
-
-			//read the girth segments
-			string[] girs = NsXml.ReadStrings(node, "Girths");
-			m_bGirths = new bool[girs.Length];
-			for (int nGir = 0; nGir < girs.Length; nGir++)
-				bool.TryParse(girs[nGir], out m_bGirths[nGir]);
-
-			//read each fitpoint
-			foreach (XmlNode child in node.ChildNodes)
-			{
-				IFitPoint fp = Utilities.CreateInstance(child.Name) as IFitPoint;
-				if (fp != null)
-				{
-					fp.ReadXScript(Sail, child);
-					points.Add(fp);
-				}
-			}
-			FitPoints = points.ToArray();
-			ReFit();
-		}
-
-		#endregion
 	}
 }

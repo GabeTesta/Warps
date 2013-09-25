@@ -1111,8 +1111,7 @@ namespace Warps.Yarns
 			m_node.Nodes.Clear();
 
 			TreeNode ec = m_node.Nodes.Add("End Condition: " + EndCondition);
-			ec.ImageKey = "EndCondition";
-			ec.SelectedImageKey = "EndCondition";
+			ec.ImageKey = ec.SelectedImageKey = "EndCondition";
 
 			TreeNode yarnNode = m_node.Nodes.Add("Yarns: " + Count.ToString());
 			yarnNode.ImageKey =	yarnNode.SelectedImageKey = "Result";
@@ -1123,6 +1122,7 @@ namespace Warps.Yarns
 
 			if (m_guide != null)
 			{
+				//m_node.Nodes.Add(m_guide.WriteNode().Clone() as TreeNode);
 				TreeNode guide = m_node.Nodes.Add("Guide: " + m_guide.WriteNode().Text);
 				guide.ImageKey = guide.SelectedImageKey = m_guide.GetType().Name;
 				Vect2 uv = new Vect2(); double h = 0;
@@ -1130,7 +1130,8 @@ namespace Warps.Yarns
 					foreach (double s in m_guide.SComb)
 					{
 						m_guide.hVal(s, ref uv, ref h);
-						guide.Nodes.Add(string.Format("{0} [{1}] {2}", s.ToString("0.000"), uv.ToString("0.000"), h.ToString("0.0000")));
+						//guide.Nodes.Add(string.Format("{0} [{1}] {2}", s.ToString("0.000"), uv.ToString("0.000"), h.ToString("0.0000")));
+						guide.Nodes.Add(string.Format("{0} [{1}]", h.ToString("0.000"), uv.ToString("0.000")));
 					}
 			}
 
@@ -1145,6 +1146,7 @@ namespace Warps.Yarns
 						wrps.Nodes.Add("<null>");
 					else
 					{
+						//wrps.Nodes.Add(wrp.WriteNode().Clone() as TreeNode);
 						wrpnode = wrps.Nodes.Add(wrp.WriteNode().Text);
 						wrpnode.ImageKey = wrpnode.SelectedImageKey = wrp.GetType().Name;
 					}
@@ -1160,11 +1162,11 @@ namespace Warps.Yarns
 			);
 		}
 
-		public devDept.Eyeshot.Labels.Label[] EntityLabel
+		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
 			get
 			{
-				return null;
+				return new List<devDept.Eyeshot.Labels.Label>();
 				//return new devDept.Eyeshot.Labels.Label[]{ new devDept.Eyeshot.Labels.OutlinedText(m_Warps[0].GetLabelPoint3D(.66), Label,
 				//	new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter)};
 			}
@@ -1370,7 +1372,7 @@ namespace Warps.Yarns
 		public void ReadXScript(Sail sail, XmlNode node)
 		{
 			Label = NsXml.ReadLabel(node);
-
+			m_sail = sail;
 			m_yarnDenier.ReadXScript(sail, node.ChildNodes[0]);
 			m_targetDpi.ReadXScript(sail, node.ChildNodes[1]);
 
@@ -1524,5 +1526,40 @@ namespace Warps.Yarns
 				WriteNode();
 			}
 		}
+		
+		#region TreeDragging Members
+
+		public bool CanInsert(IRebuild item)
+		{
+			return false;
+		}
+
+		public void Insert(IRebuild item, IRebuild target)
+		{
+			throw new NotImplementedException("Cannot Insert into YarnGroup");
+			//int nTar = IndexOf(target as MouldCurve);
+			//int nIrb = IndexOf(item as MouldCurve);
+			//if (nIrb >= 0)//item is already in this group: reorder
+			//	Remove(item);
+			//Insert(nTar, item as MouldCurve);
+		}
+
+		public bool Remove(IRebuild item)
+		{
+			throw new NotImplementedException("Cannot Remove from YarnGroup");
+			//Remove(item as MouldCurve);
+		}
+
+		#endregion
+
+		#region Flattening Members
+
+		public void FlatLayout(List<IRebuild> flat)
+		{
+			//no subitems to add
+			//ForEach(cur => flat.Add(cur));
+		}
+
+		#endregion
 	}
 }

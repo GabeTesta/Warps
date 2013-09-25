@@ -148,13 +148,13 @@ namespace Warps.Curves
 		//}
 
 
-		public devDept.Eyeshot.Labels.Label[] EntityLabel
+		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
 			get
 			{
 				var ret = GetCurveLabels();
 				if (ret != null)
-					return ret.ToArray();
+					return ret;
 				else
 					return null;
 			}
@@ -220,6 +220,7 @@ namespace Warps.Curves
 				return false;
 			Label = ScriptTools.ReadLabel(txt[0]);
 			string[] splits;// = txt[0].Split(':');
+			sail.Add(this);
 			//Label = "";
 			//if (splits.Length > 0)//extract label
 			//	Label = splits[1];
@@ -239,10 +240,9 @@ namespace Warps.Curves
 					cur = Utilities.CreateInstance(splits[0].Trim('\t'));
 				if (cur != null && cur is MouldCurve)
 				{
-					(cur as MouldCurve).Sail = Sail;
-					(cur as IRebuild).ReadScript(Sail, lines);
+					(cur as MouldCurve).Sail = sail;
+					(cur as IRebuild).ReadScript(sail, lines);
 					Add(cur as MouldCurve);
-					Sail.Add(this);
 				}
 			}
 
@@ -342,6 +342,9 @@ namespace Warps.Curves
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
 		{
 			int i = -1;
+			if (tag == this)
+				return true;
+
 			if (tag is MouldCurve) 
 				i = this.IndexOf(tag as MouldCurve);
 
@@ -373,17 +376,50 @@ namespace Warps.Curves
 		public void ReadXScript(Sail sail, XmlNode node)
 		{
 			Label = NsXml.ReadLabel(node);
-			Sail.Add(this);//must pre-add group so curves can reference eachother
+			m_sail = sail;
 			foreach (XmlNode child in node.ChildNodes)
 			{
 				object cur = Utilities.CreateInstance(child.Name);
 				if (cur != null && cur is MouldCurve)
 				{
-					(cur as MouldCurve).Sail = Sail;
-					(cur as IRebuild).ReadXScript(Sail, child);
+					//(cur as MouldCurve).Sail = sail;
 					Add(cur as MouldCurve);
+					(cur as IRebuild).ReadXScript(sail, child);
 				}
 			}
+		}
+
+		#endregion
+
+		#region TreeDragging Members
+
+		public bool CanInsert(IRebuild item)
+		{
+			return item is MouldCurve;
+		}
+		public void Insert(IRebuild item, IRebuild target)
+		{
+			Utilities.Insert(this, item, target);
+			//int nTar = IndexOf(target as MouldCurve);
+			//int nIrb = IndexOf(item as MouldCurve);
+			//if (nIrb >= 0)//item is already in this group: reorder
+			//	Remove(item);
+			//Utilities.LimitRange(0, ref nTar, Count);
+			//Insert(nTar, item as MouldCurve);
+		}
+
+		public bool Remove(IRebuild item)
+		{
+			return base.Remove(item as MouldCurve);
+		}
+
+		#endregion
+
+		#region Flattening Members
+
+		public void FlatLayout(List<IRebuild> flat)
+		{
+			ForEach(cur => flat.Add(cur));
 		}
 
 		#endregion

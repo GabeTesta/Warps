@@ -138,22 +138,24 @@ namespace Warps.Curves
 			useThese.Add(typeof(MouldCurve));
 			useThese.Add(typeof(GuideComb));
 
-			AddGroup dlg = new AddGroup(useThese);
+			AddItemDialog dlg = new AddItemDialog(useThese);
 			dlg.Text = "Add Curve";
 			dlg.Name = "enter name";
 			if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 			{
 				IRebuild cur = dlg.CreateIRebuild();
-				if (cur.GetType().Name == "GuideComb")
-				{
-					m_curveTracker = new CurveTracker(new GuideComb(dlg.Label, m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }, new Vect2[] { new Vect2(0, 1), new Vect2(1, 1) }));
-					m_curveTracker.Track(m_frame);
-				}
-				else
-				{
-					m_curveTracker = new CurveTracker(new MouldCurve(dlg.Label, m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
-					m_curveTracker.Track(m_frame);
-				}
+				m_curveTracker = new CurveTracker(cur as MouldCurve);
+				m_curveTracker.Track(m_frame);
+				//if (cur.GetType().Name == "GuideComb")
+				//{
+				//	m_curveTracker = new CurveTracker(new GuideComb(dlg.Label, m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }, new Vect2[] { new Vect2(0, 1), new Vect2(1, 1) }));
+				//	m_curveTracker.Track(m_frame);
+				//}
+				//else
+				//{
+				//	m_curveTracker = new CurveTracker(new MouldCurve(dlg.Label, m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
+				//	m_curveTracker.Track(m_frame);
+				//}
 			}
 		}
 		public void OnDelete(object sender, EventArgs e)

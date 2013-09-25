@@ -22,7 +22,7 @@ namespace Warps
 
 		string m_path;
 		ISurface m_mould;
-		List<IGroup> m_layout = new List<IGroup>();
+		List<IRebuild> m_layout = new List<IRebuild>();
 
 
 		#endregion
@@ -37,17 +37,17 @@ namespace Warps
 			get { return m_mould; }
 			set { m_mould = value; }
 		}
-		public List<IGroup> Layout
+		public List<IRebuild> Layout
 		{
 			get { return m_layout; }
 			set { m_layout = value; }
 		}
 
-		public List<IGroup> FullLayout
+		public List<IRebuild> FullLayout
 		{
 			get
 			{
-				List<IGroup> full = new List<IGroup>();
+				List<IRebuild> full = new List<IRebuild>();
 				if (Mould.Groups != null)
 					full.AddRange(Mould.Groups);
 				full.AddRange(Layout);
@@ -55,6 +55,24 @@ namespace Warps
 			}
 		}
 
+		public List<IRebuild> FlatLayout()
+		{
+			List<IRebuild> flat = new List<IRebuild>();
+			if (Mould.Groups != null)
+				Mould.Groups.ForEach(grp =>
+				{
+					flat.Add(grp);
+					grp.FlatLayout(flat);
+				});
+			Layout.ForEach(irb =>
+			{
+				flat.Add(irb);
+				if (irb is IGroup)
+					(irb as IGroup).FlatLayout(flat);
+
+			});
+			return flat;
+		}
 		public void ReadFile(string path)
 		{
 			m_path = path;
@@ -93,9 +111,13 @@ namespace Warps
 			{
 				Utilities.WriteCString(bin, Mould.Label);
 				//bin.Write((Int32)Layout.Count);
-				int test = Layout.Count(g => g.GetType() == typeof(CurveGroup) || g.GetType() == typeof(YarnGroup));
+				//int test = Layout.Count(g => g.GetType() == typeof(CurveGroup) || g.GetType() == typeof(YarnGroup));
 				bin.Write((Int32)Layout.Count(g => g.GetType() == typeof(CurveGroup) || g.GetType() == typeof(YarnGroup)));
-				Layout.ForEach(l => l.WriteBin(bin));
+				Layout.ForEach(l =>
+				{
+					if (l is CurveGroup || l is YarnGroup) 
+						(l as IGroup).WriteBin(bin);
+				});
 			}
 		}
 		public void Save3DLFile(string tdipath)
@@ -343,7 +365,7 @@ namespace Warps
 					txt.WriteLine("\t" + s);
 				}
 				//txt.WriteLine("\t" + Mould.Script);
-				foreach (IGroup grp in Layout)
+				foreach (IRebuild grp in Layout)
 					foreach (string s in grp.WriteScript())
 					{
 						txt.WriteLine("\t" + s);
@@ -381,18 +403,23 @@ namespace Warps
 
 			//construct the mould
 			CreateMould(sail.FirstChild.Name, NsXml.ReadLabel(sail.FirstChild));
+
+			//read the layout items
+			IRebuild item;
 			for (int nGrp = 1; nGrp < sail.ChildNodes.Count; nGrp++)
 			{
 				object grp = Utilities.CreateInstance(sail.ChildNodes[nGrp].Name);
-				if (grp != null && grp is IGroup)
+				item = grp as IRebuild;
+				if (item != null)
 				{
-					(grp as IGroup).Sail = this;
-					m_layout.Add(grp as IGroup);
+					//if (item is IGroup)
+					//	(item as IGroup).Sail = this;
+					m_layout.Add(item);
 
 					if (updateStatus != null)
 						updateStatus(Layout.Count, "Loading " + NsXml.ReadString(sail.ChildNodes[nGrp], "Label"));
 
-					(grp as IGroup).ReadXScript(this, sail.ChildNodes[nGrp]);
+					item.ReadXScript(this, sail.ChildNodes[nGrp]);
 				}
 			}
 		}
@@ -550,7 +577,7 @@ namespace Warps
 			m_node.ImageKey = m_node.SelectedImageKey = 	m_node.ToolTipText = GetType().Name;
 			m_node.Nodes.Clear();
 			m_node.Nodes.Add(Mould.WriteNode());
-			foreach (IGroup g in Layout)
+			foreach (IRebuild g in Layout)
 				m_node.Nodes.Add(g.WriteNode());
 			return m_node;
 		}
@@ -672,9 +699,12 @@ namespace Warps
 					return Layout[i];//return if match
 
 				//search group for item
-				item = Layout[i].FindItem(lbl);
-				if (item != null)
-					return item;//return if match
+				if (Layout[i] is IGroup)
+				{
+					item = (Layout[i] as IGroup).FindItem(lbl);
+					if (item != null)
+						return item;//return if match
+				}
 			}
 			//check mould items (if any)
 			if (Mould != null && Mould.Groups != null)
@@ -725,10 +755,14 @@ namespace Warps
 			if (tag == null)
 				return null;
 			List<IRebuild> rets = new List<IRebuild>();
+			IGroup group;
 			for (int i = Layout.Count - 1; i >= 0; i--)
 			{
-				if (Layout[i].Watermark(tag, ref rets))
-					return Layout[i];
+				group = Layout[i] as IGroup;
+				if (group == null) continue;
+
+				if (group.Watermark(tag, ref rets))
+					return group;
 			}
 			if (Mould != null && Mould.Groups != null)
 				for (int i = 0; i < Mould.Groups.Count; i++)
@@ -761,8 +795,14 @@ namespace Warps
 			//watermark layout
 			for (int i = 0; i < Layout.Count; i++)
 			{
-				if (Layout[i].Watermark(tag, ref rets))
+				if (Layout[i] == tag)
+					break;
+				if( Layout[i] is IGroup)
+				{
+				if( (Layout[i] as IGroup).Watermark(tag, ref rets))
 					break;//break on finding tag
+				}
+				else rets.Add(Layout[i]);
 			}
 
 			return rets;
@@ -794,15 +834,22 @@ namespace Warps
 			//watermark layout
 			for (int i = 0; i < Layout.Count; i++)
 			{
-				if (index > -1)
-				{
-					if (i <= index)
-						if (Layout[i].Watermark(tag, ref rets))
-							break;//break on finding tag
+				if (Layout[i] == tag || Layout[i] == Parent)
+					break;
+				if( Layout[i] is IGroup )
+					if ((Layout[i] as IGroup).Watermark(tag, ref rets))
+						break;//break on finding tag
 
-				}
-				else if (Layout[i].Watermark(tag, ref rets))
-					break;//break on finding tag
+
+				//if (index > -1)
+				//{
+				//	if (i <= index)
+				//		if (Layout[i].Watermark(tag, ref rets))
+				//			break;//break on finding tag
+
+				//}
+				//else if (Layout[i].Watermark(tag, ref rets))
+				//	break;//break on finding tag
 
 			}
 
@@ -820,13 +867,14 @@ namespace Warps
 		}
 		public List<MouldCurve> WatermarkCur(IRebuild tag)
 		{
-			List<MouldCurve> eqs = new List<MouldCurve>();
-			foreach (IRebuild rb in Watermark(tag))
-			{
-				if (rb is MouldCurve)
-					eqs.Add(rb as MouldCurve);
-			}
-			return eqs;
+			return Watermark(tag).FindAll(g => g is MouldCurve).ConvertAll(g => g as MouldCurve);
+			//List<MouldCurve> eqs = new List<MouldCurve>();
+			//foreach (IRebuild rb in Watermark(tag))
+			//{
+			//	if (rb is MouldCurve)
+			//		eqs.Add(rb as MouldCurve);
+			//}
+			//return eqs;
 		}
 
 		#endregion

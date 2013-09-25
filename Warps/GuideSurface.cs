@@ -119,6 +119,7 @@ namespace Warps
 			if( m_node == null )
 				m_node = new System.Windows.Forms.TreeNode();
 			m_node.Text = Label;
+			m_node.SelectedImageKey = m_node.ImageKey = GetType().Name;
 			m_node.Tag = this;
 			m_node.Nodes.Clear();
 			if (m_fits != null)
@@ -179,14 +180,14 @@ namespace Warps
 			return ents;
 		}
 
-		public devDept.Eyeshot.Labels.Label[] EntityLabel
+		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
 			get
 			{
-				devDept.Eyeshot.Labels.Label[] lbls = new devDept.Eyeshot.Labels.Label[1];
+				List<devDept.Eyeshot.Labels.Label> lbls = new List<devDept.Eyeshot.Labels.Label>(1);
 				double[] c = new double[]{0.5,0.5,0};
 				m_surf.Value(ref c);
-				lbls[0] = new devDept.Eyeshot.Labels.OutlinedText(new Point3D(c), Label, new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter);
+				lbls.Add(new devDept.Eyeshot.Labels.OutlinedText(new Point3D(c), Label, new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter));
 				return lbls;
 			}
 		}
@@ -198,7 +199,8 @@ namespace Warps
 
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
+
 		}
 
 		public bool Affected(List<IRebuild> connected)
@@ -429,6 +431,7 @@ namespace Warps
 		public void ReadXScript(Sail sail, System.Xml.XmlNode node)
 		{
 			Label = NsXml.ReadLabel(node);
+			m_sail = sail;
 			List<Vect3> combs = new List<Vect3>();
 			foreach (System.Xml.XmlNode child in node.ChildNodes)
 			{

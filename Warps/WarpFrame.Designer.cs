@@ -32,12 +32,10 @@
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WarpFrame));
 			this.m_vertsplit = new System.Windows.Forms.SplitContainer();
 			this.m_horizsplit = new System.Windows.Forms.SplitContainer();
-			this.m_tree = new Warps.TabTree();
 			this.m_cancel = new System.Windows.Forms.Button();
 			this.previewButton = new System.Windows.Forms.Button();
 			this.editPanel = new System.Windows.Forms.Panel();
 			this.okButton = new System.Windows.Forms.Button();
-			this.m_dualView = new Warps.DualView();
 			this.m_toolstrip = new System.Windows.Forms.ToolStrip();
 			this.newToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.openToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -68,6 +66,12 @@
 			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.m_statusProgress = new System.Windows.Forms.ToolStripProgressBar();
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
+			this.toolStripDropDownButton2 = new System.Windows.Forms.ToolStripDropDownButton();
+			this.projectDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.exeDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.configFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.m_tree = new Warps.TabTree();
+			this.m_dualView = new Warps.DualView();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
 			this.m_vertsplit.Panel1.SuspendLayout();
 			this.m_vertsplit.Panel2.SuspendLayout();
@@ -124,15 +128,6 @@
 			this.m_horizsplit.TabIndex = 0;
 			this.m_horizsplit.TabStop = false;
 			// 
-			// m_tree
-			// 
-			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_tree.Location = new System.Drawing.Point(0, 0);
-			this.m_tree.Name = "m_tree";
-			this.m_tree.SelectedTag = null;
-			this.m_tree.Size = new System.Drawing.Size(205, 523);
-			this.m_tree.TabIndex = 0;
-			// 
 			// m_cancel
 			// 
 			this.m_cancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
@@ -184,16 +179,6 @@
 			this.okButton.Text = "Apply";
 			this.okButton.UseVisualStyleBackColor = false;
 			// 
-			// m_dualView
-			// 
-			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.m_dualView.EditMode = false;
-			this.m_dualView.Location = new System.Drawing.Point(0, 0);
-			this.m_dualView.Name = "m_dualView";
-			this.m_dualView.Size = new System.Drawing.Size(613, 523);
-			this.m_dualView.TabIndex = 0;
-			this.m_dualView.TabStop = false;
-			// 
 			// m_toolstrip
 			// 
 			this.m_toolstrip.Dock = System.Windows.Forms.DockStyle.None;
@@ -209,17 +194,18 @@
             this.pasteToolStripButton,
             this.helpToolStripButton,
             this.toolStripSeparator5,
+            this.toolStripDropDownButton2,
             this.toolStripButton1,
             this.toolStripSeparator4,
             this.m_addCurve,
+            this.m_defGeo,
             this.toolStripSeparator1,
             this.m_autoBtn,
             this.m_buildBtn,
-            this.toolStripSeparator3,
-            this.m_defGeo});
+            this.toolStripSeparator3});
 			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
 			this.m_toolstrip.Name = "m_toolstrip";
-			this.m_toolstrip.Size = new System.Drawing.Size(480, 25);
+			this.m_toolstrip.Size = new System.Drawing.Size(529, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
 			// 
@@ -346,7 +332,6 @@
 			// toolStripButton1
 			// 
 			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
 			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButton1.Name = "toolStripButton1";
 			this.toolStripButton1.Size = new System.Drawing.Size(38, 22);
@@ -363,7 +348,6 @@
 			// m_addCurve
 			// 
 			this.m_addCurve.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_addCurve.Image = ((System.Drawing.Image)(resources.GetObject("m_addCurve.Image")));
 			this.m_addCurve.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.m_addCurve.Name = "m_addCurve";
 			this.m_addCurve.Size = new System.Drawing.Size(69, 22);
@@ -380,7 +364,6 @@
 			// 
 			this.m_autoBtn.CheckOnClick = true;
 			this.m_autoBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_autoBtn.Image = ((System.Drawing.Image)(resources.GetObject("m_autoBtn.Image")));
 			this.m_autoBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.m_autoBtn.Name = "m_autoBtn";
 			this.m_autoBtn.Size = new System.Drawing.Size(37, 22);
@@ -391,7 +374,6 @@
 			// m_buildBtn
 			// 
 			this.m_buildBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_buildBtn.Image = ((System.Drawing.Image)(resources.GetObject("m_buildBtn.Image")));
 			this.m_buildBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.m_buildBtn.Name = "m_buildBtn";
 			this.m_buildBtn.Size = new System.Drawing.Size(38, 22);
@@ -410,7 +392,6 @@
             this.outerToolStripMenuItem,
             this.innerToolStripMenuItem,
             this.baxToolStripMenuItem});
-			this.m_defGeo.Image = ((System.Drawing.Image)(resources.GetObject("m_defGeo.Image")));
 			this.m_defGeo.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.m_defGeo.Name = "m_defGeo";
 			this.m_defGeo.Size = new System.Drawing.Size(113, 22);
@@ -419,19 +400,19 @@
 			// outerToolStripMenuItem
 			// 
 			this.outerToolStripMenuItem.Name = "outerToolStripMenuItem";
-			this.outerToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
+			this.outerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.outerToolStripMenuItem.Text = "Outer";
 			// 
 			// innerToolStripMenuItem
 			// 
 			this.innerToolStripMenuItem.Name = "innerToolStripMenuItem";
-			this.innerToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
+			this.innerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.innerToolStripMenuItem.Text = "Inner";
 			// 
 			// baxToolStripMenuItem
 			// 
 			this.baxToolStripMenuItem.Name = "baxToolStripMenuItem";
-			this.baxToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
+			this.baxToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.baxToolStripMenuItem.Text = "Bax";
 			this.baxToolStripMenuItem.Click += new System.EventHandler(this.baxToolStripMenuItem_Click);
 			// 
@@ -479,6 +460,59 @@
 			// toolStripContainer1.TopToolStripPanel
 			// 
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
+			// 
+			// toolStripDropDownButton2
+			// 
+			this.toolStripDropDownButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.toolStripDropDownButton2.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.projectDirectoryToolStripMenuItem,
+            this.exeDirectoryToolStripMenuItem,
+            this.configFileToolStripMenuItem});
+			this.toolStripDropDownButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton2.Image")));
+			this.toolStripDropDownButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripDropDownButton2.Name = "toolStripDropDownButton2";
+			this.toolStripDropDownButton2.Size = new System.Drawing.Size(49, 22);
+			this.toolStripDropDownButton2.Text = "Show";
+			// 
+			// projectDirectoryToolStripMenuItem
+			// 
+			this.projectDirectoryToolStripMenuItem.Name = "projectDirectoryToolStripMenuItem";
+			this.projectDirectoryToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+			this.projectDirectoryToolStripMenuItem.Text = "Project Directory";
+			this.projectDirectoryToolStripMenuItem.Click += new System.EventHandler(this.projectDirectoryToolStripMenuItem_Click);
+			// 
+			// exeDirectoryToolStripMenuItem
+			// 
+			this.exeDirectoryToolStripMenuItem.Name = "exeDirectoryToolStripMenuItem";
+			this.exeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+			this.exeDirectoryToolStripMenuItem.Text = "Exe Directory";
+			this.exeDirectoryToolStripMenuItem.Click += new System.EventHandler(this.exeDirectoryToolStripMenuItem_Click);
+			// 
+			// configFileToolStripMenuItem
+			// 
+			this.configFileToolStripMenuItem.Name = "configFileToolStripMenuItem";
+			this.configFileToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+			this.configFileToolStripMenuItem.Text = "Config File";
+			this.configFileToolStripMenuItem.Click += new System.EventHandler(this.configFileToolStripMenuItem_Click);
+			// 
+			// m_tree
+			// 
+			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_tree.Location = new System.Drawing.Point(0, 0);
+			this.m_tree.Name = "m_tree";
+			this.m_tree.SelectedTag = null;
+			this.m_tree.Size = new System.Drawing.Size(205, 523);
+			this.m_tree.TabIndex = 0;
+			// 
+			// m_dualView
+			// 
+			this.m_dualView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.m_dualView.EditMode = false;
+			this.m_dualView.Location = new System.Drawing.Point(0, 0);
+			this.m_dualView.Name = "m_dualView";
+			this.m_dualView.Size = new System.Drawing.Size(613, 523);
+			this.m_dualView.TabIndex = 0;
+			this.m_dualView.TabStop = false;
 			// 
 			// WarpFrame
 			// 
@@ -552,6 +586,10 @@
 	   private System.Windows.Forms.ToolStripMenuItem innerToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripMenuItem baxToolStripMenuItem;
 	   public System.Windows.Forms.Button m_cancel;
+	   private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton2;
+	   private System.Windows.Forms.ToolStripMenuItem projectDirectoryToolStripMenuItem;
+	   private System.Windows.Forms.ToolStripMenuItem exeDirectoryToolStripMenuItem;
+	   private System.Windows.Forms.ToolStripMenuItem configFileToolStripMenuItem;
 	}
 }
 

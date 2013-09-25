@@ -126,8 +126,8 @@ namespace Warps.Mixed
 
 			List<Type> useThese = Utilities.GetAllOf(typeof(IRebuild), false);
 
-			AddGroup dlg = new AddGroup(useThese);
-			dlg.Text = "Add Object";
+			AddItemDialog dlg = new AddItemDialog(useThese);
+			dlg.Text = "Add Item";
 			dlg.Name = "enter name";
 			if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 			{

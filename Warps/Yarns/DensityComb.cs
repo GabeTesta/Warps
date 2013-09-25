@@ -16,7 +16,7 @@ namespace Warps.Yarns
 	public class DensityComb : GuideComb
 	{
 		public DensityComb(YarnGroup group, double s)
-			:base(group.Label + s.ToString("0.000"), group.Sail, null, null)
+			:base(group.Label + s.ToString("0.000"), group.Sail)
 		{
 			m_Group = group;
 			m_sPos = s;

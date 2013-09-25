@@ -588,17 +588,17 @@ namespace Warps.Panels
 			
 		}
 
-		public devDept.Eyeshot.Labels.Label[] EntityLabel
+		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
 			get
 			{
-				devDept.Eyeshot.Labels.Label[] lbls = new devDept.Eyeshot.Labels.Label[1];
+				List<devDept.Eyeshot.Labels.Label> lbls = new List<devDept.Eyeshot.Labels.Label>(1);
 				Point3D center;
 				if (m_mesh != null)
 					center = Utilities.Vect3ToPoint3D(m_mesh[m_mesh.GetLength(0) / 2, m_mesh.GetLength(1) / 2]);
 				else
 					return null;
-				lbls[0] = new devDept.Eyeshot.Labels.OutlinedText(center, Label,	new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter);
+				lbls.Add(new devDept.Eyeshot.Labels.OutlinedText(center, Label,	new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter));
 				return lbls;
 
 				//List<devDept.Eyeshot.Labels.Label> labels = new List<devDept.Eyeshot.Labels.Label>();

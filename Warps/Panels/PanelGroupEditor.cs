@@ -19,8 +19,8 @@ namespace Warps.Panels
 			InitializeComponent();
 
 			ImageList imageList = new ImageList();
-			imageList.Images.Add("MouldCurve", Warps.Properties.Resources.glyphicons_098_vector_path_curve);
-			imageList.Images.Add("Geodesic", Warps.Properties.Resources.glyphicons_097_vector_path_line);
+			imageList.Images.Add("MouldCurve", Warps.Properties.Resources.curve);
+			imageList.Images.Add("Geodesic", Warps.Properties.Resources.wire);
 
 			m_warpListView.SmallImageList = imageList;
 			m_warpListView.LargeImageList = imageList;

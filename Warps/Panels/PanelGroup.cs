@@ -1348,10 +1348,10 @@ namespace Warps.Panels
 		public bool Watermark(IRebuild tag, ref List<IRebuild> rets)
 		{
 			int i = -1;
-			if (tag is Panel)
-				i = this.IndexOf(tag as Panel);
 			if (tag == this)
 				return true;
+			if (tag is Panel)
+				i = this.IndexOf(tag as Panel);
 
 			if (i >= 0)
 				rets.AddRange(this.Take(i));
@@ -1494,7 +1494,7 @@ namespace Warps.Panels
 			return ents;
 		}
 
-		public devDept.Eyeshot.Labels.Label[] EntityLabel
+		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
 			get
 			{
@@ -1502,7 +1502,7 @@ namespace Warps.Panels
 					return null;
 				List<devDept.Eyeshot.Labels.Label> ret = new List<devDept.Eyeshot.Labels.Label>();
 				this.ForEach(cur => { ret.AddRange(cur.EntityLabel); });
-				return ret.ToArray();
+				return ret;
 			}
 		}
 
@@ -1589,6 +1589,7 @@ namespace Warps.Panels
 		public void ReadXScript(Sail sail, System.Xml.XmlNode node)
 		{
 			Label = NsXml.ReadLabel(node);
+			m_sail = sail;
 			m_Width.ReadXScript(sail, node.FirstChild);
 
 			ClothAlignment = (ClothOrientations)Enum.Parse(typeof(ClothOrientations), NsXml.ReadString(node, "ClothAlignment"));
@@ -1600,6 +1601,43 @@ namespace Warps.Panels
 			curs = NsXml.ReadStrings(node, "Guides");
 			foreach (string s in curs)
 				m_guides.Add(sail.FindCurve(s));
+			Update(sail);
+		}
+
+		#endregion
+
+		#region TreeDragging Members
+
+		public bool CanInsert(IRebuild item)
+		{
+			return false;
+		}
+
+		public void Insert(IRebuild item, IRebuild target)
+		{
+			throw new NotImplementedException("Cannot Insert into PanelGroup");
+			//int nTar = IndexOf(target as Panel);
+			//int nIrb = IndexOf(item as Panel);
+			//if (nIrb >= 0)//item is already in this group: reorder
+			//	Remove(item);
+			//Insert(nTar, item as Panel);
+		}
+
+		public bool Remove(IRebuild item)
+		{
+			throw new NotImplementedException("Cannot Remove from PanelGroup");
+			//Remove(item as Panel);
+		}
+
+		#endregion
+
+
+		#region Flattening Members
+
+		public void FlatLayout(List<IRebuild> flat)
+		{
+			//no sub-items to add
+			//ForEach(cur => flat.Add(cur));
 		}
 
 		#endregion

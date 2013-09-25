@@ -46,6 +46,47 @@ namespace Warps
 			}
 		}
 
+		public static ImageList Images
+		{
+			get
+			{
+				ImageList imageList = new ImageList();
+
+				imageList.Images.Add("empty", Warps.Properties.Resources.empty);
+				imageList.Images.Add("Sail", Warps.Properties.Resources.sail);
+				imageList.Images.Add("Rig", Warps.Properties.Resources.rig);
+				imageList.Images.Add("Main", Warps.Properties.Resources.main);
+				imageList.Images.Add("Wire", Warps.Properties.Resources.wire);
+
+				imageList.Images.Add("VariableGroup", Warps.Properties.Resources.VariableGroup);
+				imageList.Images.Add("CurveGroup", Warps.Properties.Resources.curvegroup);
+				imageList.Images.Add("YarnGroup", Warps.Properties.Resources.yarngrp);
+				imageList.Images.Add("PanelGroup", Warps.Properties.Resources.PanelGroup);
+				imageList.Images.Add("TapeGroup", Warps.Properties.Resources.TapeGroup);
+				imageList.Images.Add("MixedGroup", Warps.Properties.Resources.folder);
+
+				imageList.Images.Add("MouldCurve", Warps.Properties.Resources.curve);
+				imageList.Images.Add("GuideComb", Warps.Properties.Resources.GuideComb);
+
+				imageList.Images.Add("CurvePoint", Warps.Properties.Resources.FitCurve);
+				imageList.Images.Add("SlidePoint", Warps.Properties.Resources.FitSlide);
+				imageList.Images.Add("FixedPoint", Warps.Properties.Resources.FitFixed);
+				imageList.Images.Add("CrossPoint", Warps.Properties.Resources.FitCross);
+				imageList.Images.Add("OffsetPoint", Warps.Properties.Resources.FitOffset);
+
+				imageList.Images.Add("Equation", Warps.Properties.Resources.equation);
+				imageList.Images.Add("EquationText", Warps.Properties.Resources.EqText);
+				imageList.Images.Add("Result", Warps.Properties.Resources.EqNum);
+
+				imageList.Images.Add("Warps", Warps.Properties.Resources.Warps);
+				imageList.Images.Add("GuideSurface", Warps.Properties.Resources.ContourSurf);
+				//	imageList.Images.Add("Panel", Warps.Properties.Resources.panel);
+				imageList.Images.Add("EndCondition", Warps.Properties.Resources.EndCondition);
+
+				return imageList;
+			}
+		}
+
 		static MaterialDatabase m_MatDB;// = new MaterialDatabase(@"c:\Materials.csv");
 		public static MaterialDatabase Mats
 		{
@@ -259,7 +300,7 @@ namespace Warps
 			if (m_sail == null)
 				Status = String.Format("{0} Load Failed", m_sail.FilePath);
 
-			m_tree.Add(m_sail.WriteNode());
+			m_tree.Add(m_sail);
 
 			AddSailtoView(m_sail);
 
@@ -304,7 +345,7 @@ namespace Warps
 			if (m_sail == null)
 				Status = String.Format("{0} Load Failed", m_sail.FilePath);
 
-			m_tree.Add(m_sail.WriteNode());
+			m_tree.Add(m_sail);
 
 			AddSailtoView(m_sail);
 
@@ -551,6 +592,8 @@ namespace Warps
 
 		private void m_buildBtn_Click(object sender, EventArgs e)
 		{
+			if (ActiveSail == null)
+				return;
 			//if (Tracker != null)
 			//{
 			//	Tracker = null;
@@ -559,7 +602,7 @@ namespace Warps
 			//m_modCurve.BackColor = ButtonUnSelected;
 			if (Tree.SelectedTag is IRebuild)
 				Rebuild(Tree.SelectedTag as IRebuild);
-			else
+			else 
 				ActiveSail.Rebuild();
 		}
 		//private void m_cancelBtn_Click(object sender, EventArgs e)
@@ -579,7 +622,7 @@ namespace Warps
 		{
 			if (ActiveSail == null)
 				return;
-			AddGroup dlg = new AddGroup();
+			AddItemDialog dlg = new AddItemDialog();
 			dlg.Name = "enter name";
 			if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 			{
@@ -588,7 +631,7 @@ namespace Warps
 				{
 					ActiveSail.Add(grp);
 					ActiveSail.Rebuild();
-					Tree.Select(grp);
+					Tree.SelectTag(grp);
 				}
 			}
 		}
@@ -1134,7 +1177,9 @@ namespace Warps
 			return base.ProcessCmdKey(ref msg, keyData);
 		}
 
-		#region Toolbar New/Open/Save
+		#region Toolbar 
+		
+		#region New/Open/Save
 
 		private void newToolStripButton_Click(object sender, EventArgs e)
 		{
@@ -1176,42 +1221,18 @@ namespace Warps
 		}
 		private void saveBinToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			//string path = Utilities.SaveFileDialog(".bin", "Save Membrain Bin File", null);
-			//if (path == null || path.Length == 0)
-			//	return;
 			if (ActiveSail == null)
 			{
-				//LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Main.sail");
 				MessageBox.Show("Open a project before saving bin");
 				return;
 			}
-
 			string path = ActiveSail.Mould.Label.Substring(0, ActiveSail.Mould.Label.Length - 4) + "_wrp.bin";
-			//ActiveSail.WriteBinFile(path);
 			Task.Factory.StartNew(() => ActiveSail.WriteBinFile(path));
 			return;
-//#if DEBUG
-//			clearAll_Click(null, null);
-//			m_sail = new Sail();
-//			ActiveSail.ReadBinFile(path);
-//			AddSailtoView(ActiveSail);
-//#endif
 		}
 
 		private void printToolStripButton_Click(object sender, EventArgs e)
 		{
-//#if DEBUG
-//			XmlDocument doc = NsXml.MakeDoc("Yarns");
-//			ActiveSail.Layout.ForEach(grp =>
-//			{
-//				if (grp is YarnGroup)
-//				{
-//					XmlElement ele = (grp as YarnGroup).WriteXScript(doc);
-//					doc.DocumentElement.AppendChild(ele);
-//				}
-//			});
-//#endif
-
 			//Write 3dl file
 			Logleton.TheLog.Log("Saving project to 3dl file");
 			SaveFileDialog dlg = new SaveFileDialog();
@@ -1219,27 +1240,9 @@ namespace Warps
 			dlg.AddExtension = true;
 			dlg.Filter = "3dl files (*.3dl)|*.3dl|All files (*.*)|*.*";
 			dlg.FileName = Path.GetFileNameWithoutExtension(ActiveSail.Mould.Label);
-			//dlg.InitialDirectory = Utilities.ExeDir;
+			dlg.InitialDirectory = Path.GetDirectoryName(ActiveSail.FilePath);
 			if (dlg.ShowDialog() == DialogResult.OK)
-			{
 				Save3dlFile(dlg.FileName);
-//#if DEBUG
-//				doc.Save(Path.ChangeExtension(dlg.FileName, "xml"));
-//#endif
-			}
-		}
-
-		private void clearAll_Click(object sender, EventArgs e)
-		{
-			if (m_sail == null || DialogResult.Yes == MessageBox.Show(string.Format("Are you sure you want to close\n{0}\nUnsaved changes will be lost.", m_sail.FilePath), Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
-			{
-				Tree.ClearAll();
-				View.ClearAll();
-				ClearTracker();
-				if (m_sail != null)
-					m_sail.Layout.Clear();
-				m_sail = null;
-			}
 		}
 
 		private void SaveFile(bool saveAs)
@@ -1350,9 +1353,48 @@ namespace Warps
 		
 		#endregion
 
+		private void clearAll_Click(object sender, EventArgs e)
+		{
+			if (m_sail == null || DialogResult.Yes == MessageBox.Show(string.Format("Are you sure you want to close\n{0}\nUnsaved changes will be lost.", m_sail.FilePath), Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+			{
+				Tree.ClearAll();
+				View.ClearAll();
+				ClearTracker();
+				if (m_sail != null)
+					m_sail.Layout.Clear();
+				m_sail = null;
+			}
+		}
+
+		private void baxToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			ActiveSail.CreateBaxCurves();
+			ActiveSail.Rebuild();
+		}
+
+		private void projectDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (ActiveSail != null)
+			{
+				Utilities.HandleProcess(Path.GetDirectoryName(ActiveSail.FilePath), null);
+			}
+		}
+
+		private void exeDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Utilities.HandleProcess(Utilities.ExeDir, null);
+		}
+
+		private void configFileToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Utilities.HandleProcess("Warps.xml", null);
+		}
+
 		private void helpToolStripButton_Click(object sender, EventArgs e)
 		{
 #if !DEBUG
+			WarpAbout about = new WarpAbout();
+			about.ShowDialog(this);
 			return;
 #endif
 			//EquationEditorForm frm = new EquationEditorForm(null);
@@ -1390,7 +1432,7 @@ namespace Warps
 				CurveGroup warps = new CurveGroup("Warps", ActiveSail);
 				//warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(0.5,0.5), new Vect2(1, 0.6)));
 				warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(1, 1)));
-				warps.Add(new MouldCurve("v2", ActiveSail, new Vect2(0, 0), new Vect2(1, .6)));
+				warps.Add(new MouldCurve("v2", ActiveSail, new CrossPoint("Foot", "Luff"), new OffsetPoint(.5, ActiveSail.FindCurve("Leech"), 1)));
 				warps.Add(new MouldCurve("v3", ActiveSail, new Vect2(0, 0), new Vect2(1, 0)));
 
 				double scale = 3;
@@ -1411,14 +1453,9 @@ namespace Warps
 				rbfss.Add(new Vect3(.85, .9, 1.5 * scale));
 				rbfss.Add(new Vect3(1, 1, 1 * scale));
 
-				GuideSurface surf = new GuideSurface("StructuralSurf", ActiveSail, rbfss);
-				Mixed.MixedGroup guides = new Mixed.MixedGroup("Guides", ActiveSail, "Combs");
-				guides.Add(surf);
+				GuideSurface surf = new GuideSurface("StructSurf", ActiveSail, rbfss);
 
-				Tapes.TapeGroup tapes = new Tapes.TapeGroup("Structural", warps.ToList(), surf, 1, .05, Utilities.DegToRad(3));
-
-				warps.Add(new MouldCurve("c1", ActiveSail, new Vect2(0, 0), new Vect2(1, 0)));
-				warps.Add(new MouldCurve("c2", ActiveSail, new Vect2(0, 1), new Vect2(1, 1)));
+				//Tapes.TapeGroup struc = new Tapes.TapeGroup("Structural", warps.ToList(), surf, 1, .05, Utilities.DegToRad(3));
 
 				scale = 10;
 				rbfss = new List<Vect3>(4);
@@ -1429,23 +1466,63 @@ namespace Warps
 				rbfss.Add(new Vect3(1, 0, 1 * scale));
 				rbfss.Add(new Vect3(1, 1, 1 * scale));
 
-				surf = new GuideSurface("CompressiveSurf", ActiveSail, rbfss);
-				//guides.Add(surf);
-				List<MouldCurve> cwarps = new List<MouldCurve>(2);
-				cwarps.Add(warps[warps.Count - 2]);
-				cwarps.Add(warps[warps.Count - 1]);
-				Tapes.TapeGroup cTapes = new Tapes.TapeGroup("Compressive", cwarps, surf, 3, .1, Utilities.DegToRad(7));
+				GuideSurface csurf = new GuideSurface("CompSurf", ActiveSail, rbfss);
+				CurveGroup cwarps = new CurveGroup("CompWarps", ActiveSail);
+				cwarps.Add(new MouldCurve("c1", ActiveSail, new Vect2(0, 0), new Vect2(1, 0)));
+				cwarps.Add(new MouldCurve("c2", ActiveSail, new Vect2(0, 1), new Vect2(1, 1)));
 
-				ActiveSail.Add(warps);
-				ActiveSail.Add(guides);
-				ActiveSail.Add(tapes);
+				Tapes.TapeGroup comp = new Tapes.TapeGroup("Compressive", cwarps, surf, 3, .1, Utilities.DegToRad(7));
+
+				//geometry groups
+				Mixed.MixedGroup Geom= new Mixed.MixedGroup("Geometry", ActiveSail, "null");
+				Geom.Add(new MouldCurve("AllFits", ActiveSail,
+					new FixedPoint(0, 0),
+					new OffsetPoint(0.25, ActiveSail.FindCurve("Foot"), -1),
+					new CrossPoint("Leech", "Bat#6"),
+					new CurvePoint(ActiveSail.FindCurve("Bat#1"), 0.5),
+					new SlidePoint(ActiveSail.FindCurve("Head"), 0.5)));
+				
+				Mixed.MixedGroup Curs = new Mixed.MixedGroup("Curves", ActiveSail, "Curves");
+				Mixed.MixedGroup Surfs = new Mixed.MixedGroup("Surfaces", ActiveSail, "Guides");
+				Geom.Add(Curs);
+				Geom.Add(Surfs);
+
+				Curs.Add(warps);
+				Curs.Add(cwarps);
+
+				Surfs.Add(surf);
+				Surfs.Add(csurf);
+
+				//tape groups
+				Mixed.MixedGroup taper = new Mixed.MixedGroup("Tapes", ActiveSail, "Tapes");
+				//taper.Add(struc);
+				taper.Add(comp);
+
+				//ActiveSail.Add(warps);
+				ActiveSail.Add(Geom);
+				ActiveSail.Add(taper);
+
+				Mixed.MixedGroup iff = new Mixed.MixedGroup("IF (DPI > 5000)", ActiveSail, "Curves");
+				Mixed.MixedGroup tr = new Mixed.MixedGroup("True", ActiveSail, "Curves");
+				Mixed.MixedGroup fa = new Mixed.MixedGroup("False", ActiveSail, "Curves");
+				Mixed.MixedGroup l4 = new Mixed.MixedGroup("High DPI stuff", ActiveSail, "Curves");
+				Mixed.MixedGroup l5 = new Mixed.MixedGroup("Low DPI stuff", ActiveSail, "Curves");
+			
+				ActiveSail.Add(iff);
+				iff.Add(tr);
+				iff.Add(fa);
+				tr.Add(new CurveGroup("TrueCurves", ActiveSail));
+				fa.Add(new CurveGroup("FalseCurves", ActiveSail));
+				tr.Add(new Mixed.MixedGroup("IF (REEFSPLS)", ActiveSail, "Curves"));
+				(tr[1] as Mixed.MixedGroup).Add(new Mixed.MixedGroup("True", ActiveSail, "Curves"));
+				((tr[1] as Mixed.MixedGroup)[0] as Mixed.MixedGroup).Add(new YarnGroup("ReefGrp", ActiveSail, 1000));
 				//ActiveSail.Add(cTapes);
 				ActiveSail.Rebuild();
 
 				//UpdateViews(ActiveSail.CreateOuterCurves());
-				UpdateViews(warps);
-				UpdateViews(guides);
-				UpdateViews(tapes);
+				UpdateViews(Geom);
+				UpdateViews(taper);
+				//UpdateViews(struc);
 				//UpdateViews(cTapes);
 				//this.WindowState = FormWindowState.Maximized;
 				View.ZoomFit(true);
@@ -1453,10 +1530,7 @@ namespace Warps
 			}
 		}
 
-		private void baxToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			ActiveSail.CreateBaxCurves();
-			ActiveSail.Rebuild();
-		}
+		#endregion
+
 	}
 }
