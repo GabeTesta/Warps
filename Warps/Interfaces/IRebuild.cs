@@ -14,10 +14,10 @@ namespace Warps
 		string Label { get; set; }
 		string Layer { get; }
 
-		[Obsolete]
-		List<string> WriteScript();
-		[Obsolete]
-		bool ReadScript(Sail sail, IList<string> txt);
+		//[Obsolete]
+		//List<string> WriteScript();
+		//[Obsolete]
+		//bool ReadScript(Sail sail, IList<string> txt);
 
 		XmlNode WriteXScript(XmlDocument doc);
 		void ReadXScript(Sail sail, XmlNode node);

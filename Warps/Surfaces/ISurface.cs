@@ -33,9 +33,8 @@ namespace Warps
 
 		bool xClosest(ref Vect2 uv, ref Vect3 xyzTarget, ref double dist, double tol);
 
-
-		List<string> WriteScript();
-		bool ReadScript(Sail sail, IList<string> txt);
+		//List<string> WriteScript();
+		//bool ReadScript(Sail sail, IList<string> txt);
 
 		//XmlNode WriteXScript(XmlDocument doc);
 		//void ReadXScript(Sail sail, XmlNode node);

@@ -291,59 +291,57 @@ namespace Warps.Curves
 		//	return true;
 		//}
 
-		public override bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt == null || txt.Count == 0)
-				return false;
+		//public override bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt == null || txt.Count == 0)
+		//		return false;
 
-			base.ReadScript(sail, txt);
-			string header;
-			//string[] splits;
-			m_combPnts.Clear();
-			for (int nLine = 1; nLine < txt.Count; )
-			{
-				IList<string> lines = ScriptTools.Block(ref nLine, txt);
-				//nLine += lines.Count;
+		//	base.ReadScript(sail, txt);
+		//	string header;
+		//	//string[] splits;
+		//	m_combPnts.Clear();
+		//	for (int nLine = 1; nLine < txt.Count; )
+		//	{
+		//		IList<string> lines = ScriptTools.Block(ref nLine, txt);
+		//		//nLine += lines.Count;
 
-				header = lines[0].Trim('\t');
-				if (!header.StartsWith("Comb"))
-					continue;
-				foreach (string line in lines)
-				{
-					Vect2 v = new Vect2();
-					if (v.FromString(line.Trim('\t')))
-						m_combPnts.Add(v);
-					//m_combPnts.Add(new Vect2(line.Trim('\t')));
-				}
-				//m_combPnts.Add(ParseVect2Lines(lines));
-			}
+		//		header = lines[0].Trim('\t');
+		//		if (!header.StartsWith("Comb"))
+		//			continue;
+		//		foreach (string line in lines)
+		//		{
+		//			Vect2 v = new Vect2();
+		//			if (v.FromString(line.Trim('\t')))
+		//				m_combPnts.Add(v);
+		//			//m_combPnts.Add(new Vect2(line.Trim('\t')));
+		//		}
+		//		//m_combPnts.Add(ParseVect2Lines(lines));
+		//	}
 
-			FitComb(m_combPnts.ToArray());
-			return true;
-		}
+		//	FitComb(m_combPnts.ToArray());
+		//	return true;
+		//}
+		//public override List<string> WriteScript()
+		//{
 
+		//	List<string> script = base.WriteScript();
 
-		public override List<string> WriteScript()
-		{
-
-			List<string> script = base.WriteScript();
-
-			//script.Add(GetType().Name + ": " + Label);
-			//foreach (IFitPoint fp in FitPoints)
-			//{
-			//     foreach (string s in fp.WriteScript())
-			//          script.Add("\t" + s);
-			//}
-			script.Add("\tComb:");
-			foreach (Vect2 v in CombPnts)
-			{
-				//script.Add("\t" + v.GetType().Name);
-				script.Add(string.Format("\t\t{0}", v.ToString()));
-			}
+		//	//script.Add(GetType().Name + ": " + Label);
+		//	//foreach (IFitPoint fp in FitPoints)
+		//	//{
+		//	//     foreach (string s in fp.WriteScript())
+		//	//          script.Add("\t" + s);
+		//	//}
+		//	script.Add("\tComb:");
+		//	foreach (Vect2 v in CombPnts)
+		//	{
+		//		//script.Add("\t" + v.GetType().Name);
+		//		script.Add(string.Format("\t\t{0}", v.ToString()));
+		//	}
 			
 
-			return script;
-		}
+		//	return script;
+		//}
 
 		public override XmlNode WriteXScript(XmlDocument doc)
 		{

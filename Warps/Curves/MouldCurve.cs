@@ -752,7 +752,7 @@ namespace Warps.Curves
 		{
 			if( FitPoints != null )
 				foreach (IFitPoint fp in FitPoints)
-					fp.Update(s);
+					fp.Update(this);
 
 			if (AllFitPointsValid())
 				ReFit();
@@ -770,90 +770,90 @@ namespace Warps.Curves
 
 		public bool Locked { get { return m_locked; } set { m_locked = value; } }
 
-		public virtual bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt == null || txt.Count == 0)
-				return false;
-			if (m_sail == null)
-				m_sail = sail;
-			List<IFitPoint> fits = new List<IFitPoint>();
-			string[] splits;// = txt[0].Split(':');
-			//Label = "";
-			//if (splits.Length > 0)//extract label
-			//	Label = splits[1];
-			//if (splits.Length > 1)//incase label contains ":"
-			//	for (int i = 2; i < splits.Length; i++)
-			//		Label += ":" + splits[i];
-			//Label = Label.Trim();
-			Label = ScriptTools.ReadLabel(txt[0]);
-			string header;
-			for (int nLine = 1; nLine < txt.Count; )
-			{
-				IList<string> lines = ScriptTools.Block(ref nLine, txt);
-				//nLine += lines.Count;
+		//public virtual bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt == null || txt.Count == 0)
+		//		return false;
+		//	if (m_sail == null)
+		//		m_sail = sail;
+		//	List<IFitPoint> fits = new List<IFitPoint>();
+		//	string[] splits;// = txt[0].Split(':');
+		//	//Label = "";
+		//	//if (splits.Length > 0)//extract label
+		//	//	Label = splits[1];
+		//	//if (splits.Length > 1)//incase label contains ":"
+		//	//	for (int i = 2; i < splits.Length; i++)
+		//	//		Label += ":" + splits[i];
+		//	//Label = Label.Trim();
+		//	Label = ScriptTools.ReadLabel(txt[0]);
+		//	string header;
+		//	for (int nLine = 1; nLine < txt.Count; )
+		//	{
+		//		IList<string> lines = ScriptTools.Block(ref nLine, txt);
+		//		//nLine += lines.Count;
 
-				object cur = null;
-				splits = lines[0].Split(':');
+		//		object cur = null;
+		//		splits = lines[0].Split(':');
 
-				if (splits.Length > 0)
-					header = splits[0].Trim('\t');
-				else header = "";
+		//		if (splits.Length > 0)
+		//			header = splits[0].Trim('\t');
+		//		else header = "";
 
-				if (header == "Girth Segments")
-				{
-					ReadGirthsScript(lines);
-					break;//quit after reading girths
+		//		if (header == "Girth Segments")
+		//		{
+		//			ReadGirthsScript(lines);
+		//			break;//quit after reading girths
 					
-				}
-				else//fit points
-				{
-					cur = Utilities.CreateInstance<object>(header);
-					if (cur != null && cur is IFitPoint)
-					{
-						(cur as IFitPoint).ReadScript(Sail, lines);
-						fits.Add(cur as IFitPoint);
-					}
-				}
-			}
-			FitPoints = fits.ToArray();
+		//		}
+		//		else//fit points
+		//		{
+		//			cur = Utilities.CreateInstance<object>(header);
+		//			if (cur != null && cur is IFitPoint)
+		//			{
+		//				(cur as IFitPoint).ReadScript(Sail, lines);
+		//				fits.Add(cur as IFitPoint);
+		//			}
+		//		}
+		//	}
+		//	FitPoints = fits.ToArray();
 
-			if (AllFitPointsValid())
-				ReFit();
+		//	if (AllFitPointsValid())
+		//		ReFit();
 
-			return true;
-		}
-		private void ReadGirthsScript(IList<string> lines)
-		{
-			if (lines.Count <= 1)
-			{
-				m_bGirths = null;
-				return;
-			}
-			m_bGirths = new bool[lines.Count - 1];
-			int i = 0;
-			for(i=1; i< lines.Count; i++ )
-			{
-				bool.TryParse(lines[i].Trim('\t'), out GirthSegments[i-1]);
-			}
-		}
-		public virtual List<string> WriteScript()
-		{
-			List<string> script = new List<string>();
-			script.Add(ScriptTools.Label(GetType().Name, Label));
-			foreach (IFitPoint fp in FitPoints)
-			{
-				foreach (string s in fp.WriteScript())
-					script.Add("\t" + s);
-			}
-			if (GirthSegments != null)
-			{
-				script.Add("\tGirth Segments:");
-				foreach (bool b in GirthSegments)
-					script.Add("\t\t" + b);
-			}
+		//	return true;
+		//}
+		//private void ReadGirthsScript(IList<string> lines)
+		//{
+		//	if (lines.Count <= 1)
+		//	{
+		//		m_bGirths = null;
+		//		return;
+		//	}
+		//	m_bGirths = new bool[lines.Count - 1];
+		//	int i = 0;
+		//	for(i=1; i< lines.Count; i++ )
+		//	{
+		//		bool.TryParse(lines[i].Trim('\t'), out GirthSegments[i-1]);
+		//	}
+		//}
+		//public virtual List<string> WriteScript()
+		//{
+		//	List<string> script = new List<string>();
+		//	script.Add(ScriptTools.Label(GetType().Name, Label));
+		//	foreach (IFitPoint fp in FitPoints)
+		//	{
+		//		foreach (string s in fp.WriteScript())
+		//			script.Add("\t" + s);
+		//	}
+		//	if (GirthSegments != null)
+		//	{
+		//		script.Add("\tGirth Segments:");
+		//		foreach (bool b in GirthSegments)
+		//			script.Add("\t\t" + b);
+		//	}
 
-			return script;
-		}
+		//	return script;
+		//}
 		
 		#region Xml Script 
 

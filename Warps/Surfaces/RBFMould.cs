@@ -203,24 +203,24 @@ namespace Warps
 			//m_entities.Last().LayerIndex 
 		}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt.Count == 0)
-				return false;
-			string line = ScriptTools.ReadLabel(txt[0]);
-			if (line != null)
-			{
-				ReadCofFile(sail, line);
-				return true;
-			}
-			return false;
-		}
-		public List<string> WriteScript()
-		{
-			List<string> s = new List<string>();
-			s.Add(ScriptTools.Label(GetType().Name, m_path == null ? Label : m_path));
-			return s;
-		}
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt.Count == 0)
+		//		return false;
+		//	string line = ScriptTools.ReadLabel(txt[0]);
+		//	if (line != null)
+		//	{
+		//		ReadCofFile(sail, line);
+		//		return true;
+		//	}
+		//	return false;
+		//}
+		//public List<string> WriteScript()
+		//{
+		//	List<string> s = new List<string>();
+		//	s.Add(ScriptTools.Label(GetType().Name, m_path == null ? Label : m_path));
+		//	return s;
+		//}
 
 		System.Windows.Forms.TreeNode m_node;
 		public System.Windows.Forms.TreeNode WriteNode()

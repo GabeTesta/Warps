@@ -136,41 +136,41 @@ namespace Warps.Mixed
 			//get { return m_layer == null ? "Default" : m_layer; }
 		}
 
-		public List<string> WriteScript()
-		{
-			List<string> script = new List<string>();
-			script.Add(ScriptTools.Label(GetType().Name, Label));
-			this.ForEach(ir =>
-			{
-				IList<string> mcScript = ir.WriteScript();
-				foreach (string s in mcScript)
-					script.Add("\t" + s);
-			});
-			return script;
-		}
+		//public List<string> WriteScript()
+		//{
+		//	List<string> script = new List<string>();
+		//	script.Add(ScriptTools.Label(GetType().Name, Label));
+		//	this.ForEach(ir =>
+		//	{
+		//		IList<string> mcScript = ir.WriteScript();
+		//		foreach (string s in mcScript)
+		//			script.Add("\t" + s);
+		//	});
+		//	return script;
+		//}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			Label = ScriptTools.ReadLabel(txt[0]);
-			string[] splits;
-			for (int nLine = 1; nLine < txt.Count; )
-			{
-				IList<string> lines = ScriptTools.Block(ref nLine, txt);
-				//nLine += lines.Count - 1;
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	Label = ScriptTools.ReadLabel(txt[0]);
+		//	string[] splits;
+		//	for (int nLine = 1; nLine < txt.Count; )
+		//	{
+		//		IList<string> lines = ScriptTools.Block(ref nLine, txt);
+		//		//nLine += lines.Count - 1;
 
-				IRebuild cur = null;
-				splits = lines[0].Split(':');
-				if (splits.Length > 0)
-					cur = Utilities.CreateInstance<IRebuild>(splits[0].Trim('\t'));
-				if (cur != null)
-				{
-					cur.ReadScript(sail, lines);
-					Add(cur);
-					sail.Add(this);//keep sail up to date for interdependent children
-				}
-			}
-			return true;
-		}
+		//		IRebuild cur = null;
+		//		splits = lines[0].Split(':');
+		//		if (splits.Length > 0)
+		//			cur = Utilities.CreateInstance<IRebuild>(splits[0].Trim('\t'));
+		//		if (cur != null)
+		//		{
+		//			cur.ReadScript(sail, lines);
+		//			Add(cur);
+		//			sail.Add(this);//keep sail up to date for interdependent children
+		//		}
+		//	}
+		//	return true;
+		//}
 
 		public bool Locked
 		{

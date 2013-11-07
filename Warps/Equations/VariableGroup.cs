@@ -158,52 +158,52 @@ namespace Warps
 			return bupdate;
 		}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt == null || txt.Count == 0)
-				return false;
-			string[] splits = txt[0].Split(':');
-			Label = "";
-			if (splits.Length > 0)//extract label
-				Label = splits[1];
-			if (splits.Length > 1)//incase label contains ":"
-				for (int i = 2; i < splits.Length; i++)
-					Label += ":" + splits[i];
-			Label = Label.Trim();
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt == null || txt.Count == 0)
+		//		return false;
+		//	string[] splits = txt[0].Split(':');
+		//	Label = "";
+		//	if (splits.Length > 0)//extract label
+		//		Label = splits[1];
+		//	if (splits.Length > 1)//incase label contains ":"
+		//		for (int i = 2; i < splits.Length; i++)
+		//			Label += ":" + splits[i];
+		//	Label = Label.Trim();
 
-			for (int nLine = 1; nLine < txt.Count; )
-			{
-				IList<string> lines = ScriptTools.Block(ref nLine, txt);
-				//nLine += lines.Count - 1;
+		//	for (int nLine = 1; nLine < txt.Count; )
+		//	{
+		//		IList<string> lines = ScriptTools.Block(ref nLine, txt);
+		//		//nLine += lines.Count - 1;
 
-				Equation equ = null;
-				splits = lines[0].Split(':');
-				if (splits.Length > 0)
-					equ = Utilities.CreateInstance<Equation>(splits[0].Trim('\t'));
-				if (equ != null)
-				{
-					//(equ as Equation).sail = Sail;
-					equ.ReadScript(sail, lines);
-					Add(equ);
-				}
-			}
+		//		Equation equ = null;
+		//		splits = lines[0].Split(':');
+		//		if (splits.Length > 0)
+		//			equ = Utilities.CreateInstance<Equation>(splits[0].Trim('\t'));
+		//		if (equ != null)
+		//		{
+		//			//(equ as Equation).sail = Sail;
+		//			equ.ReadScript(sail, lines);
+		//			Add(equ);
+		//		}
+		//	}
 
-			//this.Rebuild(null);
+		//	//this.Rebuild(null);
 
-			return true;
-		}
-		public List<string> WriteScript()
-		{
-			List<string> script = new List<string>(Count * 3);
-			script.Add(GetType().Name + ": " + Label);
-			foreach (KeyValuePair<string, Equation> entry in this)
-			{
-				IList<string> mcScript = entry.Value.WriteScript();
-				foreach (string s in mcScript)
-					script.Add("\t" + s);
-			}
-			return script;
-		}
+		//	return true;
+		//}
+		//public List<string> WriteScript()
+		//{
+		//	List<string> script = new List<string>(Count * 3);
+		//	script.Add(GetType().Name + ": " + Label);
+		//	foreach (KeyValuePair<string, Equation> entry in this)
+		//	{
+		//		IList<string> mcScript = entry.Value.WriteScript();
+		//		foreach (string s in mcScript)
+		//			script.Add("\t" + s);
+		//	}
+		//	return script;
+		//}
 
 		#endregion
 

@@ -249,15 +249,15 @@ namespace Warps
 			get { return Label; }
 		}
 
-		public List<string> WriteScript()
-		{
-			throw new NotImplementedException();
-		}
+		//public List<string> WriteScript()
+		//{
+		//	throw new NotImplementedException();
+		//}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			throw new NotImplementedException();
-		}
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	throw new NotImplementedException();
+		//}
 
 		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
 		{

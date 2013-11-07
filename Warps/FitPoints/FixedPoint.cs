@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Warps.Curves;
 
 namespace Warps
 {
@@ -283,38 +283,38 @@ namespace Warps
 			m_vEqu.GetParents(s, parents);
 		}
 
-		public bool Update(Sail s)
+		public bool Update(MouldCurve cur)
 		{
 			bool ret = true;
-			ret &= U.Update(s);
-			ret &= V.Update(s);
+			ret &= U.Update(cur.Sail);
+			ret &= V.Update(cur.Sail);
 			return ret;
 		}
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt.Count != 3)
-				return false;
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt.Count != 3)
+		//		return false;
 			
-			txt[1] = txt[1].Trim('\t');
-			txt[2] = txt[2].Trim('\t');
-			string[] split = txt[1].Split(new char[] { ':' });
-			U = new Equation(split[0],split[1]);
-			split = txt[2].Split(new char[] { ':' });
-			V = new Equation(split[0], split[1]);
-			return Update(sail);
-		}
+		//	txt[1] = txt[1].Trim('\t');
+		//	txt[2] = txt[2].Trim('\t');
+		//	string[] split = txt[1].Split(new char[] { ':' });
+		//	U = new Equation(split[0],split[1]);
+		//	split = txt[2].Split(new char[] { ':' });
+		//	V = new Equation(split[0], split[1]);
+		//	return Update(sail);
+		//}
 
-		public List<string> WriteScript()
-		{
-			List<string> script = new List<string>();
-			//script.Add(string.Format("{0}: [{1}]", GetType().Name, UV.ToString("0.0000")));
-			script.Add(GetType().Name);
+		//public List<string> WriteScript()
+		//{
+		//	List<string> script = new List<string>();
+		//	//script.Add(string.Format("{0}: [{1}]", GetType().Name, UV.ToString("0.0000")));
+		//	script.Add(GetType().Name);
 
-			script.Add("\t" + U.ToScriptString());
-			script.Add("\t" + V.ToScriptString());
+		//	script.Add("\t" + U.ToScriptString());
+		//	script.Add("\t" + V.ToScriptString());
 
-			return script;
-		}
+		//	return script;
+		//}
 
 		#endregion
 

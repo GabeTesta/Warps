@@ -97,16 +97,6 @@ namespace Warps.Surfaces
 			throw new NotImplementedException("xClosest");
 		}
 
-		public List<string> WriteScript()
-		{
-			throw new NotImplementedException("WriteScript");
-		}
-
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			throw new NotImplementedException("ReadScript");
-		}
-
 		public List<devDept.Eyeshot.Entities.Entity> CreateEntities(double[,] uvLims, bool bGauss)
 		{
 			//return m_obj.Entities.ToList() ;
@@ -315,16 +305,6 @@ namespace Warps.Surfaces
 		public List<IGroup> Groups
 		{
 			get { return null; }
-		}
-
-		public List<string> WriteScript()
-		{
-			throw new NotImplementedException();
-		}
-
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			throw new NotImplementedException();
 		}
 
 		System.Windows.Forms.TreeNode m_node;

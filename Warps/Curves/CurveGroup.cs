@@ -206,56 +206,56 @@ namespace Warps.Curves
 			removeMe.ForEach(irb => parents.Remove(irb));
 		}
 
-		[Obsolete]
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt == null || txt.Count == 0)
-				return false;
-			Label = ScriptTools.ReadLabel(txt[0]);
-			string[] splits;// = txt[0].Split(':');
-			sail.Add(this);
-			//Label = "";
-			//if (splits.Length > 0)//extract label
-			//	Label = splits[1];
-			//if (splits.Length > 1)//incase label contains ":"
-			//	for (int i = 2; i < splits.Length; i++)
-			//		Label += ":" + splits[i];
-			//Label = Label.Trim();
+		//[Obsolete]
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt == null || txt.Count == 0)
+		//		return false;
+		//	Label = ScriptTools.ReadLabel(txt[0]);
+		//	string[] splits;// = txt[0].Split(':');
+		//	sail.Add(this);
+		//	//Label = "";
+		//	//if (splits.Length > 0)//extract label
+		//	//	Label = splits[1];
+		//	//if (splits.Length > 1)//incase label contains ":"
+		//	//	for (int i = 2; i < splits.Length; i++)
+		//	//		Label += ":" + splits[i];
+		//	//Label = Label.Trim();
 
-			for (int nLine = 1; nLine < txt.Count; )
-			{
-				IList<string> lines = ScriptTools.Block(ref nLine, txt);
-				//nLine += lines.Count - 1;
+		//	for (int nLine = 1; nLine < txt.Count; )
+		//	{
+		//		IList<string> lines = ScriptTools.Block(ref nLine, txt);
+		//		//nLine += lines.Count - 1;
 
-				MouldCurve cur = null;
-				splits = lines[0].Split(':');
-				if (splits.Length > 0)
-					cur = Utilities.CreateInstance<MouldCurve>(splits[0].Trim('\t'));
-				if (cur != null )
-				{
-					cur.Sail = sail;
-					cur.ReadScript(sail, lines);
-					Add(cur);
-				}
-			}
+		//		MouldCurve cur = null;
+		//		splits = lines[0].Split(':');
+		//		if (splits.Length > 0)
+		//			cur = Utilities.CreateInstance<MouldCurve>(splits[0].Trim('\t'));
+		//		if (cur != null )
+		//		{
+		//			cur.Sail = sail;
+		//			cur.ReadScript(sail, lines);
+		//			Add(cur);
+		//		}
+		//	}
 
-			//this.Rebuild(null);
+		//	//this.Rebuild(null);
 
-			return true;
-		}
-		[Obsolete]
-		public List<string> WriteScript()
-		{
-			List<string> script = new List<string>(Count * 3);
-			script.Add(ScriptTools.Label(GetType().Name,Label));
-			foreach (MouldCurve mc in this)
-			{
-				IList<string> mcScript = mc.WriteScript();
-				foreach (string s in mcScript)
-					script.Add("\t" + s);
-			}
-			return script;
-		}
+		//	return true;
+		//}
+		//[Obsolete]
+		//public List<string> WriteScript()
+		//{
+		//	List<string> script = new List<string>(Count * 3);
+		//	script.Add(ScriptTools.Label(GetType().Name,Label));
+		//	foreach (MouldCurve mc in this)
+		//	{
+		//		IList<string> mcScript = mc.WriteScript();
+		//		foreach (string s in mcScript)
+		//			script.Add("\t" + s);
+		//	}
+		//	return script;
+		//}
 
 		bool m_locked = false;
 

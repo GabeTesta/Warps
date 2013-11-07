@@ -73,36 +73,28 @@ namespace Warps
 			});
 			return flat;
 		}
-		public void ReadFile(string path)
+		public bool ReadFile(string path)
 		{
 			m_path = path;
 			switch (Path.GetExtension(path).ToLower())
 			{
 				case ".wrp":
 				case ".xml":
-					ReadXScript(path);
-					//ReadScriptFile(path);
-					break;
+					return ReadXScript(path);
 				case ".obj":
-					ReadOBJFile(path);
-					//CreateInnerCurves();
-					break;
+					return ReadOBJFile(path);
 				case ".bin":
-					ReadBinFile(path);
-					break;
-				//case ".xml":
-				//	ReadXScript(path);
-				//	break;
+					return ReadBinFile(path);
 				default:
-					CreateMould(path);//read the file
-					break;
+					return CreateMould(path);//read the file
 			}
 		}
 
-		private void ReadOBJFile(string path)
+		private bool ReadOBJFile(string path)
 		{
 			m_type = SurfaceType.OBJ;
 			CreateMould(m_path);
+			return Mould != null;
 		}
 
 		public void WriteBinFile(string binpath)
@@ -217,10 +209,10 @@ namespace Warps
 				//MessageBox.Show(string.Format("{0}\n{1}", span.TotalMilliseconds, span.TotalSeconds));
 			});
 		}
-		public void ReadBinFile(string binpath)
+		public bool ReadBinFile(string binpath)
 		{
 			if (!File.Exists(binpath))
-				return;
+				return false;
 			m_path = binpath;
 			using (BinaryReader bin = new BinaryReader(File.Open(binpath, FileMode.Open, FileAccess.Read)))
 			{
@@ -234,6 +226,8 @@ namespace Warps
 						Add(grp);
 				}
 			}
+			return Mould != null;
+
 			//Rebuild();
 		}
 
@@ -244,11 +238,11 @@ namespace Warps
 			return obj;
 		}
 
-		void CreateMould(string path)
+		bool CreateMould(string path)
 		{
-			CreateMould(null, path);
+			return CreateMould(null, path);
 		}
-		void CreateMould(string type, string path)
+		bool CreateMould(string type, string path)
 		{
 			if (path == null || path.Length == 0 || !File.Exists(path))
 			{
@@ -257,7 +251,7 @@ namespace Warps
 					path = paths[0];
 
 				if (path == null || path.Length == 0)
-					return;
+					return false;
 			}
 			if (type == null)
 			{
@@ -290,6 +284,7 @@ namespace Warps
 			if( m_mould != null )
 				SetBox();//create sail bounding box
 
+			return Mould != null;
 		}
 		//ISurface CreateMould(string type, string path)
 		//{
@@ -314,66 +309,66 @@ namespace Warps
 
 		public event UpdateUI updateStatus;
 
-		[Obsolete]
-		void ReadScriptFile(string path)
-		{
-			using (StreamReader txt = new StreamReader(path))
-			{
-				string line = txt.ReadLine();
-				int cnt = ScriptTools.ReadCount(line);
-				if (cnt >= 0)
-				{
-					if (updateStatus != null)
-						updateStatus(-cnt, path);
-				}
-				line = txt.ReadLine();
+		//[Obsolete]
+		//void ReadScriptFile(string path)
+		//{
+		//	using (StreamReader txt = new StreamReader(path))
+		//	{
+		//		string line = txt.ReadLine();
+		//		int cnt = ScriptTools.ReadCount(line);
+		//		if (cnt >= 0)
+		//		{
+		//			if (updateStatus != null)
+		//				updateStatus(-cnt, path);
+		//		}
+		//		line = txt.ReadLine();
 	
-				CreateMould(ScriptTools.ReadType(line), ScriptTools.ReadPath(line));
+		//		CreateMould(ScriptTools.ReadType(line), ScriptTools.ReadPath(line));
 
-				//read layout
-				line = txt.ReadLine();
-				string[] splits;
-				while (line != null)
-				{
-					List<string> lines = new List<string>(ScriptTools.Block(ref line, txt));
+		//		//read layout
+		//		line = txt.ReadLine();
+		//		string[] splits;
+		//		while (line != null)
+		//		{
+		//			List<string> lines = new List<string>(ScriptTools.Block(ref line, txt));
 
-					IRebuild grp = null;
-					splits = lines[0].Split(':');
-					if (splits.Length > 0)
-						grp = Utilities.CreateInstance<IRebuild>(splits[0].Trim('\t'));
-					if (grp != null)
-					{
-						if( grp is IGroup)
-							(grp as IGroup).Sail = this;
-						m_layout.Add(grp);
+		//			IRebuild grp = null;
+		//			splits = lines[0].Split(':');
+		//			if (splits.Length > 0)
+		//				grp = Utilities.CreateInstance<IRebuild>(splits[0].Trim('\t'));
+		//			if (grp != null)
+		//			{
+		//				if( grp is IGroup)
+		//					(grp as IGroup).Sail = this;
+		//				m_layout.Add(grp);
 
-						if (updateStatus != null)
-							updateStatus(Layout.Count, "Loading " + lines[0]);
-						grp.ReadScript(this, lines);
-					}
-				}
-			}
-		}
+		//				if (updateStatus != null)
+		//					updateStatus(Layout.Count, "Loading " + lines[0]);
+		//				grp.ReadScript(this, lines);
+		//			}
+		//		}
+		//	}
+		//}
 
-		[Obsolete]
-		public void WriteScriptFile(string path)
-		{
-			using (StreamWriter txt = new StreamWriter(path))
-			{
-				//write label, path and layout count
-				txt.WriteLine(string.Format("{0} [{1}] <{2}>", Mould.ToString(), FilePath, Layout.Count));
-				foreach (string s in Mould.WriteScript())
-				{
-					txt.WriteLine("\t" + s);
-				}
-				//txt.WriteLine("\t" + Mould.Script);
-				foreach (IRebuild grp in Layout)
-					foreach (string s in grp.WriteScript())
-					{
-						txt.WriteLine("\t" + s);
-					}
-			}
-		}
+		//[Obsolete]
+		//public void WriteScriptFile(string path)
+		//{
+		//	using (StreamWriter txt = new StreamWriter(path))
+		//	{
+		//		//write label, path and layout count
+		//		txt.WriteLine(string.Format("{0} [{1}] <{2}>", Mould.ToString(), FilePath, Layout.Count));
+		//		foreach (string s in Mould.WriteScript())
+		//		{
+		//			txt.WriteLine("\t" + s);
+		//		}
+		//		//txt.WriteLine("\t" + Mould.Script);
+		//		foreach (IRebuild grp in Layout)
+		//			foreach (string s in grp.WriteScript())
+		//			{
+		//				txt.WriteLine("\t" + s);
+		//			}
+		//	}
+		//}
 
 		public XmlDocument WriteXScript(string path)
 		{
@@ -389,13 +384,13 @@ namespace Warps
 				doc.Save(path);
 			return doc;
 		}
-		public void ReadXScript(string path)
+		public bool ReadXScript(string path)
 		{
 			XmlDocument doc = NsXml.LoadDoc(path);
 			if (doc == null)
 			{
-				ReadScriptFile(path);//try to read it as a script file
-				return;
+			//	ReadScriptFile(path);//try to read it as a script file
+				return false;
 			}
 			XmlNode sail = doc.DocumentElement.FirstChild;
 
@@ -422,6 +417,7 @@ namespace Warps
 					item.ReadXScript(this, sail.ChildNodes[nGrp]);
 				}
 			}
+			return Mould != null;
 		}
 
 		public override string ToString()

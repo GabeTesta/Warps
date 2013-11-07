@@ -488,15 +488,15 @@ namespace Warps.Panels
 		bool m_locked = false;
 		public bool Locked { get { return m_locked; } set { m_locked = value; } }
 
-		public List<string> WriteScript()
-		{
-			throw new NotImplementedException();
-		}
+		//public List<string> WriteScript()
+		//{
+		//	throw new NotImplementedException();
+		//}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			throw new NotImplementedException();
-		}
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	throw new NotImplementedException();
+		//}
 
 		TreeNode m_node = null;
 
@@ -641,10 +641,6 @@ namespace Warps.Panels
 		{
 			throw new NotImplementedException();
 		}
-
-		#endregion
-
-		#region IRebuild Members
 
 		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
 		{

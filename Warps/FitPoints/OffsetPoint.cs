@@ -24,16 +24,6 @@ namespace Warps
 
 		#region IFitPoint Members
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			throw new NotImplementedException();
-		}
-
-		public List<string> WriteScript()
-		{
-			throw new NotImplementedException();
-		}
-
 		double m_sPos;
 		public double S
 		{
@@ -147,7 +137,7 @@ namespace Warps
 			return connected.Contains(m_curve as IRebuild);
 		}
 
-		public bool Update(Sail s)
+		public bool Update(MouldCurve cur)
 		{
 			int nNwt;
 			Vect3 x = new Vect3(), xn = new Vect3();

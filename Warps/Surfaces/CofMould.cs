@@ -538,24 +538,24 @@ namespace Warps
 			}
 		}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt.Count == 0)
-				return false;
-			string line = ScriptTools.ReadLabel(txt[0]);
-			if (line != null)
-			{
-				ReadMFCCofFile(line);
-				return true;
-			}
-			return false;
-		}
-		public List<string> WriteScript()
-		{
-			List<string> s = new List<string>();
-			s.Add(ScriptTools.Label(GetType().Name, m_cofPath));
-			return s;
-		}
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt.Count == 0)
+		//		return false;
+		//	string line = ScriptTools.ReadLabel(txt[0]);
+		//	if (line != null)
+		//	{
+		//		ReadMFCCofFile(line);
+		//		return true;
+		//	}
+		//	return false;
+		//}
+		//public List<string> WriteScript()
+		//{
+		//	List<string> s = new List<string>();
+		//	s.Add(ScriptTools.Label(GetType().Name, m_cofPath));
+		//	return s;
+		//}
 
 		TreeNode m_node;
 		public TreeNode WriteNode()

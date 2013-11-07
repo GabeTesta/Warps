@@ -211,30 +211,30 @@ namespace Warps
 		bool m_locked = false;
 		public bool Locked { get { return m_locked; } set { m_locked = value; } }
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt.Count != 2)
-				return false;
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt.Count != 2)
+		//		return false;
 
-			txt[1] = txt[1].Trim('\t');
-			Label = txt[1].Split(new char[] { ':' })[0];
-			EquationText = txt[1].Split(new char[] { ':' })[1];
+		//	txt[1] = txt[1].Trim('\t');
+		//	Label = txt[1].Split(new char[] { ':' })[0];
+		//	EquationText = txt[1].Split(new char[] { ':' })[1];
 			
-			Evaluate(sail);
-			return true;
-		}
+		//	Evaluate(sail);
+		//	return true;
+		//}
 
-		public List<string> WriteScript(string depth)
-		{
-			List<string> script = new List<string>();
-			script.Add(depth + GetType().Name);
-			script.Add(depth + "\t" + ToScriptString());
-			return script;
-		}
-		public List<string> WriteScript()
-		{
-			return WriteScript("");
-		}
+		//public List<string> WriteScript(string depth)
+		//{
+		//	List<string> script = new List<string>();
+		//	script.Add(depth + GetType().Name);
+		//	script.Add(depth + "\t" + ToScriptString());
+		//	return script;
+		//}
+		//public List<string> WriteScript()
+		//{
+		//	return WriteScript("");
+		//}
 
 		public XmlNode WriteXScript(XmlDocument doc)
 		{

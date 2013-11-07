@@ -238,31 +238,31 @@ namespace Warps
 
 		//}
 
-		public void OnPaste(object sender, EventArgs e)
-		{
-			//Equations should be able to be pasted into this group
+		//public void OnPaste(object sender, EventArgs e)
+		//{
+		//	//Equations should be able to be pasted into this group
 
-			Type type = Utilities.GetClipboardObjType();
-			if (type == null || type != typeof(Equation))
-				return;
+		//	Type type = Utilities.GetClipboardObjType();
+		//	if (type == null || type != typeof(Equation))
+		//		return;
 
-			List<string> result = (List<string>)Utilities.DeSerialize(Clipboard.GetData(type.Name).ToString());
+		//	List<string> result = (List<string>)Utilities.DeSerialize(Clipboard.GetData(type.Name).ToString());
 
-			ScriptTools.ModifyScriptToShowCopied(ref result);
+		//	ScriptTools.ModifyScriptToShowCopied(ref result);
 
-			//VariableGroup group = (VariableGroup)Tree.SelectedTag;
+		//	//VariableGroup group = (VariableGroup)Tree.SelectedTag;
 
-			if (m_group == null)
-				return;
+		//	if (m_group == null)
+		//		return;
 
-			Equation eq = new Equation();
-			//eq.sail = group.Sail;
-			eq.ReadScript(m_group.Sail, result);
-			//eq.Evaluate();
-			m_group.Add(eq);
-			m_frame.Rebuild(m_group);
+		//	Equation eq = new Equation();
+		//	//eq.sail = group.Sail;
+		//	eq.ReadScript(m_group.Sail, result);
+		//	//eq.Evaluate();
+		//	m_group.Add(eq);
+		//	m_frame.Rebuild(m_group);
 
-		}
+		//}
 
 		internal void HighlightEquation(Equation equation)
 		{

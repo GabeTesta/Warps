@@ -1395,68 +1395,68 @@ namespace Warps.Panels
 		bool m_locked = false;
 		public bool Locked { get { return m_locked; } set { m_locked = value; } }
 
-		public List<string> WriteScript()
-		{
-			List<string> script = new List<string>();
-			script.Add(GetType().Name + ": " + Label);
-			//script.Add("\tTargetDPI: ");
-			script.Add("\t" + m_Width.ToScriptString());
-			script.Add("\tGuides: ");
-			foreach (MouldCurve w in m_guides)
-				script.Add("\t\t" + w.Label);
-			script.Add("\tBounds: ");
-			foreach (MouldCurve w in m_bounds)
-				script.Add("\t\t" + w.Label);
+		//public List<string> WriteScript()
+		//{
+		//	List<string> script = new List<string>();
+		//	script.Add(GetType().Name + ": " + Label);
+		//	//script.Add("\tTargetDPI: ");
+		//	script.Add("\t" + m_Width.ToScriptString());
+		//	script.Add("\tGuides: ");
+		//	foreach (MouldCurve w in m_guides)
+		//		script.Add("\t\t" + w.Label);
+		//	script.Add("\tBounds: ");
+		//	foreach (MouldCurve w in m_bounds)
+		//		script.Add("\t\t" + w.Label);
 
-			script.Add("\tClothAlignment: " + ClothAlignment.ToString());
+		//	script.Add("\tClothAlignment: " + ClothAlignment.ToString());
 
-			return script;
-		}
+		//	return script;
+		//}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt == null || txt.Count == 0)
-				return false;
-			Label = ScriptTools.ReadLabel(txt[0]);
-			string[] splits;// = txt[0].Split(':');
-			//Label = "";
-			//if (splits.Length > 0)//extract label
-			//	Label = splits[1];
-			//if (splits.Length > 1)//incase label contains ":"
-			//	for (int i = 2; i < splits.Length; i++)
-			//		Label += ":" + splits[i];
-			//Label = Label.Trim();
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt == null || txt.Count == 0)
+		//		return false;
+		//	Label = ScriptTools.ReadLabel(txt[0]);
+		//	string[] splits;// = txt[0].Split(':');
+		//	//Label = "";
+		//	//if (splits.Length > 0)//extract label
+		//	//	Label = splits[1];
+		//	//if (splits.Length > 1)//incase label contains ":"
+		//	//	for (int i = 2; i < splits.Length; i++)
+		//	//		Label += ":" + splits[i];
+		//	//Label = Label.Trim();
 
-			for (int nLine = 1; nLine < txt.Count; )
-			{
-				IList<string> lines = ScriptTools.Block(ref nLine, txt);
-				splits = lines[0].Split(':');
-				if (splits.Length > 0)
-				{
-					if (splits[0].ToLower().Contains("bounds"))
-					{
-						for (int i = 1; i < lines.Count; i++)
-							m_bounds.Add(sail.FindCurve(lines[i].Trim()));
+		//	for (int nLine = 1; nLine < txt.Count; )
+		//	{
+		//		IList<string> lines = ScriptTools.Block(ref nLine, txt);
+		//		splits = lines[0].Split(':');
+		//		if (splits.Length > 0)
+		//		{
+		//			if (splits[0].ToLower().Contains("bounds"))
+		//			{
+		//				for (int i = 1; i < lines.Count; i++)
+		//					m_bounds.Add(sail.FindCurve(lines[i].Trim()));
 
-					}
-					else if (splits[0].ToLower().Contains("guides"))
-					{
-						for (int i = 1; i < lines.Count; i++)
-							m_guides.Add(sail.FindCurve(lines[i].Trim()));
+		//			}
+		//			else if (splits[0].ToLower().Contains("guides"))
+		//			{
+		//				for (int i = 1; i < lines.Count; i++)
+		//					m_guides.Add(sail.FindCurve(lines[i].Trim()));
 
-					}
-					else if (splits[0].ToLower().Contains("clothalignment"))
-						ClothAlignment = (ClothOrientations)Enum.Parse(typeof(ClothOrientations), splits[1].Trim());
-					else if (splits[0].ToLower().Contains("panelwidth"))
-						m_Width = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
+		//			}
+		//			else if (splits[0].ToLower().Contains("clothalignment"))
+		//				ClothAlignment = (ClothOrientations)Enum.Parse(typeof(ClothOrientations), splits[1].Trim());
+		//			else if (splits[0].ToLower().Contains("panelwidth"))
+		//				m_Width = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
 
-				}
-			}
+		//		}
+		//	}
 
-			Update(sail);
+		//	Update(sail);
 
-			return true;
-		}
+		//	return true;
+		//}
 
 		TreeNode m_node;
 		public TreeNode WriteNode()
@@ -1570,16 +1570,6 @@ namespace Warps.Panels
 			throw new NotImplementedException();
 		}
 
-		#endregion
-
-		public override string ToString()
-		{
-			return Label;
-		}
-
-		#region IRebuild Members
-
-
 		public XmlNode WriteXScript(XmlDocument doc)
 		{
 			XmlNode node = NsXml.MakeNode(doc, this);
@@ -1636,6 +1626,11 @@ namespace Warps.Panels
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return Label;
+		}
 
 
 		#region Flattening Members

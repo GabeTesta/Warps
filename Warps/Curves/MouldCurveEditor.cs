@@ -130,7 +130,7 @@ namespace Warps.Curves
 				foreach (IFitEditor fe in m_edits)
 				{
 					points[i++] = fe.CreatePoint();
-					points[i - 1].Update(c.Sail);
+					points[i - 1].Update(c);
 				}
 
 				c.Fit(points, girths);

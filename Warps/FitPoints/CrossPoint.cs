@@ -33,30 +33,30 @@ namespace Warps
 		internal IMouldCurve[] m_Curves = new IMouldCurve[2];
 		#region IFitPoint Members
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt.Count != 3)
-				return false;
-			//[1] = "\t\tCurve1: Luff"
-			m_Curves[0] = sail.FindCurve(txt[1].Split(new char[] { ':' })[1].Trim());
-			m_Curves[1] = sail.FindCurve(txt[2].Split(new char[] { ':' })[1].Trim());
-			if (m_Curves[0] == null || m_Curves[1] == null)
-				throw new ArgumentException(string.Format("Cannot find CrossPoint curve: {0}",
-					m_Curves[0] == null ? 
-					txt[1].Split(new char[] { ':' })[1].Trim() : 
-					txt[2].Split(new char[] { ':' })[1].Trim()));
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt.Count != 3)
+		//		return false;
+		//	//[1] = "\t\tCurve1: Luff"
+		//	m_Curves[0] = sail.FindCurve(txt[1].Split(new char[] { ':' })[1].Trim());
+		//	m_Curves[1] = sail.FindCurve(txt[2].Split(new char[] { ':' })[1].Trim());
+		//	if (m_Curves[0] == null || m_Curves[1] == null)
+		//		throw new ArgumentException(string.Format("Cannot find CrossPoint curve: {0}",
+		//			m_Curves[0] == null ? 
+		//			txt[1].Split(new char[] { ':' })[1].Trim() : 
+		//			txt[2].Split(new char[] { ':' })[1].Trim()));
 
-			return Update(sail);
-		}
+		//	return Update(sail);
+		//}
 
-		public List<string> WriteScript()
-		{
-			List<string> script = new List<string>();
-			script.Add(GetType().Name);
-			script.Add("\tCurve1: " + m_Curves[0].Label);
-			script.Add("\tCurve2: " + m_Curves[1].Label);
-			return script;
-		}
+		//public List<string> WriteScript()
+		//{
+		//	List<string> script = new List<string>();
+		//	script.Add(GetType().Name);
+		//	script.Add("\tCurve1: " + m_Curves[0].Label);
+		//	script.Add("\tCurve2: " + m_Curves[1].Label);
+		//	return script;
+		//}
 
 		public double S
 		{
@@ -181,7 +181,7 @@ namespace Warps
 				return false;
 			return connected.Contains(m_Curves[0] as IRebuild) || connected.Contains(m_Curves[1] as IRebuild);
 		}
-		public bool Update(Sail s)
+		public bool Update(MouldCurve cur)
 		{
 			Vect2 ss = new Vect2();
 			Vect3 xyz = new Vect3();

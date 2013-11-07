@@ -1271,80 +1271,80 @@ namespace Warps.Yarns
 			YarnDenierEqu.GetParents(s, parents);
 		}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt == null || txt.Count == 0)
-				return false;
-			string[] splits = txt[0].Split(':');
-			Label = "";
-			if (splits.Length > 0)//extract label
-				Label = splits[1];
-			if (splits.Length > 1)//incase label contains ":"
-				for (int i = 2; i < splits.Length; i++)
-					Label += ":" + splits[i];
-			Label = Label.Trim();
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt == null || txt.Count == 0)
+		//		return false;
+		//	string[] splits = txt[0].Split(':');
+		//	Label = "";
+		//	if (splits.Length > 0)//extract label
+		//		Label = splits[1];
+		//	if (splits.Length > 1)//incase label contains ":"
+		//		for (int i = 2; i < splits.Length; i++)
+		//			Label += ":" + splits[i];
+		//	Label = Label.Trim();
 
-			for (int nLine = 1; nLine < txt.Count; )
-			{
-				IList<string> lines = ScriptTools.Block(ref nLine, txt);
-				//nLine += lines.Count - 1;
-				splits = lines[0].Split(':');
-				if (splits.Length > 0)
-				{
-					if (splits[0].ToLower().Contains("targetdpi"))
-						m_targetDpi = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
-					else if (splits[0].ToLower().Contains("yarndenier"))
-						m_yarnDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
-					else if(splits[0].ToLower().Contains("ending"))
-						EndCondition = (Ending)Enum.Parse(typeof(Ending), splits[1].Trim()); 
-					else if (splits[0].ToLower().Contains("scale"))
-						m_Scale = Convert.ToDouble(splits[1]);
-					else if (splits[0].ToLower().Contains("guide"))
-						m_guide = sail.FindCurve(splits[1].Trim()) as GuideComb;
-					else if (splits[0].ToLower().Contains("warps"))
-					{
-						for (int i = 1; i < lines.Count; i++)
-							m_Warps.Add(sail.FindCurve(lines[i].Trim()));
+		//	for (int nLine = 1; nLine < txt.Count; )
+		//	{
+		//		IList<string> lines = ScriptTools.Block(ref nLine, txt);
+		//		//nLine += lines.Count - 1;
+		//		splits = lines[0].Split(':');
+		//		if (splits.Length > 0)
+		//		{
+		//			if (splits[0].ToLower().Contains("targetdpi"))
+		//				m_targetDpi = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
+		//			else if (splits[0].ToLower().Contains("yarndenier"))
+		//				m_yarnDenier = new Equation(lines[0].Split(new char[] { ':' })[0].Trim('\t'), lines[0].Split(new char[] { ':' })[1].Trim('\t'));
+		//			else if(splits[0].ToLower().Contains("ending"))
+		//				EndCondition = (Ending)Enum.Parse(typeof(Ending), splits[1].Trim()); 
+		//			else if (splits[0].ToLower().Contains("scale"))
+		//				m_Scale = Convert.ToDouble(splits[1]);
+		//			else if (splits[0].ToLower().Contains("guide"))
+		//				m_guide = sail.FindCurve(splits[1].Trim()) as GuideComb;
+		//			else if (splits[0].ToLower().Contains("warps"))
+		//			{
+		//				for (int i = 1; i < lines.Count; i++)
+		//					m_Warps.Add(sail.FindCurve(lines[i].Trim()));
 
-					}
-					else if (splits[0].ToLower().Contains("spos"))
-					{
-						DensityPos.Clear();
-						string[] dat = splits[1].Split(new char[] { ',' });
-						foreach (string s in dat)
-						{
-							if (s == " ") continue;
-							DensityPos.Add(Convert.ToDouble(s));
-						}
-					}
-				}
-			}
+		//			}
+		//			else if (splits[0].ToLower().Contains("spos"))
+		//			{
+		//				DensityPos.Clear();
+		//				string[] dat = splits[1].Split(new char[] { ',' });
+		//				foreach (string s in dat)
+		//				{
+		//					if (s == " ") continue;
+		//					DensityPos.Add(Convert.ToDouble(s));
+		//				}
+		//			}
+		//		}
+		//	}
 
-			Update(sail);
+		//	Update(sail);
 
-			return true;
-		}
-		public List<string> WriteScript()
-		{
-			List<string> script = new List<string>();
-			script.Add(GetType().Name + ": " + Label);
-			//script.Add("\tTargetDPI: ");
-			script.Add("\t" + m_targetDpi.ToScriptString());
-			script.Add("\t" + m_yarnDenier.ToScriptString());
-			script.Add("\tScale: " + m_Scale);
-			script.Add("\tGuide: " + m_guide.Label);
-			script.Add("\tWarps: ");
-			foreach (MouldCurve w in m_Warps)
-				script.Add("\t\t" + w.Label);
-			string s = "\tsPos: ";
-			foreach (double v in DensityPos)
-				s += v.ToString() + ", ";
-			script.Add(s);
+		//	return true;
+		//}
+		//public List<string> WriteScript()
+		//{
+		//	List<string> script = new List<string>();
+		//	script.Add(GetType().Name + ": " + Label);
+		//	//script.Add("\tTargetDPI: ");
+		//	script.Add("\t" + m_targetDpi.ToScriptString());
+		//	script.Add("\t" + m_yarnDenier.ToScriptString());
+		//	script.Add("\tScale: " + m_Scale);
+		//	script.Add("\tGuide: " + m_guide.Label);
+		//	script.Add("\tWarps: ");
+		//	foreach (MouldCurve w in m_Warps)
+		//		script.Add("\t\t" + w.Label);
+		//	string s = "\tsPos: ";
+		//	foreach (double v in DensityPos)
+		//		s += v.ToString() + ", ";
+		//	script.Add(s);
 
-			script.Add("\tEnding: " + EndCondition.ToString());
+		//	script.Add("\tEnding: " + EndCondition.ToString());
 
-			return script;
-		}
+		//	return script;
+		//}
 
 		public XmlNode WriteXScript(XmlDocument doc)
 		{

@@ -82,24 +82,24 @@ namespace Warps
 			get { return "Guides"; }
 		}
 
-		public List<string> WriteScript()
-		{
-			List<string> script = new List<string>(FitPoints.Count+2);
-			script.Add(ScriptTools.Label(GetType().Name, Label));
-			FitPoints.ForEach(v => script.Add("\t" + v.ToString(false)));
-			return script;
+		//public List<string> WriteScript()
+		//{
+		//	List<string> script = new List<string>(FitPoints.Count+2);
+		//	script.Add(ScriptTools.Label(GetType().Name, Label));
+		//	FitPoints.ForEach(v => script.Add("\t" + v.ToString(false)));
+		//	return script;
 		
-		}
+		//}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			ScriptTools.ReadLabel(txt[0]);
-			FitPoints = new List<Vect3>(txt.Count-1);
-			for (int i = 1; i < txt.Count; i++)
-				FitPoints.Add( new Vect3(txt[i].Trim('\t')));
-			ReFit();
-			return FitPoints.Count > 3;
-		}
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	ScriptTools.ReadLabel(txt[0]);
+		//	FitPoints = new List<Vect3>(txt.Count-1);
+		//	for (int i = 1; i < txt.Count; i++)
+		//		FitPoints.Add( new Vect3(txt[i].Trim('\t')));
+		//	ReFit();
+		//	return FitPoints.Count > 3;
+		//}
 
 		public bool Locked
 		{

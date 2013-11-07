@@ -382,6 +382,22 @@ namespace Warps.Tapes
 			//Add(new Tape(gir, nPix));
 		}
 
+		internal void Fit(TapeGroup temp)
+		{
+			m_warps = temp.Warps;
+			m_densitymap = temp.m_densitymap;
+			m_angleTol = temp.m_angleTol;
+			m_chainTol = temp.m_chainTol;
+			m_pixlen = temp.m_pixlen;
+			m_totalLength = temp.m_totalLength;
+			//copy tapes
+			Clear();
+			this.AddRange(temp);
+			//udpate treenode
+			WriteNode();
+		}
+
+
 		#region Members
 
 		string m_label;
@@ -495,15 +511,15 @@ namespace Warps.Tapes
 			get { return "Tapes"; }
 		}
 
-		public List<string> WriteScript()
-		{
-			return new List<string>() { ScriptTools.Label(GetType().Name, Label) };
-		}
+		//public List<string> WriteScript()
+		//{
+		//	return new List<string>() { ScriptTools.Label(GetType().Name, Label) };
+		//}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			throw new NotImplementedException();
-		}
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	throw new NotImplementedException();
+		//}
 
 		public bool Locked
 		{
@@ -664,25 +680,6 @@ namespace Warps.Tapes
 		{
 			throw new NotImplementedException();
 		}
-
-		#endregion
-
-		internal void Fit(TapeGroup temp)
-		{
-			m_warps = temp.Warps;
-			m_densitymap = temp.m_densitymap;
-			m_angleTol = temp.m_angleTol;
-			m_chainTol = temp.m_chainTol;
-			m_pixlen = temp.m_pixlen;
-			m_totalLength = temp.m_totalLength;
-			//copy tapes
-			Clear();
-			this.AddRange(temp);
-			//udpate treenode
-			WriteNode();
-		}
-
-		#region IRebuild Members
 
 
 		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)

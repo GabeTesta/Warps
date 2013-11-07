@@ -269,63 +269,63 @@ namespace Warps
 			m_curvePos.GetParents(s, parents);
 		}
 
-		public virtual bool Update(Sail s) 
+		public virtual bool Update(MouldCurve cur) 
 		{
 
 			bool ret = true;
-			ret &= PosEQ.Update(s);		
+			ret &= PosEQ.Update(cur.Sail);		
 
 			//ret &= U.Evaluate(s) != Double.NaN;
 			//ret &= V.Evaluate(s) != Double.NaN;
 			return ret;
 		}
 
-		public bool ReadScript(Sail sail, IList<string> txt)
-		{
-			if (txt.Count != 3)
-				return false;
-			//[1] = "\t\tCurve: Luff"
-			m_curve = sail.FindCurve(txt[1].Split(new char[]{':'})[1].Trim());
-			txt[2] = txt[2].Trim('\t');
+		//public bool ReadScript(Sail sail, IList<string> txt)
+		//{
+		//	if (txt.Count != 3)
+		//		return false;
+		//	//[1] = "\t\tCurve: Luff"
+		//	m_curve = sail.FindCurve(txt[1].Split(new char[]{':'})[1].Trim());
+		//	txt[2] = txt[2].Trim('\t');
 
-			string[] split = txt[2].Split(new char[] { ':' });
+		//	string[] split = txt[2].Split(new char[] { ':' });
 
-			PosEQ = new Equation(split[0], split[1]);
+		//	PosEQ = new Equation(split[0], split[1]);
 
 
-			return Update(sail);
+		//	return Update(sail);
 
-			#region Old
-			//string line;
-			//double d;
-			//foreach (string s in txt)
-			//{
-			//	line = s.TrimStart('\t');
-			//	if (line.StartsWith("S-Cur: "))
-			//	{
-			//		if (double.TryParse(line.Substring(7), out d))
-			//			m_sCurve = d;
-			//	}
-			//	else if (line.StartsWith("Curve: "))
-			//	{
-			//		string curlbl = line.Substring(7).Trim();
-			//		m_curve = sail.FindCurve(curlbl);
-			//	}
+		//	#region Old
+		//	//string line;
+		//	//double d;
+		//	//foreach (string s in txt)
+		//	//{
+		//	//	line = s.TrimStart('\t');
+		//	//	if (line.StartsWith("S-Cur: "))
+		//	//	{
+		//	//		if (double.TryParse(line.Substring(7), out d))
+		//	//			m_sCurve = d;
+		//	//	}
+		//	//	else if (line.StartsWith("Curve: "))
+		//	//	{
+		//	//		string curlbl = line.Substring(7).Trim();
+		//	//		m_curve = sail.FindCurve(curlbl);
+		//	//	}
 
-			//}
+		//	//}
 
-			//return true; 
-			#endregion
-		}
-		public List<string> WriteScript()
-		{
-			List<string> script = new List<string>();
-			//script.Add(string.Format("{0}: [{1}]", GetType().Name, UV.ToString("0.0000")));
-			script.Add(GetType().Name);
-			script.Add("\tCurve: " + m_curve.Label);
-			script.Add("\t" + PosEQ.ToScriptString());
-			return script;
-		}
+		//	//return true; 
+		//	#endregion
+		//}
+		//public List<string> WriteScript()
+		//{
+		//	List<string> script = new List<string>();
+		//	//script.Add(string.Format("{0}: [{1}]", GetType().Name, UV.ToString("0.0000")));
+		//	script.Add(GetType().Name);
+		//	script.Add("\tCurve: " + m_curve.Label);
+		//	script.Add("\t" + PosEQ.ToScriptString());
+		//	return script;
+		//}
 
 		public bool ValidFitPoint
 		{

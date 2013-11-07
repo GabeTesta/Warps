@@ -14,7 +14,7 @@ namespace Warps
 			: base(s) { m_Angle = new Equation(s.m_Angle); }
 		//	: this(s.m_sPos, s.m_curve, s.m_sCurve) { }
 		public AnglePoint(MouldCurve curve, double angle)
-			: this(0, curve, angle) { Update(curve.Sail);  }
+			: this(0, curve, angle) {  }
 		public AnglePoint(double s, IMouldCurve curve, double angle)
 			: base(s, curve, 0) { m_Angle.Value = angle; }
 
@@ -24,12 +24,11 @@ namespace Warps
 		{
 			return new AnglePoint(this);
 		}
-		public override bool Update(Sail s)
+		public override bool Update(MouldCurve cur)
 		{
-			MouldCurve parent = s.FindCurve(this);
-			if (parent == null)
+			if (cur == null)
 				return false;
-			List<IFitPoint> pts = new List<IFitPoint>(parent.FitPoints);
+			List<IFitPoint> pts = new List<IFitPoint>(cur.FitPoints);
 			int index = pts.IndexOf(this);
 			if( index == 0 )
 				index++;//get the next point if this is the first point
@@ -39,7 +38,7 @@ namespace Warps
 			Vect2 uv = new Vect2();
 			Vect3 xyzT = new Vect3();
 			Vect3 dxyz = new Vect3(1,0,0);//horizontal reference
-			s.Mould.xVal(pts[index].UV, ref xyzT);//reference point
+			cur.xVal(pts[index].UV, ref xyzT);//reference point
 
 			bool ret = CurveTools.AnglePoint(m_curve, ref sCur, ref uv, ref xyzT, dxyz, m_Angle.Value, true);
 			if (ret)

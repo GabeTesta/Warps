@@ -306,12 +306,13 @@ namespace Warps
 			Status = String.Format("Loading {0}", path);
 
 			m_sail = new Sail();
-			m_sail = new Sail();
 			m_sail.updateStatus += UpdateStatusStrip;
-			m_sail.ReadFile(path);
 
-			if (m_sail == null)
+			if (!m_sail.ReadFile(path))
+			{
 				Status = String.Format("{0} Load Failed", m_sail.FilePath);
+				return;
+			}
 
 			m_tree.Add(m_sail);
 
@@ -348,8 +349,10 @@ namespace Warps
 			s.updateStatus += UpdateStatusStrip;
 			string path = args[1] as string;
 
-			s.ReadFile(path);
-			e.Result = s;
+			if (s.ReadFile(path))
+				e.Result = s;
+			else
+				e.Cancel = true;
 		}
 		void SailLoadedAsync(object sender, RunWorkerCompletedEventArgs e)
 		{
