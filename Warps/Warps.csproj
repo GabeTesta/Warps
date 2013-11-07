@@ -160,6 +160,12 @@
     <Compile Include="Curves\MouldCurveEditor.Designer.cs">
       <DependentUpon>MouldCurveEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="FitPoints\OffsetPointEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FitPoints\OffsetPointEditor.Designer.cs">
+      <DependentUpon>OffsetPointEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Mixed\MixedGroupEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -372,6 +378,9 @@
     <EmbeddedResource Include="Curves\MouldCurveEditor.resx">
       <DependentUpon>MouldCurveEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FitPoints\OffsetPointEditor.resx">
+      <DependentUpon>OffsetPointEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Mixed\MixedGroupEditor.resx">
       <DependentUpon>MixedGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -515,6 +524,7 @@
     <None Include="Resources\main.bmp" />
     <None Include="Resources\Limits.bmp" />
     <None Include="Resources\MaxMin.bmp" />
+    <None Include="Resources\angle.bmp" />
     <Content Include="rig.ico" />
     <None Include="Resources\comb.bmp" />
     <None Include="Resources\VariableGroup.bmp" />

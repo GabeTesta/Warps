@@ -130,7 +130,7 @@ namespace Warps.Curves
 				foreach (IFitEditor fe in m_edits)
 				{
 					points[i++] = fe.CreatePoint();
-					points[i - 1].Update(c);
+					//points[i - 1].Update(c); //update now happens when refitting curve
 				}
 
 				c.Fit(points, girths);
@@ -158,6 +158,8 @@ namespace Warps.Curves
 			box.Items.Add(new DropDownImage("Curve", Warps.Properties.Resources.FitCurve, typeof(CurvePoint)));
 			box.Items.Add(new DropDownImage("Slide", Warps.Properties.Resources.FitSlide, typeof(SlidePoint)));
 			box.Items.Add(new DropDownImage("Cross", Warps.Properties.Resources.FitCross, typeof(CrossPoint)));
+			box.Items.Add(new DropDownImage("Offset", Warps.Properties.Resources.FitOffset, typeof(OffsetPoint)));
+			box.Items.Add(new DropDownImage("Angle", Warps.Properties.Resources.FitAngle, typeof(AnglePoint)));
 
 			foreach (DropDownImage img in box.Items)
 			{

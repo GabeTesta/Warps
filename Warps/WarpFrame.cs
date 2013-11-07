@@ -77,6 +77,7 @@ namespace Warps
 				imageList.Images.Add("FixedPoint", Warps.Properties.Resources.FitFixed);
 				imageList.Images.Add("CrossPoint", Warps.Properties.Resources.FitCross);
 				imageList.Images.Add("OffsetPoint", Warps.Properties.Resources.FitOffset);
+				imageList.Images.Add("AnglePoint", Warps.Properties.Resources.FitAngle);
 
 				imageList.Images.Add("Equation", Warps.Properties.Resources.equation);
 				imageList.Images.Add("EquationText", Warps.Properties.Resources.EqText);
@@ -1522,12 +1523,14 @@ namespace Warps
 				//View.Refresh();
 				//return;
 				if (ModifierKeys == Keys.Control)
-					LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\df.spi");
-				else
 				{
-					//LoadSailAsync(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\99821022-01.spi");
 					LoadSailAsync(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\DummyJib2.wrp");
 					return;
+				}
+				else
+				{
+					LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\99821022-01.spi");
+					//LoadSailAsync(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\99821022-01.spi");
 				}
 				//LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Main.spi");
 			}
@@ -1537,7 +1540,7 @@ namespace Warps
 			warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(1, 1)));
 			warps.Add(new MouldCurve("v2", ActiveSail, new CrossPoint("Foot", "Luff"), new OffsetPoint(.5, ActiveSail.FindCurve("Leech"), 1)));
 			warps.Add(new MouldCurve("v3", ActiveSail, new Vect2(0, 0), new Vect2(1, 0)));
-			warps.Add(new MouldCurve("Angler", ActiveSail, new CrossPoint("Foot", "Luff"), new AnglePoint(ActiveSail.FindCurve("Leech"), BLAS.ToRad(30))));
+			warps.Add(new MouldCurve("Angler", ActiveSail, new FixedPoint(0,0), new AnglePoint(ActiveSail.FindCurve("Leech"), 45)));
 
 			MouldCurve ext = new MouldCurve("Extender", ActiveSail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(0.4, 0.2), new SlidePoint(ActiveSail.FindCurve("Leech"), 0.5) });
 			//Geodesic.FitExtensionGeo(ext, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(0.4, 0.2), new SlidePoint(ActiveSail.FindCurve("Leech"), 0.5) });

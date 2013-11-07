@@ -1353,7 +1353,7 @@ namespace Warps.Yarns
 			node.AppendChild(m_yarnDenier.WriteXScript(doc));
 			node.AppendChild(m_targetDpi.WriteXScript(doc));
 
-			NsXml.AddAttribute(node, "Guide", Guide.Label);
+			NsXml.AddAttribute(node, "Guide", Guide == null ? "" : Guide.Label);
 
 			StringBuilder sb = new StringBuilder();
 			m_Warps.ForEach(w => sb.Append(w.Label + ","));

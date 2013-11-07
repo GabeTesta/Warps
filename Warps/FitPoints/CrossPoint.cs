@@ -124,7 +124,7 @@ namespace Warps
 			}
 		}
 
-		public System.Windows.Forms.TreeNode Node
+		public TreeNode Node
 		{
 			get
 			{
@@ -194,10 +194,6 @@ namespace Warps
 		{
 			get { return m_Curves != null && m_Curves.Length == 2 && m_Curves[0] != null && m_Curves[1] != null; }
 		}
-
-		#endregion
-
-		#region IFitPoint Members
 
 		public XmlNode WriteXScript(System.Xml.XmlDocument doc)
 		{

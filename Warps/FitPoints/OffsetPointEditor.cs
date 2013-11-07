@@ -11,12 +11,11 @@ using Warps.Curves;
 
 namespace Warps
 {
-	public partial class CurvePointEditor : UserControl, IFitEditor
+	public partial class OffsetPointEditor : UserControl, IFitEditor
 	{
-		public CurvePointEditor()
+		public OffsetPointEditor()
 		{
 			InitializeComponent();
-			//m_cs.ReturnPress += ReturnPress;
 		}
 
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -50,6 +49,18 @@ namespace Warps
 				m_curves.SelectedItem = value;
 			}
 		}
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public Equation Offset
+		{
+			get
+			{
+				return m_offset.Equation;
+			}
+			set
+			{
+				m_offset.Equation = value;
+			}
+		}
 
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public string CurvePosText
@@ -63,47 +74,49 @@ namespace Warps
 				m_cs.Text = value;
 			}
 		}
+		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public string OffsetText
+		{
+			get
+			{
+				return m_offset.Text;
+			}
+			set
+			{
+				m_offset.Text = value;
+			}
+		}
 
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-		public IEnumerable<MouldCurve> Curves 
+		public IEnumerable<MouldCurve> Curves
 		{
-			set 
-			{ 
+			set
+			{
 				m_curves.Items.Clear();
 				m_curves.Items.AddRange(value.ToArray());
-			} 
+			}
 		}
 
 		#region IFitEditor Members
 
-		public virtual IFitPoint CreatePoint()
+		public IFitPoint CreatePoint()
 		{
-			CurvePoint fit = Utilities.CreateInstance<CurvePoint>(FitType);
+			OffsetPoint fit = Utilities.CreateInstance<OffsetPoint>(FitType);
 			if (fit != null)
 			{
-				fit.PosEQ = CurvePos;
-				fit.m_curve = Curve;
+				fit.CurvePosEq = CurvePos;
+				fit.Curve = Curve;
+				fit.OffsetEq = Offset;
 				return fit as IFitPoint;
 			}
 			return null;
 		}
-		
-		//public event KeyEventHandler ReturnPress;
-		//void m_cs_ReturnPress(object sender, KeyEventArgs e)
-		//{
-		//	if (ReturnPress != null)
-		//		ReturnPress(sender, e);
-		//}
 
 		public Type FitType
 		{
-			get 
-			{ 
-				return Tag == null ? null : Tag as Type;
-			}
+			get { return typeof(OffsetPoint); }
 		}
 
-		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public List<object> AutoFillData
 		{
 			set
@@ -123,9 +136,11 @@ namespace Warps
 					}
 				}
 				Curve = c;//select current curve
-			} 
+			}
 		}
 
+		//[-.400;sli00;0.250]
+		//[<offset from reference curve as percentage of reference curve's length>; <referece curve>; <position along refernece curve>]
 		public string W4LText
 		{
 			get
@@ -134,29 +149,32 @@ namespace Warps
 				type = type.ToUpper().Substring(0, 5);
 				string lbl = Curve.Label.Length > 5 ? Curve.Label.Substring(0, 5) : Curve.Label;
 
-				return String.Format("{0,5} [{1,5};{2}]",
-					type,
+				return String.Format("[{0,5};{1,5};{2,5}]",
+					(Offset.Value / Curve.Length).ToString("f3"),
 					lbl,
 					CurvePos.Value.ToString("f3"));
 			}
 		}
+
 		#endregion
 
 		protected override void OnLayout(LayoutEventArgs e)
 		{
 			base.OnLayout(e);
-			int wid = Width / 2 - Padding.Horizontal;
+			int wid = Width / 3 - (2*Padding.Horizontal);
 
-			m_curves.Width = m_cs.Width = wid;
+			m_curves.Width = m_cs.Width = m_offset.Width = wid;
 			m_cs.Location = new Point(0, 0);
 			m_curves.Location = new Point(wid + Padding.Horizontal, 0);
+			m_offset.Location = new Point(2 * wid + 2 * Padding.Horizontal, 0);
 		}
 		protected override void OnSizeChanged(EventArgs e)
 		{
 			base.OnSizeChanged(e);
 			m_curves.Height = Height;
 			m_cs.Height = Height;
-			Height = Math.Max(m_curves.Height, m_cs.Height);
+			m_offset.Height = Height;
+			Height = Math.Max(m_offset.Height, Math.Max(m_curves.Height, m_cs.Height));
 		}
 
 		private void m_curves_Validating(object sender, CancelEventArgs e)
@@ -165,7 +183,7 @@ namespace Warps
 				return;//valid selection already
 
 			//search curve list for specified curve
-			foreach( Object o in m_curves.Items )
+			foreach (Object o in m_curves.Items)
 				if (o.ToString() == m_curves.Text)
 				{
 					m_curves.SelectedItem = o;

@@ -69,18 +69,19 @@ namespace Warps.Controls
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Equation Equation
 		{
-			get { return new Equation("eq", Text); }
+			get { return new Equation(m_label, Text); }
 			set
 			{
 				//if (value.IsNumber())
 				//	equationBox.Value = value.Value;
 				//else
-					equationBox.Text = value.EquationText;//text will be either value.tostring() or the eq text
+				m_label = value.Label;
+				equationBox.Text = value.EquationText;//text will be either value.tostring() or the eq text
 				//Text = value.Label;
 				//equationBox.EQ = value.EquationText;
 			}
 		}
-
+		string m_label = "";
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public double Value
 		{

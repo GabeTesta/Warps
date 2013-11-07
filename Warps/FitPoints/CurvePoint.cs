@@ -152,19 +152,15 @@ namespace Warps
 			{
 				TreeNode point = new TreeNode(string.Format("{0:0.0000} [{1}]", S, UV.ToString("0.0000")));
 				point.ImageKey = point.SelectedImageKey = this.GetType().Name;
+				point.Tag = this;
 
 				TreeNode tmp = new TreeNode(string.Format("Position: {0:0.0000}", PosEQ.Value));
-				tmp.ImageKey = tmp.SelectedImageKey = "empty";
+				tmp.ImageKey = tmp.SelectedImageKey = typeof(Equation).Name;
 				point.Nodes.Add(tmp);
 
-				if (m_curve != null)
-					tmp = new TreeNode(string.Format("Curve: {0}", m_curve.Label));
-				else
-					tmp = new TreeNode(string.Format("Curve: {0}", "empty"));
-				tmp.ImageKey = tmp.SelectedImageKey = "empty";
+				tmp = new TreeNode(string.Format("Curve: {0}", Curve == null ? "empty" : Curve.Label));
+				tmp.ImageKey = tmp.SelectedImageKey = typeof(MouldCurve).Name;
 				point.Nodes.Add(tmp);
-
-				point.Tag = this;
 
 				return point;
 			}
@@ -204,8 +200,9 @@ namespace Warps
 				edit = new CurvePointEditor();
 			CurvePointEditor cdit = edit as CurvePointEditor;
 			cdit.Tag = GetType();
+
 			cdit.Curve = m_curve;
-			cdit.CS = PosEQ;
+			cdit.CurvePos = PosEQ;
 
 			return cdit;
 		}
@@ -218,7 +215,7 @@ namespace Warps
 				throw new ArgumentException("Type must be CurvePointEditor");
 			CurvePointEditor cdit = edit as CurvePointEditor;
 			m_curve = cdit.Curve;
-			PosEQ = cdit.CS;
+			PosEQ = cdit.CurvePos;
 		}
 
 
@@ -229,34 +226,36 @@ namespace Warps
 			if (m_curve is IRebuild && connected.Contains(m_curve as IRebuild)) 
 				return true;
 
-			if (connected != null)
-			{
-				bool bupdate = false;
-				connected.ForEach(element =>
-				{
-					if (element is MouldCurve)
-					{
-						if (PosEQ.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower()))
-							bupdate = true;
-					}
-					else if (element is Equation)
-					{
-						if (PosEQ.EquationText.ToLower().Contains((element as Equation).Label.ToLower()))
-							bupdate = true;
-					}
-					else if (element is VariableGroup)
-					{
-						foreach (KeyValuePair<string, Equation> e in element as VariableGroup)
-						{
-							if (PosEQ.EquationText.ToLower().Contains(e.Key.ToLower()))
-								bupdate = true;
-						}
-					}
-				});
-				return bupdate;
-			}
-			
-			return false;
+			return PosEQ.Affected(connected);
+
+			//if (connected != null)
+			//{
+			//	bool bupdate = false;
+			//	connected.ForEach(element =>
+			//	{
+			//		if (element is MouldCurve)
+			//		{
+			//			if (PosEQ.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower()))
+			//				bupdate = true;
+			//		}
+			//		else if (element is Equation)
+			//		{
+			//			if (PosEQ.EquationText.ToLower().Contains((element as Equation).Label.ToLower()))
+			//				bupdate = true;
+			//		}
+			//		else if (element is VariableGroup)
+			//		{
+			//			foreach (KeyValuePair<string, Equation> e in element as VariableGroup)
+			//			{
+			//				if (PosEQ.EquationText.ToLower().Contains(e.Key.ToLower()))
+			//					bupdate = true;
+			//			}
+			//		}
+			//	});
+			//	return bupdate;
+			//}
+			//
+			//return false;
 		}
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{

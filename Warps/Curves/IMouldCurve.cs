@@ -164,10 +164,11 @@ namespace Warps.Curves
 				sGuesses = new double[] { 0, .125, .25, .375, .5, .625, .75, .875, 1 };
 
 			double sCur = -1, hCur = 1e9;
+			int max_loops = bUseGuess ? 200 : 75;
 			for (int nGuess = 0; nGuess < sGuesses.Length; nGuess++)
 			{
 				s = sGuesses[nGuess];//starting guess
-				int loop = 0, max_loops = 100;
+				int loop = 0;
 				while (loop++ < max_loops)
 				{
 					c.xCvt(s, ref uv, ref x, ref dx, ref ddx);
@@ -178,7 +179,7 @@ namespace Warps.Curves
 					e[0] = s;
 					e[1] = h.Dot(dxnTarget) - rad * dist;// error, dot product is 0 at pi/2
 
-					if (Math.Abs(e[1]) < 1e-9) // error is less than the tolerance
+					if (Math.Abs(e[1]) < 1e-6) // error is less than the tolerance
 					{
 						if (dist < hCur)//store best result
 						{

@@ -10,17 +10,44 @@ namespace Warps
 {
 	class OffsetPoint: IFitPoint
 	{
+		public OffsetPoint():this(0,null,0){}
 		public OffsetPoint(OffsetPoint cloneme) : this(cloneme.m_sCurve, cloneme.m_curve, cloneme.m_xOffset) {  }
 		public OffsetPoint(double sCurve, IMouldCurve curve, double offset)
+		{
+			m_sCurve.Value = sCurve;
+			m_curve = curve;
+			m_xOffset.Value = offset;
+		}
+		public OffsetPoint(Equation sCurve, IMouldCurve curve, Equation offset)
 		{
 			m_sCurve = sCurve;
 			m_curve = curve;
 			m_xOffset = offset;
-			Update(null);
+			//Update(null);
 		}
-		double m_sCurve;
-		double m_xOffset;
+
+		Equation m_sCurve = new Equation("Curve Position", 0);
 		IMouldCurve m_curve;
+		Equation m_xOffset = new Equation("Offset", 0);
+
+		public Equation OffsetEq
+		{
+			get { return m_xOffset; }
+			set { m_xOffset = value; }
+		}
+		public IMouldCurve Curve
+		{
+			get { return m_curve; }
+			set { m_curve = value; }
+		}
+		public Equation CurvePosEq
+		{
+			get { return m_sCurve; }
+			set { m_sCurve = value; }
+		}
+
+		public double CurvePos { get { return CurvePosEq.Value; } }
+		public double OffsetVal { get { return OffsetEq.Value; } }
 
 		#region IFitPoint Members
 
@@ -87,7 +114,6 @@ namespace Warps
 				}
 			}
 		}
-
 		
 		public TreeNode Node
 		{
@@ -95,67 +121,94 @@ namespace Warps
 			{
 				TreeNode point = new TreeNode(string.Format("{0:0.0000} [{1}]", S, UV.ToString("0.0000")));
 				point.ImageKey = point.SelectedImageKey = GetType().Name;
-				TreeNode tmp = new TreeNode(string.Format("Position: {0:0.0000}", m_sCurve));
-				tmp.ImageKey = tmp.SelectedImageKey = "empty";
-				point.Nodes.Add(tmp);
-
-				if (m_curve != null)
-					tmp = new TreeNode(string.Format("Curve: {0}", m_curve.Label));
-				else
-					tmp = new TreeNode(string.Format("Curve: {0}", "empty"));
-
-				tmp.ImageKey = tmp.SelectedImageKey = "empty";
-				point.Nodes.Add(tmp);
-
-				tmp = new TreeNode(string.Format("Offset: {0:f4}", m_xOffset));
-				tmp.ImageKey = tmp.SelectedImageKey = "empty";
-				point.Nodes.Add(tmp);
-
 				point.Tag = this;
+
+				TreeNode tmp;
+
+				tmp = new TreeNode(string.Format("Offset: {0:f4}", OffsetEq.Value));
+				tmp.ImageKey = tmp.SelectedImageKey = typeof(Equation).Name;
+				point.Nodes.Add(tmp);
+
+				tmp = new TreeNode(string.Format("Curve: {0}", Curve == null ? "empty" : Curve.Label));
+				tmp.ImageKey = tmp.SelectedImageKey = typeof(MouldCurve).Name;
+				point.Nodes.Add(tmp);
+
+				tmp = new TreeNode(string.Format("Position: {0:0.0000}", CurvePosEq.Value));
+				tmp.ImageKey = tmp.SelectedImageKey = typeof(Equation).Name;
+				point.Nodes.Add(tmp);
+
 				return point;
 			}
 		}
 
 		public Control WriteEditor(ref IFitEditor edit)
 		{
-			throw new NotImplementedException();
+			if (edit == null || !(edit is OffsetPointEditor))
+				edit = new OffsetPointEditor();
+			OffsetPointEditor cdit = edit as OffsetPointEditor;
+			cdit.Tag = GetType();
+
+			cdit.Offset = OffsetEq;
+			cdit.Curve = m_curve;
+			cdit.CurvePos = CurvePosEq;
+
+			return cdit;
 		}
 
 		public void ReadEditor(IFitEditor edit)
 		{
-			throw new NotImplementedException();
+			if (edit == null)
+				throw new ArgumentNullException();
+			if (!(edit is OffsetPointEditor))
+				throw new ArgumentException("Type must be CurvePointEditor");
+			OffsetPointEditor cdit = edit as OffsetPointEditor;
+
+			OffsetEq = cdit.Offset;
+			Curve = cdit.Curve;
+			CurvePosEq = cdit.CurvePos;
 		}
 
 		public void GetParents(Sail s, List<IRebuild> parents)
 		{
-			if( m_curve is IRebuild )
-				parents.Add(m_curve as IRebuild);
+			if( Curve is IRebuild )
+				parents.Add(Curve as IRebuild);
+
+			CurvePosEq.GetParents(s, parents);
+			OffsetEq.GetParents(s, parents);
 		}
 
 		public bool Affected(List<IRebuild> connected)
 		{
-			return connected.Contains(m_curve as IRebuild);
+			if (connected.Contains(Curve as IRebuild))
+				return true;
+			if (CurvePosEq.Affected(connected))
+				return true;
+			if (OffsetEq.Affected(connected))
+				return true;
+			return false;
 		}
 
 		public bool Update(MouldCurve cur)
 		{
+			OffsetEq.Update(cur.Sail);
+			CurvePosEq.Update(cur.Sail);
 			int nNwt;
 			Vect3 x = new Vect3(), xn = new Vect3();
 			Vect2 un = new Vect2();
 			//get unit inplane normal in u-coords
-			m_curve.uNor(m_sCurve, ref m_uv, ref un);
+			Curve.uNor(CurvePos, ref m_uv, ref un);
 			for( nNwt = 0; nNwt < 25; nNwt++ )
 			{
 				//curve point and normal offset in x-coords
-				m_curve.xVal(m_uv, ref x);
-				m_curve.xVal(un + m_uv, ref xn);
+				Curve.xVal(m_uv, ref x);
+				Curve.xVal(un + m_uv, ref xn);
 
 				//x-offset from unit normal
 				double dn = xn.Distance(x);
-				if (BLAS.IsEqual(dn, m_xOffset, 1e-6))
+				if (BLAS.IsEqual(dn, OffsetVal, 1e-6))
 					break;
 				//scale normal to match target offset
-				dn = m_xOffset / dn;
+				dn = OffsetVal / dn;
 				un.Magnitude *= dn;
 			}
 			//offset uv coords using scaled normal
@@ -166,29 +219,28 @@ namespace Warps
 
 		public bool ValidFitPoint
 		{
-			get { return m_curve != null;  }
+			get { return Curve != null;  }
 		}
-
-		#endregion
-
-		#region IFitPoint Members
-
 
 		public XmlNode WriteXScript(XmlDocument doc)
 		{
 			XmlNode node = NsXml.MakeNode(doc, GetType().Name);
-			NsXml.AddAttribute(node, "S-Curve", m_sCurve.ToString());
-			NsXml.AddAttribute(node, "Curve", m_curve.Label);
-			NsXml.AddAttribute(node, "Offset", m_xOffset.ToString());
+			node.AppendChild(CurvePosEq.WriteXScript(doc));
+			//NsXml.AddAttribute(node, "S-Curve", m_sCurve.ToString());
+			NsXml.AddAttribute(node, "Curve", Curve.Label);
+			node.AppendChild(OffsetEq.WriteXScript(doc));
+			//NsXml.AddAttribute(node, "Offset", m_xOffset.ToString());
 
 			return node;
 		}
 
 		public void ReadXScript(Sail s, XmlNode node)
 		{
-			m_sCurve = NsXml.ReadDouble(node, "S-Curve");
-			m_curve = s.FindCurve(NsXml.ReadString(node, "Curve"));
-			m_xOffset = NsXml.ReadDouble(node, "Offset");
+			CurvePosEq.ReadXScript(s, node.FirstChild);
+			//m_sCurve = NsXml.ReadDouble(node, "S-Curve");
+			Curve = s.FindCurve(NsXml.ReadString(node, "Curve"));
+			OffsetEq.ReadXScript(s, node.LastChild);
+			//m_xOffset = NsXml.ReadDouble(node, "Offset");
 		}
 
 		#endregion

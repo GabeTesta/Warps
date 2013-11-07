@@ -122,24 +122,22 @@ namespace Warps
 			}
 		}
 
-		TreeNode IFitPoint.Node
+		public TreeNode Node
 		{
 			get
 			{
 				TreeNode point = new TreeNode(string.Format("{0:0.0000} [{1}]", S, UV.ToString("0.0000")));
-				point.ImageKey = this.GetType().Name;
-				point.SelectedImageKey = this.GetType().Name;
-				TreeNode tmp = new TreeNode(string.Format("S-Pos: {0:0.0000}", S));
-				tmp.ImageKey = "empty";
-				tmp.SelectedImageKey = "empty";
-				point.Nodes.Add(tmp);
+				point.ImageKey = point.SelectedImageKey = this.GetType().Name;
+				point.Tag = this;
+
+				TreeNode tmp;
+				//TreeNode tmp = new TreeNode(string.Format("S-Pos: {0:0.0000}", S));
+				//tmp.ImageKey = tmp.SelectedImageKey = typeof(Equation).Name;
+				//point.Nodes.Add(tmp);
 
 				tmp = new TreeNode(string.Format("UVPos: {0}", CurrentUV));
-				tmp.ImageKey = "empty";
-				tmp.SelectedImageKey = "empty";
+				tmp.ImageKey = tmp.SelectedImageKey = typeof(Equation).Name;
 				point.Nodes.Add(tmp);
-
-				point.Tag = this;
 
 				return point;
 				//point.Nodes.Add(string.Format("S-Pos: {0:0.0000}", S), string.Format("S-Pos: {0:0.0000}", S), "empty");
@@ -189,55 +187,7 @@ namespace Warps
 			U = pdit.U;
 			V = pdit.V;
 		}
-
-		//#region PointTypeSwitcher
-		//public PointTypeSwitcher WriteEditor(PointTypeSwitcher edit)
-		//{
-		//	if (edit == null)
-		//		edit = new PointTypeSwitcher();
-		//	FixedPointEditor fp = edit.Edit as FixedPointEditor;
-		//	//fp.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-		//	if (fp == null)
-		//		fp = new FixedPointEditor();
-		//	fp.Tag = GetType();
-		//	fp.U = U;
-		//	fp.V = V;
-		//	edit.SetEdit(fp);
-		//	return edit;
-		//}
-		//public void ReadEditor(PointTypeSwitcher edit)
-		//{
-		//	FixedPointEditor fp = edit.Edit as FixedPointEditor;
-		//	if (fp == null)
-		//		return;
-		//	U = fp.U;
-		//	V = fp.V;
-		//}
-		//public Control Editor
-		//{
-		//	get
-		//	{
-		//		FixedPointEditor fp = new FixedPointEditor();
-		//		fp.U = U;
-		//		fp.V = V;
-		//		return fp;
-		//	}
-		//	set
-		//	{
-		//		FixedPointEditor fp = value as FixedPointEditor;
-		//		if (fp == null)
-		//			return;
-		//		U = fp.U;
-		//		V = fp.V;
-		//	}
-		//}
-
-		//#endregion
 	
-		#endregion
-
-		#region IRebuild Members
-
 		public bool Affected(List<IRebuild> connected)
 		{
 			if (connected != null)

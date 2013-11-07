@@ -16,7 +16,7 @@ namespace Warps
 		public AnglePoint(MouldCurve curve, double angle)
 			: this(0, curve, angle) {  }
 		public AnglePoint(double s, IMouldCurve curve, double angle)
-			: base(s, curve, 0) { m_Angle.Value = angle; }
+			: base(s, curve, 0.5) { m_Angle.Value = angle; }
 
 		Equation m_Angle = new Equation("Angle", 0);
 
@@ -40,8 +40,13 @@ namespace Warps
 			Vect3 dxyz = new Vect3(1,0,0);//horizontal reference
 			cur.xVal(pts[index].UV, ref xyzT);//reference point
 
-			bool ret = CurveTools.AnglePoint(m_curve, ref sCur, ref uv, ref xyzT, dxyz, m_Angle.Value, true);
-			if (ret)
+			bool ret = false;
+			if( (ret = CurveTools.AnglePoint(m_curve, ref sCur, ref uv, ref xyzT, dxyz, BLAS.ToRad(m_Angle.Value), true)) == false)//attempt to use single starting position
+			{
+				cur.xVal(pts[index].UV, ref xyzT);//reset reference point
+				ret = CurveTools.AnglePoint(m_curve, ref sCur, ref uv, ref xyzT, dxyz, BLAS.ToRad(m_Angle.Value), false);//default to 1/8th starts (slower)
+			}
+			if( ret )
 				m_curvePos.Value = sCur;
 			return ret;
 		}
@@ -55,7 +60,7 @@ namespace Warps
 				throw new ArgumentException("Type must be CurvePointEditor");
 			CurvePointEditor cdit = edit as CurvePointEditor;
 			m_curve = cdit.Curve;
-			m_Angle = cdit.CS;
+			m_Angle = cdit.CurvePos;
 		}
 		public override Control WriteEditor(ref IFitEditor edit)
 		{
@@ -64,7 +69,7 @@ namespace Warps
 			CurvePointEditor cdit = edit as CurvePointEditor;
 			cdit.Tag = GetType();
 			cdit.Curve = m_curve;
-			cdit.CS = m_Angle;
+			cdit.CurvePos = m_Angle;
 
 			return cdit;
 		}

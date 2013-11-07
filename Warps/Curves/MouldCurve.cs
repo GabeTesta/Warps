@@ -323,7 +323,7 @@ namespace Warps.Curves
 		{
 			if (FitPoints == null)
 				return false;
-			bool valid = true;
+			bool valid = FitPoints.Length > 1;
 			foreach (IFitPoint pnt in FitPoints)
 				valid &= pnt.ValidFitPoint;
 
@@ -407,6 +407,9 @@ namespace Warps.Curves
 		public virtual void Fit(IFitPoint[] points)
 		{
 			FitPoints = points;
+			foreach (IFitPoint fp in FitPoints)
+				fp.Update(this);//ensure fitpoints are current
+
 			//set girth settings from previous settings or defualt if change in segments
 			bool anyGirths = InitializeGirthSegments(points);
 			//if any segements are flagged as girths then attempt to Geodesic fit
@@ -750,11 +753,11 @@ namespace Warps.Curves
 		public bool Delete() { return false; }
 		public bool Update(Sail s)
 		{
-			if( FitPoints != null )
-				foreach (IFitPoint fp in FitPoints)
-					fp.Update(this);
+			//if( FitPoints != null )
+			//	foreach (IFitPoint fp in FitPoints)
+			//		fp.Update(this);
 
-			if (AllFitPointsValid())
+			//if (AllFitPointsValid())
 				ReFit();
 			return AllFitPointsValid();
 		}
