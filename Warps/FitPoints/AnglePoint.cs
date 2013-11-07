@@ -53,7 +53,6 @@ namespace Warps
 
 		public override void ReadEditor(IFitEditor edit)
 		{
-			base.ReadEditor(edit);
 			if (edit == null)
 				throw new ArgumentNullException();
 			if (!(edit is CurvePointEditor))

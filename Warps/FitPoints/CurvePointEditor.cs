@@ -81,8 +81,9 @@ namespace Warps
 			CurvePoint fit = Utilities.CreateInstance<CurvePoint>(FitType);
 			if (fit != null)
 			{
-				fit.PosEQ = CurvePos;
-				fit.m_curve = Curve;
+				fit.ReadEditor(this);
+				//fit.PosEQ = CurvePos;
+				//fit.m_curve = Curve;
 				return fit as IFitPoint;
 			}
 			return null;
