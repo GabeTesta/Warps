@@ -52,14 +52,16 @@ namespace Warps.Curves
 
 		public void ReadCurve(MouldCurve c)
 		{
-			if (c == null)
+			if (c == null || c.FitPoints == null)
 			{
 				Panel.Clear();
+				Length = 0;
 				return;
 			}
 			//Label = c.Label;
 			Length = c.Length;
 			SuspendLayout();
+	
 			if (m_edits == null || c.FitPoints.Length != m_edits.Length)
 			{
 				Panel.Clear();
@@ -116,21 +118,25 @@ namespace Warps.Curves
 		public void WriteCurve(MouldCurve c)
 		{
 			//c.Label = Label;
-
-			bool[] girths = new bool[m_girths.Count];
-			int i = 0;
-			foreach (CheckBox b in m_girths)
-				girths[i++] = b.Checked;
-
-			i = 0;
-			IFitPoint[] points = new IFitPoint[m_edits.Length];
-			foreach (IFitEditor fe in m_edits)
+			if (m_edits != null)
 			{
-				points[i++] = fe.CreatePoint();
-				points[i - 1].Update(c.Sail);
-			}
+				bool[] girths = new bool[m_girths.Count];
+				int i = 0;
+				foreach (CheckBox b in m_girths)
+					girths[i++] = b.Checked;
 
-			c.Fit(points, girths);
+				i = 0;
+				IFitPoint[] points = new IFitPoint[m_edits.Length];
+				foreach (IFitEditor fe in m_edits)
+				{
+					points[i++] = fe.CreatePoint();
+					points[i - 1].Update(c.Sail);
+				}
+
+				c.Fit(points, girths);
+			}
+			else
+				c.UnFit();
 		}
 
 		#endregion
@@ -268,9 +274,9 @@ namespace Warps.Curves
 			//replace the old control with the correct one
 			Control old = m_edits[nFit] as Control;
 			//create a new one
-			object fit = Utilities.CreateInstance(fitPointType);
+			IFitPoint fit = Utilities.CreateInstance<IFitPoint>(fitPointType);
 			Vect2 uv = (old as IFitEditor).CreatePoint().UV;
-			(fit as IFitPoint).UV = uv;//copy over the uv coords if possible
+			//fit.UV = uv;//copy over the uv coords if possible
 			Control ptBox = (fit as IFitPoint).WriteEditor(ref m_edits[nFit]);
 			m_edits[nFit].AutoFillData = AutoFill;
 			//m_edits[nFit]
@@ -327,6 +333,13 @@ namespace Warps.Curves
 
 		private void m_add_Click(object sender, EventArgs e)
 		{
+			if (m_edits == null)
+			{
+				m_girths = new List<CheckBox>();
+				m_combos = new List<ImageComboBox>();
+				m_edits = new IFitEditor[0];
+				m_updowns = new List<FlatUpDown>();
+			}
 			//new array of edits
 			IFitEditor[] edits = new IFitEditor[m_edits.Length + 1];
 			m_edits.CopyTo(edits, 0);//copy existing
@@ -336,10 +349,13 @@ namespace Warps.Curves
 				edits[m_edits.Length].AutoFillData = AutoFill;
 			//add combo/girth/updown
 			m_combos.Add(ImageBox(typeof(FixedPoint)));
-			m_girths.Add(GirthCheck(false));
 			m_updowns.Add(UpDown());
-			//add controls to panel
-			Panel.Add(m_girths.Last());
+			if (edits.Length > 1)
+			{
+				m_girths.Add(GirthCheck(false));
+				//add controls to panel
+				Panel.Add(m_girths.Last());
+			}
 			Panel.Add(m_combos.Last());
 			Panel.Add(edits[m_edits.Length] as Control);
 			Panel.Add(m_updowns.Last());
@@ -437,11 +453,14 @@ namespace Warps.Curves
 				// make a checkbox for internal segments
 				if (i < m_edits.Length - 1)
 				{
-					m_girths[i].Top = m_combos[i].Bottom - (int)((double)m_girths[i].Height / 2.0);
-					m_girths[i].Left = 0;
+					if (m_girths.Count > i)
+					{
+						m_girths[i].Top = m_combos[i].Bottom - (int)((double)m_girths[i].Height / 2.0);
+						m_girths[i].Left = 0;
+					}
 				}
 
-				if (CHK == 0)//initialize checkbox offset
+				if (CHK == 0 && m_girths.Count > 0)//initialize checkbox offset
 					CHK = m_girths[i].Right;
 
 				m_combos[i].Left = CHK;

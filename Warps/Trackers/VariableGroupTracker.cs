@@ -16,7 +16,7 @@ namespace Warps
 			m_group = group;
 			m_eqEditor = new EquationEditorForm(m_group);
 			m_eqEditor.OnVariableAdded += m_eqEditor_OnVariableAdded;
-			m_eqEditor.OnVariableDeleted += m_eqEditor_OnVariableDeleted;
+			//m_eqEditor.OnVariableDeleted += m_eqEditor_OnVariableDeleted;
 
 			m_edit = new VariableGroupEditor(m_group);
 		}
@@ -30,9 +30,9 @@ namespace Warps
 				m_frame.EditorPanel = Edit;
 				if (Tree != null)
 				{
-					Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
-					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
-					Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+					//Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
+					//Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
+					//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
 				}
 			}
 		}
@@ -40,13 +40,13 @@ namespace Warps
 		{
 			m_frame.EditorPanel = null;
 
-			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
-			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
-			Tree.KeyUp -= Tree_KeyUp;
+			//Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
+			//Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
+			//Tree.KeyUp -= Tree_KeyUp;
 
 			if (m_eqEditor != null)
 			{
-				m_eqEditor.OnVariableDeleted -= m_eqEditor_OnVariableDeleted;
+				//m_eqEditor.OnVariableDeleted -= m_eqEditor_OnVariableDeleted;
 				m_eqEditor.OnVariableAdded -= m_eqEditor_OnVariableAdded;
 				m_eqEditor = null;
 			}
@@ -70,45 +70,23 @@ namespace Warps
 		VariableGroup m_group;
 		VariableGroupEditor m_edit;
 
-		void Tree_KeyUp(object sender, KeyEventArgs e)
-		{
-			// the modifier key CTRL is pressed by the time it gets here
-			switch (e.KeyCode)
-			{
-				//case Keys.C:
-				//	OnCopy(Tree.SelectedTag, new EventArgs());
-				//	break;
-				case Keys.V:
-					OnPaste(Tree.SelectedTag, new EventArgs());
-					break;
-			}
-		}
+		//void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		//{
+		//	Logleton.TheLog.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
 
-		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-		{
-			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
-				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
-					Tree.TreeContextMenu.Items[i].Enabled = Utilities.GetClipboardObjType() == typeof(Equation);
-			Tree.TreeContextMenu.Show();
-		}
-
-		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-		{
-			Logleton.TheLog.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
-
-			if (e.ClickedItem.Text == "Paste")
-			{
-				OnPaste(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Delete")
-			{
-				OnDelete(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Add")
-			{
-				OnAdd(sender, new EventArgs());
-			}
-		}
+		//	if (e.ClickedItem.Text == "Paste")
+		//	{
+		//		OnPaste(sender, new EventArgs());
+		//	}
+		//	else if (e.ClickedItem.Text == "Delete")
+		//	{
+		//		OnDelete(sender, new EventArgs());
+		//	}
+		//	else if (e.ClickedItem.Text == "Add")
+		//	{
+		//		OnAdd(sender, new EventArgs());
+		//	}
+		//}
 
 		DualView View
 		{
@@ -147,26 +125,26 @@ namespace Warps
 			//m_temp.FitPoints = pnts.ToArray();
 		}
 
-		public void OnAdd(object sender, EventArgs e)
-		{
-			if (m_eqEditor != null)
-				m_eqEditor.Show();
-		}
+		//public void OnAdd(object sender, EventArgs e)
+		//{
+		//	if (m_eqEditor != null)
+		//		m_eqEditor.Show();
+		//}
 
-		public void OnDelete(object sender, EventArgs e)
-		{
-			// HERE WE DELETE
+		//public void OnDelete(object sender, EventArgs e)
+		//{
+		//	// HERE WE DELETE
 
-			// Get clicked item (Curve)
+		//	// Get clicked item (Curve)
 
-			// List<IRebuild> ret = m_frame.Rebuild(Curve)
-			// ret is invalid shit
-			// call invalidate(ret)-> color themselves SHOW THEY ARE BROKEN
-			// View entity keep previous state, color invalid byEntity, when fixed, byLayer
-			//
-			m_frame.Delete(m_group);
+		//	// List<IRebuild> ret = m_frame.Rebuild(Curve)
+		//	// ret is invalid shit
+		//	// call invalidate(ret)-> color themselves SHOW THEY ARE BROKEN
+		//	// View entity keep previous state, color invalid byEntity, when fixed, byLayer
+		//	//
+		//	m_frame.Delete(m_group);
 
-		}
+		//}
 
 		public void OnBuild(object sender, EventArgs e)
 		{
@@ -176,14 +154,14 @@ namespace Warps
 			List<Equation> eqs = new List<Equation>();
 			for (int i = 0; i < Edit.Count; i++)
 			{
-				object fit = null;
+				Equation fit = null;
 				if (Edit[i] != null)
-					fit = Utilities.CreateInstance(typeof(Equation));
-				if (fit != null && fit is Equation)
+					fit = Utilities.CreateInstance<Equation>(typeof(Equation));
+				if (fit != null )
 				{
 					//(fit as Equation).sail = sail;
-					eqs.Add(fit as Equation);
-					eqs.Last().ReadEditor(Edit[i]);
+					eqs.Add(fit);
+					fit.ReadEditor(Edit[i]);
 				}
 			}
 
@@ -264,11 +242,8 @@ namespace Warps
 		{
 			//Equations should be able to be pasted into this group
 
-			if (Utilities.GetClipboardObjType() != typeof(Equation))
-				return;
-
 			Type type = Utilities.GetClipboardObjType();
-			if (type == null)
+			if (type == null || type != typeof(Equation))
 				return;
 
 			List<string> result = (List<string>)Utilities.DeSerialize(Clipboard.GetData(type.Name).ToString());

@@ -65,18 +65,11 @@ namespace Warps.Yarns
 				m_frame.EditorPanel = Edit;		
 			}
 
-			if (Tree != null)
-			{
-				Tree.AttachTracker(this);
-			}
 			if (View != null)
 			{
 				View.AttachTracker(this);
 				Edit.View = View;
 			}
-
-			if (Tree != null)
-				Tree.AttachTracker(this);
 
 			SelectGroup(m_group);
 		}
@@ -118,9 +111,6 @@ namespace Warps.Yarns
 		{
 			if (m_frame != null)
 				m_frame.EditorPanel = null;
-
-			if (Tree != null)
-				Tree.DetachTracker(this);
 
 			if (View != null)
 			{
@@ -205,26 +195,6 @@ namespace Warps.Yarns
 
 		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
-		}
-
-		public void OnDelete(object sender, EventArgs e)
-		{
-			View.Remove(Group, true);
-			//CurveGroup g = Curve.Group as CurveGroup;
-			//if (yarGroup != null)
-			//{
-			//g.Remove(yarGroup);		
-			//}
-			m_frame.Delete(Group);
-			//if (yarGroup != null)
-			//	Tree.SelectedTag = yarGroup;
-		}
-
-		public void OnAdd(object sender, EventArgs e) { }
-
-		public void OnPaste(object sender, EventArgs e)
-		{
-
 		}
 
 		public void ProcessSelection(object Tag)

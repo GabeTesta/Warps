@@ -47,7 +47,7 @@
 			this.m_label.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.m_label.Location = new System.Drawing.Point(0, 3);
 			this.m_label.Name = "m_label";
-			this.m_label.Size = new System.Drawing.Size(150, 20);
+			this.m_label.Size = new System.Drawing.Size(153, 20);
 			this.m_label.TabIndex = 0;
 			this.m_label.Text = "Label";
 			// 
@@ -56,7 +56,7 @@
 			this.m_length.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.m_length.AutoSize = true;
 			this.m_length.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.m_length.Location = new System.Drawing.Point(156, 6);
+			this.m_length.Location = new System.Drawing.Point(159, 6);
 			this.m_length.Name = "m_length";
 			this.m_length.Size = new System.Drawing.Size(43, 13);
 			this.m_length.TabIndex = 2;
@@ -69,9 +69,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.m_panel.AutoScroll = true;
 			this.m_panel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.m_panel.Location = new System.Drawing.Point(3, 29);
+			this.m_panel.Location = new System.Drawing.Point(0, 29);
 			this.m_panel.Name = "m_panel";
-			this.m_panel.Size = new System.Drawing.Size(244, 405);
+			this.m_panel.Size = new System.Drawing.Size(250, 405);
 			this.m_panel.TabIndex = 1;
 			// 
 			// m_Popup
@@ -111,7 +111,7 @@
 			this.m_w4lBtn.FlatAppearance.BorderSize = 0;
 			this.m_w4lBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.m_w4lBtn.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.m_w4lBtn.Location = new System.Drawing.Point(205, 1);
+			this.m_w4lBtn.Location = new System.Drawing.Point(208, 1);
 			this.m_w4lBtn.Name = "m_w4lBtn";
 			this.m_w4lBtn.Size = new System.Drawing.Size(42, 22);
 			this.m_w4lBtn.TabIndex = 0;
@@ -127,8 +127,8 @@
 			this.AutoScroll = true;
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.ContextMenuStrip = this.m_Popup;
-			this.Controls.Add(this.m_w4lBtn);
 			this.Controls.Add(this.m_panel);
+			this.Controls.Add(this.m_w4lBtn);
 			this.Controls.Add(this.m_label);
 			this.Controls.Add(this.m_length);
 			this.Name = "MouldCurveEditor";

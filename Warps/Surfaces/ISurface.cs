@@ -408,7 +408,7 @@ namespace Warps
 				surf.xVal(uv, ref mesh[i, mesh.GetLength(1) - 1]);
 			}
 
-			return GetMesh(mesh, null);
+			return GetMesh(mesh);
 		}
 
 		/// <summary>
@@ -454,20 +454,27 @@ namespace Warps
 			return mesh;
 		}
 
-		public static Mesh GetMesh(List<double[]> verts, int rows)
+		public static Mesh GetMesh(Vect3[,] verts)
 		{
-			List<Point3D> pnts = verts.ConvertAll<Point3D>(new Converter<double[], Point3D>(Utilities.DoubleToPoint3D));
-			return GetMesh(pnts.ToArray(), rows);
-
+			return GetMesh(verts, null, false);
 		}
 		public static Mesh GetMesh(Vect3[,] verts, double[,] colors)
 		{
-			double ave=0, q1=0, q3=0, stddev=0;
+			return GetMesh(verts, colors, false);
+		}
+		public static Mesh GetMesh(Vect3[,] verts, double[,] colors, bool bLog)
+		{
+			double ave = 0, q1 = 0, q3 = 0, stddev = 0;
 			if (colors != null)
 			{
 				stddev = BLAS.StandardDeviation(colors, out ave, out q3, out q1);
-				q1 = ave - 2 * stddev;
-				q3 = ave + 2 * stddev;
+				if (bLog)
+				{
+					q3 = Math.Log(q3);
+					q1 = Math.Log(q1);
+				}
+				//q1 = ave - 2 * stddev;
+				//q3 = ave + 2 * stddev;
 			}
 			List<Point3D> pnts = new List<Point3D>(verts.Length);
 			for (int i = 0; i < verts.GetLength(0); i++)
@@ -475,7 +482,7 @@ namespace Warps
 				for (int j = 0; j < verts.GetLength(1); j++)
 				{
 					if (colors != null)
-						pnts.Add(Utilities.Vect3ToPointRGB(verts[i, j], ColorMath.GetScaleColor(q3, q1, colors[i, j])));
+						pnts.Add(Utilities.Vect3ToPointRGB(verts[i, j], ColorMath.GetScaleColor(q3, q1, bLog ? Math.Log(colors[i, j]) : colors[i, j])));
 					else
 						pnts.Add(Utilities.Vect3ToPoint3D(verts[i, j]));
 				}
@@ -484,6 +491,14 @@ namespace Warps
 
 		}
 
+
+		public static Mesh GetMesh(List<double[]> verts, int rows)
+		{
+			List<Point3D> pnts = verts.ConvertAll<Point3D>(new Converter<double[], Point3D>(Utilities.DoubleToPoint3D));
+			return GetMesh(pnts.ToArray(), rows);
+
+		}
+		
 		/// <summary>
 		/// constructs a mesh from the passed array of 3d points
 		/// points must be in column-major format
@@ -517,7 +532,7 @@ namespace Warps
 			mesh.RegenMode = regenType.RegenAndCompile;
 			mesh.ComputeEdges();
 			//mesh.ComputeNormals();
-			mesh.NormalAveragingMode = meshNormalAveragingType.AveragedByAngle;
+			mesh.NormalAveragingMode = meshNormalAveragingType.Averaged;
 
 			return mesh;
 

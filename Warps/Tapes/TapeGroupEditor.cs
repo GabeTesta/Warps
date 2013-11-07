@@ -57,7 +57,7 @@ namespace Warps.Tapes
 				for (int i = 0; i < m_warpListView.Items.Count; i++)
 					group.Warps.Add(group.Sail.FindCurve(m_warpListView.Items[i].Name));
 
-			IRebuild surf = group.Sail.FindItem(m_guideListView.Items[0].Name);
+			IRebuild surf = WarpFrame.CurrentSail.FindItem(m_guideListView.Items[0].Name);
 			group.DensityMap = surf as GuideSurface;
 
 			group.PixelLength = pixLength.Value;

@@ -82,16 +82,28 @@ namespace Warps
 
 				this[i].Groups.Add(new List<int>());
 
+
 				this[i].Legends[0].Visible = false;
 				this[i].Legends[0].AlignValuesRight = true;
-				this[i].Legends[0].Title = null;
-				this[i].Legends[0].Subtitle = null;
+				this[i].Legends[0].Title = "Yarn DPI";
+				this[i].Legends[0].Subtitle = "sub";
 				this[i].Legends[0].FormatString = "{0:f3}";
-				//this[i].Legends[0].ColorTable = Legend.RedToBlue17;
+				this[i].Legends[0].TitleFont = new Font("Tahoma", 12f);
+				this[i].Legends[0].TextFont = new Font("Tahoma", 12f);
+
+				//this[i].Legends = new Legend[] { this[i].Legends[0], new Legend(this[i].Legends[0]) };
+				//this[i].Legends[1].Visible = true;
+				//this[i].Legends[1].ColorTable = new Color[0];
+				//this[i].Legends[1].Min = this[i].Legends[1].Max = 0;
+
 				this[i].Legends[0].ColorTable = ColorMath.CreateColorScale();
-				//this[i].Legends[0].Position = new System.Drawing.Point(0, -(this[i].Legends[0].TitleFont.Height * 2));
-				this[i].Legends[0].SetRange(0, 10);
-				this[i].Legends[0].ItemSize = new Size(15, (int)Math.Ceiling(this[i].Height / 33.0));
+				//this[i].Legends[0].ColorTable = Legend.RedToBlue17;
+				//this[i].Legends[0].Position = new System.Drawing.Point(0, 0);
+				//this[i].Legends[0].SetRange(0, 0);
+				//this[i].Legends[0].ItemSize = new Size(15, (int)Math.Ceiling(this[i].Height / 33.0));
+				//this[i].Legends[0].ItemSize = new Size(0,0);
+				this[i].Legends[0].Slave = false;
+
 			}
 			//this[0].ProgressBar.CancellingText = "CANCELELEELS";
 			//this[0].ProgressBar.HideCancelButton = false;
@@ -432,23 +444,46 @@ namespace Warps
 		/// <param name="g">the object to add</param>
 		/// <param name="bLabels">true to add labels</param>
 
-		public void Add(IRebuild g, bool bLabels)
+		public List<Entity[]> Add(IRebuild g, bool bLabels)
 		{
 			List<Entity> groupEntities = g.CreateEntities();
-
 			if (groupEntities == null)
-				return;
+				return null;
 
-			int layerIndex = AddLayer(g.Layer);
+			List<Entity[]> rets = new List<Entity[]>();
+
+			int defIndex = 0;
+			if( g.Layer != null )
+				defIndex = AddLayer(g.Layer);
 
 			for (int i = 0; i < groupEntities.Count; i++)
 			{
 				if (groupEntities[i].LayerIndex == 0)
-					groupEntities[i].LayerIndex = layerIndex;
-				Add(groupEntities[i]);
+				{
+					if (groupEntities[i].EntityData is IRebuild)//place groups in their custom layers
+						groupEntities[i].LayerIndex = AddLayer((groupEntities[i].EntityData as IRebuild).Layer);
+					else//default to parent group's layer
+						groupEntities[i].LayerIndex = defIndex;
+				}
+
+				if (groupEntities[i] is Text)//add text to legend
+				{
+					this[0].Legends[0].Subtitle = (groupEntities[i] as Text).TextString + "\n";
+					this[0].Legends[0].Visible = true;
+				}
+				else if (groupEntities[i] is devDept.Eyeshot.Entities.Point)//use points as min/max legend
+				{
+					devDept.Eyeshot.Entities.Point pt = groupEntities[i] as devDept.Eyeshot.Entities.Point;
+					this[0].Legends[0].SetRange(pt.EndPoint.X, pt.EndPoint.Y);
+					this[0].Legends[0].Visible = true;
+				}
+				else
+					rets.Add(Add(groupEntities[i]));
 			}
 			if (bLabels)
 				AddLabels(g.EntityLabel);
+
+			return rets;
 		}
 
 		/// <summary>
@@ -495,25 +530,11 @@ namespace Warps
 
 		public Entity[][] AddRange(IEnumerable<Entity> e)
 		{
-			return AddRange(e, null);
-			//Entity[][] ents = new Entity[e.Count()][];
-			//int i = 0;
-			//foreach (Entity ent in e)
-			//{
-			//	ents[i++] = Add(ent);
-			//}
-			//return ents;
-		}
-		public Entity[][] AddRange(IEnumerable<Entity> e, List<devDept.Eyeshot.Labels.Label> label)
-		{
 			Entity[][] ents = new Entity[e.Count()][];
 			int i = 0;
 			foreach (Entity ent in e)
-			{
 				ents[i++] = Add(ent);
-			}
-			if(label != null)
-			AddLabels(label);
+
 			return ents;
 		}
 		private void AddLabels(List<devDept.Eyeshot.Labels.Label> labels)
@@ -589,12 +610,15 @@ namespace Warps
 			//Refresh();
 		}
 
-		public void RemoveRange(Entity[][] temps)
+		public void RemoveRange(IEnumerable<Entity[]> temps)
 		{
 			int i;
 			foreach (Entity[] temp in temps)
+			{
+				if( temp != null )
 				for (i = 0; i < 2; i++)
 					this[i].Entities.Remove(temp[i]);
+			}
 		}
 
 
@@ -889,8 +913,8 @@ namespace Warps
 				if (ModifierKeys != Keys.Control)
 					view.SetView(viewType.Top);
 				view.ZoomFit();
-				view.ZoomOut(50);
-
+				view.ZoomOut(20);
+				//ZoomFit(true);
 				//view.Legends[0].Position = new System.Drawing.Point(0, -10);
 				//view.Legends[0].ItemSize = new Size(15, (int)(view.Height * .08));
 
@@ -1216,7 +1240,6 @@ namespace Warps
 			this[1].ViewCubeIcon.Visible = false;
 		}
 
-
 		#endregion
 
 		public void Regen()
@@ -1239,7 +1262,7 @@ namespace Warps
 			for (int i = 0; i < 1; i++)
 			{
 				this[i].ZoomFit();
-				this[i].ZoomOut(50);
+				this[i].ZoomOut(20);
 				this[i].Grid.Max = this[i].BoundingBox.Max;
 				this[i].Grid.Min = this[i].BoundingBox.Min;
 			}

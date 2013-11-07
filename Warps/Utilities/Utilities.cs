@@ -144,8 +144,8 @@ namespace Warps
 		#endregion
 
 		#region CreateInstance
-
-		public static object CreateInstance(Type t, params object[] parameters)
+		public static T CreateInstance<T>() where T : class { return CreateInstance<T>(typeof(T), new object[]{}); }
+		public static T CreateInstance<T>(Type t, params object[] parameters) where T : class
 		{
 			List<Type> types = new List<Type>();
 			if (parameters != null)
@@ -153,14 +153,32 @@ namespace Warps
 					types.Add(param.GetType());
 			ConstructorInfo ctor = t.GetConstructor(types.ToArray());
 			if (ctor != null)
-				return ctor.Invoke(parameters);
+				return ctor.Invoke(parameters) as T;
 			return null;
 		}
-		public static object CreateInstance(string stype)
+
+		//public static object CreateInstance(Type t, params object[] parameters)
+		//{
+		//	List<Type> types = new List<Type>();
+		//	if (parameters != null)
+		//		foreach (object param in parameters)
+		//			types.Add(param.GetType());
+		//	ConstructorInfo ctor = t.GetConstructor(types.ToArray());
+		//	if (ctor != null)
+		//		return ctor.Invoke(parameters);
+		//	return null;
+		//}
+
+		public static T CreateInstance<T>(string stype) where T : class
 		{
-			return CreateInstance(stype, null);
+			return CreateInstance<T>(stype, null);
 		}
-		public static object CreateInstance(string stype, params object[] parameters)
+		//public static object CreateInstance(string stype)
+		//{
+		//	return CreateInstance(stype, null);
+		//}
+
+		public static T CreateInstance<T>(string stype, params object[] parameters) where T : class
 		{
 			bool bShort = !stype.Contains(".");
 			//if (!stype.Contains("."))
@@ -178,7 +196,7 @@ namespace Warps
 						Type[] typs = asm.GetTypes();
 						foreach (Type t in typs)
 							if (t.Name == stype)
-								return CreateInstance(t, parameters);
+								return CreateInstance<T>(t, parameters);
 					}
 					catch (Exception e) { Logleton.TheLog.Log(e.Message, Logleton.LogPriority.Debug); }
 				}
@@ -193,7 +211,7 @@ namespace Warps
 						o = asm.CreateInstance(stype, true);
 					//o = asm.CreateInstance(stype, false, BindingFlags.CreateInstance, null, new object[] { }, null, null);
 					if (o != null)
-						return o;
+						return o as T;
 				}
 				//}
 				//catch (Exception e)
@@ -227,7 +245,7 @@ namespace Warps
 
 			try
 			{
-				ret = assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && t != baseType && !t.IsInterface);//don't include interfaces since we cannot create them
+				ret = assembly.GetTypes().Where(t => baseType.IsAssignableFrom(t) && (bInclude || t != baseType) && !t.IsInterface);//don't include interfaces since we cannot create them
 			}
 			catch (Exception ex)
 			{
@@ -434,7 +452,7 @@ namespace Warps
 
 		public static void Insert<T>(List<T> group, IRebuild item, IRebuild target) where T : class
 		{
-			int nTar = group.IndexOf(target as T);//increment 1 to insert after the item
+			int nTar = group.IndexOf(target as T);
 			int nIrb = group.IndexOf(item as T);
 			if (nIrb >= 0)//item is already in this group: reorder
 				group.Remove(item as T);
@@ -442,5 +460,7 @@ namespace Warps
 				nTar = 0;//insert at head to avoid breaking sequence group.Count;
 			group.Insert(nTar, item as T);
 		}
+
+		public static System.Drawing.Font Font { get { return new System.Drawing.Font("Consolas", 11F); } }
 	}
 }

@@ -502,15 +502,9 @@ namespace Warps.Panels
 
 		public System.Windows.Forms.TreeNode WriteNode()
 		{
-			if (m_node == null)
-				m_node = new TreeNode(Label);
-			else
-				m_node.Nodes.Clear();
-			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
-			m_node.Tag = this;
-			m_node.Text = Label;
-			m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
+			TabTree.MakeNode(this, ref m_node);
 			m_node.ToolTipText = GetToolTipData();
+			m_node.Nodes.Clear();
 			if (m_seams != null && m_seams.Length > 1 && m_seams[0] != null && m_seams[1] != null)
 			{
 				m_node.Nodes.Add(m_seams[0].ToString());
@@ -555,7 +549,7 @@ namespace Warps.Panels
 
 				if (m_mesh != null)
 				{
-					ee.Add(SurfaceTools.GetMesh(m_mesh, null));
+					ee.Add(SurfaceTools.GetMesh(m_mesh));
 					//ee.Add(SurfaceTools.GetPointCloud(m_mesh));
 				}
 
@@ -598,7 +592,7 @@ namespace Warps.Panels
 					center = Utilities.Vect3ToPoint3D(m_mesh[m_mesh.GetLength(0) / 2, m_mesh.GetLength(1) / 2]);
 				else
 					return null;
-				lbls.Add(new devDept.Eyeshot.Labels.OutlinedText(center, Label,	new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter));
+				lbls.Add(new devDept.Eyeshot.Labels.OutlinedText(center, Label,	Utilities.Font, Color.White, Color.Black, ContentAlignment.MiddleCenter));
 				return lbls;
 
 				//List<devDept.Eyeshot.Labels.Label> labels = new List<devDept.Eyeshot.Labels.Label>();
@@ -609,7 +603,7 @@ namespace Warps.Panels
 			//get { return m_seams != null && m_seams.Length > 1 && m_seams[1] != null ? m_seams[1].EntityLabel: null; }
 		}
 
-		public void GetConnected(List<IRebuild> updated)
+		public void GetChildren(List<IRebuild> updated)
 		{
 			if (Affected(updated) && updated != null)
 				updated.Add(this);

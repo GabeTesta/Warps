@@ -18,11 +18,13 @@ namespace Warps.Yarns
 		public DensityComb(YarnGroup group, double s)
 			:base(group.Label + s.ToString("0.000"), group.Sail)
 		{
+			Layer = "Yarn Combs";
 			m_Group = group;
 			m_sPos = s;
 			FitCurve();
 		}
 		public double DPI = 0;
+
 
 		private double FitCurve()
 		{

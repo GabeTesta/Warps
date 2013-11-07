@@ -68,6 +68,9 @@ namespace Warps.Controls
 			VariableEditor ve = eq.WriteEditor(null);
 			ve.sail = VarGroup.Sail;
 			ve.AutoFillData = VarGroup.Sail.Watermark(eq).ToList<object>();
+
+			//ve.Width = m_flow.ClientRectangle.Width;
+			//ve.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
 			m_flow.Controls.Add(ve);
 			ve.ReturnPress += ve_ReturnPress;
 		}
@@ -93,8 +96,6 @@ namespace Warps.Controls
 					(m_flow.Controls[i] as VariableEditor).FocusEditBox();
 		}
 
-
-
 		private void button1_Click(object sender, EventArgs e)
 		{
 			Add("new var", new Equation());
@@ -119,5 +120,26 @@ namespace Warps.Controls
 				m_flow.ResumeLayout();
 			}
 		}
+
+
+		#region Resize
+
+		int CtrlWidth
+		{
+			get
+			{
+				if (m_flow.VerticalScroll.Visible)
+					return m_flow.Width - 28;
+				return m_flow.Width - 10;
+			}
+		}
+		private void m_flow_Resize(object sender, EventArgs e)
+		{
+			int w = CtrlWidth;
+			foreach (Control c in m_flow.Controls)
+				c.Width = w;
+		}
+
+		#endregion
 	}
 }

@@ -99,7 +99,7 @@ namespace Warps.Controls.Forms
 
 		void m_fn_Paint(object sender, PaintEventArgs e)
 		{
-			e.Graphics.DrawString("Fn", new Font(FontFamily.GenericSansSerif, 9), Brushes.Black, 0, 0);
+			e.Graphics.DrawString("Fn", Utilities.Font, Brushes.Black, 0, 0);
 		}
 	}
 }

@@ -132,6 +132,17 @@ namespace Warps.Curves
 			return false;
 		}
 		
+		/// <summary>
+		/// Finds the position on a target curve that is at a specified angle from a specified vector.
+		/// </summary>
+		/// <param name="c">the curve to slide on</param>
+		/// <param name="s">the position on the curve</param>
+		/// <param name="uv">the uv location of the slide point</param>
+		/// <param name="xyzTarget">the base point to angle from</param>
+		/// <param name="dxnTarget">the base vector to angle off of</param>
+		/// <param name="rad">the desired angle in radians</param>
+		/// <param name="bUseGuess">true to use input s as starting point, false to use 1/8th points</param>
+		/// <returns>true if successful, false otherwise</returns>
 		public static bool AnglePoint(IMouldCurve c, ref double s, ref Vect2 uv, ref Vect3 xyzTarget, Vect3 dxnTarget, double rad, bool bUseGuess)
 		{
 			Vect3 x = new Vect3(xyzTarget);

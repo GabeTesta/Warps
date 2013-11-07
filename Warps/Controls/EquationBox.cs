@@ -13,7 +13,7 @@ namespace Warps
 		//static public List<string> m_eqs = new List<string>();
 		public EquationBox()
 		{
-			this.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.Font = Utilities.Font;// new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.Size = new System.Drawing.Size(80, 20);
 			this.TextAlign = HorizontalAlignment.Right;
 			this.AcceptsTab = false;
@@ -23,10 +23,11 @@ namespace Warps
 		public Sail sail = null;
 
 		public EquationBox(object[] autofills)
+			:this()
 		{
-			this.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.Size = new System.Drawing.Size(80, 20);
-			this.TextAlign = HorizontalAlignment.Right;
+			//this.Font = Utilities.Font;// new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			//this.Size = new System.Drawing.Size(80, 20);
+			//this.TextAlign = HorizontalAlignment.Right;
 			this.Values = autofills;
 		}
 		

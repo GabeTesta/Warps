@@ -126,7 +126,7 @@ namespace Warps
 		/// <returns></returns>
 		public bool Delete() { return false; }
 
-		public void GetConnected(List<IRebuild> connected)
+		public void GetChildren(List<IRebuild> connected)
 		{
 			bool bupdate = false;
 			//if (connected == null)
@@ -251,13 +251,9 @@ namespace Warps
 
 		public TreeNode WriteNode()
 		{
-			if (m_node == null)
-				m_node = new TreeNode();
-			m_node.Text = Label;
-			m_node.ImageKey = m_node.SelectedImageKey = "Equation";
-			m_node.Tag = this;
+			TabTree.MakeNode(this, ref m_node);
+			m_node.Text += "=" + Value.ToString("f4");
 			m_node.ToolTipText = this.ToScriptString() + "=" + Value;
-			m_node.Name = Label;
 
 			TreeNode tmp1 = new TreeNode(string.Format("Text: {0}", EquationText));
 			tmp1.ImageKey = tmp1.SelectedImageKey = "EquationText";
@@ -275,7 +271,10 @@ namespace Warps
 		{
 			return Label;
 		}
-
+		public string ToValueString()
+		{
+			return string.Format("{0}={1}", Label, Value.ToString("n"));
+		}
 		public string ToScriptString()
 		{
 			return string.Format("{0}:{1}", Label, EquationText);

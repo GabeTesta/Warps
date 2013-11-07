@@ -9,7 +9,8 @@ namespace Warps.Mixed
 	[System.Diagnostics.DebuggerDisplay("{Label} Count={Count}", Name = "{Label}", Type = "{GetType()}")]
 	public class MixedGroup : List<IRebuild>, IGroup
 	{
-		public MixedGroup() { }
+		public MixedGroup() :this("", null){ }
+		public MixedGroup(string label, Sail s) : this(label, s, null) { }
 		public MixedGroup(string label, Sail s, string layer)
 		{
 			m_label = label;
@@ -99,6 +100,20 @@ namespace Warps.Mixed
 			//return i != -1;//true if found		
 		}
 
+		public bool FindParent<T>(IRebuild item, out T parent) where T : class, IGroup
+		{
+			if (Contains(item))
+			{
+				parent = this as T;
+				return true;
+			}
+			foreach (IRebuild r in this)
+				if (r is IGroup && (r as IGroup).FindParent(item, out parent))
+					return true;
+
+			parent = null;
+			return false;
+		}
 		#endregion
 
 		#region IRebuild Members
@@ -117,7 +132,8 @@ namespace Warps.Mixed
 
 		public string Layer
 		{
-			get { return m_layer == null ? "Default" : m_layer; }
+			get { return m_layer; }
+			//get { return m_layer == null ? "Default" : m_layer; }
 		}
 
 		public List<string> WriteScript()
@@ -142,15 +158,15 @@ namespace Warps.Mixed
 				IList<string> lines = ScriptTools.Block(ref nLine, txt);
 				//nLine += lines.Count - 1;
 
-				object cur = null;
+				IRebuild cur = null;
 				splits = lines[0].Split(':');
 				if (splits.Length > 0)
-					cur = Utilities.CreateInstance(splits[0].Trim('\t'));
-				if (cur != null && cur is IRebuild)
+					cur = Utilities.CreateInstance<IRebuild>(splits[0].Trim('\t'));
+				if (cur != null)
 				{
-					(cur as IRebuild).ReadScript(Sail, lines);
-					Add(cur as IRebuild);
-					Sail.Add(this);//keep sail up to date for interdependent children
+					cur.ReadScript(sail, lines);
+					Add(cur);
+					sail.Add(this);//keep sail up to date for interdependent children
 				}
 			}
 			return true;
@@ -160,21 +176,17 @@ namespace Warps.Mixed
 		{
 			get
 			{
-				throw new NotImplementedException();
+				return false;
 			}
 			set
 			{
-				throw new NotImplementedException();
 			}
 		}
 
 		System.Windows.Forms.TreeNode m_node;
 		public System.Windows.Forms.TreeNode WriteNode()
 		{
-			if (m_node == null) m_node = new System.Windows.Forms.TreeNode();
-			m_node.Text = Label;
-			m_node.SelectedImageKey = m_node.ImageKey = GetType().Name;
-			m_node.Tag = this;
+			TabTree.MakeNode(this, ref m_node);
 			m_node.Nodes.Clear();
 			this.ForEach(r => m_node.Nodes.Add(r.WriteNode()));
 			return m_node;
@@ -197,9 +209,9 @@ namespace Warps.Mixed
 			}
 		}
 
-		public void GetConnected(List<IRebuild> updated)
+		public void GetChildren(List<IRebuild> updated)
 		{
-			this.ForEach(r => r.GetConnected(updated));
+			this.ForEach(r => r.GetChildren(updated));
 		}
 
 		public void GetParents(Sail s, List<IRebuild> parents)
@@ -243,11 +255,11 @@ namespace Warps.Mixed
 			//Sail.Add(this);//keep sail up to date for interdependent children
 			foreach (System.Xml.XmlNode child in node)
 			{
-				object cur = Utilities.CreateInstance(child.Name);
-				if (cur != null && cur is IRebuild)
+				IRebuild cur = Utilities.CreateInstance<IRebuild>(child.Name);
+				if (cur != null)
 				{
-					Add(cur as IRebuild);
-					(cur as IRebuild).ReadXScript(Sail, child);
+					Add(cur);
+					cur.ReadXScript(sail, child);
 				}
 			}
 		}
@@ -256,7 +268,7 @@ namespace Warps.Mixed
 
 		#region TreeDragging Members
 
-		public bool CanInsert(IRebuild item)
+		public bool CanInsert(Type item)
 		{
 			return true;
 		}
@@ -273,7 +285,6 @@ namespace Warps.Mixed
 
 		#endregion
 
-
 		#region Flattening Members
 
 		public void FlatLayout(List<IRebuild> flat)
@@ -286,5 +297,10 @@ namespace Warps.Mixed
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return string.Format("{0}[{1}]", Label, Count) ;
+		}
 	}
 }

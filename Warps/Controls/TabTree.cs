@@ -29,6 +29,8 @@ namespace Warps
 
 			BuildContextMenu();
 
+			SeqTree.Font = Utilities.Font;
+			SorTree.Font = Utilities.Font;
 			SeqTree.ImageList = WarpFrame.Images;
 			SorTree.ImageList = WarpFrame.Images;
 
@@ -54,39 +56,6 @@ namespace Warps
 				BeforeSelect(this, e);
 		}
 		
-		#endregion
-
-		#region Trackers
-		
-		public void AttachTracker(ITracker tracker)
-		{
-			//AfterSelect += tracker.OnSelect;
-			//BeforeSelect += tracker.OnSelecting;
-
-			TreeContextMenu.Items[0].Click += tracker.OnAdd;
-			TreeContextMenu.Items[1].Click += tracker.OnDelete;
-
-			//TreeContextMenu.Items[3].Click += tracker.OnCopy;//handled here
-			TreeContextMenu.Items[4].Click += tracker.OnPaste;
-
-
-			//SeqTree.AfterSelect += tracker.OnSelect;
-			//SorTree.AfterSelect += tracker.OnSelect;
-		}
-		public void DetachTracker(ITracker tracker)
-		{
-			//AfterSelect -= tracker.OnSelect;
-			//BeforeSelect -= tracker.OnSelecting;
-			TreeContextMenu.Items[0].Click -= tracker.OnAdd;
-			TreeContextMenu.Items[1].Click -= tracker.OnDelete;
-
-			//TreeContextMenu.Items[3].Click -= tracker.OnCopy;//handled here
-			TreeContextMenu.Items[4].Click -= tracker.OnPaste;
-
-			//SeqTree.AfterSelect -= tracker.OnSelect;
-			//SorTree.AfterSelect -= tracker.OnSelect;
-		}
- 
 		#endregion
 
 		#region Trees
@@ -145,6 +114,16 @@ namespace Warps
 
 		#region Tags
 
+		public IRebuild SelectedItem
+		{
+			get { return SelectedTag as IRebuild; }
+			set
+			{
+				SelectedTag = value;
+				if (ActiveTree.SelectedNode != null)
+					RaiseBeforeSelect(new TreeViewCancelEventArgs(ActiveTree.SelectedNode, false, TreeViewAction.Unknown));
+			}
+		}
 		public object SelectedTag
 		{
 			get { return FindTag(ActiveTree.SelectedNode); }
@@ -159,12 +138,6 @@ namespace Warps
 			}
 		}
 
-		internal void SelectTag(IRebuild grp)
-		{
-			SelectedTag = grp;
-			if (ActiveTree.SelectedNode != null)
-				RaiseBeforeSelect(new TreeViewCancelEventArgs(ActiveTree.SelectedNode, false, TreeViewAction.Unknown));
-		}
 		object FindTag(TreeNode tn)
 		{
 			if (tn == null)
@@ -221,7 +194,8 @@ namespace Warps
 					continue;
 				if (tn.Tag is IGroup)
 				{
-					if ((tn.Tag as IGroup).Label.ToLower().StartsWith(key.ToLower()))
+					string lbl = (tn.Tag as IGroup).Label;
+					if (lbl != null && lbl.ToLower().StartsWith(key.ToLower()))
 						found.Add(tn);
 				}
 
@@ -283,7 +257,7 @@ namespace Warps
 		#region ContextMenuStrip Items
 
 		ContextMenuStrip m_contextStrip = new ContextMenuStrip();
-		public ContextMenuStrip TreeContextMenu
+		ContextMenuStrip TreeContextMenu
 		{
 			get { return m_contextStrip; }
 			set { m_contextStrip = value; }
@@ -293,41 +267,162 @@ namespace Warps
 		{
 			TreeContextMenu = new ContextMenuStrip();
 
-			TreeContextMenu.Items.Add("Add");
+			//TreeContextMenu.Items.Add("Add");
+			TreeContextMenu.Items.Add("Copy", null, OnCopy);
+			TreeContextMenu.Items.Add("Paste", null, OnPaste);
+			TreeContextMenu.Items.Add(new ToolStripSeparator());
 			TreeContextMenu.Items.Add("Delete");
 			TreeContextMenu.Items.Add(new ToolStripSeparator());
-			TreeContextMenu.Items.Add("Copy", null, OnCopy);
-			TreeContextMenu.Items.Add("Paste");
-			TreeContextMenu.Items.Add(new ToolStripSeparator());
 			TreeContextMenu.Items.Add("Show/Hide", null, OnVisibleToggleClick);
-
+			TreeContextMenu.Opening += TreeContextMenu_Opening;
 			SeqTree.ContextMenuStrip = TreeContextMenu;
 			//SorTree.ContextMenuStrip = TreeContextMenu;
+		}
+	
+		/// <summary>
+		/// enable/disable paste depending on drop-target and clipboard data
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		void TreeContextMenu_Opening(object sender, CancelEventArgs e)
+		{
+			IRebuild target = SelectedItem;
+			IGroup tarGrp = target as IGroup;
+			if( tarGrp == null )
+				Sail.FindParent(target, out tarGrp);
+
+			Paste.Enabled = false;
+
+			System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+			string txt = Clipboard.GetText();
+			try
+			{
+				doc.LoadXml(txt);
+			}
+			catch
+			{
+				return;//nothing to paste
+			}
+
+			foreach (System.Xml.XmlNode child in doc.DocumentElement.ChildNodes)
+			{
+				IRebuild item = Utilities.CreateInstance<IRebuild>(child.Name);
+				if(item != null )
+					Paste.Enabled |= tarGrp.CanInsert(item.GetType());
+			}
 		}
 
 		public event VisibilityToggled VisibilityToggle;
 		void OnVisibleToggleClick(object sender, EventArgs e)
 		{
 			if (VisibilityToggle != null)
-				VisibilityToggle(sender, new EventArgs<IRebuild>(SelectedTag as IRebuild));
+				VisibilityToggle(sender, new EventArgs<IRebuild>(SelectedItem));
 		}
+
+		#endregion
+
+		#region Copy Paste
 
 		void OnCopy(object sender, EventArgs e)
 		{
-			IRebuild group = SelectedTag as IRebuild;
-			if (group == null)
+			if (SelectedItem == null)
 			{
-				Logleton.TheLog.Log("{0}:{1} failed to copy", SelectedTag.GetType().Name, SelectedTag.ToString());
+				if (SelectedTag != null)
+					Logleton.TheLog.Log("{0}:{1} failed to copy", SelectedTag.GetType().Name, SelectedTag.ToString());
+				else
+					Logleton.TheLog.Log("Failed to copy null node");
 				return;
 			}
-			//Lets say its my data format
+			//is valid data format
 			Clipboard.Clear();
 			//Set data to clipboard
-			Clipboard.SetData(group.GetType().Name, Utilities.Serialize(group.WriteScript()));
-			//Clipboard.SetText(group.WriteXScript(NsXml.MakeDoc("Clipboard")).OuterXml);
-			Logleton.TheLog.Log("{0}:{1} copied to clipboard", group.GetType().Name, group.Label);
-		}
+			//string total = SelectedItem.WriteScript().Aggregate((a, b) => a + "\n" + b);
 
+			var doc = NsXml.MakeDoc("clip");
+			System.Xml.XmlNode node = SelectedItem.WriteXScript(doc);
+			doc.DocumentElement.AppendChild(node);
+			Clipboard.SetText(node.OwnerDocument.OuterXml);
+			//Clipboard.SetText(group.WriteXScript(NsXml.MakeDoc("Clipboard")).OuterXml);
+			Logleton.TheLog.Log("{0}:{1} copied to clipboard", SelectedItem.GetType().Name, SelectedItem.Label);
+		}
+		//void OnCopy2(object sender, EventArgs e)
+		//{
+		//	if (SelectedItem == null )
+		//	{
+		//		if( SelectedTag != null)
+		//			Logleton.TheLog.Log("{0}:{1} failed to copy", SelectedTag.GetType().Name, SelectedTag.ToString());
+		//		else
+		//			Logleton.TheLog.Log("Failed to copy null node");
+		//		return;
+		//	}
+		//	//is valid data format
+		//	Clipboard.Clear();
+		//	//Set data to clipboard
+		//	Clipboard.SetData(SelectedItem.GetType().Name, Utilities.Serialize(SelectedItem.WriteScript()));
+		//	//Clipboard.SetText(group.WriteXScript(NsXml.MakeDoc("Clipboard")).OuterXml);
+		//	Logleton.TheLog.Log("{0}:{1} copied to clipboard", SelectedItem.GetType().Name, SelectedItem.Label);
+		//}
+
+		ToolStripItem Paste { get { return TreeContextMenu.Items[1]; } }
+		void OnPaste(object sender, EventArgs e)
+		{
+			IRebuild target = SelectedItem;
+			IGroup tarGrp = target as IGroup;
+			if (tarGrp == null)
+				Sail.FindParent(target, out tarGrp);
+
+			System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+			string txt = Clipboard.GetText();
+			doc.LoadXml(txt);
+
+			foreach (System.Xml.XmlNode child in doc.DocumentElement.ChildNodes)
+			{
+				IRebuild item = Utilities.CreateInstance<IRebuild>(child.Name);
+				if (item != null)
+					if (tarGrp == null)//use sail
+					{
+						Sail.Insert(item, target);
+						item.ReadXScript(Sail, child);
+						Sail.WriteNode();
+					}
+					else if (tarGrp.CanInsert(item.GetType()))
+					{
+						tarGrp.Insert(item, target);
+						item.ReadXScript(Sail, child);
+						tarGrp.Update(Sail);
+						tarGrp.WriteNode();
+					}
+
+			}
+
+
+			//string script = Clipboard.GetText();
+			//string stype = ScriptTools.ReadType(script);
+			//string[] lines = script.Split('\n');
+			//IRebuild item = Utilities.CreateInstance<IRebuild>(stype);
+			//if (item != null)
+			//	if (tarGrp == null)//use sail
+			//	{
+			//		Sail.Insert(item, target);
+			//		item.ReadScript(Sail, lines);
+			//		Sail.WriteNode();
+			//	}
+			//	else if (tarGrp.CanInsert(item))
+			//	{
+			//		tarGrp.Insert(item, target);
+			//		item.ReadScript(Sail, lines);
+			//		tarGrp.Update(Sail);
+			//		tarGrp.WriteNode();
+			//	}
+
+
+
+
+			//List<string> result = (List<string>)Utilities.DeSerialize(Clipboard.GetData(type.Name).ToString());
+
+
+		}
+		
 		#endregion
 	
 		#region Save
@@ -401,11 +496,13 @@ namespace Warps
 			if (ModifierKeys == Keys.Control)
 			{
 				if (e.KeyCode == Keys.C)
-					OnCopy(sender, new EventArgs());
+					OnCopy(sender, e);
+				else if (e.KeyCode == Keys.V)
+					OnPaste(sender, e);
 				else
 					base.OnKeyUp(e);
 			}
-			else
+			else 
 				HighLightNodeBeginningWith(e.KeyCode);
 
 		}
@@ -530,9 +627,9 @@ namespace Warps
 				bool canDrop = Utilities.IsBetween(m_watermarkParent + 1, FlatIndexOf(tag), m_watermarkChild - 1);
 
 				e.Effect = canDrop ? DragDropEffects.Move : DragDropEffects.None;
+				SeqTree.SelectedNode = node;
 			}
-
-			SeqTree.SelectedNode = SeqTree.GetNodeAt(pos);
+			//SeqTree.SelectedNode = SeqTree.GetNodeAt(pos);
 		}
 		private void OnDragDrop(object sender, DragEventArgs e)
 		{
@@ -544,7 +641,7 @@ namespace Warps
 			// Retrieve the node at the drop location.
 			TreeNode targetNode = SeqTree.GetNodeAt(targetPoint);
 
-			//refresh parent colors on drop regardless of outcome
+			//clear parent colors on drop regardless of outcome
 			ColorDrag(true);
 			m_dragParents = null;
 			m_dragChildren = null;
@@ -563,34 +660,35 @@ namespace Warps
 			if (e.Effect != DragDropEffects.Move)
 				return;//for now only allow reordering via drag, no copy-paste
 
-			IRebuild drag = FindItem(draggedNode);
-			IRebuild targ = FindItem(targetNode);
-			IGroup dragGrp = drag as IGroup;
-			IGroup targGrp = targ as IGroup;
-			IGroup dragParent = FindParentGroup(draggedNode);//need this for removal
-			IGroup targParent = FindParentGroup(targetNode);
+			IRebuild drag = FindItem(draggedNode);//the item being dragged/dropped
+			IRebuild targ = FindItem(targetNode);//the target item being dropped on
+			IGroup dragGrp = drag as IGroup;//the item as a group(can be null)
+			IGroup targGrp = targ as IGroup;//the target as a group(can be null)
+			IGroup dragParent = FindParentGroup(draggedNode);//the first IGroup parent of the item (need this for removal)
+			IGroup targParent = FindParentGroup(targetNode);//teh first IGroup parent of the target(need this for shift-drag)
 
 			if (drag == null || targ == null)
 				return;
 
 			//shift key forces reorder instead of insert, required for mixedgroup nesting
-			if (!(ModifierKeys == Keys.Shift) && targGrp != null && targGrp.CanInsert(drag))
-				targGrp = targ as IGroup;
-			else if (targParent == null || targParent.CanInsert(drag))
-				targGrp = targParent;
+			if (!(ModifierKeys == Keys.Shift) && targGrp != null && targGrp.CanInsert(drag.GetType()))//the target is a group that can contain the dragged
+				targGrp = targ as IGroup;//so use it as the targetgroup
+			else if (targParent == null || targParent.CanInsert(drag.GetType()))//shift-drag, or the target is not a group
+				targGrp = targParent;// so use the target's parent group
 
-			//append the dragged item into its new group or sail
+			//append the dragged item into its new group or the sail
 			if (targGrp == null)
 				Utilities.Insert(Sail.Layout, drag, targ);
 			else
 				targGrp.Insert(drag, targ);
 
-			if (dragParent == null && targGrp != null)//check sail if no parent
+			//remove the item from its previous group
+			if (dragParent == null && targGrp != null)//remove from sail if no parent and not a sail.layout reorder
 			{
 				Sail.Layout.Remove(drag);
 				Sail.WriteNode();
 			}
-			else if (dragParent != targGrp)//remove it from its previous group
+			else if (dragParent != targGrp)//remove from previous group if not a reorder
 			{
 				dragParent.Remove(drag);
 				dragParent.WriteNode();
@@ -601,43 +699,6 @@ namespace Warps
 				Sail.WriteNode();
 			else
 				targGrp.WriteNode();
-
-			////if the target is a group that can contain the drag type, then insert/reorder it
-			//if (!(ModifierKeys == Keys.Shift) && targGrp != null && targGrp.CanInsert(drag))
-			//{
-			//	//append the dragged item into its new group
-			//	targGrp.Insert(drag, null);
-			//	if (dragParent == null)//check sail if no parent
-			//	{
-			//		Sail.Layout.Remove(drag);
-			//		Sail.WriteNode();
-			//	}
-			//	else if (dragParent != targGrp)//remove it from its previous group
-			//	{
-			//		dragParent.Remove(drag);
-			//		dragParent.WriteNode();
-			//	}
-
-			//	//update nodes
-			//	targGrp.WriteNode();
-			//}
-			//else if (targParent != null && targParent.CanInsert(drag))
-			//{
-			//	//insert the dragged item into its new group above the target item
-			//	targParent.Insert(drag, targ);
-			//	if (dragParent == null)//check sail if no parent
-			//	{
-			//		Sail.Layout.Remove(drag);
-			//		Sail.WriteNode();
-			//	}
-			//	else if (dragParent != targParent)//remove the item from its previous group
-			//	{
-			//		dragParent.Remove(drag);
-			//		dragParent.WriteNode();
-			//	}
-			//	targParent.WriteNode();
-			//	//update nodes
-			//}
 		}
 		private void OnDragLeave(object sender, EventArgs e)
 		{
@@ -1237,5 +1298,19 @@ namespace Warps
 		}
 		
 		#endregion
+
+		public static void MakeNode(IRebuild item, ref TreeNode node)
+		{
+			if (node == null)
+				node = new TreeNode(item.Label);
+			else
+				node.Text = item.Label;
+
+			node.Name = item.Label;
+			node.Tag = item;
+			node.SelectedImageKey = node.ImageKey = item.GetType().Name;
+			node.ForeColor = item.Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
+
+		}
 	}
 }

@@ -16,17 +16,26 @@ namespace Warps.Curves
 	/// </summary>
 	public class GuideComb : MouldCurve
 	{
-		public GuideComb() { Label = "none"; uSplines = new Vect2[] { new Vect2(0, 0) }; }
+		public GuideComb() 
+		{ 
+			Label = "none"; 
+			Layer = "Combs"; 
+			uSplines = new Vect2[] { new Vect2(0, 0) }; 
+		}
 		public GuideComb(GuideComb clone)
 			:base(clone)
 		{
+			Layer = "Combs"; 
 			foreach (Vect2 v in clone.m_combPnts)
 				m_combPnts.Add(new Vect2(v));
 			FitComb(CombPnts);
 		}
 
 		public GuideComb(string label, Sail sail)
-			: base(label, sail)	{ }
+			: base(label, sail)
+		{
+			Layer = "Combs";
+		}
 
 		/// <summary>
 		/// creates a new guidecomb optionally fit to the specified points and combheights
@@ -38,6 +47,7 @@ namespace Warps.Curves
 		public GuideComb(string label, Sail sail, IFitPoint[] fits, Vect2[] combs)
 			:base(label, sail)
 		{
+			Layer = "Combs"; 
 			if (fits != null)
 				Fit(fits);
 			if (combs != null)
@@ -59,10 +69,10 @@ namespace Warps.Curves
 			return true;
 		}
 
-
 		public override void ReFit()
 		{
 			base.ReFit();
+			if (CombPnts != null) 
 			FitComb(null);
 		}
 		/// <summary>
@@ -88,6 +98,8 @@ namespace Warps.Curves
 				CombPnts = combs;
 			else
 				combs = CombPnts;
+			if (combs == null || combs.Length < 2)
+				return;
 
 			List<double[]> x = new List<double[]>();
 			List<double> s = new List<double>();
@@ -128,8 +140,9 @@ namespace Warps.Curves
 		public void hVal(double s, ref Vect2 uv, ref double h)
 		{
 			uVal(s, ref uv);
-			double[] p = new double[1];
-			Comb.BsVal(s, ref p);
+			double[] p = new double[1]{0};
+			if( Comb.IsFit)
+				Comb.BsVal(s, ref p);
 			h = p[0];
 		}
 
@@ -160,10 +173,9 @@ namespace Warps.Curves
 				e.AddRange(CreateCombEntity(sPos.ToArray(), false));
 				Vect2 u = new Vect2();
 				Vect3 xyz = new Vect3(), xup = new Vect3();
+				if( SComb != null )
 				foreach (double s in SComb)
-				{
 					e.Add(CreateNormal(s, ref u, ref xyz, ref xup));
-				}
 			}
 			return e;
 		}
@@ -223,10 +235,15 @@ namespace Warps.Curves
 			Vect3 x = new Vect3();
 			Vect3 c = new Vect3();
 
-			xVal(s, ref u, ref x, ref c);
-			c -= x; //get normal vector
-			c.Magnitude /= 2;//half height
-			return Utilities.Vect3ToPoint3D(x + c);
+			if (CombPnts != null && CombPnts.Length > 1)
+			{
+				xVal(s, ref u, ref x, ref c);
+				c -= x; //get normal vector
+				c.Magnitude /= 2;//half height
+				return Utilities.Vect3ToPoint3D(x + c);
+			}
+			else
+				return base.GetLabelPoint3D(s);
 		}
 
 		//public override bool ReadScript(Sail sail, IList<string> txt)
@@ -304,16 +321,7 @@ namespace Warps.Curves
 			FitComb(m_combPnts.ToArray());
 			return true;
 		}
-		private Vect2 ParseVect2Lines(IList<string> lines)
-		{
-			Vect2 ret = new Vect2();
-			
-			string[] split = lines.Last().Trim().Split(new char[] { ':' });
 
-			ret.FromString(split.Last());
-
-			return ret;
-		}
 
 		public override List<string> WriteScript()
 		{

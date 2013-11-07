@@ -550,6 +550,10 @@ public static class BLAS
 			d += Math.Pow(p1[i] - p2[i], 2);
 		return Math.Sqrt(d);
 	}
+	static public double distance(double p1x, double p1y, double p2x, double p2y)
+	{
+		return Math.Sqrt(Math.Pow(p1x - p2x, 2) + Math.Pow(p1y - p2y, 2));
+	}
 
 	static public bool IsEqual(double a, double b) { return IsEqual(a, b, 1e-7); }
 
@@ -593,9 +597,15 @@ public static class BLAS
 	{ 
 		return (double)i / (double)(imax - 1); 
 	}
+
 	static public double interpolate(int i, int imax, double max, double min)
 	{
 		return interpolate(interpolant(i, imax), max, min);
+	}
+
+	static public double sinolant(int i, int imax)
+	{
+		return (Math.Sin(interpolant(i, imax) * Math.PI - Math.PI/2.0) + 1.0 )/2.0;
 	}
 
 	static public double[] rotate2d(double[] dx, double rad)
@@ -616,6 +626,8 @@ public static class BLAS
 		dx = new double[] { 1, 0, dx[0] };
 	}
 
+	static public double ToRad(double deg) { return deg * Math.PI / 180.0; }
+	static public double ToDeg(double rad) { return rad * 180.0 / Math.PI; }
 
 	#endregion
 

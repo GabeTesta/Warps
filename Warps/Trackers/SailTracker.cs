@@ -47,24 +47,18 @@ namespace Warps
 				m_frame = frame;
 				m_frame.EditorPanel = null;
 
-				Tree.AttachTracker(this);
 				View.AttachTracker(this);
 			}
 		}
 
 		public void Cancel()
 		{
-			Tree.DetachTracker(this);
 			View.DetachTracker(this);
 		}
 
 		public void OnBuild(object sender, EventArgs e) { }
 
 		public void OnPreview(object sender, EventArgs e) { }
-
-		public void OnAdd(object sender, EventArgs e) { }
-
-		public void OnDelete(object sender, EventArgs e) { }
 
 		public void OnSelect(object sender, EventArgs<IRebuild> e) { }
 
@@ -77,38 +71,6 @@ namespace Warps
 		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
 	//	public void OnCopy(object sender, EventArgs e) { }
-
-		public void OnPaste(object sender, EventArgs e)
-		{
-			//any Igroup should be pasteable into here
-
-			Type type = Utilities.GetClipboardObjType();
-			if (type == null || type.IsSubclassOf(typeof(IGroup)))
-				return;
-
-			List<string> result = (List<string>)Utilities.DeSerialize(Clipboard.GetData(type.Name).ToString());
-
-			string groupname = result[0].Replace(type.Name, "");
-			groupname = groupname.Replace(":", "");
-			groupname = groupname.TrimStart();
-			groupname = groupname.TrimEnd();
-
-			if (Sail.FindGroup(groupname) != null) // doesn't have this group
-				ScriptTools.ModifyScriptToShowCopied(ref result);
-
-			IGroup g = Utilities.CreateInstance(type) as IGroup;
-
-			if (g != null)
-			{
-				g.Sail = Sail;
-				g.ReadScript(Sail, result);
-
-				Sail.Add(g);
-				//g.Rebuild(null);
-				m_frame.Rebuild(g);
-				Sail.WriteNode();
-			}
-		}
 
 		public void ProcessSelection(object Tag)
 		{

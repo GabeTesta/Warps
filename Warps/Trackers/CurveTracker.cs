@@ -66,11 +66,6 @@ namespace Warps
 			m_frame.EditorPanel = m_edit;
 			//EditMode = frame.EditMode;
 
-			if (Tree != null)
-			{
-				Tree.AttachTracker(this);
-				//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
-			}
 
 			View.AttachTracker(this);
 
@@ -81,7 +76,6 @@ namespace Warps
 		{
 			m_frame.EditorPanel = null;
 
-			Tree.DetachTracker(this);
 			View.DetachTracker(this);
 
 			if (m_temp != null)
@@ -209,7 +203,6 @@ namespace Warps
 			}
 		}
 
-		public void OnAdd(object sender, EventArgs e) { }
 		public void OnDelete(object sender, EventArgs e)
 		{
 			View.Remove(Curve, true);
@@ -223,10 +216,6 @@ namespace Warps
 			if (g != null)
 				Tree.SelectedTag = g;
 		}
-		public void OnPaste(object sender, EventArgs e)
-		{
-			//this should parse w4l or wrp script
-		}
 
 		#endregion
 
@@ -238,7 +227,8 @@ namespace Warps
 				View.Remove(m_temp, false);
 
 			Curve = cur;
-
+			if (cur.Sail == null)
+				cur.Sail = Sail;
 			//IFitPoint[] pts = new IFitPoint[Curve.FitPoints.Length];
 			//for (int i = 0; i < pts.Length; i++)
 			//	pts[i] = Curve[i].Clone();
@@ -247,14 +237,14 @@ namespace Warps
 			//	m_temp.Label += "[preview]";
 			m_tents = View.AddRange(m_temp.CreateEntities(true));
 
-			foreach (Entity[] ents in m_tents)
-				foreach (Entity ee in ents)
-				{
-					//ee.Color = Color.LightSkyBlue;
-					//ee.ColorMethod = colorMethodType.byEntity;
-					//if (ee.LineWeight == 1) ee.LineWeight = 2.0f;
-					//ee.LineWeightMethod = colorMethodType.byEntity;
-				}
+			//foreach (Entity[] ents in m_tents)
+			//	foreach (Entity ee in ents)
+			//	{
+			//		//ee.Color = Color.LightSkyBlue;
+			//		//ee.ColorMethod = colorMethodType.byEntity;
+			//		//if (ee.LineWeight == 1) ee.LineWeight = 2.0f;
+			//		//ee.LineWeightMethod = colorMethodType.byEntity;
+			//	}
 
 			m_edit.AutoFill = Sail.Watermark(Curve, Tree.SelectedTag as IGroup).ToList<object>();
 			m_edit.ReadCurve(m_temp);
@@ -271,17 +261,22 @@ namespace Warps
 		{
 			m_temp.ReFit();
 			List<Entity> verts = m_temp.CreateEntities(true);
-			if (verts != null && verts[0] != null && verts[1] != null)
-				foreach (Entity[] ents in m_tents)
-				{
-					for (int i = 0; i < 2; i++)
+			if (m_tents == null || m_tents.Length != verts.Count)
+				m_tents = View.AddRange(verts);
+			else
+			{
+				if (verts != null && verts.Count > 1 && verts[0] != null && verts[1] != null)
+					foreach (Entity[] ents in m_tents)
 					{
-						if (ents[i] is LinearPath)
-							ents[i].Vertices = verts[0].Vertices;
-						else if (ents[i] is PointCloud)
-							ents[i].Vertices = verts[1].Vertices;
+						for (int i = 0; i < 2; i++)
+						{
+							if (ents[i] is LinearPath)
+								ents[i].Vertices = verts[0].Vertices;
+							else if (ents[i] is PointCloud)
+								ents[i].Vertices = verts[1].Vertices;
+						}
 					}
-				}
+			}
 			View.Regen();
 			View.Refresh();
 			if (bEditor)

@@ -17,7 +17,7 @@ namespace Warps
 		public delegate void OnDeleteHandler(object sender, Equation DeleteMe);
 
 		public event OnAddHandler OnVariableAdded;
-		public event OnDeleteHandler OnVariableDeleted;
+		//public event OnDeleteHandler OnVariableDeleted;
 
 		public EquationEditorForm(VariableGroup group)
 		{
@@ -40,7 +40,7 @@ namespace Warps
 						EquationListBox.Items.Add(entry.Label);
 						listView1.Items.Add(entry.Label);
 						if (!m_group.ContainsKey(entry.Label))
-							listView1.Items[listView1.Items.Count - 1].Font = new Font("Microsoft Sans Serif", 8.25f, FontStyle.Italic);
+							listView1.Items[listView1.Items.Count - 1].Font = Utilities.Font;
 					}
 					else if( entry is MouldCurve )
 						CurveListBox.Items.Add(entry as MouldCurve);

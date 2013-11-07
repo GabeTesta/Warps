@@ -76,13 +76,13 @@ namespace Warps
 
 		#region IFitEditor Members
 
-		public IFitPoint CreatePoint()
+		public virtual IFitPoint CreatePoint()
 		{
-			object fit = Utilities.CreateInstance(FitType);
-			if (fit != null && fit is CurvePoint)
+			CurvePoint fit = Utilities.CreateInstance<CurvePoint>(FitType);
+			if (fit != null)
 			{
-				(fit as CurvePoint).S_Equ = CS;
-				(fit as CurvePoint).m_curve = Curve;
+				fit.PosEQ = CS;
+				fit.m_curve = Curve;
 				return fit as IFitPoint;
 			}
 			return null;

@@ -1361,6 +1361,17 @@ namespace Warps.Panels
 			return i != -1;//true if found
 		}
 
+		public bool FindParent<T>(IRebuild item, out T parent) where T : class, IGroup
+		{
+			if (ContainsItem(item))
+			{
+				parent = this as T;
+				return true;
+			}
+			parent = null;
+			return false;
+		}
+
 		#endregion
 
 		#region IRebuild Members
@@ -1450,13 +1461,8 @@ namespace Warps.Panels
 		TreeNode m_node;
 		public TreeNode WriteNode()
 		{
-			if (m_node == null)
-				m_node = new TreeNode(Label);
-			m_node.Text = Label;
-			m_node.ImageKey = GetType().Name;
-			m_node.SelectedImageKey = GetType().Name;
+			TabTree.MakeNode(this, ref m_node);
 			m_node.ToolTipText = GetToolTipData();
-			m_node.Tag = this;
 			m_node.Nodes.Clear();
 			foreach (Panel p in this)
 				m_node.Nodes.Add(p.WriteNode());
@@ -1506,7 +1512,7 @@ namespace Warps.Panels
 			}
 		}
 
-		public void GetConnected(List<IRebuild> updated)
+		public void GetChildren(List<IRebuild> updated)
 		{
 			if (updated != null && Affected(updated))
 				updated.Add(this);
@@ -1608,7 +1614,7 @@ namespace Warps.Panels
 
 		#region TreeDragging Members
 
-		public bool CanInsert(IRebuild item)
+		public bool CanInsert(Type item)
 		{
 			return false;
 		}

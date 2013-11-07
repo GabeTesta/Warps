@@ -48,7 +48,7 @@ namespace Warps.Curves
 			m_dgv.Columns[m_dgv.Columns.Count - 1].ValueType = typeof(double);
 			m_dgv.Columns[m_dgv.Columns.Count - 1].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
-			m_dgv.Font = new System.Drawing.Font("Consolas", 8f);
+			m_dgv.Font = Utilities.Font;// new System.Drawing.Font("Consolas", 8f);
 			m_dgv.RowHeadersVisible = false;
 		}
 	
@@ -112,20 +112,23 @@ namespace Warps.Curves
 			List<decimal> combY = new List<decimal>();
 
 			RBF.RBFSpline rbf = FitRBF();
-			double[] p = new double[1];
-			double s = 0; int CNT = 50;
-			for (int i = 0; i < CNT; i++)
+			if (rbf != null && rbf.IsFit)
 			{
-				s = BLAS.interpolant(i, CNT);
-				rbf.BsVal(s, ref p);
-				combX.Add(Convert.ToDecimal(s)); 
-				combY.Add(Convert.ToDecimal(p[0]));
-			}	
+				double[] p = new double[1];
+				double s = 0; int CNT = 50;
+				for (int i = 0; i < CNT; i++)
+				{
+					s = BLAS.interpolant(i, CNT);
+					rbf.BsVal(s, ref p);
+					combX.Add(Convert.ToDecimal(s));
+					combY.Add(Convert.ToDecimal(p[0]));
+				}
 
-			combLine.AbscissaData = combX;
-			combLine.DataSource = combY;
-			m_nsPlot.Add(combLine);
+				combLine.AbscissaData = combX;
+				combLine.DataSource = combY;
+				m_nsPlot.Add(combLine);
 
+			}
 			combX = new List<decimal>();
 			combY = new List<decimal>();
 			List<double> vertsX;
@@ -185,6 +188,8 @@ namespace Warps.Curves
 		{
 			List<double[]> x = new List<double[]>();
 			List<double> s = new List<double>();
+			if (CombPnts == null || CombPnts.Length < 2)
+				return null;
 			for (int i = 0; i < CombPnts.Length; i++)
 			{
 				s.Add(CombPnts[i][0]);

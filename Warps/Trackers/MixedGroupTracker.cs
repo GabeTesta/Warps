@@ -53,13 +53,6 @@ namespace Warps.Mixed
 				//EditMode = m_frame.EditMode;
 				m_edit.AfterSelect += m_frame.OnSelectionChanging;
 
-				if (Tree != null)
-				{
-					Tree.AttachTracker(this);
-					//Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
-					//Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
-					//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
-				}
 				m_edit.ReadGroup(m_group);
 				ReselectView();
 			}
@@ -67,7 +60,6 @@ namespace Warps.Mixed
 
 		public void Cancel()
 		{
-			Tree.DetachTracker(this);
 			View.DeSelectAllLayers();
 			View.Refresh();
 		}
@@ -103,11 +95,7 @@ namespace Warps.Mixed
 			//throw new NotImplementedException();
 		}
 
-		public void OnPaste(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
-
+		[Obsolete]
 		public void OnDelete(object sender, EventArgs e)
 		{
 			for (int i = 0; i < m_group.Count; i++)
@@ -119,26 +107,26 @@ namespace Warps.Mixed
 			m_frame.Delete(m_group);
 		}
 
-		public void OnAdd(object sender, EventArgs e)
-		{
-			if (sail == null)
-				return;
+		//public void OnAdd(object sender, EventArgs e)
+		//{
+		//	if (sail == null)
+		//		return;
 
-			List<Type> useThese = Utilities.GetAllOf(typeof(IRebuild), false);
+		//	List<Type> useThese = Utilities.GetAllOf(typeof(IRebuild), false);
 
-			AddItemDialog dlg = new AddItemDialog(useThese);
-			dlg.Text = "Add Item";
-			dlg.Name = "enter name";
-			if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-			{
-				IRebuild cur = dlg.CreateIRebuild();
-				if (cur != null)
-				{
-					m_group.Add(cur);
-					m_frame.OnSelectionChanging(this, new EventArgs<IRebuild>(cur));
-				}
-			}
-		}
+		//	AddItemDialog dlg = new AddItemDialog(useThese);
+		//	dlg.Text = "Add Item";
+		//	dlg.Name = "enter name";
+		//	if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+		//	{
+		//		IRebuild cur = dlg.CreateIRebuild();
+		//		if (cur != null)
+		//		{
+		//			m_group.Add(cur);
+		//			m_frame.OnSelectionChanging(this, new EventArgs<IRebuild>(cur));
+		//		}
+		//	}
+		//}
 
 		public void ProcessSelection(object Tag)
 		{

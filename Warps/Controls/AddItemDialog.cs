@@ -84,7 +84,7 @@ namespace Warps.Controls
 		{
 			if (Type == null)
 				return null;
-			IRebuild grp = Utilities.CreateInstance(Type) as IRebuild;
+			IRebuild grp = Utilities.CreateInstance<IRebuild>(Type);
 			if (grp != null)
 				grp.Label = Label;
 			return grp;

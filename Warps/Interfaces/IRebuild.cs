@@ -14,7 +14,9 @@ namespace Warps
 		string Label { get; set; }
 		string Layer { get; }
 
+		[Obsolete]
 		List<string> WriteScript();
+		[Obsolete]
 		bool ReadScript(Sail sail, IList<string> txt);
 
 		XmlNode WriteXScript(XmlDocument doc);
@@ -35,7 +37,7 @@ namespace Warps
 		/// </summary>
 		/// <param name="updated">the list of all connected nodes</param>
 		/// <returns>List of connected objects</returns>
-		void GetConnected(List<IRebuild> updated);
+		void GetChildren(List<IRebuild> updated);
 		void GetParents(Sail s, List<IRebuild> parents);
 		bool Affected(List<IRebuild> connected);
 		bool Update(Sail s);

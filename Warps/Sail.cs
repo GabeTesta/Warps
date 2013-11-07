@@ -240,10 +240,8 @@ namespace Warps
 		private IGroup MakeGroup(BinaryReader bin)
 		{
 			string type = Utilities.ReadCString(bin);
-			var obj = Utilities.CreateInstance(type, bin);
-			if (obj != null)
-				return obj as IGroup;
-			return null;
+			var obj = Utilities.CreateInstance<IGroup>(type, bin);
+			return obj;
 		}
 
 		void CreateMould(string path)
@@ -287,7 +285,7 @@ namespace Warps
 				if (type.Contains(':'))
 					type = type.Split(':')[0];
 
-				m_mould = Utilities.CreateInstance(type, new object[] { this, path }) as ISurface;
+				m_mould = Utilities.CreateInstance<ISurface>(type, new object[] { this, path });
 			}
 			if( m_mould != null )
 				SetBox();//create sail bounding box
@@ -316,6 +314,7 @@ namespace Warps
 
 		public event UpdateUI updateStatus;
 
+		[Obsolete]
 		void ReadScriptFile(string path)
 		{
 			using (StreamReader txt = new StreamReader(path))
@@ -338,22 +337,25 @@ namespace Warps
 				{
 					List<string> lines = new List<string>(ScriptTools.Block(ref line, txt));
 
-					object grp = null;
+					IRebuild grp = null;
 					splits = lines[0].Split(':');
 					if (splits.Length > 0)
-						grp = Utilities.CreateInstance(splits[0].Trim('\t'));
-					if (grp != null && grp is IGroup)
+						grp = Utilities.CreateInstance<IRebuild>(splits[0].Trim('\t'));
+					if (grp != null)
 					{
-						(grp as IGroup).Sail = this;
-						m_layout.Add(grp as IGroup);
+						if( grp is IGroup)
+							(grp as IGroup).Sail = this;
+						m_layout.Add(grp);
 
 						if (updateStatus != null)
 							updateStatus(Layout.Count, "Loading " + lines[0]);
-						(grp as IGroup).ReadScript(this, lines);
+						grp.ReadScript(this, lines);
 					}
 				}
 			}
 		}
+
+		[Obsolete]
 		public void WriteScriptFile(string path)
 		{
 			using (StreamWriter txt = new StreamWriter(path))
@@ -372,7 +374,6 @@ namespace Warps
 					}
 			}
 		}
-
 
 		public XmlDocument WriteXScript(string path)
 		{
@@ -408,8 +409,7 @@ namespace Warps
 			IRebuild item;
 			for (int nGrp = 1; nGrp < sail.ChildNodes.Count; nGrp++)
 			{
-				object grp = Utilities.CreateInstance(sail.ChildNodes[nGrp].Name);
-				item = grp as IRebuild;
+				item = Utilities.CreateInstance<IRebuild>(sail.ChildNodes[nGrp].Name);
 				if (item != null)
 				{
 					//if (item is IGroup)
@@ -548,7 +548,7 @@ namespace Warps
 			}
 			foreach (IRebuild item in Layout)
 			{
-				item.GetConnected(connected);
+				item.GetChildren(connected);
 			}
 
 			return connected;
@@ -562,7 +562,7 @@ namespace Warps
 			}
 			foreach (IRebuild item in Layout)
 			{
-				item.GetConnected(connected);
+				item.GetChildren(connected);
 			}
 
 			return connected;
@@ -619,6 +619,18 @@ namespace Warps
 
 		}
 
+		public IRebuild Add(IRebuild item)
+		{
+			if (item == null)
+				throw new ArgumentNullException("item");
+
+			var found = FindItem(item.Label);
+			if (found != null)
+				return found;
+
+			Layout.Add(item);
+			return null;
+		}
 		//internal List<object> GetAutoFillData(object tag)
 		//{
 		//	List<object> autoComplete = new List<object>();
@@ -672,6 +684,7 @@ namespace Warps
 
 		internal void Remove(IRebuild tag)
 		{
+
 			if (tag is IGroup)
 			{
 				IGroup g = FindGroup(tag.Label);
@@ -708,7 +721,7 @@ namespace Warps
 			}
 			//check mould items (if any)
 			if (Mould != null && Mould.Groups != null)
-				for (int i = 0; i < Mould.Groups.Count; i++)
+				for (int i = Mould.Groups.Count - 1; i >= 0; i--)
 				{
 					//check group label
 					if (Mould.Groups[i].Label.Equals(lbl))
@@ -746,34 +759,53 @@ namespace Warps
 		}
 
 		/// <summary>
-		/// Finds the parent group of the specified tag
+		/// Finds the parent curve of a given fitpoint
 		/// </summary>
-		/// <param name="tag">the item to find the parent of</param>
-		/// <returns>the containing IGroup, null if not found</returns>
-		public IGroup FindGroup(IRebuild tag)
+		/// <param name="fp">the fitpoint to search for</param>
+		/// <returns>The parent curve if successful, null otherwise</returns>
+		public MouldCurve FindCurve(IFitPoint fp)
 		{
-			if (tag == null)
-				return null;
-			List<IRebuild> rets = new List<IRebuild>();
-			IGroup group;
-			for (int i = Layout.Count - 1; i >= 0; i--)
+			foreach (IRebuild cur in FlatLayout().Where(irb => irb is MouldCurve))
 			{
-				group = Layout[i] as IGroup;
-				if (group == null) continue;
-
-				if (group.Watermark(tag, ref rets))
-					return group;
+				if ((cur as MouldCurve).FitPoints.Contains(fp))
+					return cur as MouldCurve;
 			}
-			if (Mould != null && Mould.Groups != null)
-				for (int i = 0; i < Mould.Groups.Count; i++)
-				{
-					//check group label
-					if (Mould.Groups[i].Watermark(tag, ref rets))
-						return Mould.Groups[i];//return if match
-				}
-
 			return null;
 		}
+
+		/// <summary>
+		/// Finds the parent group of the specified tag
+		/// </summary>
+		/// <param name="item">the item to find the parent of</param>
+		/// <returns>the containing IGroup, null if not found</returns>
+		public T FindParent<T>(IRebuild item)where T: class, IGroup
+		{
+			T parent;
+			FindParent(item, out parent);
+			return parent;
+		}
+		/// <summary>
+		/// Finds the parent group of the specified item
+		/// </summary>
+		/// <param name="tag">the item to find the parent of</param>
+		/// <param name="parent">outputs the parent group of the specified item, null if not found</param>
+		/// <returns>true if successful</returns>
+		public bool FindParent<T>(IRebuild item, out T parent) where T: class, IGroup
+		{
+			//check the mould groups	
+			if (Mould != null && Mould.Groups != null)
+				foreach( IGroup r in Mould.Groups)
+					if ( r.FindParent(item, out parent))
+						return true;
+			//check the warps groups
+			foreach( IRebuild r in Layout)
+				if (r is IGroup && (r as IGroup).FindParent(item, out parent))
+					return true;
+
+			parent = null;
+			return false;
+		}
+
 
 		/// <summary>
 		/// Returns all IRebuild items that are above the tag
@@ -1081,9 +1113,17 @@ namespace Warps
 
 			foreach (MouldCurve bat in batts)
 			{
-				if (CurveTools.CrossPoint(Luff, bat, ref uv1, ref xyz, ref sPos, 20, false))
-					if (CurveTools.CrossPoint(Leech, bat, ref uv2, ref xyz, ref sPos, 20, false))
-						baxxs.Add(new MouldCurve(bat.Label.Replace("Bat", "Bax"), this, uv2, uv1));
+				List<IFitPoint> threept = new List<IFitPoint>();
+				threept.Add(new CrossPoint(Leech, bat));
+				threept.Add(new CurvePoint(bat, 1));
+				if( !CurveTools.CrossPoint(Luff,bat,ref uv1, ref xyz, ref sPos) )//shortbatten, do extension
+					threept.Add(new SlidePoint(Luff, uv1[1]));
+
+				baxxs.Add(new MouldCurve(bat.Label.Replace("Bat", "Bax"), this, threept.ToArray()));
+
+				//if (CurveTools.CrossPoint(Luff, bat, ref uv1, ref xyz, ref sPos, 20, false))
+				//	if (CurveTools.CrossPoint(Leech, bat, ref uv2, ref xyz, ref sPos, 20, false))
+				//		baxxs.Add(new MouldCurve(bat.Label.Replace("Bat", "Bax"), this, uv1, uv2));
 			}
 			Add(baxxs);
 			return baxxs;
@@ -1152,5 +1192,16 @@ namespace Warps
 		}
  
 		#endregion	
+	
+		internal void Insert(IRebuild item, IRebuild target)
+		{
+			int nTar = Layout.IndexOf(target);
+			int nIrb = Layout.IndexOf(item);
+			if (nIrb >= 0)//item is already in this group: reorder
+				Layout.Remove(item);
+			if (!Utilities.IsBetween(0, nTar, Layout.Count))
+				nTar = Layout.Count;//insert at end
+			Layout.Insert(nTar, item);
+		}
 	}
 }

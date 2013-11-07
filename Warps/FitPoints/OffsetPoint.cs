@@ -54,10 +54,10 @@ namespace Warps
 			{
 				return m_uv;
 			}
-			set
-			{
-				throw new NotImplementedException();
-			}
+			//set
+			//{
+			//	throw new NotImplementedException();
+			//}
 		}
 
 		public IFitPoint Clone()

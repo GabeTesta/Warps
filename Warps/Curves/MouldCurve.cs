@@ -15,7 +15,7 @@ namespace Warps.Curves
 {
 	public class MouldCurve : IRebuild, IMouldCurve
 	{
-		public MouldCurve(): this("", WarpFrame.CurrentSail,new Vect2(0,0.5), new Vect2(1,0.5))
+		public MouldCurve()//: this("", WarpFrame.CurrentSail,new Vect2(0,0.5), new Vect2(1,0.5))
 		{ }
 		public MouldCurve(string label, Sail sail)
 		{
@@ -44,7 +44,7 @@ namespace Warps.Curves
 		{
 			m_sail = curve.Sail;
 			m_label = curve.Label;
-			Fit(curve);
+				Fit(curve);
 		}
 
 		///// <summary>
@@ -145,7 +145,7 @@ namespace Warps.Curves
 			m_locked = true;
 			//read label
 			m_label = Utilities.ReadCString(bin);
-
+			m_layer = null;//use parent group's layer
 			//read fit point positions
 			int nPos = bin.ReadInt32();
 			m_sSplines = new double[nPos];
@@ -184,15 +184,22 @@ namespace Warps.Curves
 
 		#region Members
 
-		string m_label;
+		string m_label, m_layer = "Curves";
 		public string Label
 		{
 			get { return m_label; }
 			set { m_label = value; }
 		}
-		public string Layer
+		public virtual string Layer
 		{
-			get { return Group != null ? Group.Layer : "Curves"; }
+			get {
+				IGroup grp;
+				if( Sail.FindParent(this, out grp) && grp.Layer != null)
+					return grp.Layer;
+				return m_layer; 
+			}
+			internal set { m_layer = value; }
+			//get { return Group != null ? Group.Layer : "Curves"; }
 		}
 		Sail m_sail;
 		public Sail Sail
@@ -207,7 +214,7 @@ namespace Warps.Curves
 		}
 		public IGroup Group
 		{
-			get { return Sail.FindGroup(this); }
+			get { IGroup par; Sail.FindParent(this, out par); return par;}
 		}
 
 		BSpline m_bSpline = new BSpline(2);
@@ -304,7 +311,7 @@ namespace Warps.Curves
 				if (FitPoints[i].S == FitPoints[i - 1].S && FitPoints[i].S == FitPoints[i + 1].S)//tripple points
 					kinks.Add(FitPoints[i].S);
 			}
-			kinks.Add(1);//endpoing
+			kinks.Add(1);//endpoint
 			return kinks;
 		}
 
@@ -338,11 +345,15 @@ namespace Warps.Curves
 			if (c.m_label != m_label)
 				return false;
 
-			if (c.m_bGirths.Length != m_bGirths.Length)
-				return false;
-			for (int i = 0; i < m_bGirths.Length; i++)
-				if (c.m_bGirths[i] != m_bGirths[i])
+			if (c.m_bGirths != null && m_bGirths != null)
+			{
+				if (c.m_bGirths.Length != m_bGirths.Length)
 					return false;
+
+				for (int i = 0; i < m_bGirths.Length; i++)
+					if (c.m_bGirths[i] != m_bGirths[i])
+						return false;
+			}
 
 			if (c.m_uSplines.Length != m_uSplines.Length)
 				return false;
@@ -353,21 +364,31 @@ namespace Warps.Curves
 			if (c.m_sSplines.Length != m_sSplines.Length)
 				return false;
 			for (int i = 0; i < m_sSplines.Length; i++)
-				if (c.m_sSplines[i] != m_sSplines[i])
+				if ( !BLAS.IsEqual(c.m_sSplines[i], m_sSplines[i], 1e-8) )
 					return false;
 
 			return true;
 		}
 
 		#region Fitting
-
+		public virtual void UnFit()
+		{
+			m_bSpline = new BSpline(2);
+			FitPoints = null;
+			m_bGirths = null;
+		}
 		public virtual void ReFit()
 		{
 			m_Length = -1;//reset length
-			Fit(FitPoints);
+			if (FitPoints == null)
+				UnFit();
+			else
+				Fit(FitPoints);
 		}
 		public void Fit(MouldCurve clone)
 		{
+			if (clone.FitPoints == null)
+				return;
 			FitPoints = new IFitPoint[clone.FitPoints.Length];
 			int i =0;
 			foreach(IFitPoint fp in clone.FitPoints)
@@ -704,6 +725,8 @@ namespace Warps.Curves
 
 		public bool Affected(List<IRebuild> connected)
 		{
+			if (FitPoints == null)
+				return false;
 			foreach (IFitPoint fp in FitPoints)
 				if (fp.Affected(connected))
 				{
@@ -713,21 +736,23 @@ namespace Warps.Curves
 
 			return false;
 		}
-		public void GetConnected(List<IRebuild> connected)
+		public void GetChildren(List<IRebuild> connected)
 		{
-			foreach (IFitPoint fp in FitPoints)
-				if (fp.Affected(connected))
-				{
-					connected.Add(this);
-					break;
-				}
+			if( FitPoints != null )
+				foreach (IFitPoint fp in FitPoints)
+					if (fp.Affected(connected))
+					{
+						connected.Add(this);
+						break;
+					}
 			
 		}
 		public bool Delete() { return false; }
 		public bool Update(Sail s)
 		{
-			foreach (IFitPoint fp in FitPoints)
-				fp.Update(s);
+			if( FitPoints != null )
+				foreach (IFitPoint fp in FitPoints)
+					fp.Update(s);
 
 			if (AllFitPointsValid())
 				ReFit();
@@ -749,7 +774,8 @@ namespace Warps.Curves
 		{
 			if (txt == null || txt.Count == 0)
 				return false;
-
+			if (m_sail == null)
+				m_sail = sail;
 			List<IFitPoint> fits = new List<IFitPoint>();
 			string[] splits;// = txt[0].Split(':');
 			//Label = "";
@@ -781,7 +807,7 @@ namespace Warps.Curves
 				}
 				else//fit points
 				{
-					cur = Utilities.CreateInstance(header);
+					cur = Utilities.CreateInstance<object>(header);
 					if (cur != null && cur is IFitPoint)
 					{
 						(cur as IFitPoint).ReadScript(Sail, lines);
@@ -859,7 +885,7 @@ namespace Warps.Curves
 			//read each fitpoint
 			foreach (XmlNode child in node.ChildNodes)
 			{
-				IFitPoint fp = Utilities.CreateInstance(child.Name) as IFitPoint;
+				IFitPoint fp = Utilities.CreateInstance<IFitPoint>(child.Name);
 				if (fp != null)
 				{
 					fp.ReadXScript(Sail, child);
@@ -878,21 +904,23 @@ namespace Warps.Curves
 
 		private string GetToolTipData()
 		{
-			return GetType().Name + "\n#:" + FitPoints.Length + (Locked ? "\nLocked" : "");
+			StringBuilder sb = new StringBuilder(GetType().Name);
+			if (FitPoints != null)
+				sb.Append("\n#:" + FitPoints.Length);
+			if (Locked)
+				sb.Append("\nLocked");
+			return sb.ToString();
 		}
 
 		System.Windows.Forms.TreeNode m_node = null;
 
 		public virtual TreeNode WriteNode()
 		{
-			if (m_node == null)
-				m_node = new System.Windows.Forms.TreeNode();
-			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
+			TabTree.MakeNode(this, ref m_node);
 			m_node.Text = string.Format("{0} [{1:0.000}]", Label, Length);
-			m_node.Tag = this;
+
 			m_node.ToolTipText = GetToolTipData();
-			m_node.ImageKey = GetType().Name;
-			m_node.SelectedImageKey = GetType().Name;
+
 			m_node.Nodes.Clear();
 			if (FitPoints != null)
 			{
@@ -1075,8 +1103,9 @@ namespace Warps.Curves
 			get
 			{
 				List<devDept.Eyeshot.Labels.Label> ret = new List<devDept.Eyeshot.Labels.Label>();
+				if( FitPoints != null )
 				ret.Add(new devDept.Eyeshot.Labels.OutlinedText(GetLabelPoint3D(0.5), Label,
-					new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter));
+					new Font(Utilities.Font.FontFamily, 12f, FontStyle.Bold), Color.White, Color.Black, ContentAlignment.MiddleCenter));
 				return ret;
 			}
 		}
@@ -1335,6 +1364,8 @@ namespace Warps.Curves
 
 		}
 
+		#endregion
+
 		internal bool InsertPoint(Vect3 target, out int nIndex)
 		{
 			double s = 0.5, h = 0;
@@ -1368,8 +1399,6 @@ namespace Warps.Curves
 			return true;
 		}
 
-		#endregion
-
 		internal bool RemovePoint(int index)
 		{
 			if (index < 0 || FitPoints.Length <= index || FitPoints.Length <= 2)
@@ -1385,5 +1414,7 @@ namespace Warps.Curves
 		{
 			return FitPoints.Contains(p);
 		}
+
+
 	}
 }

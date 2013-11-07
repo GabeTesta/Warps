@@ -85,15 +85,8 @@ namespace Warps.Curves
 		}
 		private TreeNode WriteNode(bool bclear)
 		{
-			if (m_node == null)
-				m_node = new System.Windows.Forms.TreeNode();
-			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
-			m_node.Tag = this;
-			//m_node.Text = GetType().Name + ": " + Label;
+			TabTree.MakeNode(this, ref m_node);
 			m_node.ToolTipText = GetToolTipData();
-			m_node.Text = Label;
-			m_node.ImageKey = GetType().Name;
-			m_node.SelectedImageKey = GetType().Name;
 			if (m_node.Nodes.Count != this.Count || bclear)
 			{
 				//m_node.BeginEdit();
@@ -147,7 +140,6 @@ namespace Warps.Curves
 		//	}
 		//}
 
-
 		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
 			get
@@ -190,7 +182,7 @@ namespace Warps.Curves
 		}
 		public bool Update(Sail s) { return true; }
 		public bool Delete() { return false; }
-		public void GetConnected(List<IRebuild> connected)
+		public void GetChildren(List<IRebuild> connected)
 		{
 			this.ForEach((MouldCurve c) =>
 			{
@@ -214,6 +206,7 @@ namespace Warps.Curves
 			removeMe.ForEach(irb => parents.Remove(irb));
 		}
 
+		[Obsolete]
 		public bool ReadScript(Sail sail, IList<string> txt)
 		{
 			if (txt == null || txt.Count == 0)
@@ -234,15 +227,15 @@ namespace Warps.Curves
 				IList<string> lines = ScriptTools.Block(ref nLine, txt);
 				//nLine += lines.Count - 1;
 
-				object cur = null;
+				MouldCurve cur = null;
 				splits = lines[0].Split(':');
 				if (splits.Length > 0)
-					cur = Utilities.CreateInstance(splits[0].Trim('\t'));
-				if (cur != null && cur is MouldCurve)
+					cur = Utilities.CreateInstance<MouldCurve>(splits[0].Trim('\t'));
+				if (cur != null )
 				{
-					(cur as MouldCurve).Sail = sail;
-					(cur as IRebuild).ReadScript(sail, lines);
-					Add(cur as MouldCurve);
+					cur.Sail = sail;
+					cur.ReadScript(sail, lines);
+					Add(cur);
 				}
 			}
 
@@ -250,6 +243,7 @@ namespace Warps.Curves
 
 			return true;
 		}
+		[Obsolete]
 		public List<string> WriteScript()
 		{
 			List<string> script = new List<string>(Count * 3);
@@ -356,13 +350,23 @@ namespace Warps.Curves
 			return i != -1;//true if found
 		}
 
+		public bool FindParent<T>(IRebuild item, out T parent) where T : class, IGroup
+		{
+			if (ContainsItem(item))
+			{
+				parent = this as T;
+				return true;
+			}
+			parent = null;
+			return false;
+		}
+
 		#endregion
 
 		public override string ToString()
 		{
 			return Label;
 		}
-
 
 		#region IRebuild Members
 
@@ -379,12 +383,12 @@ namespace Warps.Curves
 			m_sail = sail;
 			foreach (XmlNode child in node.ChildNodes)
 			{
-				object cur = Utilities.CreateInstance(child.Name);
-				if (cur != null && cur is MouldCurve)
+				MouldCurve cur = Utilities.CreateInstance<MouldCurve>(child.Name);
+				if (cur != null)
 				{
 					//(cur as MouldCurve).Sail = sail;
-					Add(cur as MouldCurve);
-					(cur as IRebuild).ReadXScript(sail, child);
+					Add(cur);
+					cur.ReadXScript(sail, child);
 				}
 			}
 		}
@@ -393,9 +397,9 @@ namespace Warps.Curves
 
 		#region TreeDragging Members
 
-		public bool CanInsert(IRebuild item)
+		public bool CanInsert(Type item)
 		{
-			return item is MouldCurve;
+			return Utilities.GetAllOf(typeof(MouldCurve), true).Contains(item);
 		}
 		public void Insert(IRebuild item, IRebuild target)
 		{

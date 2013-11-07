@@ -22,13 +22,15 @@ namespace Warps
 
 			if (m_frame != null)
 			{
-				m_frame.EditorPanel = null;//no editor
+				var edit = new VariableEditor(m_equ.Label, m_equ);
+				m_frame.EditorPanel = edit;
+
 
 				if (Tree != null)
 				{
-					Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
-					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
-					Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
+					//Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
+					//Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
+					//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
 				}
 
 			}
@@ -48,65 +50,62 @@ namespace Warps
 			get { return m_frame != null ? m_frame.Tree : null; }
 		}
 
-		void Tree_KeyUp(object sender, KeyEventArgs e)
-		{
-			// the modifier key CTRL is pressed by the time it gets here
-			switch (e.KeyCode)
-			{
-				//case Keys.C:
-				//	OnCopy(Tree.SelectedTag, new EventArgs());
-				//	break;
-				case Keys.V:
-					OnPaste(Tree.SelectedTag, new EventArgs());
-					break;
-			}
-		}
-		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-		{
-			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
-			{
-				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
-					Tree.TreeContextMenu.Items[i].Enabled = false;
-				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add"))
-					Tree.TreeContextMenu.Items[i].Enabled = false;
-				if(Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
-					Tree.TreeContextMenu.Items[i].Enabled = true;
+		//void Tree_KeyUp(object sender, KeyEventArgs e)
+		//{
+		//	// the modifier key CTRL is pressed by the time it gets here
+		//	switch (e.KeyCode)
+		//	{
+		//		//case Keys.C:
+		//		//	OnCopy(Tree.SelectedTag, new EventArgs());
+		//		//	break;
+		//		case Keys.V:
+		//			OnPaste(Tree.SelectedTag, new EventArgs());
+		//			break;
+		//	}
+		//}
+		//void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+		//{
+		//	for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
+		//	{
+		//		if (Tree.TreeContextMenu.Items[i].Text == "Paste")
+		//			Tree.TreeContextMenu.Items[i].Enabled = false;
+		//		if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add"))
+		//			Tree.TreeContextMenu.Items[i].Enabled = false;
+		//		if(Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
+		//			Tree.TreeContextMenu.Items[i].Enabled = true;
 					
-			}
-			Tree.TreeContextMenu.Show();
-		}
+		//	}
+		//	Tree.TreeContextMenu.Show();
+		//}
 
-		void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-		{
-			Logleton.TheLog.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
+		//void TreeContextMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		//{
+		//	Logleton.TheLog.Log("{0}: ContextMenuItem clicked {1}", this.GetType().Name, e.ClickedItem.Name);
 
-			//if (e.ClickedItem.Text == "Copy")
-			//{
-			//	OnCopy(sender, new EventArgs());
-			//}
-			if (e.ClickedItem.Text == "Paste")
-			{
-				OnPaste(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Delete")
-			{
-				OnDelete(sender, new EventArgs());
-			}
-			else if (e.ClickedItem.Text == "Add")
-			{
-				OnAdd(sender, new EventArgs());
-			}
-		}
-
-		public void OnAdd(object sender, EventArgs e) { }
-
-		public void OnDelete(object sender, EventArgs e) { }
+		//	//if (e.ClickedItem.Text == "Copy")
+		//	//{
+		//	//	OnCopy(sender, new EventArgs());
+		//	//}
+		//	if (e.ClickedItem.Text == "Paste")
+		//	{
+		//		OnPaste(sender, new EventArgs());
+		//	}
+		//	else if (e.ClickedItem.Text == "Delete")
+		//	{
+		//		OnDelete(sender, new EventArgs());
+		//	}
+		//	else if (e.ClickedItem.Text == "Add")
+		//	{
+		//		OnAdd(sender, new EventArgs());
+		//	}
+		//}
 
 		public void Cancel()
 		{
-			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
-			Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
-			Tree.KeyUp -= Tree_KeyUp;
+			m_frame.EditorPanel = null;
+			//Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
+			//Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
+			//Tree.KeyUp -= Tree_KeyUp;
 		}
 
 		public void OnBuild(object sender, EventArgs e) { }
@@ -137,11 +136,6 @@ namespace Warps
 		//	m_frame.Status = String.Format("{0}:{1} Copied", equ.GetType().Name, equ.Label);
 
 		//}
-
-		public void OnPaste(object sender, EventArgs e)
-		{
-
-		}
 
 
 		#region ITracker Members

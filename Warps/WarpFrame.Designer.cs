@@ -28,7 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WarpFrame));
 			this.m_vertsplit = new System.Windows.Forms.SplitContainer();
 			this.m_horizsplit = new System.Windows.Forms.SplitContainer();
@@ -51,13 +50,18 @@
 			this.pasteToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+			this.toolStripDropDownButton2 = new System.Windows.Forms.ToolStripDropDownButton();
+			this.projectDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.exeDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.configFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-			this.m_addCurve = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.m_autoBtn = new System.Windows.Forms.ToolStripButton();
 			this.m_buildBtn = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.m_groupsDD = new System.Windows.Forms.ToolStripDropDownButton();
+			this.m_itemsDD = new System.Windows.Forms.ToolStripDropDownButton();
 			this.m_defGeo = new System.Windows.Forms.ToolStripDropDownButton();
 			this.outerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.innerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,10 +70,6 @@
 			this.m_statusText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.m_statusProgress = new System.Windows.Forms.ToolStripProgressBar();
 			this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
-			this.toolStripDropDownButton2 = new System.Windows.Forms.ToolStripDropDownButton();
-			this.projectDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.exeDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.configFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.m_tree = new Warps.TabTree();
 			this.m_dualView = new Warps.DualView();
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).BeginInit();
@@ -147,7 +147,7 @@
 			this.previewButton.BackColor = System.Drawing.Color.White;
 			this.previewButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.SeaGreen;
 			this.previewButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.previewButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.previewButton.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.previewButton.Location = new System.Drawing.Point(3, 497);
 			this.previewButton.Name = "previewButton";
 			this.previewButton.Size = new System.Drawing.Size(75, 23);
@@ -197,15 +197,16 @@
             this.toolStripDropDownButton2,
             this.toolStripButton1,
             this.toolStripSeparator4,
-            this.m_addCurve,
-            this.m_defGeo,
             this.toolStripSeparator1,
             this.m_autoBtn,
             this.m_buildBtn,
-            this.toolStripSeparator3});
+            this.toolStripSeparator3,
+            this.m_groupsDD,
+            this.m_itemsDD,
+            this.m_defGeo});
 			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
 			this.m_toolstrip.Name = "m_toolstrip";
-			this.m_toolstrip.Size = new System.Drawing.Size(529, 25);
+			this.m_toolstrip.Size = new System.Drawing.Size(684, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
 			// 
@@ -329,6 +330,40 @@
 			this.toolStripSeparator5.Name = "toolStripSeparator5";
 			this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
 			// 
+			// toolStripDropDownButton2
+			// 
+			this.toolStripDropDownButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.toolStripDropDownButton2.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.projectDirectoryToolStripMenuItem,
+            this.exeDirectoryToolStripMenuItem,
+            this.configFileToolStripMenuItem});
+			this.toolStripDropDownButton2.Image = global::Warps.Properties.Resources.folder;
+			this.toolStripDropDownButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripDropDownButton2.Name = "toolStripDropDownButton2";
+			this.toolStripDropDownButton2.Size = new System.Drawing.Size(49, 22);
+			this.toolStripDropDownButton2.Text = "Show";
+			// 
+			// projectDirectoryToolStripMenuItem
+			// 
+			this.projectDirectoryToolStripMenuItem.Name = "projectDirectoryToolStripMenuItem";
+			this.projectDirectoryToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+			this.projectDirectoryToolStripMenuItem.Text = "Project Directory";
+			this.projectDirectoryToolStripMenuItem.Click += new System.EventHandler(this.projectDirectoryToolStripMenuItem_Click);
+			// 
+			// exeDirectoryToolStripMenuItem
+			// 
+			this.exeDirectoryToolStripMenuItem.Name = "exeDirectoryToolStripMenuItem";
+			this.exeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+			this.exeDirectoryToolStripMenuItem.Text = "Exe Directory";
+			this.exeDirectoryToolStripMenuItem.Click += new System.EventHandler(this.exeDirectoryToolStripMenuItem_Click);
+			// 
+			// configFileToolStripMenuItem
+			// 
+			this.configFileToolStripMenuItem.Name = "configFileToolStripMenuItem";
+			this.configFileToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+			this.configFileToolStripMenuItem.Text = "Config File";
+			this.configFileToolStripMenuItem.Click += new System.EventHandler(this.configFileToolStripMenuItem_Click);
+			// 
 			// toolStripButton1
 			// 
 			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -344,16 +379,6 @@
 			// 
 			this.toolStripSeparator4.Name = "toolStripSeparator4";
 			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-			// 
-			// m_addCurve
-			// 
-			this.m_addCurve.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.m_addCurve.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.m_addCurve.Name = "m_addCurve";
-			this.m_addCurve.Size = new System.Drawing.Size(69, 22);
-			this.m_addCurve.Text = "Add Group";
-			this.m_addCurve.ToolTipText = "Add group to project";
-			this.m_addCurve.Click += new System.EventHandler(this.AddGroup_Click);
 			// 
 			// toolStripSeparator1
 			// 
@@ -385,32 +410,55 @@
 			this.toolStripSeparator3.Name = "toolStripSeparator3";
 			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
 			// 
+			// m_groupsDD
+			// 
+			this.m_groupsDD.Image = global::Warps.Properties.Resources.folder;
+			this.m_groupsDD.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_groupsDD.Name = "m_groupsDD";
+			this.m_groupsDD.Size = new System.Drawing.Size(74, 22);
+			this.m_groupsDD.Text = "Groups";
+			//this.m_groupsDD.DropDownOpening += new System.EventHandler(this.DropDownOpening);
+			this.m_groupsDD.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.DropDownItemClicked);
+			// 
+			// m_itemsDD
+			// 
+			this.m_itemsDD.Image = global::Warps.Properties.Resources.wire;
+			this.m_itemsDD.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.m_itemsDD.Name = "m_itemsDD";
+			this.m_itemsDD.Size = new System.Drawing.Size(65, 22);
+			this.m_itemsDD.Text = "Items";
+			this.m_itemsDD.DropDownOpening += new System.EventHandler(this.DropDownOpening);
+			this.m_itemsDD.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.DropDownItemClicked);
+			// 
 			// m_defGeo
 			// 
-			this.m_defGeo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.m_defGeo.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.outerToolStripMenuItem,
             this.innerToolStripMenuItem,
             this.baxToolStripMenuItem});
+			this.m_defGeo.Image = global::Warps.Properties.Resources.main;
 			this.m_defGeo.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.m_defGeo.Name = "m_defGeo";
-			this.m_defGeo.Size = new System.Drawing.Size(113, 22);
+			this.m_defGeo.Size = new System.Drawing.Size(129, 22);
 			this.m_defGeo.Text = "Default Geometry";
 			// 
 			// outerToolStripMenuItem
 			// 
+			this.outerToolStripMenuItem.Image = global::Warps.Properties.Resources.curvegroup;
 			this.outerToolStripMenuItem.Name = "outerToolStripMenuItem";
 			this.outerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.outerToolStripMenuItem.Text = "Outer";
 			// 
 			// innerToolStripMenuItem
 			// 
+			this.innerToolStripMenuItem.Image = global::Warps.Properties.Resources.curvegroup;
 			this.innerToolStripMenuItem.Name = "innerToolStripMenuItem";
 			this.innerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.innerToolStripMenuItem.Text = "Inner";
 			// 
 			// baxToolStripMenuItem
 			// 
+			this.baxToolStripMenuItem.Image = global::Warps.Properties.Resources.curvegroup;
 			this.baxToolStripMenuItem.Name = "baxToolStripMenuItem";
 			this.baxToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.baxToolStripMenuItem.Text = "Bax";
@@ -461,45 +509,12 @@
 			// 
 			this.toolStripContainer1.TopToolStripPanel.Controls.Add(this.m_toolstrip);
 			// 
-			// toolStripDropDownButton2
-			// 
-			this.toolStripDropDownButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.toolStripDropDownButton2.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.projectDirectoryToolStripMenuItem,
-            this.exeDirectoryToolStripMenuItem,
-            this.configFileToolStripMenuItem});
-			this.toolStripDropDownButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton2.Image")));
-			this.toolStripDropDownButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripDropDownButton2.Name = "toolStripDropDownButton2";
-			this.toolStripDropDownButton2.Size = new System.Drawing.Size(49, 22);
-			this.toolStripDropDownButton2.Text = "Show";
-			// 
-			// projectDirectoryToolStripMenuItem
-			// 
-			this.projectDirectoryToolStripMenuItem.Name = "projectDirectoryToolStripMenuItem";
-			this.projectDirectoryToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
-			this.projectDirectoryToolStripMenuItem.Text = "Project Directory";
-			this.projectDirectoryToolStripMenuItem.Click += new System.EventHandler(this.projectDirectoryToolStripMenuItem_Click);
-			// 
-			// exeDirectoryToolStripMenuItem
-			// 
-			this.exeDirectoryToolStripMenuItem.Name = "exeDirectoryToolStripMenuItem";
-			this.exeDirectoryToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
-			this.exeDirectoryToolStripMenuItem.Text = "Exe Directory";
-			this.exeDirectoryToolStripMenuItem.Click += new System.EventHandler(this.exeDirectoryToolStripMenuItem_Click);
-			// 
-			// configFileToolStripMenuItem
-			// 
-			this.configFileToolStripMenuItem.Name = "configFileToolStripMenuItem";
-			this.configFileToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
-			this.configFileToolStripMenuItem.Text = "Config File";
-			this.configFileToolStripMenuItem.Click += new System.EventHandler(this.configFileToolStripMenuItem_Click);
-			// 
 			// m_tree
 			// 
 			this.m_tree.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.m_tree.Location = new System.Drawing.Point(0, 0);
 			this.m_tree.Name = "m_tree";
+			this.m_tree.SelectedItem = null;
 			this.m_tree.SelectedTag = null;
 			this.m_tree.Size = new System.Drawing.Size(205, 523);
 			this.m_tree.TabIndex = 0;
@@ -568,7 +583,6 @@
 	   public System.Windows.Forms.Button okButton;
 	   public System.Windows.Forms.Button previewButton;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-	   private System.Windows.Forms.ToolStripButton m_addCurve;
 	   private System.Windows.Forms.ToolStripButton m_autoBtn;
 	   private System.Windows.Forms.ToolStripButton m_buildBtn;
 	   private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
@@ -590,6 +604,8 @@
 	   private System.Windows.Forms.ToolStripMenuItem projectDirectoryToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripMenuItem exeDirectoryToolStripMenuItem;
 	   private System.Windows.Forms.ToolStripMenuItem configFileToolStripMenuItem;
+	   private System.Windows.Forms.ToolStripDropDownButton m_groupsDD;
+	   private System.Windows.Forms.ToolStripDropDownButton m_itemsDD;
 	}
 }
 

@@ -120,6 +120,7 @@
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DensityMesh.cs" />
+    <Compile Include="FitPoints\AnglePoint.cs" />
     <Compile Include="FitPoints\CrossPointEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -499,7 +500,6 @@
     <None Include="Resources\curve.bmp" />
     <None Include="Resources\EndCondition.png" />
     <None Include="Resources\fixed.bmp" />
-    <None Include="Resources\panelGroup.png" />
     <None Include="Resources\glyphicons_144_folder_open.png" />
     <None Include="Resources\offset.bmp" />
     <None Include="Resources\slide.bmp" />
@@ -512,8 +512,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="boat.ico" />
-    <None Include="Resources\main.JPG" />
     <None Include="Resources\main.bmp" />
+    <None Include="Resources\Limits.bmp" />
+    <None Include="Resources\MaxMin.bmp" />
     <Content Include="rig.ico" />
     <None Include="Resources\comb.bmp" />
     <None Include="Resources\VariableGroup.bmp" />

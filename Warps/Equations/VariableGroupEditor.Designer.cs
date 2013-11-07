@@ -58,16 +58,21 @@
 			// 
 			// m_flow
 			// 
-			this.m_flow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			this.m_flow.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.m_flow.BackColor = System.Drawing.SystemColors.Control;
 			this.m_flow.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
 			this.m_flow.Location = new System.Drawing.Point(6, 70);
 			this.m_flow.Name = "m_flow";
 			this.m_flow.Size = new System.Drawing.Size(220, 227);
 			this.m_flow.TabIndex = 8;
+			this.m_flow.Resize += new System.EventHandler(this.m_flow_Resize);
 			// 
 			// m_labelBox
 			// 
+			this.m_labelBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.m_labelBox.Location = new System.Drawing.Point(53, 7);
 			this.m_labelBox.Name = "m_labelBox";
 			this.m_labelBox.Size = new System.Drawing.Size(170, 20);
@@ -75,6 +80,7 @@
 			// 
 			// button1
 			// 
+			this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.button1.BackColor = System.Drawing.SystemColors.ButtonHighlight;
 			this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.button1.Location = new System.Drawing.Point(97, 33);
@@ -87,6 +93,7 @@
 			// 
 			// button2
 			// 
+			this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.button2.BackColor = System.Drawing.SystemColors.ButtonHighlight;
 			this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.button2.Location = new System.Drawing.Point(161, 33);

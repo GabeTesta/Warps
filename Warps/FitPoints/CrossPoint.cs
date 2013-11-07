@@ -84,10 +84,6 @@ namespace Warps
 				else
 					return m_uv;
 			}
-			set
-			{
-				//throw new NotImplementedException();
-			}
 		}
 
 		public IFitPoint Clone()

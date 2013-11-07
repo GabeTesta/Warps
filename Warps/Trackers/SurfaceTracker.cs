@@ -55,7 +55,6 @@ namespace Warps.Trackers
 			m_frame = frame;
 			m_frame.EditorPanel = Edit;
 
-			Tree.AttachTracker(this);
 			View.AttachTracker(this);
 
 			if (Surf != null)
@@ -71,8 +70,6 @@ namespace Warps.Trackers
 			if (m_frame != null)
 				m_frame.EditorPanel = null;
 
-			if (Tree != null)
-				Tree.DetachTracker(this);
 			View.DetachTracker(this);
 
 			if (View != null)
@@ -253,21 +250,6 @@ namespace Warps.Trackers
 			{
 				m_index = -1;
 			}
-		}
-
-		public void OnPaste(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void OnDelete(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void OnAdd(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
 		}
 
 		public void OnBuild(object sender, EventArgs e)

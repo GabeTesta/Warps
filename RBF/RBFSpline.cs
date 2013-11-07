@@ -136,5 +136,7 @@ namespace RBF
 				x[nx] += m_Weights[nPos, nx] * s + m_Weights[nPos + 1, nx];
 		}
 
+
+		public bool IsFit { get { return m_sCenters != null && m_Weights != null; } }
 	}
 }

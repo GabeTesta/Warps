@@ -146,7 +146,7 @@ namespace Warps.Tapes
 					//span new yarn with ave-p
 					//create new segment curve using extreme s-limits
 					//tape this curve
-					m_totalLength += TapeCurve(new SegmentCurve(baseyarns.MakeYarn(pAve), chain.Curves[0].Min, chain.Curves[chain.Curves.Count - 1].Max), nPix);
+					m_totalLength += TapeCurve(s, new SegmentCurve(baseyarns.MakeYarn(pAve), chain.Curves[0].Min, chain.Curves[chain.Curves.Count - 1].Max), nPix);
 					//TapeCurve(new SegmentCurve(baseyarns[nYar], chain.Curves[0].Min, chain.Curves[chain.Curves.Count - 1].Max), nPix);
 				}
 		}
@@ -268,7 +268,7 @@ namespace Warps.Tapes
 					//span new yarn with ave-p
 					//create new segment curve using extreme s-limits
 					//tape this curve
-					m_totalLength += TapeCurve(new SegmentCurve(baseyarns.MakeYarn(pAve), chain.Curves[0].Min, chain.Curves[chain.Curves.Count - 1].Max), nPix);
+					m_totalLength += TapeCurve(s, new SegmentCurve(baseyarns.MakeYarn(pAve), chain.Curves[0].Min, chain.Curves[chain.Curves.Count - 1].Max), nPix);
 					//TapeCurve(new SegmentCurve(baseyarns[nYar], chain.Curves[0].Min, chain.Curves[chain.Curves.Count - 1].Max), nPix);
 				}
 		}
@@ -332,7 +332,7 @@ namespace Warps.Tapes
 			}
 		}
 
-		double TapeCurve(IMouldCurve curve, int nPix)
+		double TapeCurve(Sail sail, IMouldCurve curve, int nPix)
 		{
 
 			double INC = 0.01;
@@ -356,7 +356,7 @@ namespace Warps.Tapes
 				curve.xVec(sStart, ref uv0, ref x0, ref dx0);
 				curve.xVec( Math.Min(1.0,sStart+sStep), ref uv1, ref x1, ref dx1);
 
-				Sail.Mould.xNor(uv0, ref x0, ref xNor);
+				sail.Mould.xNor(uv0, ref x0, ref xNor);
 
 				alpha = (dx0.Cross(dx1)).Dot(xNor);
 				alpha /= (dx0.Magnitude * dx1.Magnitude * xNor.Magnitude);
@@ -464,6 +464,16 @@ namespace Warps.Tapes
 			return false;
 		}
 
+		public bool FindParent<T>(IRebuild item, out T parent) where T : class, IGroup
+		{
+			if (ContainsItem(item))
+			{
+				parent = this as T;
+				return true;
+			}
+			parent = null;
+			return false;
+		}
 		#endregion
 
 		#region IRebuild Members
@@ -499,7 +509,7 @@ namespace Warps.Tapes
 		{
 			get
 			{
-				throw new NotImplementedException();
+				return false;
 			}
 			set
 			{
@@ -510,11 +520,7 @@ namespace Warps.Tapes
 		internal TreeNode m_node;
 		public TreeNode WriteNode()
 		{
-			if (m_node == null)
-				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Tag = this;
-			m_node.Text = Label;
-			m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
+			TabTree.MakeNode(this, ref m_node);
 
 			m_node.Nodes.Clear();
 
@@ -567,39 +573,39 @@ namespace Warps.Tapes
 			return ents;
 		}
 
-		public Entity CreateDensitySurf()
-		{
-			int[] MESH = new int[] { 25, 30 };
-			double SCALE = 1;
-			Vect2 uv = new Vect2();
-			Vect3 xyz = new Vect3();
-			Vect3 nor = new Vect3();
-			double[] rbf = new double[3];
-			Vect3[,] mesh = new Vect3[MESH[0], MESH[1]];
-			double[,] color = new double[MESH[0], MESH[1]];
-			for (int i = 0; i < MESH[0]; i++)
-			{
-				uv[0] = rbf[0] = BLAS.interpolant(i, MESH[0]);
-				for (int j = 0; j < MESH[1]; j++)
-				{
-					uv[1] = rbf[1] = BLAS.interpolant(j, MESH[1]);
-					m_densitymap.Surf.Value(ref rbf);
-					Sail.Mould.xNor(uv, ref xyz, ref nor);
-					mesh[i, j] = xyz + (nor * rbf[2] * SCALE);
-					color[i,j] = rbf[2];
-				}
-			}
-			Mesh m = SurfaceTools.GetMesh(mesh,color);
-			m.EntityData = this;
-			return m;
-		}
+		//public Entity CreateDensitySurf()
+		//{
+		//	int[] MESH = new int[] { 25, 30 };
+		//	double SCALE = 1;
+		//	Vect2 uv = new Vect2();
+		//	Vect3 xyz = new Vect3();
+		//	Vect3 nor = new Vect3();
+		//	double[] rbf = new double[3];
+		//	Vect3[,] mesh = new Vect3[MESH[0], MESH[1]];
+		//	double[,] color = new double[MESH[0], MESH[1]];
+		//	for (int i = 0; i < MESH[0]; i++)
+		//	{
+		//		uv[0] = rbf[0] = BLAS.interpolant(i, MESH[0]);
+		//		for (int j = 0; j < MESH[1]; j++)
+		//		{
+		//			uv[1] = rbf[1] = BLAS.interpolant(j, MESH[1]);
+		//			m_densitymap.Surf.Value(ref rbf);
+		//			Sail.Mould.xNor(uv, ref xyz, ref nor);
+		//			mesh[i, j] = xyz + (nor * rbf[2] * SCALE);
+		//			color[i,j] = rbf[2];
+		//		}
+		//	}
+		//	Mesh m = SurfaceTools.GetMesh(mesh,color);
+		//	m.EntityData = this;
+		//	return m;
+		//}
 
 		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
 			get { return new List<devDept.Eyeshot.Labels.Label>(); }
 		}
 
-		public void GetConnected(List<IRebuild> updated)
+		public void GetChildren(List<IRebuild> updated)
 		{
 			if (Affected(updated) && updated != null)
 				updated.Add(this);
@@ -694,7 +700,7 @@ namespace Warps.Tapes
 
 		#region TreeDragging Members
 
-		public bool CanInsert(IRebuild item)
+		public bool CanInsert(Type item)
 		{
 			return false;
 		}

@@ -64,10 +64,7 @@ namespace Warps.Panels
 			{
 				m_frame.EditorPanel = Edit;
 			}
-			if (Tree != null)
-			{
-				Tree.AttachTracker(this);
-			}
+
 
 			if (View != null)
 			{
@@ -75,15 +72,12 @@ namespace Warps.Panels
 				Edit.View = View;
 			}
 
-			if (Tree != null)
-				Tree.AttachTracker(this);
 		}
 
 		public void Cancel()
 		{
 			m_frame.EditorPanel = null;
 			View.SetTrackerSelectionMode(null);
-			Tree.DetachTracker(this);
 			View.DetachTracker(this);
 		}
 
@@ -122,24 +116,6 @@ namespace Warps.Panels
 		}
 		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
-		}
-
-		public void OnPaste(object sender, EventArgs e)
-		{
-			//throw new NotImplementedException();
-		}
-
-		public void OnDelete(object sender, EventArgs e)
-		{
-			View.Remove(Group, true);
-
-			m_frame.Delete(Group);
-
-		}
-
-		public void OnAdd(object sender, EventArgs e)
-		{
-			//throw new NotImplementedException();
 		}
 
 		public void ProcessSelection(object selected)

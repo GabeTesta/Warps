@@ -25,7 +25,8 @@ namespace Warps.Curves
 				return false;
 			else if (points.Length == 2 && g.IsGirth(0))
 				return Geo(g, points[0], points[1]);
-			
+			else if (points.Length == 3 && g.IsGirth(0) && points[2] is SlidePoint)
+				return FitExtensionGeo(g, points);
 			
 			//compiled piecewise values
 			List<double> S = new List<double>();
@@ -471,6 +472,220 @@ namespace Warps.Curves
 			}
 		}
 
+		#region Extension Geo
+
+		public static bool FitExtensionGeo(MouldCurve g, IFitPoint[] points)
+		{
+			//first span geo between fixed points
+			MouldCurve gir = new MouldCurve("gir", g.Sail);
+			Geo(gir, points[0], points[1]);
+
+			//copy in the initial fitting points
+			List<Vect2> uGeos = gir.uSplines.ToList();
+
+			SlidePoint slide = points[2] as SlidePoint;
+			//get starting basepoint
+			Vect2 uBase = new Vect2();
+			Vect2 uNor = new Vect2();
+			Vect3 xBase = new Vect3();
+			Vect3 dxStep = new Vect3();
+			Vect3 nor = new Vect3();
+			Vect3 tan;
+			//gir.xVal(uGeos.Last(), ref xBase);
+
+			//get starting normal and base point
+			gir.xNor(1, ref uBase, ref xBase, ref dxStep, ref nor);
+
+			//slide endpoint to square normal and projection vector
+			double sSlide = slide.SCurve;
+			Vect2 uGuess = new Vect2();
+			Vect3 xSlide = new Vect3(xBase);
+			if (!CurveTools.AnglePoint(slide.Curve, ref sSlide, ref uGuess, ref xSlide, nor, Math.PI/2.0, true))
+				return false;
+
+			//determine max step length
+			double dStepMax = xSlide.Distance(xBase) / 2;
+			//set initial step length
+			double dStep = GetGeoStepLength(g.Surface, uGeos[uGeos.Count-1], uGeos[uGeos.Count-2], dStepMax);
+			double sStep;
+
+			//set initial normal uv guess for later iteration
+			gir.uNor(1, ref uBase, ref uNor);
+			uNor.Magnitude = dStep;
+			uNor += uBase; //set uv normal points, not unit vector values
+
+			//start stepping
+			int nStep;
+			for (nStep = 0; ; nStep++)
+			{
+				xSlide.Set(xBase);//target the base point
+				//slide on the end curve till normal is perp to step vector
+				if (!CurveTools.AnglePoint(slide.Curve, ref sSlide, ref uGuess, ref xSlide, nor, Math.PI / 2.0, true))
+					return false;
+				slide.SCurve = sSlide;//store the slide position
+
+				dxStep = xSlide - xBase;
+				sStep = dxStep.Magnitude;
+				if (sStep < dStep)
+					break;//within one step of end curve
+
+				sStep = dStep / sStep;//calculate step ratio
+
+				//interpolate guess uv point
+				uGuess = (uGuess - uBase);
+				uGuess.Magnitude *= sStep;//scale the magnitude but the step ratio
+				uGuess += uBase;
+
+				if (!ProjectNormalLength(g.Surface, xBase, nor, dStep, ref uGuess, out tan))
+					return false;
+
+				//store the new uv point for fitting
+				uGeos.Add(new Vect2(uGuess));
+
+				dStep = GetGeoStepLength(g.Surface, uGuess, uBase, dStepMax);
+				
+
+				//update normal uv guess point
+				uNor += (uGuess - uBase);
+
+				//march base point forward
+				g.xVal(uGuess, ref xBase);
+				uBase.Set(uGuess);
+
+				//find normal vector from step point
+				ProjectNormalLength(g.Surface, xBase, tan, dStep, ref uNor, out nor);
+			}
+
+			//store the ending slide point that is on the curve
+			//slide.Update(g.Sail);
+			uGeos.Add(slide.UV);
+
+			//calculate the curve positions of each geo point
+			List<double> sGeos = new List<double>(uGeos.Count);
+			g.Length = 0;
+			sGeos.Add(0);
+			g.xVal(uGeos[0], ref xBase);
+			for(int i =1; i< uGeos.Count;i++ )
+			{
+				g.xVal(uGeos[i], ref xSlide);
+				sGeos.Add(xSlide.Distance(xBase) + sGeos[i-1]);//accumulate distance
+				xBase.Set(xSlide);
+			}
+			g.Length = sGeos.Last();
+			//unitize 
+			sGeos.ForEach(s=> s/= sGeos.Last());
+			for (int i = 0; i < sGeos.Count; i++)
+				sGeos[i] /= sGeos.Last();
+
+			g.ReSpline(sGeos.ToArray(), uGeos.ToArray());
+			g.FitPoints = points;
+			return true;
+		}
+
+		private static double GetGeoStepLength(ISurface mould, Vect2 uv, Vect2 uvPrev, double dStepMax)
+		{
+			Vect3 x = new Vect3();
+			Vect3 dxu = new Vect3(), dxv = new Vect3();
+			Vect3 ddxu = new Vect3(), ddxv = new Vect3(), dduv = new Vect3();
+
+			mould.xCvt(uv, ref x, ref dxu, ref dxv, ref ddxu, ref ddxv, ref dduv);
+
+			Vect2 du = uv - uvPrev;
+
+			Vect3 dxs = new Vect3(), dds = new Vect3();
+			for (int ix = 0; ix < 3; ix++)
+			{
+				dxs[ix] = dxu[ix] * du[0] + dxv[ix] * du[1];
+
+				dds[ix] = ddxu[ix] * du[0] * du[0]
+					   + dduv[ix] * du[0] * du[1] * 2.0
+					   + ddxv[ix] * du[1] * du[1];
+			}
+			double kap = dds.Magnitude / dxs.Norm;
+
+			double dStep = kap > 1e-6 ? (Math.PI / 180.0)/ kap : dStepMax;
+
+			return Math.Min(dStep, dStepMax);
+		}
+
+		/// <summary>
+		/// Projects a point from a base point that is normal to the specified normal vector and at a specified distance
+		/// </summary>
+		/// <param name="mould">the mould to project on</param>
+		/// <param name="xBase">the fixed base point to project from</param>
+		/// <param name="nor">the fixed normal to target</param>
+		/// <param name="tarLen">the target distance</param>
+		/// <param name="uGuess">a starting projection guess, returns with the final uv point</param>
+		/// <param name="tan">the unit tangent along the projection direction</param>
+		/// <returns>true if successful</returns>
+		static bool ProjectNormalLength(ISurface mould, Vect3 xBase, Vect3 nor, double tarLen, ref Vect2 uGuess, out Vect3 tan)
+		{
+			int i, nNwt;
+			Vect3 xGuess = new Vect3(), duGuess = new Vect3(), dvGuess = new Vect3();
+			Vect3 dxStep;
+			double stepLen;
+			tan = new Vect3();
+			Vect2 d = new Vect2();
+			Vect3 dd1 = new Vect3(), dd2 = new Vect3();
+			Vect2 err = new Vect2();
+			Vect2 a = new Vect2(), b = new Vect2();
+			Vect2 r = new Vect2();
+			double det;
+			for (nNwt = 0; nNwt <25; nNwt++)
+			{
+				//get current guess position
+				mould.xVec(uGuess, ref xGuess, ref duGuess, ref dvGuess);
+
+				//calculate step vector and unit vector
+				dxStep = xGuess - xBase;
+				tan.Set(dxStep);
+				tan.Unitize();
+				stepLen = dxStep.Magnitude;
+
+				//get error residuals
+				err[0] = stepLen - tarLen; 
+				err[1] = nor.Dot(tan);
+
+				//break on perp and length targets
+				if (BLAS.IsEqual(err[0], 0, 1e-6) && BLAS.IsEqual(err[1], 0, 1e-6))
+					break;
+
+				d[0] = dxStep.Dot(duGuess);
+				d[1] = dxStep.Dot(dvGuess);
+
+				//step unit vector u-derivatives
+				for (i = 0; i < 3; i++)
+					dd1[i] = (duGuess[i] - d[0] * dxStep[i]) / stepLen;
+
+				for (i = 0; i < 3; i++)
+					dd2[i] = (dvGuess[i] - d[1] * dxStep[i]) / stepLen;
+
+				//step length u-gradients
+				a[0] = duGuess.Dot(tan);
+				b[0] = dvGuess.Dot(tan);
+				//perp condition gradients
+				a[1] = nor.Dot(dd1);
+				b[1] = nor.Dot(dd2);
+
+				//determinant and error cross products
+				det = a.Cross(b);
+				d[0] = err.Cross(b) / det;
+				d[1] = a.Cross(err) / det;
+
+				//enforce minimum step
+				for (i = 0; i < 2; i++)
+					r[i] = (0.1 > Math.Abs(d[i])) ? 1.0 : (1.0 / Math.Abs(d[i]));
+				r[0] = Math.Min(r[0], r[1]);
+
+				//move uGuess
+				uGuess[0] -= r[0] * d[0];
+				uGuess[1] -= r[0] * d[1];
+			}
+
+			return nNwt < 25;
+		}
+
+		#endregion
 
 		//public override bool InsertPoint(System.Drawing.PointF mouse, Transformer WorldToScreen, out int nIndex)
 		//{

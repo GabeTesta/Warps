@@ -39,9 +39,9 @@ namespace Warps
 		void OnMove(object sender, MouseEventArgs e);
 		void OnUp(object sender, MouseEventArgs e);
 
-		void OnPaste(object sender, EventArgs e);
-		void OnDelete(object sender, EventArgs e);
-		void OnAdd(object sender, EventArgs e);
+		//void OnPaste(object sender, EventArgs e);
+		//void OnDelete(object sender, EventArgs e);
+		//void OnAdd(object sender, EventArgs e);
 
 		/// <summary>
 		/// Handles the selected item appropriately

@@ -29,7 +29,7 @@ namespace Warps.Controls
 			{
 				m_grid.Columns[i].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 				m_grid.Columns[i].FillWeight = 25;
-				m_grid.Columns[i].DefaultCellStyle.Font = new Font("Consolas", 8f);
+				m_grid.Columns[i].DefaultCellStyle.Font = Utilities.Font;// new Font("Consolas", 8f);
 				m_grid.Columns[i].ValueType = typeof(double);
 				m_grid.Columns[i].DefaultCellStyle.Format = "f4";
 			}

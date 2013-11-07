@@ -64,14 +64,6 @@ namespace Warps.Curves
 				//EditMode = m_frame.EditMode;
 				m_edit.AfterSelect += m_frame.OnSelectionChanging;
 
-				if (Tree != null)
-				{
-					Tree.AttachTracker(this);
-					//Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
-					Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
-					//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
-				}
-
 				ReselectView();
 			}
 		}
@@ -83,11 +75,6 @@ namespace Warps.Curves
 				View.DeSelect(curve);
 
 			View.Refresh();
-
-			Tree.DetachTracker(this);
-			//Tree.KeyUp -= Tree_KeyUp; // handle ctrl-c ctrl-v	
-			Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
-			//Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
 
 			if (m_curveTracker != null)
 			{
@@ -128,6 +115,7 @@ namespace Warps.Curves
 				m_curveTracker.OnPreview(sender, e);
 		}
 
+		[Obsolete]
 		public void OnAdd(object sender, EventArgs e)
 		{
 			if (sail == null)
@@ -143,21 +131,14 @@ namespace Warps.Curves
 			dlg.Name = "enter name";
 			if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 			{
-				IRebuild cur = dlg.CreateIRebuild();
-				m_curveTracker = new CurveTracker(cur as MouldCurve);
-				m_curveTracker.Track(m_frame);
-				//if (cur.GetType().Name == "GuideComb")
-				//{
-				//	m_curveTracker = new CurveTracker(new GuideComb(dlg.Label, m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }, new Vect2[] { new Vect2(0, 1), new Vect2(1, 1) }));
-				//	m_curveTracker.Track(m_frame);
-				//}
-				//else
-				//{
-				//	m_curveTracker = new CurveTracker(new MouldCurve(dlg.Label, m_group.Sail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(1, 1) }));
-				//	m_curveTracker.Track(m_frame);
-				//}
+				IRebuild rbd = dlg.CreateIRebuild();
+				MouldCurve cur = rbd as MouldCurve;
+				m_group.Add(cur);
+				m_group.Update(sail);
+				m_frame.OnSelectionChanging(this, new EventArgs<IRebuild>(cur));
 			}
 		}
+		[Obsolete]
 		public void OnDelete(object sender, EventArgs e)
 		{
 			// HERE WE DELETE
@@ -178,49 +159,6 @@ namespace Warps.Curves
 			m_frame.Delete(m_group);
 			//m_frame.Rebuild(null);
 
-		}
-		public void OnPaste(object sender, EventArgs e)
-		{
-			//mouldcurves and guidecombs should be pasted into here
-
-			if (Utilities.GetClipboardObjType() != typeof(MouldCurve)
-				&& Utilities.GetClipboardObjType() != typeof(GuideComb))
-				return;
-
-			Type type = Utilities.GetClipboardObjType();
-			if (type == null)
-				return;
-
-			List<string> result = (List<string>)Utilities.DeSerialize(Clipboard.GetData(type.Name).ToString());
-
-			ScriptTools.ModifyScriptToShowCopied(ref result);
-
-			IGroup group = (IGroup)Tree.SelectedTag;
-
-			if (group == null)
-				return;
-			if (type.Name == "CurveGroup")
-				return;//can't paste a group into this group...
-			try
-			{
-				object cur = Utilities.CreateInstance(result[0].Split(new char[] { ':' })[0].Trim());
-				if (cur != null && cur is GuideComb)
-				{
-					(cur as GuideComb).Sail = group.Sail;
-					(cur as GuideComb).ReadScript(group.Sail, result);
-					(group as CurveGroup).Add(cur as GuideComb);
-					m_frame.Status = String.Format("{0}:{1} Pasted into {2}:{3} From Clipboard", cur.GetType().Name, (cur as MouldCurve).Label, group.GetType().Name, group.Label);
-				}
-				else if (cur != null && cur is MouldCurve)
-				{
-					(cur as MouldCurve).Sail = group.Sail;
-					(cur as MouldCurve).ReadScript(group.Sail, result);
-					(group as CurveGroup).Add(cur as MouldCurve);
-					m_frame.Status = String.Format("{0}:{1} Pasted into {2}:{3} From Clipboard", cur.GetType().Name, (cur as MouldCurve).Label, group.GetType().Name, group.Label);
-				}
-			}
-			catch (Exception ex) { Logleton.TheLog.LogErrorException(ex); return; }
-			m_frame.Rebuild(group);
 		}
 
 		public void OnClick(object sender, MouseEventArgs e)
@@ -283,23 +221,5 @@ namespace Warps.Curves
 				View.Select(curve);
 			View.Refresh();
 		}
-
-		#region TreePopup
-
-		void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-		{
-			for (int i = 0; i < Tree.TreeContextMenu.Items.Count; i++)
-			{
-				if (Tree.TreeContextMenu.Items[i].Text == "Paste")
-					Tree.TreeContextMenu.Items[i].Enabled = (Utilities.GetClipboardObjType() == typeof(CurveGroup) || Utilities.GetClipboardObjType() == typeof(MouldCurve));
-				if (Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("add") || Tree.TreeContextMenu.Items[i].Text.ToLower().Contains("delete"))
-					Tree.TreeContextMenu.Items[i].Enabled = true;
-			}
-
-			Tree.TreeContextMenu.Show();
-		}
-
-
-		#endregion
 	}
 }

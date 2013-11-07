@@ -13,7 +13,7 @@ namespace Warps
 		public CurvePoint() : this(0, null, 0) { }
 
 		public CurvePoint(CurvePoint c)
-			: this(c.S, c.m_curve, new Equation(c.m_sEqu)) { }
+			: this(c.S, c.m_curve, new Equation(c.m_curvePos)) { }
 
 		public CurvePoint(IMouldCurve curve, double sCurve)
 			: this(0, curve, sCurve) { }
@@ -21,31 +21,31 @@ namespace Warps
 		public CurvePoint(double s, IMouldCurve curve, double sCurve)
 		{
 			m_sPos = s;
-			S_Equ = new Equation(sCurve);
+			PosEQ = new Equation(sCurve);
 			m_curve = curve;
 		}
 
 		public CurvePoint(double s, IMouldCurve curve, Equation Sequ)
 		{
 			m_sPos = s;
-			S_Equ = Sequ;
+			PosEQ = Sequ;
 			m_curve = curve;
 		}
 
 		internal double m_sPos;
 		internal IMouldCurve m_curve;
+		internal Equation m_curvePos = new Equation();
 		//internal double m_sCurve;
 
-		Equation m_sEqu = new Equation();
-		public Equation S_Equ
+		public Equation PosEQ
 		{
 			get
 			{
-				return m_sEqu;
+				return m_curvePos;
 			}
 			set
 			{
-				m_sEqu = value; m_sEqu.Label = "S";
+				m_curvePos = value; m_curvePos.Label = "S";
 			}
 		}
 
@@ -76,17 +76,17 @@ namespace Warps
 		/// </summary>
 		public double SCurve
 		{
-			get { return S_Equ.Value; }
+			get { return PosEQ.Value; }
 			set
 			{
-				if(S_Equ.IsNumber)
-					S_Equ.Value = value;
+				if(PosEQ.IsNumber)
+					PosEQ.Value = value;
 				else
-					throw new Exception(string.Format("Cannot set value [{0}] for non-numeric equation [{1}]", value, S_Equ.ToString()));
+					throw new Exception(string.Format("Cannot set value [{0}] for non-numeric equation [{1}]", value, PosEQ.ToString()));
 			}
 		}
 
-		public virtual Vect2 UV
+		public Vect2 UV
 		{
 			get
 			{
@@ -96,16 +96,16 @@ namespace Warps
 				
 				return uv;
 			}
-			set
-			{
-				double dist = 0;
-				if (m_curve != null)
-				{
-					double sCur = 0;
-					CurveTools.uClosest(m_curve, ref sCur, ref value, ref dist, 1e-9);//m_curve.uClosest(ref m_sCurve, ref value, ref dist, 1e-9);
-					SCurve = sCur;
-				}
-			}
+			//set
+			//{
+			//	double dist = 0;
+			//	if (m_curve != null)
+			//	{
+			//		double sCur = 0;
+			//		CurveTools.uClosest(m_curve, ref sCur, ref value, ref dist, 1e-9);//m_curve.uClosest(ref m_sCurve, ref value, ref dist, 1e-9);
+			//		SCurve = sCur;
+			//	}
+			//}
 		}
 
 		public IMouldCurve Curve
@@ -151,19 +151,17 @@ namespace Warps
 			get
 			{
 				TreeNode point = new TreeNode(string.Format("{0:0.0000} [{1}]", S, UV.ToString("0.0000")));
-				point.ImageKey = this.GetType().Name;
-				point.SelectedImageKey = this.GetType().Name;
-				TreeNode tmp = new TreeNode(string.Format("Position: {0:0.0000}", S_Equ.Value));
-				tmp.ImageKey = "empty";
-				tmp.SelectedImageKey = "empty";
+				point.ImageKey = point.SelectedImageKey = this.GetType().Name;
+
+				TreeNode tmp = new TreeNode(string.Format("Position: {0:0.0000}", PosEQ.Value));
+				tmp.ImageKey = tmp.SelectedImageKey = "empty";
 				point.Nodes.Add(tmp);
 
 				if (m_curve != null)
 					tmp = new TreeNode(string.Format("Curve: {0}", m_curve.Label));
 				else
 					tmp = new TreeNode(string.Format("Curve: {0}", "empty"));
-				tmp.ImageKey = "empty";
-				tmp.SelectedImageKey = "empty";
+				tmp.ImageKey = tmp.SelectedImageKey = "empty";
 				point.Nodes.Add(tmp);
 
 				point.Tag = this;
@@ -207,7 +205,7 @@ namespace Warps
 			CurvePointEditor cdit = edit as CurvePointEditor;
 			cdit.Tag = GetType();
 			cdit.Curve = m_curve;
-			cdit.CS = S_Equ;
+			cdit.CS = PosEQ;
 
 			return cdit;
 		}
@@ -220,10 +218,9 @@ namespace Warps
 				throw new ArgumentException("Type must be CurvePointEditor");
 			CurvePointEditor cdit = edit as CurvePointEditor;
 			m_curve = cdit.Curve;
-			S_Equ = cdit.CS;
+			PosEQ = cdit.CS;
 		}
 
-		#endregion
 
 		public bool Affected(List<IRebuild> connected)
 		{
@@ -239,19 +236,19 @@ namespace Warps
 				{
 					if (element is MouldCurve)
 					{
-						if (S_Equ.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower()))
+						if (PosEQ.EquationText.ToLower().Contains((element as MouldCurve).Label.ToLower()))
 							bupdate = true;
 					}
 					else if (element is Equation)
 					{
-						if (S_Equ.EquationText.ToLower().Contains((element as Equation).Label.ToLower()))
+						if (PosEQ.EquationText.ToLower().Contains((element as Equation).Label.ToLower()))
 							bupdate = true;
 					}
 					else if (element is VariableGroup)
 					{
 						foreach (KeyValuePair<string, Equation> e in element as VariableGroup)
 						{
-							if (S_Equ.EquationText.ToLower().Contains(e.Key.ToLower()))
+							if (PosEQ.EquationText.ToLower().Contains(e.Key.ToLower()))
 								bupdate = true;
 						}
 					}
@@ -269,13 +266,15 @@ namespace Warps
 				throw new Exception("CurvePoint's Curve is not IRebuild");
 
 			//parents.Add(m_sEqu);
-			m_sEqu.GetParents(s, parents);
+			m_curvePos.GetParents(s, parents);
 		}
 
-		public bool Update(Sail s) {
+		public virtual bool Update(Sail s) 
+		{
 
 			bool ret = true;
-			ret &= !double.IsNaN(S_Equ.Evaluate(s));			
+			ret &= PosEQ.Update(s);		
+
 			//ret &= U.Evaluate(s) != Double.NaN;
 			//ret &= V.Evaluate(s) != Double.NaN;
 			return ret;
@@ -291,7 +290,7 @@ namespace Warps
 
 			string[] split = txt[2].Split(new char[] { ':' });
 
-			S_Equ = new Equation(split[0], split[1]);
+			PosEQ = new Equation(split[0], split[1]);
 
 
 			return Update(sail);
@@ -324,15 +323,10 @@ namespace Warps
 			//script.Add(string.Format("{0}: [{1}]", GetType().Name, UV.ToString("0.0000")));
 			script.Add(GetType().Name);
 			script.Add("\tCurve: " + m_curve.Label);
-			script.Add("\t" + S_Equ.ToScriptString());
+			script.Add("\t" + PosEQ.ToScriptString());
 			return script;
 		}
 
-
-		public override string ToString()
-		{
-			return string.Format("{0}: {1:0.0000} [{2}]", GetType().Name, m_sPos, UV.ToString("0.0000"));
-		}
 		public bool ValidFitPoint
 		{
 			get
@@ -341,24 +335,26 @@ namespace Warps
 			}
 		}
 
-		#region IFitPoint Members
-
-
-		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
+		public virtual System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
 		{
 			System.Xml.XmlNode node = NsXml.MakeNode(doc, GetType().Name);
 			NsXml.AddAttribute(node, "Curve", m_curve.Label);
-			node.AppendChild( m_sEqu.WriteXScript(doc));
+			node.AppendChild( m_curvePos.WriteXScript(doc));
 			return node;
 
 		}
 
-		public void ReadXScript(Sail s, System.Xml.XmlNode node)
+		public virtual void ReadXScript(Sail s, System.Xml.XmlNode node)
 		{
 			m_curve = s.FindCurve(NsXml.ReadString(node, "Curve"));
-			m_sEqu.ReadXScript(s, node.FirstChild);
+			m_curvePos.ReadXScript(s, node.FirstChild);
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return string.Format("{0}: {1:0.0000} [{2}]", GetType().Name, m_sPos, UV.ToString("0.0000"));
+		}
 	}
 }

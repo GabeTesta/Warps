@@ -17,7 +17,7 @@ namespace Warps
 		void ReadXScript(Sail s, XmlNode node);
 
 		double S { get; set; }
-		Vect2 UV { get; set; }
+		Vect2 UV { get;  }
 
 		IFitPoint Clone();
 
@@ -40,6 +40,5 @@ namespace Warps
 		bool Affected(List<IRebuild> connected);
 		bool Update(Sail s);
 		bool ValidFitPoint { get; }
-
 	}
 }

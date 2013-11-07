@@ -69,13 +69,6 @@ namespace Warps.Trackers
 
 			m_frame.EditorPanel = Edit;
 
-			if (Tree != null)
-			{
-				Tree.AttachTracker(this);
-				//Tree.KeyUp += Tree_KeyUp; // handle ctrl-c ctrl-v	
-				//Tree.TreeContextMenu.Opening += ContextMenuStrip_Opening;
-				//Tree.TreeContextMenu.ItemClicked += TreeContextMenu_ItemClicked;
-			}
 
 			View.AttachTracker(this);
 
@@ -90,10 +83,6 @@ namespace Warps.Trackers
 
 			m_frame.EditorPanel = null;
 
-			//Tree.KeyUp -= Tree_KeyUp;
-			//Tree.TreeContextMenu.Opening -= ContextMenuStrip_Opening;
-			//Tree.TreeContextMenu.ItemClicked -= TreeContextMenu_ItemClicked;
-			Tree.DetachTracker(this);
 			View.DetachTracker(this);
 			if (m_temp != null)
 				View.Remove(m_temp, false);
@@ -111,7 +100,8 @@ namespace Warps.Trackers
 			//View.Remove(m_temp);
 			//View.Remove(Comb, true);
 
-			Comb.Fit(m_temp.FitPoints);
+			Comb.Fit(m_temp);
+			//Comb.Fit(m_temp.FitPoints);
 			Comb.FitComb(m_temp.CombPnts);
 			Comb.Label = Edit.Label;
 
@@ -236,7 +226,6 @@ namespace Warps.Trackers
 			}
 		}
 
-		public void OnAdd(object sender, EventArgs e) { }
 		public void OnDelete(object sender, EventArgs e)
 		{
 			//if (!EditMode)
@@ -252,10 +241,6 @@ namespace Warps.Trackers
 			m_frame.Delete(Comb);
 			if (g != null)
 				Tree.SelectedTag = g;
-		}
-		public void OnPaste(object sender, EventArgs e)
-		{
-			//Guide Comb Trackers shouldn't do anything with pasted data
 		}
 
 		public void ProcessSelection(object Tag)
@@ -276,13 +261,13 @@ namespace Warps.Trackers
 
 			Comb = cur;
 
-			IFitPoint[] pts = new IFitPoint[Comb.FitPoints.Length];
-			for (int i = 0; i < pts.Length; i++)
-				pts[i] = Comb[i].Clone();
+			//IFitPoint[] pts = new IFitPoint[Comb.FitPoints.Length];
+			//for (int i = 0; i < pts.Length; i++)
+			//	pts[i] = Comb[i].Clone();
 
 
 			m_temp = new GuideComb(Comb);
-
+			m_temp.Sail = Sail;
 			m_tents = View.AddRange(m_temp.CreateEntities(true));
 
 			//foreach (Entity[] ents in m_tents)
@@ -316,19 +301,21 @@ namespace Warps.Trackers
 			int nMsh = verts.Count;
 			for (nMsh = 0; nMsh < verts.Count; nMsh++)
 				if (verts[nMsh] is Mesh) break;
-
-			foreach (Entity[] ents in m_tents)
-			{
-				for (int i = 0; i < 2; i++)
+			if (m_tents == null)
+				m_tents = View.AddRange(verts);
+			else
+				foreach (Entity[] ents in m_tents)
 				{
-					if (ents[i] is LinearPath)
-						ents[i].Vertices = verts[0].Vertices;
-					else if (ents[i] is PointCloud)
-						ents[i].Vertices = verts[1].Vertices;
-					else if (ents[i] is Mesh && nMsh < verts.Count)
-						SurfaceTools.UpdateMesh(ents[i] as Mesh, verts[nMsh] as Mesh);
+					for (int i = 0; i < 2; i++)
+					{
+						if (ents[i] is LinearPath)
+							ents[i].Vertices = verts[0].Vertices;
+						else if (ents[i] is PointCloud)
+							ents[i].Vertices = verts[1].Vertices;
+						else if (ents[i] is Mesh && nMsh < verts.Count)
+							SurfaceTools.UpdateMesh(ents[i] as Mesh, verts[nMsh] as Mesh);
+					}
 				}
-			}
 			View.Regen();
 			View.Refresh();
 			if (bEditor)

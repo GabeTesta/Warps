@@ -73,9 +73,6 @@ namespace Warps.Tapes
 			if (View != null)
 				View.AttachTracker(this);
 
-			if (Tree != null)
-				Tree.AttachTracker(this);
-
 			SelectGroup(m_group);
 		}
 		
@@ -83,9 +80,6 @@ namespace Warps.Tapes
 		{
 			if( m_frame != null )
 				m_frame.EditorPanel = null;
-
-			if( Tree != null )
-				Tree.DetachTracker(this);
 
 			if (View != null)
 			{
@@ -254,21 +248,6 @@ namespace Warps.Tapes
 		public void OnUp(object sender, MouseEventArgs e)
 		{
 			//throw new NotImplementedException();
-		}
-
-		public void OnPaste(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void OnDelete(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void OnAdd(object sender, EventArgs e)
-		{
-			throw new NotImplementedException();
 		}
 
 		public void ProcessSelection(object Tag)

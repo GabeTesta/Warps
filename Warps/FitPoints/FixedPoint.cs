@@ -46,11 +46,11 @@ namespace Warps
 		public Vect2 UV
 		{
 			get { return new Vect2(U.Value, V.Value); }
-			set
-			{
-				this[1] = value.u;
-				this[2] = value.v;
-			}
+			//set
+			//{
+			//	this[1] = value.u;
+			//	this[2] = value.v;
+			//}
 		}
 
 		Equation m_uEqu = new Equation();
@@ -286,8 +286,8 @@ namespace Warps
 		public bool Update(Sail s)
 		{
 			bool ret = true;
-			ret &= !double.IsNaN(U.Evaluate(s));// != Double.NaN;
-			ret &= !double.IsNaN(V.Evaluate(s));
+			ret &= U.Update(s);
+			ret &= V.Update(s);
 			return ret;
 		}
 		public bool ReadScript(Sail sail, IList<string> txt)

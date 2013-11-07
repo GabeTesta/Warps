@@ -81,41 +81,40 @@ namespace Warps
 		TreeNode m_node;
 		public TreeNode WriteNode()
 		{
-			return WriteNode(true);
-		}
-		private TreeNode WriteNode(bool bclear)
-		{
-			if (m_node == null)
-				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Tag = this;
-			//	m_node.Text = GetType().Name + ": " + Label;
-			m_node.Text = Label;
+			TabTree.MakeNode(this,ref m_node);
 			m_node.ToolTipText = GetToolTipData();
-			m_node.ImageKey = GetType().Name;
-			m_node.SelectedImageKey = GetType().Name;
-			if (m_node.Nodes.Count != this.Count || bclear)
-			{
-				m_node.Nodes.Clear();
-				foreach (KeyValuePair<string, Equation> entry in this)
-					m_node.Nodes.Add(entry.Value.WriteNode());
-			}
+
+			m_node.Nodes.Clear();
+			foreach (KeyValuePair<string, Equation> entry in this)
+				m_node.Nodes.Add(entry.Value.WriteNode());
 			return m_node;
 		}
 		private string GetToolTipData()
 		{
-			return String.Format("{0}\n#:{1}", GetType().Name, Count);
+			return String.Format("{0}\n{1} Equations", GetType().Name, Count);
 		}
 
 		public List<devDept.Eyeshot.Labels.Label> EntityLabel
 		{
-			get { return new List<devDept.Eyeshot.Labels.Label>(); }
+			get
+			{
+				return new List<devDept.Eyeshot.Labels.Label>();
+			}
 		}
 		public List<devDept.Eyeshot.Entities.Entity> CreateEntities()
 		{
+			//List<devDept.Eyeshot.Entities.Entity> labs = new List<devDept.Eyeshot.Entities.Entity>();
+			//double nDrop = 1;
+			//foreach (Equation e in this.Values)
+			//{
+			//	labs.Add(new devDept.Eyeshot.Entities.Text(new devDept.Geometry.Point3D(0, -nDrop), e.ToValueString(), .3));
+			//	nDrop += .5;
+			//}
+			//return labs;
 			return null;
 		}
 
-		public void GetConnected(List<IRebuild> connected)
+		public void GetChildren(List<IRebuild> connected)
 		{
 			foreach (KeyValuePair<string, Equation> entry in this)
 				if (entry.Value.Affected(connected))
@@ -131,13 +130,15 @@ namespace Warps
 
 			//Equations inside a VariableGroup are allowed to be dependent on other
 			//Equations in the same VariableGroup
-			List<IRebuild> removeMe = new List<IRebuild>();
-			for (int i = 0; i < parents.Count; i++)
-			{
-				if (this.ContainsKey((parents[i] as Equation).Label))
-					removeMe.Add(parents[i]);
-			}
-			removeMe.ForEach(irb => parents.Remove(irb));
+			parents.RemoveAll(g => this.ContainsKey(g.Label));
+			
+			//List<IRebuild> removeMe = new List<IRebuild>();
+			//for (int i = 0; i < parents.Count; i++)
+			//{
+			//	if (this.ContainsKey((parents[i] as Equation).Label))
+			//		removeMe.Add(parents[i]);
+			//}
+			//removeMe.ForEach(irb => parents.Remove(irb));
 		}
 		public bool Affected(List<IRebuild> connected)
 		{
@@ -175,15 +176,15 @@ namespace Warps
 				IList<string> lines = ScriptTools.Block(ref nLine, txt);
 				//nLine += lines.Count - 1;
 
-				object equ = null;
+				Equation equ = null;
 				splits = lines[0].Split(':');
 				if (splits.Length > 0)
-					equ = Utilities.CreateInstance(splits[0].Trim('\t'));
-				if (equ != null && equ is Equation)
+					equ = Utilities.CreateInstance<Equation>(splits[0].Trim('\t'));
+				if (equ != null)
 				{
 					//(equ as Equation).sail = Sail;
-					(equ as Equation).ReadScript(Sail, lines);
-					Add(equ as Equation);
+					equ.ReadScript(sail, lines);
+					Add(equ);
 				}
 			}
 
@@ -320,7 +321,6 @@ namespace Warps
 
 		#region IRebuild Members
 
-
 		public XmlNode WriteXScript(XmlDocument doc)
 		{
 			XmlNode node = NsXml.MakeNode(doc, this);
@@ -337,10 +337,10 @@ namespace Warps
 			m_sail = sail;
 			foreach (XmlNode child in node.ChildNodes)
 			{
-				Equation equ = Utilities.CreateInstance(child.Name) as Equation;
+				Equation equ = Utilities.CreateInstance<Equation>(child.Name);
 				if (equ != null )
 				{
-					(equ as Equation).ReadXScript(Sail, child);
+					(equ as Equation).ReadXScript(sail, child);
 					Add(equ as Equation);
 				}
 			}
@@ -350,9 +350,9 @@ namespace Warps
 
 		#region TreeDragging Members
 
-		public bool CanInsert(IRebuild item)
+		public bool CanInsert(Type item)
 		{
-			return item is Equation;
+			return item.IsAssignableFrom(typeof(Equation));
 		}
 
 		public void Insert(IRebuild item, IRebuild target)
@@ -382,5 +382,16 @@ namespace Warps
 		}
 
 		#endregion
+
+		public bool FindParent<T>(IRebuild item, out T parent) where T : class, IGroup
+		{
+			if (ContainsItem(item))
+			{
+				parent = this as T;
+				return true;
+			}
+			parent = null;
+			return false;
+		}
 	}
 }

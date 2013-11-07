@@ -92,7 +92,7 @@
 			this.m_nsPlot.TabIndex = 0;
 			this.m_nsPlot.Text = "Comb";
 			this.m_nsPlot.Title = "";
-			this.m_nsPlot.TitleFont = new System.Drawing.Font("Arial", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+			this.m_nsPlot.TitleFont = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.m_nsPlot.XAxis1 = null;
 			this.m_nsPlot.XAxis2 = null;
 			this.m_nsPlot.YAxis1 = null;

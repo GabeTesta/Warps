@@ -1100,12 +1100,8 @@ namespace Warps.Yarns
 		TreeNode m_node;
 		public TreeNode WriteNode()
 		{
-			if (m_node == null)
-				m_node = new System.Windows.Forms.TreeNode();
-			m_node.ForeColor = Locked ? System.Drawing.Color.Gray : System.Drawing.Color.Black;
-			m_node.Tag = this;
-			m_node.Text = Label;
-			m_node.ImageKey = m_node.SelectedImageKey = GetType().Name;
+			TabTree.MakeNode(this, ref m_node);
+
 			m_node.ToolTipText = GetToolTipData();
 
 			m_node.Nodes.Clear();
@@ -1245,14 +1241,17 @@ namespace Warps.Yarns
 		public bool Update(Sail s)
 		{
 			bool ret = true;
-			ret &= !double.IsNaN(YarnDenierEqu.Evaluate(s));
-			ret &= !double.IsNaN(TargetDenierEqu.Evaluate(s));
+			ret &= YarnDenierEqu.Update(s);
+			ret &= TargetDenierEqu.Update(s);
+			//ret &= !double.IsNaN(YarnDenierEqu.Evaluate(s));
+			//ret &= !double.IsNaN(TargetDenierEqu.Evaluate(s));
 			if (ret)
 				ret &= LayoutYarns() > 0;
+				
 			return ret;
 		}
 		public bool Delete() { return false; }
-		public void GetConnected(List<IRebuild> connected)
+		public void GetChildren(List<IRebuild> connected)
 		{
 			if (Affected(connected) && connected != null)
 				connected.Add(this);
@@ -1263,8 +1262,9 @@ namespace Warps.Yarns
 			if(Guide!=null)
 				parents.Add(Guide);
 
-			if(Warps.Count > 0)
-				parents.AddRange(Warps);
+			//if(Warps.Count > 0)
+			//	parents.AddRange(Warps);
+			Warps.ForEach(w => { parents.Add(w); w.GetParents(s, parents); });
 
 			TargetDenierEqu.GetParents(s, parents);
 
@@ -1425,6 +1425,16 @@ namespace Warps.Yarns
 			return false;
 		}
 
+		public bool FindParent<T>(IRebuild item, out T parent) where T : class, IGroup
+		{
+			if (ContainsItem(item))
+			{
+				parent = this as T;
+				return true;
+			}
+			parent = null;
+			return false;
+		}
 		#endregion
 
 		public override string ToString()
@@ -1529,7 +1539,7 @@ namespace Warps.Yarns
 		
 		#region TreeDragging Members
 
-		public bool CanInsert(IRebuild item)
+		public bool CanInsert(Type item)
 		{
 			return false;
 		}

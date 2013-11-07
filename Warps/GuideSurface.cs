@@ -116,11 +116,8 @@ namespace Warps
 		System.Windows.Forms.TreeNode m_node;
 		public System.Windows.Forms.TreeNode WriteNode()
 		{
-			if( m_node == null )
-				m_node = new System.Windows.Forms.TreeNode();
-			m_node.Text = Label;
-			m_node.SelectedImageKey = m_node.ImageKey = GetType().Name;
-			m_node.Tag = this;
+			TabTree.MakeNode(this, ref m_node);
+			m_node.SelectedImageKey = m_node.ImageKey = "Surface";
 			m_node.Nodes.Clear();
 			if (m_fits != null)
 				foreach (Vect3 e in m_fits)
@@ -187,12 +184,12 @@ namespace Warps
 				List<devDept.Eyeshot.Labels.Label> lbls = new List<devDept.Eyeshot.Labels.Label>(1);
 				double[] c = new double[]{0.5,0.5,0};
 				m_surf.Value(ref c);
-				lbls.Add(new devDept.Eyeshot.Labels.OutlinedText(new Point3D(c), Label, new Font("Helvectiva", 8.0f), Color.White, Color.Black, ContentAlignment.MiddleCenter));
+				lbls.Add(new devDept.Eyeshot.Labels.OutlinedText(new Point3D(c), Label, Utilities.Font, Color.White, Color.Black, ContentAlignment.MiddleCenter));
 				return lbls;
 			}
 		}
 
-		public void GetConnected(List<IRebuild> updated)
+		public void GetChildren(List<IRebuild> updated)
 		{
 
 		}
