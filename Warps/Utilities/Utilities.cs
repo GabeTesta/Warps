@@ -98,13 +98,25 @@ namespace Warps
 
 
 		/// <summary>
-		/// test if  a value is between two others
+		/// test if  a value is between two others (inclusive)
 		/// </summary>
 		/// <param name="a">one limit</param>
 		/// <param name="val">the value</param>
 		/// <param name="b">the other limit</param>
 		/// <returns>true if inside(inclusive), false otherwise</returns>
 		public static bool IsBetween(double a, double val, double b)
+		{
+			return a > b ? (b <= val && val <= a) : (a <= val && val <= b);
+		}
+
+		/// <summary>
+		/// test if  a value is between two others (inclusive)
+		/// </summary>
+		/// <param name="a">one limit</param>
+		/// <param name="val">the value</param>
+		/// <param name="b">the other limit</param>
+		/// <returns>true if inside(inclusive), false otherwise</returns>
+		public static bool IsBetween(int a, int val, int b)
 		{
 			return a > b ? (b <= val && val <= a) : (a <= val && val <= b);
 		}

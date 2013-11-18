@@ -1480,29 +1480,30 @@ namespace Warps
 
 			if (mySaveFileDialog.ShowDialog() == DialogResult.OK)
 			{
-#if DEBUG
-				ActiveView.WriteIGES(System.IO.Path.ChangeExtension(mySaveFileDialog.FileName, "iges"),false);
-#endif
+//#if DEBUG
+//				ActiveView.WriteIGES(System.IO.Path.ChangeExtension(mySaveFileDialog.FileName, "iges"),false);
+//#endif
 				switch (mySaveFileDialog.FilterIndex)
 				{
 
-					case 1: ActiveView.WriteToFileRaster(2, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Bmp);
+					case 1: ActiveView.WriteToFileRaster(5, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Bmp);
 						break;
-					case 2: ActiveView.WriteToFileRaster(3, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Png);
+					case 2: ActiveView.WriteToFileRaster(5, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Png);
 						break;
-					case 3: ActiveView.WriteToFileRaster(2, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Wmf);
+					case 3: ActiveView.WriteToFileRaster(5, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Wmf);
 						break;
 					case 4: ActiveView.WriteToFileVector(false, mySaveFileDialog.FileName);
 				//	case 4: ActiveView.WriteToFileRaster(2, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Emf);
 						break;
-					case 5: ActiveView.WriteToFileRaster(4, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
+					case 5: ActiveView.WriteToFileRaster(5, mySaveFileDialog.FileName, System.Drawing.Imaging.ImageFormat.Jpeg);
 						break;
 				}
 			}
 		}
 		private void copyToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			ActiveView.CopyToClipboardRaster();
+			ActiveView.CopyToClipboardRaster(5);
+			//ActiveView.CopyToClipboardVector(false);
 		}
 
 		Bitmap DualBitmap(float imageScale, int dividerWidth)
@@ -1559,12 +1560,12 @@ namespace Warps
 						break;
 				}
 
-				DualBitmap(2, 3).Save(mySaveFileDialog.FileName, frmt);
+				DualBitmap(5, 3).Save(mySaveFileDialog.FileName, frmt);
 			}
 		}
 		private void copyDualToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			Clipboard.SetImage(DualBitmap(1, 2));
+			Clipboard.SetImage(DualBitmap(5, 2));
 
 		}
 

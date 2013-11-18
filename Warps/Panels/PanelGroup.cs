@@ -568,7 +568,8 @@ namespace Warps.Panels
 					//iterate on width to lay second seam
 					//try
 					//{
-						p = Seamer(target);
+						
+					p = Seamer(target);
 						atSeam = p == null;
 					//}
 					//catch (Exception e) { MessageBox.Show(e.Message); atSeam = true; }
@@ -579,7 +580,11 @@ namespace Warps.Panels
 						break;
 
 					//iterate target width to hit input width
-					target += (Width - p.Width);//calculate new width aim-off
+					//target += (Width - p.Width);//calculate new width aim-off
+					double del = (p.Width - Width) / Width;
+					if (Math.Abs(del) > 0.5)
+						del = 0.5 * Math.Sign(del);//half-width maximum increment
+					target = target * (1 - del);
 
 					if (target <= 0)//vanishing target width, probably flattening error
 						break;
@@ -937,7 +942,11 @@ namespace Warps.Panels
 						{
 							panCorners[0, 0] = LoCorner(nTop).Clone();
 							panCorners[1, 0] = LoCorner(nTop).Clone();
-							panCorners[0, 0].Swap();
+							if (panCorners[0, 0].Seams[0] == panCorners[0, 1].Seams[1])
+								panCorners[0, 0].Swap();
+							if (panCorners[1, 0].Seams[0] == panCorners[1, 1].Seams[1])
+								panCorners[1, 0].Swap();
+							//panCorners[0, 0].Swap();
 							//panCorners[1, 0].Swap();
 						}
 					}
@@ -972,7 +981,10 @@ namespace Warps.Panels
 						{
 							panCorners[0, 3] = HiCorner(nBot).Clone();
 							panCorners[1, 3] = HiCorner(nBot).Clone();
+							if(panCorners[0,3].Seams[0] == panCorners[0,2].Seams[1] )
 							panCorners[0, 3].Swap();
+							if(panCorners[1,3].Seams[0] == panCorners[1,2].Seams[1] )
+							panCorners[1, 3].Swap();
 						}
 					}
 				}
@@ -1366,7 +1378,7 @@ namespace Warps.Panels
 			if (ContainsItem(item))
 			{
 				parent = this as T;
-				return true;
+				return parent != null;
 			}
 			parent = null;
 			return false;
@@ -1627,13 +1639,7 @@ namespace Warps.Panels
 
 		#endregion
 
-		public override string ToString()
-		{
-			return Label;
-		}
-
-
-		#region Flattening Members
+		#region Tree Flattening Members
 
 		public void FlatLayout(List<IRebuild> flat)
 		{
@@ -1642,6 +1648,11 @@ namespace Warps.Panels
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return string.Format("{0} [{1}]", GetType().Name, Label);
+		}
 	}
 
 	//struct GuideCross

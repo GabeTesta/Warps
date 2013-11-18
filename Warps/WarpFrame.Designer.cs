@@ -206,7 +206,7 @@
             this.m_defGeo});
 			this.m_toolstrip.Location = new System.Drawing.Point(3, 0);
 			this.m_toolstrip.Name = "m_toolstrip";
-			this.m_toolstrip.Size = new System.Drawing.Size(684, 25);
+			this.m_toolstrip.Size = new System.Drawing.Size(615, 25);
 			this.m_toolstrip.TabIndex = 1;
 			this.m_toolstrip.Text = "toolStrip1";
 			// 
@@ -417,7 +417,6 @@
 			this.m_groupsDD.Name = "m_groupsDD";
 			this.m_groupsDD.Size = new System.Drawing.Size(74, 22);
 			this.m_groupsDD.Text = "Groups";
-			//this.m_groupsDD.DropDownOpening += new System.EventHandler(this.DropDownOpening);
 			this.m_groupsDD.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.DropDownItemClicked);
 			// 
 			// m_itemsDD
@@ -446,21 +445,21 @@
 			// 
 			this.outerToolStripMenuItem.Image = global::Warps.Properties.Resources.curvegroup;
 			this.outerToolStripMenuItem.Name = "outerToolStripMenuItem";
-			this.outerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.outerToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
 			this.outerToolStripMenuItem.Text = "Outer";
 			// 
 			// innerToolStripMenuItem
 			// 
 			this.innerToolStripMenuItem.Image = global::Warps.Properties.Resources.curvegroup;
 			this.innerToolStripMenuItem.Name = "innerToolStripMenuItem";
-			this.innerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.innerToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
 			this.innerToolStripMenuItem.Text = "Inner";
 			// 
 			// baxToolStripMenuItem
 			// 
 			this.baxToolStripMenuItem.Image = global::Warps.Properties.Resources.curvegroup;
 			this.baxToolStripMenuItem.Name = "baxToolStripMenuItem";
-			this.baxToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.baxToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
 			this.baxToolStripMenuItem.Text = "Bax";
 			this.baxToolStripMenuItem.Click += new System.EventHandler(this.baxToolStripMenuItem_Click);
 			// 
@@ -531,6 +530,7 @@
 			// 
 			// WarpFrame
 			// 
+			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1022, 570);
@@ -539,6 +539,8 @@
 			this.Name = "WarpFrame";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
 			this.Text = "Warps";
+			this.DragDrop += new System.Windows.Forms.DragEventHandler(this.WarpFrame_DragDrop);
+			this.DragEnter += new System.Windows.Forms.DragEventHandler(this.WarpFrame_DragEnter);
 			this.m_vertsplit.Panel1.ResumeLayout(false);
 			this.m_vertsplit.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.m_vertsplit)).EndInit();

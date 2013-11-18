@@ -16,13 +16,13 @@ namespace Warps
 		{
 			m_Curves[0] = WarpFrame.CurrentSail.FindCurve(c1);
 			m_Curves[1] = WarpFrame.CurrentSail.FindCurve(c2);
-			Update(null);
+			//Update(null);
 		}
 		public CrossPoint(IMouldCurve c1, IMouldCurve c2)
 		{
 			m_Curves[0] = c1;
 			m_Curves[1] = c2;
-			Update(null);
+			//Update(null);
 		}
 		public CrossPoint(CrossPoint cross)
 		{
@@ -213,8 +213,8 @@ namespace Warps
 					m_Curves[0] == null ?
 					NsXml.ReadString(node, "Curve1") :
 					NsXml.ReadString(node, "Curve2")));
-			else
-				Update(null);
+			//else
+			//	Update(null);
 		}
 
 		#endregion

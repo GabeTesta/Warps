@@ -53,7 +53,7 @@ namespace Warps
 			}
 			set
 			{
-				m_uEq.Text = value.ToString("0.0000");
+				m_uEq.Value = value;
 			}
 		}
 		[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -65,31 +65,18 @@ namespace Warps
 			}
 			set
 			{
-				m_vEq.Text = value.ToString("0.0000");
+				m_vEq.Value = value;
 			}
 		}
 
 
 		#region IFitEditor Members
 
-		public IFitPoint CreatePoint()
-		{
-			return new FixedPoint(UV);
-			//object fit = Utilities.CreateInstance(FitType.Name);
-			//if (fit != null && fit is FixedPoint)
-			//{
-			//	(fit as FixedPoint).U = U;
-			//	(fit as FixedPoint).V = V;
-			//	return fit as IFitPoint;
-			//}
-			//return null;
-		}
-
-		//public event KeyEventHandler ReturnPress;
-		//void OnReturnPress(object sender, KeyEventArgs e)
+		//public IFitPoint CreatePoint()
 		//{
-		//	if (ReturnPress != null)
-		//		ReturnPress(sender, e);
+		//	FixedPoint pnt = new FixedPoint();
+		//	pnt.ReadEditor(this);
+		//	return pnt;
 		//}
 
 		public Type FitType

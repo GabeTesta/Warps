@@ -69,7 +69,7 @@ namespace RBF
 
 		public override string ToString()
 		{
-			return string.Format("({0}, {1}) {2})", m_pt[0], m_pt[1], m_weight);
+			return string.Format("({0}, {1}) {2}", m_pt[0], m_pt[1], m_weight);
 		}
 	}
 	public class Center2d : ICenter

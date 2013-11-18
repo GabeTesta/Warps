@@ -64,6 +64,8 @@ using System.Drawing;
 		{
 			FromString(xy);
 		}
+		public Vect2(double radAngle) : this(Math.Cos(radAngle), Math.Sin(radAngle)) { }
+		public Vect3 ToVect3() { return new Vect3(u, v, 0); }
 
 		#endregion
 
@@ -177,7 +179,7 @@ using System.Drawing;
 		public double Magnitude
 		{
 			get { return Math.Sqrt(Norm); }
-			set { Scale(value / Magnitude); }
+			set { if(Magnitude != 0 ) Scale(value / Magnitude); }
 		}
 		/// <summary>
 		/// Get the Euclidian Norm (Magnitude Squared)
@@ -271,6 +273,8 @@ using System.Drawing;
 			return new Vect2(v.Dot(rot0), v.Dot(rot1));
 		}
 
+		public Vect2 Normal(){ return new Vect2(-v, u); }
+
 		/// <summary>
 		/// Calculate the angle between two vectors
 		/// </summary>
@@ -315,6 +319,16 @@ using System.Drawing;
 			}
 			return bsuccess;
 		}
+		#endregion
+
+		#region BinFile
+
+		public void WriteBin(System.IO.BinaryWriter bin)
+		{
+			bin.Write(u);
+			bin.Write(v);
+		}
+
 		#endregion
 	}
 

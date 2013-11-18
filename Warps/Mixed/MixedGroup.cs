@@ -42,7 +42,8 @@ namespace Warps.Mixed
 		{
 			foreach (IRebuild r in this)
 			{
-				if (label == r.Label)
+				//if (label == r.Label)
+				if( label.Equals(r.Label, StringComparison.InvariantCultureIgnoreCase))
 					return r;
 				if (r is IGroup)//handle nested groups
 				{
@@ -83,9 +84,11 @@ namespace Warps.Mixed
 			{
 				if (irb == tag)
 					return true;
-				rets.Add(irb);
-				if (irb is IGroup && (irb as IGroup).Watermark(tag, ref rets))//if a subgroup watermarks return true
-					return true;
+				if( !(irb is IGroup ) )
+					rets.Add(irb);
+				else
+					if( (irb as IGroup).Watermark(tag, ref rets))//if a subgroup watermarks return true
+						return true;
 			}
 			return false;
 
@@ -105,7 +108,7 @@ namespace Warps.Mixed
 			if (Contains(item))
 			{
 				parent = this as T;
-				return true;
+				return parent != null;
 			}
 			foreach (IRebuild r in this)
 				if (r is IGroup && (r as IGroup).FindParent(item, out parent))
@@ -300,7 +303,7 @@ namespace Warps.Mixed
 
 		public override string ToString()
 		{
-			return string.Format("{0}[{1}]", Label, Count) ;
+			return string.Format("{0} [{1}]", GetType().Name, Label);
 		}
 	}
 }

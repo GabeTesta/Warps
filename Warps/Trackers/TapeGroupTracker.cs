@@ -98,8 +98,8 @@ namespace Warps.Tapes
 			Edit.IsGuide = false;
 
 			Preview();//update the temp curve
-			m_group.Fit(m_temp);//copy the temp group's data back
 			m_group.Label = m_temp.Label;//update the label
+			m_group.Fit(m_temp);//copy the temp group's data back
 			//Edit.WriteGroup(m_group);
 
 			if (sender != null)

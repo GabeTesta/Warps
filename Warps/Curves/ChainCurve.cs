@@ -114,7 +114,7 @@ namespace Warps.Curves
 			else//internal segment, find bracket
 			{
 				for (nPos = 0; nPos < m_P.Count-1; nPos++)//find p-bracket
-					if (m_P[nPos] < p && p < m_P[nPos+1]) break;
+					if (m_P[nPos] <= p && p < m_P[nPos+1]) break;
 			}
 
 			if (nPos == m_P.Count)
@@ -195,7 +195,7 @@ namespace Warps.Curves
 			if (m_curves.Count == 0)
 				return "emptyChain";
 			StringBuilder sb = new StringBuilder();
-			// StartingCurve 0.35 MidCurve 0.85 EndCurve
+			//StartingCurve 0.35 MidCurve 0.85 EndCurve
 			sb.Append(m_curves[0].Label);
 			for (int nCur = 1; nCur < m_curves.Count; nCur++)
 				sb.AppendFormat(" {0} {1}", m_P[nCur].ToString("f2"), m_curves[nCur].Label);

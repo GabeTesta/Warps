@@ -1430,7 +1430,7 @@ namespace Warps.Yarns
 			if (ContainsItem(item))
 			{
 				parent = this as T;
-				return true;
+				return parent != null;
 			}
 			parent = null;
 			return false;
@@ -1439,7 +1439,7 @@ namespace Warps.Yarns
 
 		public override string ToString()
 		{
-			return Label;
+			return string.Format("{0} [{1}]", GetType().Name, Label);
 		}
 
 		/// <summary>

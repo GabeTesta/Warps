@@ -86,7 +86,7 @@ namespace Warps.Trackers
 		GuideSurface m_temp;
 		Entity[][] m_tents;
 		int m_index = -1;
-		bool bHeight = false;
+		bool m_bHeight = false;
 		private void SelectSurface(GuideSurface surf)
 		{
 			if (surf == null)
@@ -192,15 +192,29 @@ namespace Warps.Trackers
 				{
 					if (m_tents[i][nview] is PointCloud)
 					{
+						double dis;
+						//track distance to each point
+						List<double> dists = new List<double>(m_tents[i][nview].Vertices.Length);
 						for (int nVert = 0; nVert < m_tents[i][nview].Vertices.Length; nVert++)
 						{
 							vert = View.ActiveView.WorldToScreen(m_tents[i][nview].Vertices[nVert]);
-							double dis = Math.Pow(vert.X - m_mousePnt.X, 2) + Math.Pow(vert.Y - m_mousePnt.Y, 2);
-							if (dis < Math.Pow(10, 2))
+							dis = Math.Pow(vert.X - m_mousePnt.X, 2) + Math.Pow(vert.Y - m_mousePnt.Y, 2);
+							dists.Add(dis);
+							//if (dis < Math.Pow(10, 2))
+							//{
+							//	m_index = nVert;
+							//	m_bHeight = Control.ModifierKeys == Keys.Shift;
+							//	break;
+							//}
+						}
+						dis = 1e9;//find closest point
+						for (int nVert = 0; nVert < dists.Count; nVert++)
+						{
+							if( dists[nVert] < dis && dists[nVert] < Math.Pow(10,2) )
 							{
 								m_index = nVert;
-								bHeight = Control.ModifierKeys == Keys.Shift;
-								break;
+								m_bHeight = Control.ModifierKeys == Keys.Shift;
+								//break;
 							}
 						}
 					}
@@ -214,7 +228,7 @@ namespace Warps.Trackers
 						if (h < 5.0)
 						{
 							m_index = i - 2;//subtract 2 to offset for the mesh and pointcloud
-							bHeight = Control.ModifierKeys == Keys.Shift;
+							m_bHeight = Control.ModifierKeys == Keys.Shift;
 							break;
 						}
 					}
@@ -228,7 +242,7 @@ namespace Warps.Trackers
 				return;
 			Transformer wts = View.ActiveView.WorldToScreen;
 			PointF mpt = new PointF(e.X, View.ActiveView.Height - e.Y);
-			if (bHeight)
+			if (m_bHeight)
 			{
 				m_temp.DragHeight(m_index, mpt, wts);
 				UpdatePreview(true);

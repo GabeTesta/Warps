@@ -22,13 +22,24 @@ namespace Warps.Tapes
 			selectWarpButt.Tag = "Warps";
 			selectGuideButt.Tag = "GuideSurface";
 			SelectionMode += tracker.OnSelectionMode;
+
+			m_tapeCombo.DataSource = WarpFrame.Mats.Materials(MaterialDatabase.TableTypes.Tapes);
+
 		}
 		Color BAK, SEL = Color.SeaGreen;
 		event EventHandler<EventArgs<string>> SelectionMode;
 
+		public string TapeMaterial
+		{
+			get { return m_tapeCombo.SelectedItem == null ? "" : m_tapeCombo.SelectedItem as string; }
+			set { m_tapeCombo.SelectedItem = value; }
+		}
+
 		public void ReadGroup(TapeGroup group)
 		{
 			m_labelTextBox.Text = group.Label;
+
+			TapeMaterial = group.TapeMaterial;
 
 			m_warpListView.Clear();
 			if (group.Warps != null)
@@ -36,6 +47,7 @@ namespace Warps.Tapes
 					AddRemoveWarp(wrp));
 
 			SetGuide(group.DensityMap);
+
 
 			pixLength.Value = group.PixelLength;
 			chainTol.Value = group.ChainTolerance;
@@ -51,6 +63,8 @@ namespace Warps.Tapes
 			//update label
 			group.Label = m_labelTextBox.Text;
 
+			group.TapeMaterial = TapeMaterial;
+
 			//clear and update warps
 			group.Warps.Clear();
 			if (group.Sail != null && m_warpListView.Items.Count > 0)
@@ -60,9 +74,10 @@ namespace Warps.Tapes
 			IRebuild surf = WarpFrame.CurrentSail.FindItem(m_guideListView.Items[0].Name);
 			group.DensityMap = surf as GuideSurface;
 
-			group.PixelLength = pixLength.Value;
-			group.ChainTolerance = chainTol.Value;
-			group.AngleTolerance = angleTol.Value;
+			group.PixelLength = pixLength.Equation.Evaluate(group.Sail);
+			group.ChainTolerance = chainTol.Equation.Evaluate(group.Sail);
+			group.AngleTolerance = angleTol.Equation.Evaluate(group.Sail);
+
 			group.Stagger = m_stagger.Checked;
 		}
 		void SetSelectionMode(string mode)

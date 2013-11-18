@@ -365,7 +365,7 @@ namespace Warps.Curves
 
 		public override string ToString()
 		{
-			return Label;
+			return string.Format("{0} [{1}]", GetType().Name, Label);
 		}
 
 		#region IRebuild Members

@@ -188,6 +188,19 @@ namespace Warps
 			this.ResumeLayout(true);
 			this.PerformLayout();
 		}
+
+		private void FindMaterialTable(string path)
+		{
+			string dir = Path.GetDirectoryName(path);
+			dir = Path.Combine(dir, "MaterialTable.csv");
+			if (File.Exists(dir))
+			{
+				m_MatDB = new MaterialDatabase(dir);
+				Tree.SorTree.Nodes.Clear();
+				Tree.SorTree.Nodes.Add(Mats.WriteNode());
+			}
+		}
+
 		//private void SetLayers()
 		//{
 		//	string layers = Utilities.Settings["View/Left/Layers", "Default,Mould"];
@@ -290,7 +303,7 @@ namespace Warps
 		public static string[] OpenFileDlg(int extension)
 		{
 			OpenFileDialog ofd = new OpenFileDialog();
-			ofd.Filter = "spiral files (*.spi)|*.spi|cof files (*.cof)|*.cof|warp files (*.wrp)|*.wrp|xml files (*.xml)|*.xml|binary files|*_wrp.bin|All files (*.*)|*.*";
+			ofd.Filter = "Spiral files (*.spi)|*.spi|cof files (*.cof)|*.cof|Warps files (*.wrp)|*.wrp|xml files (*.xml)|*.xml|Binary files (*.wrn)|*.wrn|All files (*.*)|*.*";
 			ofd.Multiselect = true;
 			ofd.FilterIndex = Math.Min(extension, 3);
 			if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -298,13 +311,15 @@ namespace Warps
 			return null;
 		}
 
-
 		void LoadSail(string path)
 		{
 			if (m_sail != null)
 				clearAll_Click(null, null);
 
 			Status = String.Format("Loading {0}", path);
+
+			//load the material table first
+			FindMaterialTable(path);
 
 			m_sail = new Sail();
 			m_sail.updateStatus += UpdateStatusStrip;
@@ -321,6 +336,7 @@ namespace Warps
 
 			Tree.ExpandToDepth(0);
 
+
 			Status = String.Format("{0} Loaded Successfully", m_sail.FilePath);
 			Title = m_sail.FilePath; // display the version number in the title bar
 			m_statusProgress.Visible = false;
@@ -328,6 +344,7 @@ namespace Warps
 			//SetLayers();
 			View.Refresh();
 		}
+
 
 		void LoadSailAsync(string path)
 		{
@@ -501,7 +518,10 @@ namespace Warps
 					foreach (IRebuild item in succeeded)//succeeded
 					{
 						UpdateViews(item);
-						b.AppendLine(item.ToString());
+						if (item.Label != null)
+							b.AppendFormat("{0} [{1}]\n",item.GetType().Name, item.Label);
+						else
+							b.AppendLine(item.ToString());
 					}
 					if (failed.Count > 0)
 						b.AppendLine("\nRebuilt Failed:\n");
@@ -1153,11 +1173,6 @@ namespace Warps
 		//			//ActiveSail.Rebuild(null);
 		//		}
 
-		void YarnsUpdated(object sender, EventArgs<YarnGroup> e)
-		{
-			UpdateViews(e.Value);
-			View.Refresh();
-		}
 
 		//handles program-scope shortcut keys
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -1194,6 +1209,12 @@ namespace Warps
 
 			}
 			return base.ProcessCmdKey(ref msg, keyData);
+		}
+
+		void YarnsUpdated(object sender, EventArgs<YarnGroup> e)
+		{
+			UpdateViews(e.Value);
+			View.Refresh();
 		}
 
 		#region Toolbar
@@ -1246,8 +1267,9 @@ namespace Warps
 				MessageBox.Show("Open a project before saving bin");
 				return;
 			}
-			string path = ActiveSail.Mould.Label.Substring(0, ActiveSail.Mould.Label.Length - 4) + "_wrp.bin";
-			Task.Factory.StartNew(() => ActiveSail.WriteBinFile(path));
+			string path = ActiveSail.Mould.Label.Substring(0, ActiveSail.Mould.Label.Length - 4) + ".wrn";
+			ActiveSail.WriteBinFile(path);
+			//Task.Factory.StartNew(() => ActiveSail.WriteBinFile(path));
 			return;
 		}
 
@@ -1281,11 +1303,14 @@ namespace Warps
 					Logleton.TheLog.Log("saving file: " + path, Logleton.LogPriority.Debug);
 					//	ActiveSail.WriteScriptFile(path);
 					ActiveSail.WriteXScript(path);
+					ActiveSail.WriteNode();
 				}
 			}
 			else
 				ActiveSail.WriteXScript(Path.ChangeExtension(Path.GetFullPath(ActiveSail.FilePath), "wrp"));
 			//ActiveSail.WriteScriptFile(Path.ChangeExtension(Path.GetFullPath(ActiveSail.FilePath), "wrp"));
+			ActiveSail.WriteNode(false);//update the sail node to have the new path
+			Status = string.Format("Saved File: {0}", ActiveSail.FilePath);
 		}
 		void Save3dlFile(string tdipath)
 		{
@@ -1501,6 +1526,34 @@ namespace Warps
 			ActiveSail.Rebuild();
 		}
 
+		//List<Entity[]> m_dpiTents = null;
+		private async void m_dpiButton_Click(object sender, EventArgs e)
+		{
+			DensityMesh dpi = new DensityMesh();
+			IRebuild old = ActiveSail.Add(dpi) as DensityMesh;
+			if (old != null && old is DensityMesh)
+				dpi = old as DensityMesh;
+
+			DateTime start = DateTime.Now;
+
+			await Task.Factory.StartNew(() =>
+			{
+				if (ModifierKeys == Keys.Control)
+					dpi.DelaunayMesh(ActiveSail);
+				else
+					dpi.MeshSail(ActiveSail);
+			});
+			TimeSpan mesh = DateTime.Now - start;
+
+			UpdateStatusStrip((dpi.Label ?? dpi.GetType().Name) + " " + mesh.ToString());
+			ActiveSail.WriteNode();
+			UpdateViews(dpi);
+
+			//if (m_dpiTents != null)
+			//	View.RemoveRange(m_dpiTents);
+			//m_dpiTents = View.Add(dpi, false);
+			//View.Refresh();
+		}
 
 		private void helpToolStripButton_Click(object sender, EventArgs e)
 		{
@@ -1509,19 +1562,8 @@ namespace Warps
 			about.ShowDialog(this);
 			return;
 #endif
-			//EquationEditorForm frm = new EquationEditorForm(null);
-			//frm.ShowDialog();
-
-			//InputEquationForm inp = new InputEquationForm();
-			//inp.ShowDialog();
-			//if (ActiveSail != null)
-			//	clearAll_Click(null, null);
 			if (ActiveSail == null)
 			{
-				//LoadSail(@"C:\Users\Mikker\Desktop\small.obj");
-				//LoadSail(@"C:\Users\Mikker\Desktop\single.obj");
-				//View.Refresh();
-				//return;
 				if (ModifierKeys == Keys.Control)
 				{
 					LoadSailAsync(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\DummyJib2.wrp");
@@ -1529,18 +1571,100 @@ namespace Warps
 				}
 				else
 				{
-					LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\99821022-01.spi");
+					//LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\99821022-01.spi");
+					//LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\90020905-04 jib.spi");
+					OpenFile(1);
+					//PanelGroup pg = PanelSail();
+					//ActiveSail.Add(pg);
+					//ActiveSail.WriteNode();
+					//UpdateViews(pg);
+					//View.ZoomFit();
+					//return;
+
+					Warps.Panels.Panel pan = FlattenSail();
+					List<FlatSegment> tapes = FlatTaper.TapeFlatPanel(pan, new Vect2(BLAS.ToRad(0)), new Vect2(-1, -1), 1.04, 0.2);
+					TapeGroup group = new TapeGroup(ActiveSail, tapes);
+					List<Entity> tents = group.CreateEntities();
+					int nLay = View.AddLayer("Tapes");
+					tents.ForEach(t => { t.LayerIndex = nLay; t.ColorMethod = colorMethodType.byEntity; });
+					View.AddRange(tents);
+					
+					//ActiveSail.Add(group);
+					//ActiveSail.Rebuild();
+					//UpdateViews(group);
+					View.ZoomFit(true);
+					return;
 					//LoadSailAsync(@"C:\Users\Mikker\Desktop\TS\WARPS\Bin Test\99821022-01.spi");
 				}
 				//LoadSail(@"C:\Users\Mikker\Desktop\TS\WARPS\Main.spi");
 			}
+		}
 
+		#endregion
+
+		Warps.Panels.Panel FlattenSail()
+		{
+			PanelCorner[,] corners = new PanelCorner[2, 4];
+			MouldCurve luff = ActiveSail.FindCurve("Luff");
+			MouldCurve leech = ActiveSail.FindCurve("Leech");
+			MouldCurve head = ActiveSail.FindCurve("Head");
+			MouldCurve foot = ActiveSail.FindCurve("Foot");
+
+			int i = 0, j = 0;
+			corners[i, j++] = new PanelCorner(luff, head);
+			corners[i, j++] = new PanelCorner(luff, foot);
+			corners[i, j++] = new PanelCorner(leech, foot);
+			corners[i, j++] = new PanelCorner(leech, head);
+
+			i = 1; j = 0;
+			corners[i, j++] = new PanelCorner(luff, foot);
+			corners[i, j++] = new PanelCorner(luff, head);
+			corners[i, j++] = new PanelCorner(leech, head);
+			corners[i, j++] = new PanelCorner(leech, foot);
+
+			foreach (PanelCorner p in corners)
+				p.Swap();
+
+			PanelGroup pg = new PanelGroup("FullSail", ActiveSail);
+			Warps.Panels.Panel fullpan = new Panels.Panel(pg, corners);
+
+			List<Entity> ents = fullpan.CreateEntities();
+			View.AddRange(ents);
+			return fullpan;
+			//pg.Add(fullpan);
+			//ActiveSail.Add(pg);
+		}
+
+		Warps.Panels.PanelGroup PanelSail()
+		{
+			MouldCurve luff = ActiveSail.FindCurve("Luff");
+			MouldCurve leech = ActiveSail.FindCurve("Leech");
+			MouldCurve head = ActiveSail.FindCurve("Bat#4");
+			MouldCurve foot = ActiveSail.FindCurve("Bat#7");
+
+			PanelGroup pg = new PanelGroup("CrossCut", ActiveSail, new Equation(1), PanelGroup.ClothOrientations.FILLS);
+			pg.Bounds.Add(luff);
+			pg.Bounds.Add(head);
+			pg.Bounds.Add(leech);
+			pg.Bounds.Add(foot);
+
+			MouldCurve gide = new MouldCurve("Diag", ActiveSail, new Vect2(0, 0), new Vect2(1, 1));
+			ActiveSail.Add(gide);
+			pg.Guides.Add(gide);
+
+			pg.Update(ActiveSail);
+
+			return pg;
+		}
+
+		private void NestedGroupTapes()
+		{
 			CurveGroup warps = new CurveGroup("Warps", ActiveSail);
 			//warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(0.5,0.5), new Vect2(1, 0.6)));
 			warps.Add(new MouldCurve("v1", ActiveSail, new Vect2(0, 0), new Vect2(1, 1)));
 			warps.Add(new MouldCurve("v2", ActiveSail, new CrossPoint("Foot", "Luff"), new OffsetPoint(.5, ActiveSail.FindCurve("Leech"), 1)));
 			warps.Add(new MouldCurve("v3", ActiveSail, new Vect2(0, 0), new Vect2(1, 0)));
-			warps.Add(new MouldCurve("Angler", ActiveSail, new FixedPoint(0,0), new AnglePoint(ActiveSail.FindCurve("Leech"), 45)));
+			warps.Add(new MouldCurve("Angler", ActiveSail, new FixedPoint(0, 0), new AnglePoint(ActiveSail.FindCurve("Leech"), 45)));
 
 			MouldCurve ext = new MouldCurve("Extender", ActiveSail, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(0.4, 0.2), new SlidePoint(ActiveSail.FindCurve("Leech"), 0.5) });
 			//Geodesic.FitExtensionGeo(ext, new IFitPoint[] { new FixedPoint(0, 0), new FixedPoint(0.4, 0.2), new SlidePoint(ActiveSail.FindCurve("Leech"), 0.5) });
@@ -1640,40 +1764,32 @@ namespace Warps
 			//this.WindowState = FormWindowState.Maximized;
 			View.ZoomFit(true);
 			//View.Refresh();
-
 		}
 
-
-		//List<Entity[]> m_dpiTents = null;
-		private async void m_dpiButton_Click(object sender, EventArgs e)
+		private void WarpFrame_DragEnter(object sender, DragEventArgs e)
 		{
-			DensityMesh dpi = new DensityMesh();
-			IRebuild old = ActiveSail.Add(dpi) as DensityMesh;
-			if (old != null && old is DensityMesh)
-				dpi = old as DensityMesh;
-
-			DateTime start = DateTime.Now;
-
-			await Task.Factory.StartNew(() =>
+			//check to ensure they are dropping a valid format
+			if (e.Data.GetDataPresent(DataFormats.FileDrop, false) == true)
 			{
-				if (ModifierKeys == Keys.Control)
-					dpi.DelaunayMesh(ActiveSail);
-				else
-					dpi.MeshSail(ActiveSail);
-			});
-			TimeSpan mesh = DateTime.Now - start;
-
-			UpdateStatusStrip((dpi.Label ?? dpi.GetType().Name) + " " + mesh.ToString());
-			ActiveSail.WriteNode();
-			UpdateViews(dpi);
-
-			//if (m_dpiTents != null)
-			//	View.RemoveRange(m_dpiTents);
-			//m_dpiTents = View.Add(dpi, false);
-			//View.Refresh();
+				string[] filenames = (string[])e.Data.GetData(DataFormats.FileDrop);
+				if (filenames.Length != 1)//only allow dropping a single file
+					return;
+				foreach (string s in filenames)
+					if (Sail.ValidExtension(Path.GetExtension(s)))
+						e.Effect = DragDropEffects.Copy;
+			}
 		}
 
-		#endregion
+		private void WarpFrame_DragDrop(object sender, DragEventArgs e)
+		{
+			string[] filenames = (string[])e.Data.GetData(DataFormats.FileDrop);
+			System.Diagnostics.Debug.Assert(filenames.Length == 1);
+			foreach (string file in filenames)
+			{
+				LoadSail(file);
+			}
+		}
+
 	}
 
 }

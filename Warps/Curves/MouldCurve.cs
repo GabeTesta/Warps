@@ -332,7 +332,7 @@ namespace Warps.Curves
 
 		public override string ToString()
 		{
-			return Label;
+			return string.Format("{0} [{1}]", GetType().Name, Label);
 		}
 
 		#endregion
@@ -1134,12 +1134,25 @@ namespace Warps.Curves
 			Point3D[] d = new Point3D[CNT];
 			for (int i = 0; i < CNT; i++)
 			{
-				s = (double)i / (double)(CNT - 1);
+				s = BLAS.interpolant(i, CNT);
 				xVal(s, ref uv, ref xyz);
 				d[i] = new Point3D();
 				Utilities.Vect3ToPoint3D(ref d[i], xyz);
 			}
 			return d;
+		}
+		public Vect3[] GetPathVects(int CNT)
+		{
+			double s;
+			Vect2 uv = new Vect2();
+			Vect3[] path = new Vect3[CNT];
+			for (int i = 0; i < CNT; i++)
+			{
+				path[i] = new Vect3();
+				s = BLAS.interpolant(i, CNT);
+				xVal(s, ref uv, ref path[i]);
+			}
+			return path;
 		}
 
 		#endregion

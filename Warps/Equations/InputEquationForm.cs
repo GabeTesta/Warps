@@ -58,7 +58,7 @@ namespace Warps.Controls
 
 			double result = 0;
 
-			if (EquationEvaluator.Evaluate(new Equation("Test", autoCompleteTextBox1.Text), m_sail, out result, true))
+			if (EquationEvaluator.Evaluate(new Equation("Test", autoCompleteTextBox1.Text), autoCompleteTextBox1.Values.Cast<IRebuild>().ToList(), out result, true))
 				resultBox.Text = result.ToString();
 		}
 

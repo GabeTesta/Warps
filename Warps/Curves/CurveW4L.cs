@@ -78,7 +78,12 @@ namespace Warps.Curves
 				return;
 
 			StringBuilder script = new StringBuilder();
-			if (m_edit.m_girths[0].Checked && m_edit.m_edits.Length <= 3)
+			if (m_edit.m_edits == null || m_edit.m_girths == null)
+			{
+				m_scriptBox.Text = "";//empty script for no curve
+				return;
+			}
+			if ( m_edit.m_girths[0].Checked && m_edit.m_edits.Length <= 3)
 				script.Append("GIRTH");
 			else
 				script.Append("CURVE");
@@ -147,6 +152,8 @@ namespace Warps.Curves
 			nS = script.IndexOf("topping");
 			nS = script.IndexOf(' ', nS);
 			fits.Add(ReadFitPoint(script, ++nS));
+			if (fits.FindAll(a => a == null).Count > 0)
+				return null;
 			MouldCurve curve = new MouldCurve(script.Substring(7, 5).Trim(), WarpFrame.CurrentSail, fits.ToArray());
 			if (script.StartsWith("GIRTH"))
 				curve.Girth(0, true);
@@ -192,7 +199,7 @@ namespace Warps.Curves
 				throw new ArgumentNullException("No Active Sail Object, Cannot Import W4L Script");
 			int nE, nS = nType + 5;
 			double u, v;
-			string curve;
+			string curve, curve2;
 			MouldCurve cur;
 			string type = script.Substring(nType, 5);
 			switch (type)
@@ -223,6 +230,37 @@ namespace Warps.Curves
 					nS = script.IndexOf(']', ++nE);
 					double.TryParse(script.Substring(nE, nS - nE), out v);
 					return new SlidePoint(cur, v);
+				case "ANGLE":
+					nS = script.IndexOf('[', nS);
+					nE = script.IndexOf(';', ++nS);
+					curve = script.Substring(nS, nE - nS);
+					cur = s.FindCurve(curve);
+					nS = script.IndexOf(']', ++nE);
+					double.TryParse(script.Substring(nE, nS - nE), out v);
+					return new AnglePoint(cur, v);
+				case "CROSS":
+					nS = script.IndexOf('[', nS);
+					nE = script.IndexOf(';', ++nS);
+					curve = script.Substring(nS, nE - nS);
+					nS = script.IndexOf(']', ++nE);
+					curve2 = script.Substring(nE, nS - nE);
+					return new CrossPoint(curve, curve2);
+				default:
+					if( type.StartsWith("[") ) //OFFSET
+					{
+						nS = script.IndexOf('[', nS);
+						nE = script.IndexOf(';', ++nS);
+						curve = script.Substring(nS, nE - nS);
+						double.TryParse(curve, out u);
+						nS = script.IndexOf(';', ++nE);
+						curve = script.Substring(nE, nS - nE);
+						cur = s.FindCurve(curve);
+						nE = script.IndexOf(']', ++nS);
+						curve = script.Substring(nS, nE - nS);
+						double.TryParse(curve, out v);
+						return new OffsetPoint(new Equation(v), cur, new Equation(string.Format("{0} * Length({1})", u.ToString("f4"), cur.Label)));
+					}
+					return null;
 			}
 			return null;
 		}

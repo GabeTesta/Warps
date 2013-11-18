@@ -45,7 +45,10 @@
 			this.angleTol = new Warps.Controls.EquationBoxAuto();
 			this.chainTol = new Warps.Controls.EquationBoxAuto();
 			this.pixLength = new Warps.Controls.EquationBoxAuto();
+			this.m_tapeMat = new System.Windows.Forms.GroupBox();
+			this.m_tapeCombo = new System.Windows.Forms.ComboBox();
 			this.outputGroup.SuspendLayout();
+			this.m_tapeMat.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// m_labelTextBox
@@ -78,9 +81,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.m_warpListView.AutoArrange = false;
-			this.m_warpListView.Location = new System.Drawing.Point(3, 29);
+			this.m_warpListView.Location = new System.Drawing.Point(3, 74);
 			this.m_warpListView.Name = "m_warpListView";
-			this.m_warpListView.Size = new System.Drawing.Size(169, 149);
+			this.m_warpListView.Size = new System.Drawing.Size(169, 104);
 			this.m_warpListView.TabIndex = 23;
 			this.m_warpListView.UseCompatibleStateImageBehavior = false;
 			this.m_warpListView.View = System.Windows.Forms.View.List;
@@ -236,10 +239,35 @@
 			this.pixLength.Size = new System.Drawing.Size(169, 23);
 			this.pixLength.TabIndex = 27;
 			// 
+			// m_tapeMat
+			// 
+			this.m_tapeMat.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.m_tapeMat.Controls.Add(this.m_tapeCombo);
+			this.m_tapeMat.Location = new System.Drawing.Point(3, 29);
+			this.m_tapeMat.Name = "m_tapeMat";
+			this.m_tapeMat.Size = new System.Drawing.Size(169, 39);
+			this.m_tapeMat.TabIndex = 32;
+			this.m_tapeMat.TabStop = false;
+			this.m_tapeMat.Text = "Tape Material";
+			// 
+			// m_tapeCombo
+			// 
+			this.m_tapeCombo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.m_tapeCombo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.m_tapeCombo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.m_tapeCombo.FormattingEnabled = true;
+			this.m_tapeCombo.Location = new System.Drawing.Point(3, 16);
+			this.m_tapeCombo.Name = "m_tapeCombo";
+			this.m_tapeCombo.Size = new System.Drawing.Size(163, 21);
+			this.m_tapeCombo.TabIndex = 0;
+			// 
 			// TapeGroupEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.m_tapeMat);
 			this.Controls.Add(this.m_stagger);
 			this.Controls.Add(this.outputGroup);
 			this.Controls.Add(this.angleTol);
@@ -257,6 +285,7 @@
 			this.Size = new System.Drawing.Size(175, 450);
 			this.outputGroup.ResumeLayout(false);
 			this.outputGroup.PerformLayout();
+			this.m_tapeMat.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -281,5 +310,7 @@
 		private System.Windows.Forms.TextBox tapeCount;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.CheckBox m_stagger;
+		private System.Windows.Forms.GroupBox m_tapeMat;
+		private System.Windows.Forms.ComboBox m_tapeCombo;
 	}
 }

@@ -432,15 +432,20 @@ namespace Warps
 			List<Vect3> combs = new List<Vect3>();
 			foreach (System.Xml.XmlNode child in node.ChildNodes)
 			{
-				if (child.Name == "Comb")
-				{
-					foreach (System.Xml.XmlNode pt in child)
-						combs.Add(new Vect3(NsXml.ReadLabel(pt)));
-				}
+				//if (child.Name == "Comb")
+			//	{
+			//		foreach (System.Xml.XmlNode pt in child)
+						combs.Add(new Vect3(NsXml.ReadLabel(child)));
+			//	}
 			}
 			Fit(combs);
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return string.Format("{0} [{1}]", GetType().Name, Label);
+		}
 	}
 }

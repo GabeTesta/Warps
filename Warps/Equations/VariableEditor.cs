@@ -44,8 +44,10 @@ namespace Warps.Controls
 				//	m_eqBox.Text = "= " + EqText;
 			}
 
-			m_resultTB.Text = e.Value.ToString("f4");
+			Result = e.Value;
 		}
+
+
 		public event EventHandler<KeyEventArgs> ReturnPress;
 
 		void c_ReturnPress(object sender, KeyEventArgs e)
@@ -58,6 +60,7 @@ namespace Warps.Controls
 			get { return m_selectedCheckbox.Checked; }
 			set { m_selectedCheckbox.Checked = value; }
 		}
+
 		public string Label
 		{
 			set
@@ -72,12 +75,31 @@ namespace Warps.Controls
 				return m_variableTextBox.Text;
 			}
 		}
-
 		public string EquationText
 		{
 			get { return m_eqBox.Text; }
 			set { m_eqBox.Text = value; }
 		}
+		public double Result
+		{
+			set { m_resultTB.Text = value.ToString("f4"); }
+		}
+
+		//public void ReadEquation(Equation e)
+		//{
+		//	if (e != null)
+		//	{
+		//		Label = e.Label;
+		//		EquationText = e.EquationText;
+		//		Result = e.Value;
+		//	}
+		//	else { Label = ""; EquationText = ""; Result = 0; }
+		//}
+		//public void WriteEquation(Equation e)
+		//{
+		//	e.Label = Label;
+		//	e.EquationText = e.EquationText;
+		//}
 
 		public void FocusEditBox()
 		{

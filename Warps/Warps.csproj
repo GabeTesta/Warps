@@ -119,6 +119,13 @@
     <Compile Include="Controls\ColorWheelForm.Designer.cs">
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ParentChildDisplay.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ParentChildDisplay.Designer.cs">
+      <DependentUpon>ParentChildDisplay.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Curves\CurveTools.cs" />
     <Compile Include="DensityMesh.cs" />
     <Compile Include="FitPoints\AnglePoint.cs" />
     <Compile Include="FitPoints\CrossPointEditor.cs">
@@ -177,6 +184,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Surfaces\SurfaceTools.cs" />
+    <Compile Include="Tapes\FlatTaper.cs" />
     <Compile Include="Trackers\MixedGroupTracker.cs" />
     <Compile Include="Panels\PanelGroupEditor.cs">
       <SubType>UserControl</SubType>
@@ -223,6 +232,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Utilities\NsXmlHelper.cs" />
+    <Compile Include="Utilities\Pair.cs" />
     <Compile Include="WarpAbout.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -353,6 +363,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ColorWheelForm.resx">
       <DependentUpon>ColorWheelForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ParentChildDisplay.resx">
+      <DependentUpon>ParentChildDisplay.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FitPoints\CrossPointEditor.resx">
       <DependentUpon>CrossPointEditor.cs</DependentUpon>

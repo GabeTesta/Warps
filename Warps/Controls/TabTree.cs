@@ -218,13 +218,18 @@ namespace Warps
 					continue;
 				if (tn.Tag is IGroup)
 				{
+					if ((tn.Tag as IGroup).Label == null)
+						continue;
+
 					if ((tn.Tag as IGroup).Label.ToLower().StartsWith(key.ToLower()) && !tn.IsSelected)
 					{
 						if (ActiveTree.SelectedNode == null)
 							return tn;
 						if (ActiveTree.SelectedNode.Tag is IGroup)
 						{
-							if ((ActiveTree.SelectedNode.Tag as IGroup).Label.ToLower().StartsWith(key.ToLower()))
+
+							if ((ActiveTree.SelectedNode.Tag as IGroup).Label != null &&
+								(ActiveTree.SelectedNode.Tag as IGroup).Label.ToLower().StartsWith(key.ToLower()))
 							{
 								if (foundNodes.IndexOf(ActiveTree.SelectedNode) == foundNodes.Count - 1)
 								{
@@ -274,10 +279,14 @@ namespace Warps
 			TreeContextMenu.Items.Add("Delete");
 			TreeContextMenu.Items.Add(new ToolStripSeparator());
 			TreeContextMenu.Items.Add("Show/Hide", null, OnVisibleToggleClick);
+			TreeContextMenu.Items.Add(new ToolStripSeparator());
+			TreeContextMenu.Items.Add("Parent/Child", null, OnParentChildClick);
 			TreeContextMenu.Opening += TreeContextMenu_Opening;
 			SeqTree.ContextMenuStrip = TreeContextMenu;
 			//SorTree.ContextMenuStrip = TreeContextMenu;
 		}
+
+
 	
 		/// <summary>
 		/// enable/disable paste depending on drop-target and clipboard data
@@ -317,6 +326,17 @@ namespace Warps
 		{
 			if (VisibilityToggle != null)
 				VisibilityToggle(sender, new EventArgs<IRebuild>(SelectedItem));
+		}
+
+		private void OnParentChildClick(object sender, EventArgs e)
+		{
+			IRebuild target = SelectedItem;
+			if (target == null)
+				return;
+			List<IRebuild> children = Sail.GetConnected(target);
+			List<IRebuild> parents = new List<IRebuild>();
+			target.GetParents(Sail, parents);
+			Warps.Controls.ParentChildDisplay.Show(this, target, parents, children);
 		}
 
 		#endregion
@@ -610,6 +630,8 @@ namespace Warps
 		private void OnDragEnter(object sender, DragEventArgs e)
 		{
 			ColorDrag(false);
+			if (e.Data.GetDataPresent(typeof(TreeNode)) == false)
+				e.Effect = DragDropEffects.None;
 			//if (e is ItemDragEventArgs)
 			//	OnItemDrag(sender, e as ItemDragEventArgs);
 			//else
@@ -618,6 +640,11 @@ namespace Warps
 		private void OnDragOver(object sender, DragEventArgs e)
 		{
 			TreeNode dragged = (TreeNode)e.Data.GetData(typeof(TreeNode));
+			if (dragged == null)
+			{
+				e.Effect = DragDropEffects.None;//dont allow dropping anything other than TreeNodes
+				return;
+			}
 			Point pos = SeqTree.PointToClient(new Point(e.X, e.Y));
 			//var hit = SeqTree.HitTest(pos);
 			TreeNode node = SeqTree.GetNodeAt(pos);

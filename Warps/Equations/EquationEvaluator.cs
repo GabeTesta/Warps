@@ -21,10 +21,15 @@ namespace Warps
 
 		public static bool Evaluate(Equation labelToEvaluate, Sail sail, out double result)
 		{
-			return Evaluate(labelToEvaluate, sail, out result, false);
+			return Evaluate(labelToEvaluate, sail.Watermark(labelToEvaluate), out result, false);
 		}
 
-		public static bool Evaluate(Equation equation, Sail sail, out double result, bool showBox)
+		public static bool Evaluate(Equation labelToEvaluate, List<IRebuild> watermark, out double result)
+		{
+			return Evaluate(labelToEvaluate, watermark, out result, false);
+		}
+
+		public static bool Evaluate(Equation equation, List<IRebuild> watermark, out double result, bool showBox)
 		{
 			if (equation == null)
 			{
@@ -36,14 +41,15 @@ namespace Warps
 
 			Expression ex = new Expression(equation.EquationText, EvaluateOptions.IgnoreCase);
 
-			List<Equation> avails = sail.WatermarkEqs(equation);
-			avails.ForEach(eq => ex.Parameters[eq.Label] = eq.Value);
-			//Set up a custom delegate so NCalc will ask you for a parameter's value
-			//   when it first comes across a variable
+			//Set up a custom delegate so NCalc will ask you for a parameter's value when it first comes across a variable
+			IEnumerable<Equation> avails = watermark.OfType<Equation>();
+			foreach (Equation eq in avails)
+				ex.Parameters[eq.Label] = eq.Value;
 
+			//set the function point to 
 			ex.EvaluateFunction += delegate(string FunctionName, FunctionArgs args)
 			{
-				args.Result = EvaluateToDouble(args.Parameters[0].ParsedExpression.ToString(), FunctionName.ToLower(), sail);
+				args.Result = EvaluateToDouble(args.Parameters[0].ParsedExpression.ToString(), FunctionName.ToLower(), watermark);
 			};
 
 			try
@@ -71,14 +77,14 @@ namespace Warps
 			return worked;
 		}
 
-		private static double EvaluateToDouble(string entry, string function, Sail sail)
+		private static double EvaluateToDouble(string entry, string function, List<IRebuild> watermarks)
 		{
-			if (sail == null)
-				return Double.NaN;
+			//if (sail == null)
+			//	return Double.NaN;
 
 			string oldEntry = entry;
 
-			entry = entry.ToLower();
+			//entry = entry.ToLower();
 
 			double ret = 0;
 
@@ -88,24 +94,26 @@ namespace Warps
 				{
 					entry = entry.Replace("[", "");
 					string curveName = entry.Replace("]", "");
-					ret = EvaluteKeyWordOnCurve(KeyWords[i], curveName, sail);
+					ret = EvaluteKeyWordOnCurve(KeyWords[i], curveName, watermarks);
 				}
 			}
 
 			return ret;
 		}
 
-		private static double EvaluteKeyWordOnCurve(string KeyWord, string curveName, Sail sail)
+		private static double EvaluteKeyWordOnCurve(string KeyWord, string curveName, List<IRebuild> watermarks)
 		{
 			switch (KeyWord)
 			{
 				case "length":
-
-					MouldCurve curve = sail.FindCurve(curveName);
-					if (curve == null)
-						return double.NaN;
-
-					return curve.Length;
+					IRebuild irb = watermarks.Find(item => item.Label.Equals(curveName, StringComparison.InvariantCultureIgnoreCase));
+					if (irb != null)
+					{
+						IMouldCurve curve = irb as IMouldCurve;
+						if (curve != null)
+							return curve.Length;
+					}
+					return double.NaN;
 
 				default:
 

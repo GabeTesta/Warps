@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Xml;
 using System.Windows.Forms;
-using Warps.Yarns;
 using devDept.Eyeshot;
 using devDept.Geometry;
 using Warps.Curves;
-using System.Xml;
+using Warps.Yarns;
+using Warps.Tapes;
 
 namespace Warps
 {
@@ -83,6 +84,7 @@ namespace Warps
 					return ReadXScript(path);
 				case ".obj":
 					return ReadOBJFile(path);
+				case ".wrn":
 				case ".bin":
 					return ReadBinFile(path);
 				default:
@@ -104,10 +106,13 @@ namespace Warps
 				Utilities.WriteCString(bin, Mould.Label);
 				//bin.Write((Int32)Layout.Count);
 				//int test = Layout.Count(g => g.GetType() == typeof(CurveGroup) || g.GetType() == typeof(YarnGroup));
-				bin.Write((Int32)Layout.Count(g => g.GetType() == typeof(CurveGroup) || g.GetType() == typeof(YarnGroup)));
-				Layout.ForEach(l =>
+				List<IRebuild> flat = FlatLayout();
+
+				//bin.Write((Int32)Layout.Count(g => g.GetType() == typeof(CurveGroup) || g.GetType() == typeof(YarnGroup) || g.GetType() == typeof(TapeGroup)));
+				bin.Write((Int32)flat.Count(g => g.GetType() == typeof(CurveGroup) || g.GetType() == typeof(YarnGroup) || g.GetType() == typeof(TapeGroup)));
+				flat.ForEach(l =>
 				{
-					if (l is CurveGroup || l is YarnGroup) 
+					if (l is CurveGroup || l is YarnGroup || l is TapeGroup) 
 						(l as IGroup).WriteBin(bin);
 				});
 			}
@@ -219,7 +224,7 @@ namespace Warps
 				string label = Utilities.ReadCString(bin);
 				CreateMould(label);
 				int nGrps = bin.ReadInt32();
-				while (--nGrps > 0)
+				while (nGrps-- > 0)
 				{
 					IGroup grp = MakeGroup(bin);
 					if (grp != null)
@@ -377,11 +382,14 @@ namespace Warps
 			//NsXml.AddAttribute(mould, "Path", path);
 			NsXml.AddAttribute(sail, "Count", Layout.Count.ToString());
 			XmlNode mould = sail.AppendChild(NsXml.MakeNode(doc, Mould.GetType().Name, Mould.Label));
-			Mould.Groups.ForEach(grp => mould.AppendChild(grp.WriteXScript(doc)));
+			//Mould.Groups.ForEach(grp => mould.AppendChild(grp.WriteXScript(doc)));
 			
 			Layout.ForEach(grp => sail.AppendChild(grp.WriteXScript(doc)));
-			if(path != null )
+			if (path != null)
+			{
 				doc.Save(path);
+				m_path = path;//store the path
+			}
 			return doc;
 		}
 		public bool ReadXScript(string path)
@@ -564,17 +572,24 @@ namespace Warps
 			return connected;
 		}
 		TreeNode m_node;
-		public TreeNode WriteNode()
+		public TreeNode WriteNode() { return WriteNode(true); }
+		public TreeNode WriteNode(bool bClear)
 		{
 			if (m_node == null)
+			{
 				m_node = new System.Windows.Forms.TreeNode();
+				bClear = true;//if new node force full write
+			}
 			m_node.Text = Path.GetFileName(m_path);
 			m_node.Tag = this;
 			m_node.ImageKey = m_node.SelectedImageKey = 	m_node.ToolTipText = GetType().Name;
-			m_node.Nodes.Clear();
-			m_node.Nodes.Add(Mould.WriteNode());
-			foreach (IRebuild g in Layout)
-				m_node.Nodes.Add(g.WriteNode());
+			if (bClear)
+			{
+				m_node.Nodes.Clear();
+				m_node.Nodes.Add(Mould.WriteNode());
+				foreach (IRebuild g in Layout)
+					m_node.Nodes.Add(g.WriteNode());
+			}
 			return m_node;
 		}
 		//public TreeNode WriteNode()
@@ -703,8 +718,9 @@ namespace Warps
 			//loop through groups in reverse
 			for (int i = Layout.Count - 1; i >= 0; i--)
 			{
+
 				//check group label
-				if (Layout[i].Label.Equals(lbl))
+				if (Layout[i].Label != null && Layout[i].Label.Equals(lbl))
 					return Layout[i];//return if match
 
 				//search group for item
@@ -720,7 +736,7 @@ namespace Warps
 				for (int i = Mould.Groups.Count - 1; i >= 0; i--)
 				{
 					//check group label
-					if (Mould.Groups[i].Label.Equals(lbl))
+					if (Mould.Groups[i].Label != null && Mould.Groups[i].Label.Equals(lbl))
 						return Mould.Groups[i];//return if match
 
 					//search group for item
@@ -1198,6 +1214,13 @@ namespace Warps
 			if (!Utilities.IsBetween(0, nTar, Layout.Count))
 				nTar = Layout.Count;//insert at end
 			Layout.Insert(nTar, item);
+		}
+
+		static string[] exts = new string[] { ".wrp", ".xml", ".obj", ".wrn", ".bin", ".spi", ".cof" };
+		internal static bool ValidExtension(string ext)
+		{
+			ext = ext.ToLower();
+			return exts.Contains(ext);
 		}
 	}
 }

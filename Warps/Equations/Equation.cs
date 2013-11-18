@@ -94,20 +94,24 @@ namespace Warps
 
 		public double Evaluate(Sail s)
 		{
+			return Evaluate(s.Watermark(this));
+		}
+		public double Evaluate(List<IRebuild> watermark)
+		{
 			if (IsNumber)
 				return Value;
 
-			if (s == null) 
+			if (watermark == null) 
 				return double.NaN;
-			if (EquationEvaluator.Evaluate(this, s, out m_result))
+			if (EquationEvaluator.Evaluate(this, watermark, out m_result))
 				return Value;
 
 			return double.NaN;
-		}
 
+		}
 		public List<devDept.Eyeshot.Entities.Entity> CreateEntities()
 		{
-			return null;
+			return new List<devDept.Eyeshot.Entities.Entity>();
 		}
 
 		public List<devDept.Eyeshot.Labels.Label> EntityLabel
@@ -269,11 +273,11 @@ namespace Warps
 
 		public override string ToString()
 		{
-			return Label;
+			return string.Format("{0} [{1}]", GetType().Name, Label);
 		}
 		public string ToValueString()
 		{
-			return string.Format("{0}={1}", Label, Value.ToString("n"));
+			return string.Format("{0} = {1}", Label, Value.ToString("n"));
 		}
 		public string ToScriptString()
 		{
@@ -292,14 +296,10 @@ namespace Warps
 		{
 			if (edit == null)
 				edit = new Warps.Controls.VariableEditor(Label, this);
-			Warps.Controls.VariableEditor ee = edit as Warps.Controls.VariableEditor;
-			if (ee == null)
-				ee = new Warps.Controls.VariableEditor(Label, this);
-			//ee.sail = sail;
-			//if(sail!=null)
-			//	ee.AutoFillData = sail.GetAutoFillData(this).ToArray();
-			ee.Tag = GetType();
-			//ee.Label = GetType().Name;
+			edit.Tag = GetType();
+			edit.Label = Label;
+			edit.EquationText = EquationText;
+			edit.Result = Value;
 			return edit;
 		}
 		public void ReadEditor(Warps.Controls.VariableEditor edit)

@@ -34,25 +34,6 @@ namespace Warps.Yarns
 		ISurface Surface 
 		{get { return m_Warps[0] == null ? null : m_Warps[0].Surface; }}
 
-		///// <summary>
-		///// returns CNT evenly spaced points, inferior to CreateEntity
-		///// </summary>
-		///// <param name="CNT">the number of points desired on the line</param>
-		///// <returns>the array of points</returns>
-		//public Vect3[] GetPathPoints(int CNT)
-		//{
-		//	double s;
-		//	Vect2 uv = new Vect2();
-		//	Vect3[] d = new Vect3[CNT];
-		//	for (int i = 0; i < CNT; i++)
-		//	{
-		//		s = (double)i / (double)(CNT - 1);
-		//		d[i] = new Vect3();
-		//		xVal(s, ref uv, ref d[i]);
-		//	}
-		//	return d;
-		//}
-
 		public double Length
 		{
 			get
@@ -194,10 +175,9 @@ namespace Warps.Yarns
 			get { return ToString(); }
 		}
 
-
 		public override string ToString()
 		{
-			return String.Format("{0} {1} {2} {3}", m_p.ToString("f3"), m_Warps[0].Label, m_Warps[1].Label, m_h.ToString("f4"));
+			return String.Format("[{0}] {1} [{2}] {3}", m_Warps[0].Label, m_p.ToString("f3"), m_Warps[1].Label, m_h.ToString("f4"));
 		}
 	}
 }

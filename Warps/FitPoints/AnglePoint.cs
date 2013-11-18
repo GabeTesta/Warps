@@ -78,7 +78,9 @@ namespace Warps
 			get
 			{
 				TreeNode node = base.Node;
-				node.Nodes.Insert(0, new TreeNode(string.Format("Angle: {0}", m_curve.Label)){ImageKey = "empty", SelectedImageKey = "empty"});
+				node.FirstNode.Remove();//remove the position node
+				//add the angle node
+				node.Nodes.Insert(0, new TreeNode(string.Format("Angle: {0}", m_Angle.Value)){ImageKey = "empty", SelectedImageKey = "empty"});
 				return node;
 			}
 		}

@@ -23,6 +23,7 @@ namespace Warps
 			if (m_frame != null)
 			{
 				var edit = new VariableEditor(m_equ.Label, m_equ);
+				edit.sail = frame.ActiveSail;
 				m_frame.EditorPanel = edit;
 
 
@@ -108,7 +109,25 @@ namespace Warps
 			//Tree.KeyUp -= Tree_KeyUp;
 		}
 
-		public void OnBuild(object sender, EventArgs e) { }
+		public void OnBuild(object sender, EventArgs e)
+		{
+			VariableEditor edit = m_frame.EditorPanel as VariableEditor;
+			if (edit == null)
+				return;
+			m_equ.ReadEditor(edit);
+			m_equ.WriteEditor(edit);//rewrite the editor to update the result
+			m_equ.WriteNode();//update the tree
+		}
+
+		public void OnPreview(object sender, EventArgs e) 
+		{
+			VariableEditor edit = m_frame.EditorPanel as VariableEditor;
+			if (edit == null)
+				return;
+			Equation temp = new Equation();
+			temp.ReadEditor(edit);
+			temp.WriteEditor(edit);
+		}
 
 		public void OnSelect(object sender, EventArgs<IRebuild> e) { }
 
@@ -120,7 +139,6 @@ namespace Warps
 
 		public void OnUp(object sender, System.Windows.Forms.MouseEventArgs e) { }
 
-		public void OnPreview(object sender, EventArgs e) { }
 
 		//public void OnCopy(object sender, EventArgs e)
 		//{

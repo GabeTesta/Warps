@@ -21,20 +21,20 @@ namespace Warps
 		public CurvePoint(double s, IMouldCurve curve, double sCurve)
 		{
 			m_sPos = s;
-			PosEQ = new Equation(sCurve);
+			m_curvePos.Value = sCurve;
 			m_curve = curve;
 		}
 
 		public CurvePoint(double s, IMouldCurve curve, Equation Sequ)
 		{
 			m_sPos = s;
-			PosEQ = Sequ;
+			m_curvePos.EquationText = Sequ.EquationText;
 			m_curve = curve;
 		}
 
 		internal double m_sPos;
 		internal IMouldCurve m_curve;
-		internal Equation m_curvePos = new Equation();
+		internal Equation m_curvePos = new Equation("Curve Position", 0);
 		//internal double m_sCurve;
 
 		public Equation PosEQ
@@ -96,16 +96,6 @@ namespace Warps
 				
 				return uv;
 			}
-			//set
-			//{
-			//	double dist = 0;
-			//	if (m_curve != null)
-			//	{
-			//		double sCur = 0;
-			//		CurveTools.uClosest(m_curve, ref sCur, ref value, ref dist, 1e-9);//m_curve.uClosest(ref m_sCurve, ref value, ref dist, 1e-9);
-			//		SCurve = sCur;
-			//	}
-			//}
 		}
 
 		public IMouldCurve Curve
@@ -166,34 +156,6 @@ namespace Warps
 			}
 		}
 
-		//#region PointTypeSwitcher
-		//public PointTypeSwitcher WriteEditor(PointTypeSwitcher edit)
-		//{
-		//	if (edit == null)
-		//		edit = new PointTypeSwitcher();
-		//	CurvePointEditor ce = edit.Edit as CurvePointEditor;
-		//	if (ce == null)
-		//		ce = new CurvePointEditor();
-		//	ce.Tag = GetType();
-		//	//ce.Label = GetType().Name;
-		//	ce.Curves = PointTypeSwitcher.GetCurves();
-		//	ce.Curve = m_curve;
-		//	ce.CS = S_Equ;
-
-		//	edit.SetEdit(ce);
-		//	return edit;
-		//}
-		//public void ReadEditor(PointTypeSwitcher edit)
-		//{
-		//	CurvePointEditor ce = edit.Edit as CurvePointEditor;
-		//	if (ce == null)
-		//		throw new ArgumentException("Invalid Editor in CurvePoint");
-		//	S_Equ = ce.CS;
-
-		//	m_curve = ce.Curve == null ? m_curve : ce.Curve;
-		//} 
-		//#endregion
-
 		public virtual Control WriteEditor(ref IFitEditor edit)
 		{
 			if (edit == null || !(edit is CurvePointEditor))
@@ -217,7 +179,6 @@ namespace Warps
 			m_curve = cdit.Curve;
 			PosEQ = cdit.CurvePos;
 		}
-
 
 		public bool Affected(List<IRebuild> connected)
 		{
@@ -270,12 +231,8 @@ namespace Warps
 
 		public virtual bool Update(MouldCurve cur) 
 		{
-
 			bool ret = true;
 			ret &= PosEQ.Update(cur.Sail);		
-
-			//ret &= U.Evaluate(s) != Double.NaN;
-			//ret &= V.Evaluate(s) != Double.NaN;
 			return ret;
 		}
 

@@ -82,25 +82,48 @@ using System.Windows.Forms;
 		}
 		public static string ReadString(XmlNode node, string attributeName)
 		{
-			return node.Attributes[attributeName].Value;
+			XmlAttribute att = node.Attributes[attributeName];
+			if( att == null )
+				return null;				
+			return att.Value;
+			
 		}
 		public static string[] ReadStrings(XmlNode node, string attributeName)
 		{
-			return node.Attributes[attributeName].Value.Split(new char[]{','}, StringSplitOptions.RemoveEmptyEntries);
+			XmlAttribute att = node.Attributes[attributeName];
+			if( att == null )
+				return null;
+			return att.Value.Split(new char[]{','}, StringSplitOptions.RemoveEmptyEntries);
 		}
 		public static double ReadDouble(XmlNode node, string attributeName)
 		{
+			XmlAttribute att = node.Attributes[attributeName];
+			if (att == null)
+				return Double.NaN;
 			double d = 0;
-			if (double.TryParse(node.Attributes[attributeName].Value, out d))
+			if (double.TryParse(att.Value, out d))
 				return d;
 			else return Double.NaN;
 		}
 		public static int ReadInt(XmlNode node, string attributeName)
 		{
+			XmlAttribute att = node.Attributes[attributeName];
+			if (att == null)
+				return int.MaxValue;
 			int d = 0;
-			if (int.TryParse(node.Attributes[attributeName].Value, out d))
+			if (int.TryParse(att.Value, out d))
 				return d;
 			else return int.MaxValue;
+		}
+		public static bool ReadBool(XmlNode node, string attributeName)
+		{
+			XmlAttribute att = node.Attributes[attributeName];
+			if (att == null)
+				return false;
+			bool d;
+			if (bool.TryParse(att.Value, out d))
+				return d;
+			else return false;
 		}
 
 		//public static List<T> ReadArray<T>(XmlNode node, string attributeName) 

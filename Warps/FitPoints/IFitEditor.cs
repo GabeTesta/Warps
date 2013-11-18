@@ -10,7 +10,7 @@ namespace Warps
 {
 	public interface IFitEditor
 	{
-		IFitPoint CreatePoint();
+		//IFitPoint CreatePoint();
 
 		//event KeyEventHandler ReturnPress;
 		Type FitType { get; }

@@ -10,7 +10,7 @@ namespace Warps
 	class FixedPoint : IFitPoint
 	{
 		public FixedPoint() : this(0, 0) { }
-		public FixedPoint(FixedPoint f) : this(new Equation(f.U), new Equation(f.V)) { m_s = f[0]; }
+		public FixedPoint(FixedPoint f) : this(f.U, f.V) { m_s = f.m_s; }
 
 		public FixedPoint(Vect2 uv)	:this(0, uv){}
 		public FixedPoint(double s, Vect2 uv) : this(s, uv[0], uv[1]) { }
@@ -18,14 +18,14 @@ namespace Warps
 		public FixedPoint(double s, double u, double v)
 		{
 			m_s = s;
-			U = new Equation(u);
-			V = new Equation(v); 
+			U.Value = u;
+			V.Value = v;
 		}
 
 		public FixedPoint(Equation ueq, Equation veq)
 		{
-			U = ueq;
-			V = veq;
+			U.EquationText = ueq.EquationText;
+			V.EquationText = veq.EquationText;
 		}
 
 		double m_s;
@@ -53,8 +53,8 @@ namespace Warps
 			//}
 		}
 
-		Equation m_uEqu = new Equation();
-		Equation m_vEqu = new Equation();
+		Equation m_uEqu = new Equation("U Position");
+		Equation m_vEqu = new Equation("V Position");
 
 		public Equation U
 		{
@@ -64,7 +64,7 @@ namespace Warps
 			}
 			set
 			{
-				m_uEqu = value; m_uEqu.Label = "u";
+				m_uEqu = value; 
 			}
 		}
 		public Equation V
@@ -75,7 +75,7 @@ namespace Warps
 			}
 			set
 			{
-				m_vEqu = value; m_vEqu.Label = "v";
+				m_vEqu = value;
 			}
 		}
 
@@ -135,7 +135,7 @@ namespace Warps
 				//tmp.ImageKey = tmp.SelectedImageKey = typeof(Equation).Name;
 				//point.Nodes.Add(tmp);
 
-				tmp = new TreeNode(string.Format("UVPos: {0}", CurrentUV));
+				tmp = new TreeNode(string.Format("UV Position: {0}", CurrentUV));
 				tmp.ImageKey = tmp.SelectedImageKey = typeof(Equation).Name;
 				point.Nodes.Add(tmp);
 
@@ -266,26 +266,6 @@ namespace Warps
 		//	return script;
 		//}
 
-		#endregion
-
-		public override string ToString()
-		{
-			return string.Format("{0}: {1:0.0000} [{2}]", GetType().Name, S, CurrentUV);
-		}
-
-		public bool ValidFitPoint
-		{
-			get
-			{
-				return true;
-			}
-			set { }
-		}
-
-
-		#region IFitPoint Members
-
-
 		public System.Xml.XmlNode WriteXScript(System.Xml.XmlDocument doc)
 		{
 			System.Xml.XmlNode node = NsXml.MakeNode(doc, GetType().Name);
@@ -301,5 +281,20 @@ namespace Warps
 		}
 
 		#endregion
+
+
+		public override string ToString()
+		{
+			return string.Format("{0}: {1:0.0000} [{2}]", GetType().Name, S, CurrentUV);
+		}
+
+		public bool ValidFitPoint
+		{
+			get
+			{
+				return true;
+			}
+		}
+
 	}
 }

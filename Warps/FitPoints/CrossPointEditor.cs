@@ -59,10 +59,10 @@ namespace Warps
 
 		#region IFitEditor Members
 
-		public IFitPoint CreatePoint()
-		{
-			return new CrossPoint(Curve1, Curve2);
-		}
+		//public IFitPoint CreatePoint()
+		//{
+		//	return new CrossPoint(Curve1, Curve2);
+		//}
 
 		public Type FitType
 		{

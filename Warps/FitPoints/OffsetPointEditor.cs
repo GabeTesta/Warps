@@ -99,18 +99,18 @@ namespace Warps
 
 		#region IFitEditor Members
 
-		public IFitPoint CreatePoint()
-		{
-			OffsetPoint fit = Utilities.CreateInstance<OffsetPoint>(FitType);
-			if (fit != null)
-			{
-				fit.CurvePosEq = CurvePos;
-				fit.Curve = Curve;
-				fit.OffsetEq = Offset;
-				return fit as IFitPoint;
-			}
-			return null;
-		}
+		//public IFitPoint CreatePoint()
+		//{
+		//	OffsetPoint fit = Utilities.CreateInstance<OffsetPoint>(FitType);
+		//	if (fit != null)
+		//	{
+		//		fit.CurvePosEq = CurvePos;
+		//		fit.Curve = Curve;
+		//		fit.OffsetEq = Offset;
+		//		return fit as IFitPoint;
+		//	}
+		//	return null;
+		//}
 
 		public Type FitType
 		{

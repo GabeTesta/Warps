@@ -129,7 +129,7 @@ namespace Warps.Curves
 				IFitPoint[] points = new IFitPoint[m_edits.Length];
 				foreach (IFitEditor fe in m_edits)
 				{
-					points[i++] = fe.CreatePoint();
+					points[i++] = CurveTools.CreatePoint(fe);// fe.CreatePoint();
 					//points[i - 1].Update(c); //update now happens when refitting curve
 				}
 
@@ -277,7 +277,8 @@ namespace Warps.Curves
 			Control old = m_edits[nFit] as Control;
 			//create a new one
 			IFitPoint fit = Utilities.CreateInstance<IFitPoint>(fitPointType);
-			Vect2 uv = (old as IFitEditor).CreatePoint().UV;
+			Vect2 uv = CurveTools.CreatePoint(old as IFitEditor).UV;
+			//Vect2 uv = (old as IFitEditor).CreatePoint().UV;
 			//fit.UV = uv;//copy over the uv coords if possible
 			Control ptBox = (fit as IFitPoint).WriteEditor(ref m_edits[nFit]);
 			m_edits[nFit].AutoFillData = AutoFill;
@@ -491,9 +492,14 @@ namespace Warps.Curves
 			{
 				//import here
 				MouldCurve importCurve = importer.ParseScript();
-				Label = importCurve.Label;
-				ReadCurve(importCurve);
-				Refresh();
+				if (importCurve == null)
+					MessageBox.Show("invalid fitpoints");
+				else
+				{
+					Label = importCurve.Label;
+					ReadCurve(importCurve);
+					Refresh();
+				}
 			}
 		}
 

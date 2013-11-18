@@ -76,18 +76,16 @@ namespace Warps
 
 		#region IFitEditor Members
 
-		public virtual IFitPoint CreatePoint()
-		{
-			CurvePoint fit = Utilities.CreateInstance<CurvePoint>(FitType);
-			if (fit != null)
-			{
-				fit.ReadEditor(this);
-				//fit.PosEQ = CurvePos;
-				//fit.m_curve = Curve;
-				return fit as IFitPoint;
-			}
-			return null;
-		}
+		//public virtual IFitPoint CreatePoint()
+		//{
+		//	CurvePoint fit = Utilities.CreateInstance<CurvePoint>(FitType);
+		//	if (fit != null)
+		//	{
+		//		fit.ReadEditor(this);
+		//		return fit as IFitPoint;
+		//	}
+		//	return null;
+		//}
 		
 		//public event KeyEventHandler ReturnPress;
 		//void m_cs_ReturnPress(object sender, KeyEventArgs e)
